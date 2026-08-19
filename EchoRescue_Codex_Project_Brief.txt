@@ -1,0 +1,469 @@
+ECHORESCUE – AUTONOMOUS SEARCH-AND-RESCUE CHALLENGE
+Projektbrief und Arbeitsauftrag für Codex
+
+======================================================================
+1. AUFGABE FÜR CODEX
+======================================================================
+
+Entwickle dieses Projekt schrittweise als professionelles, öffentlich
+präsentierbares GitHub-Portfolio-Projekt. Lies zuerst die gesamte Spezifikation.
+
+WICHTIGE ARBEITSREGELN:
+
+- Beginne nicht sofort mit dem vollständigen Endprodukt.
+- Prüfe zuerst das vorhandene Repository und bestehende Dateien.
+- Erstelle vor Änderungen einen konkreten Implementierungsplan.
+- Implementiere zunächst ausschließlich den in Abschnitt 6 beschriebenen MVP.
+- Frage nach, wenn eine Entscheidung die Architektur wesentlich beeinflusst.
+- Verwende kleine, nachvollziehbare Commits und klar getrennte Module.
+- Schreibe automatisierte Tests für zentrale Logik.
+- Führe Tests und relevante Qualitätsprüfungen nach Änderungen aus.
+- Erzeuge keine großen Trainingsdaten, Modelle oder Build-Artefakte im Git-Repo.
+- Dokumentiere Annahmen, Einschränkungen und reproduzierbare Startbefehle.
+- Behaupte keine realen Hardware-Ergebnisse. Das System ist zunächst Simulation.
+- Bevor eine neue Phase begonnen wird, fasse den Stand und offene Risiken zusammen.
+
+Erster Arbeitsauftrag:
+
+1. Analysiere diese Spezifikation.
+2. Prüfe den aktuellen Repository-Inhalt.
+3. Schlage eine passende technische Architektur und Verzeichnisstruktur vor.
+4. Erstelle einen umsetzbaren Plan für Phase 1.
+5. Beginne erst anschließend mit der Implementierung des MVP.
+
+======================================================================
+2. PROJEKTVISION
+======================================================================
+
+EchoRescue ist eine visuelle Search-and-Rescue-Simulationsplattform. Ein
+autonomer Drohnenschwarm soll in einem unbekannten, GPS-freien und teilweise
+zerstörten Gebäude vermisste Personen finden, eine gemeinsame Karte aufbauen,
+Kollisionen vermeiden und vor dem Ende der verfügbaren Energie zur Basis
+zurückkehren.
+
+Das Projekt soll nicht nur eine Animation sein. Entscheidungen und Ergebnisse
+müssen durch reproduzierbare Benchmarks, Telemetrie und Missionsberichte
+bewertet werden können.
+
+Arbeitstitel:
+
+EchoRescue – Autonomous Multi-Drone Search and Rescue in GPS-Denied Disaster
+Environments
+
+Zentrale Forschungsfrage:
+
+Wie kann ein autonomer Drohnenschwarm unter unvollständiger Wahrnehmung,
+begrenzter Energie und unsicherer Kommunikation ein unbekanntes Gebäude sicher
+und effizient nach Überlebenden durchsuchen?
+
+======================================================================
+3. PORTFOLIO-ZIEL
+======================================================================
+
+Das fertige Projekt soll Fähigkeiten in folgenden Bereichen zeigen:
+
+- autonome Robotik und Drohnensysteme
+- Multi-Agent-Koordination
+- Occupancy Mapping
+- Frontier Exploration und Pfadplanung
+- Sensorfusion und Wahrnehmung
+- sicherheitskritische Zustandslogik
+- Telemetrie, Replay und Datenvisualisierung
+- reproduzierbare Experimente und Benchmarks
+- Python-Softwarearchitektur und automatisierte Tests
+- später optional ROS 2, MAVLink, ArduPilot und Hardwareintegration
+
+Die GitHub-Startseite soll innerhalb weniger Sekunden verständlich machen:
+
+- welches Problem gelöst wird,
+- wie das System funktioniert,
+- was im Demo-Video geschieht,
+- welche Ergebnisse erreicht wurden,
+- welche Grenzen die Simulation besitzt.
+
+======================================================================
+4. MISSIONSBESCHREIBUNG
+======================================================================
+
+Beispielmission:
+
+"Locate all survivors, maintain safe separation, and return every operational
+drone to base before its battery is depleted. The building map and survivor
+locations are unknown at mission start."
+
+Eine Mission enthält:
+
+- ein zunächst unbekanntes Gebäude oder Raumraster,
+- eine definierte Start- und Basisposition,
+- eine oder mehrere autonome Drohnen,
+- mehrere unbekannte Überlebendenpositionen,
+- Hindernisse, Wände, Türen und blockierte Wege,
+- begrenzte Sensorreichweiten,
+- begrenzte Akkukapazität,
+- eine maximale Missionsdauer.
+
+Spätere Missionen können zusätzlich enthalten:
+
+- Rauch und reduzierte Kamerasicht,
+- dynamisch blockierte Durchgänge,
+- Kommunikationsabschattung durch Wände,
+- bewegliche Überlebende,
+- fehlerhafte oder ausgefallene Sensoren,
+- Drohnenausfälle,
+- mehrere Etagen,
+- Geräusche oder Hilferufe als unsichere Hinweise.
+
+======================================================================
+5. LANGFRISTIGE SYSTEMFUNKTIONEN
+======================================================================
+
+5.1 Umgebung
+
+- prozedural oder aus Konfiguration erzeugte Gebäude
+- freie Bereiche, Wände, Türen, Trümmer und Gefahrenzonen
+- Ground-Truth-Zustand getrennt von der entdeckten Karte
+- deterministische Seeds für reproduzierbare Missionen
+
+5.2 Drohnen
+
+- Position, Richtung, Geschwindigkeit und Status
+- lokale Sensorwahrnehmung
+- begrenzter Akku beziehungsweise Energiebudget
+- sichere Bewegungsgrenzen
+- Zustände wie EXPLORE, VERIFY_SURVIVOR, RETURN_HOME und EMERGENCY
+
+5.3 Wahrnehmung
+
+- zunächst abstrahierter Distanzsensor oder 2D-LiDAR
+- später Ultraschall, Kamera, Wärmebild und akustische Hinweise
+- Sensorrauschen, Fehlmessungen und unterschiedliche Konfidenzen
+- Überlebendenerkennung mit bestätigtem und unbestätigtem Zustand
+
+5.4 Mapping und Planung
+
+- geteilte Occupancy Map mit unknown/free/occupied
+- Frontier Detection
+- erreichbare Zielauswahl
+- A*- oder vergleichbare Pfadplanung
+- Replanning bei blockierten Wegen
+- Sicherheitsprüfung vor jeder Bewegung
+
+5.5 Schwarmkoordination
+
+- Vermeidung doppelter Zielzuweisungen
+- räumliche Trennung und Kollisionsvermeidung
+- spätere dynamische Rollen: Scout, Mapper, Verifier und Relay
+- Neuverteilung von Aufgaben bei Ausfällen
+
+5.6 Kommunikation
+
+- gemeinsame Karte und Ereignisse
+- spätere Reichweiten- und Wanddämpfungsmodelle
+- Relay-Drohnen zur Aufrechterhaltung der Verbindung
+- Verhalten bei zeitweisem Verbindungsverlust
+
+5.7 Dashboard und Replay
+
+- bekannte und unbekannte Kartenbereiche
+- Drohnenpositionen, Pfade, Ziele und Sensorbereiche
+- Überlebende und Konfidenzstatus
+- Akku, Mission Timer und Ereignisprotokoll
+- pausierbares Replay mit veränderbarer Geschwindigkeit
+- Trennung zwischen Operator View und Ground Truth Debug View
+
+======================================================================
+6. MVP – ERSTE VERPFLICHTENDE VERSION
+======================================================================
+
+Der MVP soll klein, stabil, testbar und demonstrierbar sein.
+
+MVP-Szenario:
+
+- eine 2D-Etage
+- rasterbasierte Umgebung
+- zwei Drohnen
+- drei stationäre Überlebende
+- unbekannte Karte zu Missionsbeginn
+- simulierte Distanzsensoren
+- gemeinsame Occupancy Map
+- Frontier Exploration
+- A*-Pfadplanung
+- grundlegende Zielentkopplung zwischen beiden Drohnen
+- Kollisionsvermeidung
+- einfaches Akkumodell
+- Return-to-Base-Verhalten
+- deterministische Simulation über Seed
+- Live- oder Replay-Visualisierung
+- maschinenlesbarer Missionsbericht als JSON
+
+MVP-Erfolgskriterien:
+
+- beide Drohnen kollidieren in akzeptierten Tests nicht mit Wänden oder
+  miteinander,
+- mindestens zwei Drohnen erkunden unterschiedliche Zielgebiete,
+- alle erreichbaren Überlebenden werden erkannt und bestätigt,
+- aktive Drohnen kehren vor kritischem Akkustand zur Basis zurück,
+- derselbe Seed erzeugt denselben Ablauf und dieselben Kennzahlen,
+- zentrale Mapping-, Planning-, Scoring- und Safety-Funktionen besitzen Tests,
+- eine vollständige Demo kann mit einem dokumentierten Befehl gestartet werden.
+
+Nicht Bestandteil des MVP:
+
+- echtes Reinforcement Learning
+- fotorealistische 3D-Grafik
+- reale Hardware
+- ROS 2
+- echte Computer-Vision-Modelle
+- Rauchsimulation
+- mehrere Etagen
+- dynamische Gebäudeeinstürze
+
+Diese Funktionen dürfen erst nach einem stabilen MVP begonnen werden.
+
+======================================================================
+7. EMPFOHLENE ARCHITEKTUR
+======================================================================
+
+Die genaue Struktur darf nach Prüfung des Repositories angepasst werden.
+Empfohlene logische Komponenten:
+
+- environment: Ground Truth, Gebäude und Missionszustand
+- agents: Drohnenzustände und Zustandsmaschinen
+- sensors: lokale Beobachtungen und Messrauschen
+- mapping: gemeinsame Occupancy Map
+- exploration: Frontiers und Zielauswahl
+- planning: A*, Replanning und Erreichbarkeitsprüfung
+- safety: Kollisionsschutz und Bewegungsvalidierung
+- energy: Verbrauch, Reserven und Return-to-Base-Entscheidung
+- survivors: Erkennung und Bestätigung
+- coordination: Zielverteilung und Deconfliction
+- simulation: Simulationsschleife und deterministische Zeit
+- telemetry: Events, Zustände und JSON-Replays
+- visualization: Dashboard oder leichtgewichtige Demo
+- evaluation: Kennzahlen, Benchmarks und Acceptance Gates
+- tests: Unit-, Integrations- und deterministische Regressionstests
+
+Bevorzugte Eigenschaften:
+
+- klar getrennte Simulationslogik und Visualisierung
+- keine Geschäftslogik ausschließlich im Frontend
+- typisierte Datenmodelle
+- zentrale Konfiguration statt verstreuter Magic Numbers
+- Headless-Modus für schnelle Benchmarks
+- reproduzierbare Seeds
+
+======================================================================
+8. MISSIONSLOGIK
+======================================================================
+
+Empfohlene Drohnen-Zustände:
+
+- INITIALIZE
+- EXPLORE
+- MOVE_TO_FRONTIER
+- VERIFY_SURVIVOR
+- REPLAN
+- RETURN_HOME
+- LANDED
+- EMERGENCY
+- FAILED
+
+Grundregeln:
+
+- Sicherheit hat Vorrang vor Exploration.
+- Eine Drohne darf keinen bekannten belegten oder unsicheren Schritt ausführen.
+- Ziele müssen erreichbar sein oder verworfen werden.
+- Zielkonflikte zwischen Drohnen müssen aufgelöst werden.
+- Eine Energiereserve für den Rückweg muss berücksichtigt werden.
+- Ein Survivor gilt erst nach einer definierten Bestätigung als gefunden.
+- Die Mission endet bei Erfolg, Timeout oder wenn keine weitere sichere Aktion
+  möglich ist.
+
+======================================================================
+9. BEWERTUNG UND BENCHMARKS
+======================================================================
+
+Pflichtmetriken:
+
+- Anzahl gefundener und bestätigter Überlebender
+- Recall der erreichbaren Überlebenden
+- Zeit bis zum ersten Fund
+- Missionsdauer
+- Kartenabdeckung
+- erkannter freier und belegter Bereich
+- Anzahl Kollisionen
+- Beinahe-Kollisionen
+- zurückgekehrte und verlorene Drohnen
+- verbleibende Energie
+- doppelt erkundete Bereiche
+- Pfadlänge pro Drohne
+- Replanning-Anzahl
+
+Ein möglicher Challenge Score:
+
+score =
+    100 * confirmed_survivors
+  + 20  * returned_drones
+  + 0.5 * explored_percent
+  - 100 * collisions
+  - 50  * lost_drones
+  - 0.1 * mission_seconds
+
+Der Score ist zunächst nur ein Vorschlag. Einzelmetriken müssen immer separat
+gespeichert werden, damit ein hoher Gesamtscore keine Sicherheitsprobleme
+verdeckt.
+
+Acceptance Gates sollten Sicherheit getrennt bewerten:
+
+- collisions == 0
+- wall_impacts == 0
+- survivor_recall oberhalb des definierten Mindestwertes
+- return_success oberhalb des definierten Mindestwertes
+- determinism_check == passed
+
+======================================================================
+10. ENTWICKLUNGSPHASEN
+======================================================================
+
+Phase 1 – Minimaler Kern
+
+- Rasterumgebung
+- eine Drohne
+- Sensorbeobachtung
+- Occupancy Map
+- Frontier-Erkennung
+- A*-Planung
+- Headless-Simulation
+- Unit Tests
+
+Phase 2 – Vollständiger MVP
+
+- zweite Drohne
+- Zielentkopplung
+- Überlebendenerkennung
+- Akkumodell
+- Return to Base
+- Replay und Missionsbericht
+- Acceptance Tests über mehrere Seeds
+
+Phase 3 – Portfolio-Demo
+
+- hochwertiges 2D- oder 2.5D-Dashboard
+- Mission Timeline
+- Ground-Truth-Umschalter
+- kurze Demo-Aufzeichnung
+- kompakte README mit Architektur und Ergebnissen
+
+Phase 4 – Kommunikation und Rollen
+
+- Kommunikationsreichweite und Wanddämpfung
+- Relay-Verhalten
+- dynamische Rollen
+- Aufgaben-Neuverteilung bei Ausfall
+
+Phase 5 – Multisensorische Katastrophenumgebung
+
+- Rauch
+- Ultraschall und akustische Hinweise
+- Wärmebild oder abstrahierte Kamerawahrnehmung
+- Sensorfusion und Konfidenzen
+- dynamisch blockierte Wege
+
+Phase 6 – 3D und optionale Integration
+
+- mehrstöckige Umgebung
+- 3D-Replay
+- ROS-2-Komponenten
+- ArduPilot SITL oder MAVLink Bridge
+- klar gekennzeichnete Simulation-to-Hardware-Experimente
+
+======================================================================
+11. QUALITÄTSANFORDERUNGEN
+======================================================================
+
+- Python-Version und Abhängigkeiten eindeutig angeben.
+- Installation muss aus einer sauberen Umgebung möglich sein.
+- Tests müssen mit einem dokumentierten Befehl laufen.
+- Formatierung und Linting automatisieren.
+- GitHub Actions für Tests einrichten.
+- Keine absoluten lokalen Pfade im Code oder in der Dokumentation.
+- Keine Zugangsdaten, privaten Logs oder persönlichen Daten einchecken.
+- Große generierte Dateien durch .gitignore ausschließen.
+- Beispielkonfigurationen und kleine Demo-Replays bereitstellen.
+- Zufallsquellen zentral seeden.
+- Fehlerzustände sichtbar und nachvollziehbar protokollieren.
+
+======================================================================
+12. README- UND DEMO-ANFORDERUNGEN
+======================================================================
+
+Die spätere README sollte in dieser Reihenfolge aufgebaut sein:
+
+1. Projektname und Ein-Satz-Erklärung
+2. kurze Demo oder GIF
+3. Problem und Nutzen
+4. beste verifizierte Ergebnisse
+5. Systemarchitektur
+6. Quick Start
+7. Challenge-Szenarien
+8. Tests und Reproduzierbarkeit
+9. Einschränkungen
+10. Roadmap
+
+Keine erfundenen Benchmarks verwenden. Nur Ergebnisse veröffentlichen, die aus
+gespeicherten Konfigurationen, Seeds und Reports reproduziert werden können.
+
+Gewünschter Demo-Abschlussbericht:
+
+Mission complete
+- Survivors confirmed: 3/3
+- Drones returned: 2/2
+- Building explored: 82%
+- Collisions: 0
+- Communication uptime: not yet modeled
+- Mission duration: 247 simulated seconds
+- Mission rating: A
+
+Die Werte sind nur ein Darstellungsbeispiel und keine Zielbehauptung.
+
+======================================================================
+13. BEWUSSTE GRENZEN UND ETHIK
+======================================================================
+
+- Das Projekt dient ausschließlich ziviler Search-and-Rescue-Forschung und
+  Portfolio-Demonstration.
+- Keine Verfolgungs-, Angriffs- oder Waffenfunktionen implementieren.
+- Simulationsergebnisse dürfen nicht als Nachweis realer Flugsicherheit gelten.
+- Autonome Entscheidungen müssen im Dashboard und Replay nachvollziehbar sein.
+- Fehlerfälle und Limitierungen offen dokumentieren.
+
+======================================================================
+14. DEFINITION OF DONE FÜR DEN MVP
+======================================================================
+
+Der MVP gilt erst als abgeschlossen, wenn:
+
+- ein neuer Nutzer das Projekt anhand der README installieren und starten kann,
+- die Zwei-Drohnen-Mission vollständig durchläuft,
+- ein Replay und ein JSON-Missionsbericht erzeugt werden,
+- die Acceptance Gates über die vereinbarte Seed-Suite laufen,
+- es keine bekannten reproduzierbaren Kollisionen im akzeptierten Szenario gibt,
+- Tests und CI erfolgreich sind,
+- Architektur, Ergebnisse und Einschränkungen dokumentiert sind,
+- eine kurze visuelle Demo für das GitHub-Profil vorhanden ist.
+
+======================================================================
+15. KURZER STARTPROMPT FÜR CODEX
+======================================================================
+
+Verwende bei der ersten Arbeitssitzung folgenden Prompt:
+
+"Lies EchoRescue_Codex_Project_Brief.txt vollständig. Prüfe anschließend das
+gesamte aktuelle Repository und vorhandene AGENTS.md-Dateien. Erstelle zuerst
+eine Bestandsaufnahme, eine empfohlene Architektur und einen schrittweisen Plan
+für Phase 1. Implementiere nicht das gesamte Projekt auf einmal. Beginne nach
+dem Plan mit dem kleinsten vertikalen Slice: deterministische Rasterumgebung,
+eine Drohne, lokale Sensorbeobachtung, Occupancy Map und eine ausführbare
+Visualisierung. Schreibe Tests und führe sie aus. Berichte danach konkret, was
+funktioniert, welche Dateien geändert wurden und welcher nächste Schritt sicher
+ist."
