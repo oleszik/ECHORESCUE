@@ -8,6 +8,14 @@ class CellState(str, Enum):
     OCCUPIED = "occupied"
 
 
+class DroneStatus(str, Enum):
+    EXPLORE = "EXPLORE"
+    RETURN_HOME = "RETURN_HOME"
+    LANDED = "LANDED"
+    ENERGY_EMERGENCY = "ENERGY_EMERGENCY"
+    RETURN_PATH_UNAVAILABLE = "RETURN_PATH_UNAVAILABLE"
+
+
 @dataclass(frozen=True, order=True, slots=True)
 class Position:
     x: int
@@ -29,3 +37,4 @@ class Drone:
     position: Position
     identifier: str = "drone-1"
     path_length: int = 0
+    status: DroneStatus = DroneStatus.EXPLORE

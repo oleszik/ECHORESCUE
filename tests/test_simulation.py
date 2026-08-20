@@ -34,6 +34,7 @@ class SimulationTests(unittest.TestCase):
         self.assertTrue(
             all(
                 set(event) == {"position", "step", "drone_id", "event_type"}
+                | {"energy_remaining"}
                 for event in payload["mission_events"]
             )
         )

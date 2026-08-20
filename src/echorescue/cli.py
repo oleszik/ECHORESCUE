@@ -17,13 +17,21 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--survivors", type=int, default=3)
     parser.add_argument("--survivor-range", type=int, default=3)
     parser.add_argument("--confirmation-observations", type=int, default=2)
+    parser.add_argument("--battery-capacity", type=float, default=220.0)
+    parser.add_argument("--movement-energy", type=float, default=1.0)
+    parser.add_argument("--sensor-energy", type=float, default=0.05)
+    parser.add_argument("--energy-reserve", type=float, default=20.0)
     parser.add_argument("--max-steps", type=int, default=1_000)
     parser.add_argument(
         "--obstacle-density", type=float, default=0.08, metavar="FRACTION"
     )
     parser.add_argument("--visualize", action="store_true")
     parser.add_argument("--delay", type=float, default=0.03)
-    parser.add_argument("--show-ground-truth", action="store_true")
+    parser.add_argument(
+        "--show-ground-truth",
+        action="store_true",
+        help="deprecated compatibility flag; hidden ground truth remains concealed",
+    )
     return parser
 
 
@@ -40,6 +48,10 @@ def main(argv: list[str] | None = None) -> None:
         survivor_count=args.survivors,
         survivor_sensor_range=args.survivor_range,
         survivor_confirmation_observations=args.confirmation_observations,
+        battery_capacity=args.battery_capacity,
+        movement_energy_cost=args.movement_energy,
+        sensor_energy_cost=args.sensor_energy,
+        energy_safety_reserve=args.energy_reserve,
         max_steps=args.max_steps,
     )
     simulation = Simulation(config)

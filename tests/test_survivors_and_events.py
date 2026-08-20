@@ -46,6 +46,27 @@ class MissionLogTests(unittest.TestCase):
         self.assertFalse(log.record(confirmed))
         self.assertEqual(log.events, (detected, confirmed))
 
+    def test_state_transition_events_are_deduplicated_globally(self) -> None:
+        log = MissionLog()
+        first = MissionEvent(
+            Position(4, 3),
+            step=10,
+            drone_id="drone-1",
+            event_type=EventType.RETURN_STARTED,
+            energy_remaining=20.0,
+        )
+        duplicate_transition = MissionEvent(
+            Position(3, 3),
+            step=11,
+            drone_id="drone-1",
+            event_type=EventType.RETURN_STARTED,
+            energy_remaining=19.0,
+        )
+
+        self.assertTrue(log.record(first))
+        self.assertFalse(log.record(duplicate_transition))
+        self.assertEqual(log.events, (first,))
+
 
 if __name__ == "__main__":
     unittest.main()

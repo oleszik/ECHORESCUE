@@ -13,6 +13,10 @@ class SimulationConfig:
     survivor_count: int = 3
     survivor_sensor_range: int = 3
     survivor_confirmation_observations: int = 2
+    battery_capacity: float = 220.0
+    movement_energy_cost: float = 1.0
+    sensor_energy_cost: float = 0.05
+    energy_safety_reserve: float = 20.0
     max_steps: int = 1_000
 
     def __post_init__(self) -> None:
@@ -29,5 +33,13 @@ class SimulationConfig:
             raise ValueError("survivor_sensor_range must be positive")
         if self.survivor_confirmation_observations < 2:
             raise ValueError("survivor confirmation requires at least two observations")
+        if self.battery_capacity <= 0:
+            raise ValueError("battery_capacity must be positive")
+        if self.movement_energy_cost <= 0:
+            raise ValueError("movement_energy_cost must be positive")
+        if self.sensor_energy_cost < 0:
+            raise ValueError("sensor_energy_cost must not be negative")
+        if not 0 <= self.energy_safety_reserve < self.battery_capacity:
+            raise ValueError("energy_safety_reserve must be below battery_capacity")
         if self.max_steps < 1:
             raise ValueError("max_steps must be positive")

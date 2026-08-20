@@ -8,6 +8,9 @@ from echorescue.simulation import Simulation
 
 
 def render_text(simulation: Simulation, show_ground_truth: bool = False) -> str:
+    # Retain the argument for CLI/API compatibility. Operator output never
+    # reveals unknown ground-truth geometry.
+    _ = show_ground_truth
     symbols = {
         CellState.UNKNOWN: "?",
         CellState.FREE: ".",
@@ -18,26 +21,38 @@ def render_text(simulation: Simulation, show_ground_truth: bool = False) -> str:
         row = []
         for x in range(simulation.config.width):
             position = Position(x, y)
-            state = (
-                simulation.world.cell_at(position)
-                if show_ground_truth
-                else simulation.occupancy_map.cell_at(position)
-            )
+            state = simulation.occupancy_map.cell_at(position)
             symbol = symbols[state]
+            if position in simulation.current_return_path[1:]:
+                symbol = "r"
             if position in simulation.confirmed_survivors:
                 symbol = "S"
             if position == simulation.world.base:
                 symbol = "B"
-            if position == simulation.drone.position:
+            if (
+                position == simulation.drone.position
+                and simulation.drone.position == simulation.world.base
+                and simulation.drone.status.value == "LANDED"
+            ):
+                symbol = "L"
+            elif position == simulation.drone.position:
                 symbol = "D"
             row.append(symbol)
         rows.append("".join(row))
     rows.append(
         f"step={simulation.steps}  known={simulation.occupancy_map.explored_percent:.1f}%  "
         f"survivors={len(simulation.confirmed_survivors)}/{len(simulation.world.survivors)}  "
-        f"collisions={simulation.collisions}  status={simulation.termination_reason}"
+        f"battery={simulation.battery.remaining:.1f}/{simulation.battery.capacity:.1f} "
+        f"({simulation.battery.remaining_percent:.1f}%)"
     )
-    rows.append("legend: D=drone B=base S=confirmed survivor #=wall .=free ?=unknown")
+    rows.append(
+        f"state={simulation.drone.status.value}  collisions={simulation.collisions}  "
+        f"status={simulation.termination_reason}"
+    )
+    rows.append(
+        "legend: D=drone L=landed@base B=base r=return path "
+        "S=confirmed survivor #=wall .=free ?=unknown"
+    )
     return "\n".join(rows)
 
 
