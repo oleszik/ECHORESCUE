@@ -7411,18 +7411,7 @@
           "target": null
         }
       },
-      "events": [
-        {
-          "drone_id": "drone-2",
-          "energy_remaining": 147.5,
-          "event_type": "return_replanned",
-          "position": [
-            14,
-            10
-          ],
-          "step": 69
-        }
-      ],
+      "events": [],
       "explored_percent": 95.604,
       "occupancy": [
         "?####?##?#?######?##?",
@@ -7596,18 +7585,7 @@
           "target": null
         }
       },
-      "events": [
-        {
-          "drone_id": "drone-2",
-          "energy_remaining": 146.45,
-          "event_type": "return_replanned",
-          "position": [
-            13,
-            10
-          ],
-          "step": 70
-        }
-      ],
+      "events": [],
       "explored_percent": 95.604,
       "occupancy": [
         "?####?##?#?######?##?",
@@ -7773,18 +7751,7 @@
           "target": null
         }
       },
-      "events": [
-        {
-          "drone_id": "drone-2",
-          "energy_remaining": 145.4,
-          "event_type": "return_replanned",
-          "position": [
-            12,
-            10
-          ],
-          "step": 71
-        }
-      ],
+      "events": [],
       "explored_percent": 95.604,
       "occupancy": [
         "?####?##?#?######?##?",
@@ -7942,18 +7909,7 @@
           "target": null
         }
       },
-      "events": [
-        {
-          "drone_id": "drone-2",
-          "energy_remaining": 144.35,
-          "event_type": "return_replanned",
-          "position": [
-            12,
-            9
-          ],
-          "step": 72
-        }
-      ],
+      "events": [],
       "explored_percent": 95.604,
       "occupancy": [
         "?####?##?#?######?##?",
@@ -8103,18 +8059,7 @@
           "target": null
         }
       },
-      "events": [
-        {
-          "drone_id": "drone-2",
-          "energy_remaining": 143.3,
-          "event_type": "return_replanned",
-          "position": [
-            11,
-            9
-          ],
-          "step": 73
-        }
-      ],
+      "events": [],
       "explored_percent": 95.604,
       "occupancy": [
         "?####?##?#?######?##?",
@@ -8256,18 +8201,7 @@
           "target": null
         }
       },
-      "events": [
-        {
-          "drone_id": "drone-2",
-          "energy_remaining": 142.25,
-          "event_type": "return_replanned",
-          "position": [
-            10,
-            9
-          ],
-          "step": 74
-        }
-      ],
+      "events": [],
       "explored_percent": 95.604,
       "occupancy": [
         "?####?##?#?######?##?",
@@ -8404,16 +8338,6 @@
           "position": [
             1,
             1
-          ],
-          "step": 75
-        },
-        {
-          "drone_id": "drone-2",
-          "energy_remaining": 141.2,
-          "event_type": "return_replanned",
-          "position": [
-            9,
-            9
           ],
           "step": 75
         }
@@ -10905,82 +10829,12 @@
         "step": 63
       },
       {
-        "drone_id": "drone-2",
-        "energy_remaining": 147.5,
-        "event_type": "return_replanned",
-        "position": [
-          14,
-          10
-        ],
-        "step": 69
-      },
-      {
-        "drone_id": "drone-2",
-        "energy_remaining": 146.45,
-        "event_type": "return_replanned",
-        "position": [
-          13,
-          10
-        ],
-        "step": 70
-      },
-      {
-        "drone_id": "drone-2",
-        "energy_remaining": 145.4,
-        "event_type": "return_replanned",
-        "position": [
-          12,
-          10
-        ],
-        "step": 71
-      },
-      {
-        "drone_id": "drone-2",
-        "energy_remaining": 144.35,
-        "event_type": "return_replanned",
-        "position": [
-          12,
-          9
-        ],
-        "step": 72
-      },
-      {
-        "drone_id": "drone-2",
-        "energy_remaining": 143.3,
-        "event_type": "return_replanned",
-        "position": [
-          11,
-          9
-        ],
-        "step": 73
-      },
-      {
-        "drone_id": "drone-2",
-        "energy_remaining": 142.25,
-        "event_type": "return_replanned",
-        "position": [
-          10,
-          9
-        ],
-        "step": 74
-      },
-      {
         "drone_id": "drone-1",
         "energy_remaining": 145.95,
         "event_type": "base_reached",
         "position": [
           1,
           1
-        ],
-        "step": 75
-      },
-      {
-        "drone_id": "drone-2",
-        "energy_remaining": 141.2,
-        "event_type": "return_replanned",
-        "position": [
-          9,
-          9
         ],
         "step": 75
       },

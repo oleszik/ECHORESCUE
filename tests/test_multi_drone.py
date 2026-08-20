@@ -214,6 +214,18 @@ class MultiDroneSimulationTests(unittest.TestCase):
 
         self.assertEqual(first, second)
 
+    def test_normal_return_progress_does_not_emit_replan_spam(self) -> None:
+        result = MultiDroneSimulation(
+            SimulationConfig(seed=7, drone_count=2)
+        ).run()
+
+        replans = [
+            event
+            for event in result.mission_events
+            if event.event_type is EventType.RETURN_REPLANNED
+        ]
+        self.assertEqual(replans, [])
+
     def test_new_metrics_and_events_include_both_stable_ids(self) -> None:
         result = MultiDroneSimulation(
             SimulationConfig(seed=7, drone_count=2)

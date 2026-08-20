@@ -1,14 +1,14 @@
 "use strict";
 
 const COLORS = {
-  unknown: "#0b111b",
-  free: "#223044",
-  occupied: "#6f7f94",
-  grid: "rgba(151, 171, 199, 0.11)",
-  drone1: "#44d7c5",
-  drone2: "#ffad5c",
-  survivor: "#ebd06b",
-  base: "#d9e4f2",
+  unknown: "#172033",
+  free: "#344760",
+  occupied: "#94a3b8",
+  grid: "rgba(203, 213, 225, 0.20)",
+  drone1: "#38bdf8",
+  drone2: "#f59e0b",
+  survivor: "#fde047",
+  base: "#f1f5f9",
   textDark: "#071116",
 };
 
@@ -67,6 +67,7 @@ function initializeReplay(replay, benchmark) {
   elements.schemaVersion.textContent = replay.schema_version;
   elements.timeline.max = replay.frames.length - 1;
   elements.maxStep.textContent = replay.frames.at(-1).step;
+  elements.missionCanvas.parentElement.style.aspectRatio = `${replay.map.width} / ${replay.map.height}`;
   populateMetrics();
   populateBenchmark();
   setFrame(0);
@@ -187,7 +188,7 @@ function canvasGeometry() {
   }
   const mapWidth = state.replay.map.width;
   const mapHeight = state.replay.map.height;
-  const padding = 34 * ratio;
+  const padding = 20 * ratio;
   const cell = Math.min((width - padding * 2) / mapWidth, (height - padding * 2) / mapHeight);
   return {
     context: canvas.getContext("2d"), ratio, cell,
@@ -201,6 +202,21 @@ function cellCenter(position, geometry) {
     geometry.offsetX + (position[0] + 0.5) * geometry.cell,
     geometry.offsetY + (position[1] + 0.5) * geometry.cell,
   ];
+}
+
+function dockingMarkerOffset(frame, droneId, geometry) {
+  const dockedIds = Object.entries(frame.drones)
+    .filter(([, drone]) => (
+      drone.state === "LANDED"
+      && drone.position[0] === state.replay.map.base[0]
+      && drone.position[1] === state.replay.map.base[1]
+    ))
+    .map(([id]) => id)
+    .sort();
+  if (dockedIds.length < 2 || !dockedIds.includes(droneId)) return [0, 0];
+  const slot = dockedIds.indexOf(droneId) - (dockedIds.length - 1) / 2;
+  const spacing = Math.min(geometry.cell * 0.34, 20 * geometry.ratio);
+  return [slot * spacing, 0];
 }
 
 function drawPolyline(context, points, geometry, color, width, dashed = false) {
@@ -277,7 +293,10 @@ function drawMission() {
       context.strokeRect(-size, -size, size * 2, size * 2);
       context.restore();
     }
-    const [x, y] = cellCenter(drone.position, geometry);
+    const [cellX, cellY] = cellCenter(drone.position, geometry);
+    const [dockX, dockY] = dockingMarkerOffset(frame, droneId, geometry);
+    const x = cellX + dockX;
+    const y = cellY + dockY;
     const radius = Math.max(7 * ratio, cell * 0.31);
     context.beginPath();
     context.fillStyle = color;

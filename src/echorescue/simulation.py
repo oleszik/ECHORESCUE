@@ -143,6 +143,20 @@ class Simulation:
         )
         return path
 
+    def _return_path_is_usable(self, path: tuple[Position, ...]) -> bool:
+        return (
+            bool(path)
+            and path[0] == self.drone.position
+            and path[-1] == self.world.base
+            and all(
+                self.occupancy_map.is_known_free(position) for position in path
+            )
+            and all(
+                abs(first.x - second.x) + abs(first.y - second.y) == 1
+                for first, second in zip(path, path[1:])
+            )
+        )
+
     def _sense(self) -> None:
         if not self.battery.consume(self.config.sensor_energy_cost):
             self._fail_energy_emergency()
@@ -309,6 +323,10 @@ class Simulation:
         return moved
 
     def _step_return(self) -> bool:
+        previous_path = self.current_return_path
+        previous_path_invalid = bool(previous_path) and not (
+            self._return_path_is_usable(previous_path)
+        )
         path = self._refresh_return_estimate()
         if path is None:
             self._fail_return_path_unavailable()
@@ -320,7 +338,7 @@ class Simulation:
         if self.battery.remaining + 1e-9 < self.estimated_return_energy:
             self._fail_energy_emergency()
             return False
-        if self.current_return_path and path != self.current_return_path:
+        if previous_path_invalid and path != previous_path:
             self._record_event(EventType.RETURN_REPLANNED)
         self.current_return_path = path
 

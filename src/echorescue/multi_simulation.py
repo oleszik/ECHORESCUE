@@ -43,6 +43,7 @@ class DroneRuntime:
     last_survivor_observation_step: dict[Position, int] = field(
         default_factory=dict
     )
+    return_replan_required: bool = False
 
     @property
     def terminal(self) -> bool:
@@ -241,6 +242,24 @@ class MultiDroneSimulation:
         )
         return path
 
+    def _return_path_is_usable(
+        self, runtime: DroneRuntime, path: tuple[Position, ...]
+    ) -> bool:
+        blocked = self._other_blockers(runtime)
+        return (
+            bool(path)
+            and path[0] == runtime.drone.position
+            and path[-1] == self.world.base
+            and all(
+                self.occupancy_map.is_known_free(position) for position in path
+            )
+            and (len(path) == 1 or path[1] not in blocked)
+            and all(
+                abs(first.x - second.x) + abs(first.y - second.y) == 1
+                for first, second in zip(path, path[1:])
+            )
+        )
+
     def _record_event(
         self,
         runtime: DroneRuntime,
@@ -408,6 +427,11 @@ class MultiDroneSimulation:
         return assignments
 
     def _plan_return_intention(self, runtime: DroneRuntime) -> Position:
+        previous_path = runtime.current_return_path
+        previous_path_invalid = bool(previous_path) and not (
+            self._return_path_is_usable(runtime, previous_path)
+        )
+        replan_required = previous_path_invalid or runtime.return_replan_required
         static_path = self._known_return_path(runtime, avoid_other_drones=False)
         if static_path is None:
             self._fail_return_path(runtime)
@@ -424,8 +448,9 @@ class MultiDroneSimulation:
         if runtime.battery.remaining + 1e-9 < required:
             self._fail_energy(runtime)
             return runtime.drone.position
-        if runtime.current_return_path and path != runtime.current_return_path:
+        if previous_path and path != previous_path and replan_required:
             self._record_event(runtime, EventType.RETURN_REPLANNED)
+        runtime.return_replan_required = False
         runtime.current_return_path = path
         if len(path) == 1:
             self._land(runtime)
@@ -501,9 +526,10 @@ class MultiDroneSimulation:
             and intentions[drone_id] != current[drone_id]
         }
         for drone_id in sorted(conflict_waiters):
-            self._record_event(
-                self.runtimes[drone_id], EventType.MOVEMENT_CONFLICT
-            )
+            runtime = self.runtimes[drone_id]
+            self._record_event(runtime, EventType.MOVEMENT_CONFLICT)
+            if runtime.drone.status is DroneStatus.RETURN_HOME:
+                runtime.return_replan_required = True
 
         movers: dict[str, Position] = {}
         waiting: set[str] = set()

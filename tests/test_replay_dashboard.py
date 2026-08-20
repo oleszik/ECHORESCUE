@@ -1,4 +1,5 @@
 import json
+import re
 import tempfile
 import threading
 import unittest
@@ -20,6 +21,38 @@ from echorescue.replay import (
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+STYLESHEET_PATH = ASSET_DIRECTORY / "styles.css"
+
+
+def css_block(stylesheet: str, selector: str) -> str:
+    match = re.search(
+        rf"(?ms)^\s*{re.escape(selector)}\s*\{{(.*?)\}}",
+        stylesheet,
+    )
+    if match is None:
+        raise AssertionError(f"missing CSS selector: {selector}")
+    return match.group(1)
+
+
+def relative_luminance(hex_color: str) -> float:
+    channels = [
+        int(hex_color[index : index + 2], 16) / 255
+        for index in (1, 3, 5)
+    ]
+    linear = [
+        channel / 12.92
+        if channel <= 0.04045
+        else ((channel + 0.055) / 1.055) ** 2.4
+        for channel in channels
+    ]
+    return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+
+def contrast_ratio(first: str, second: str) -> float:
+    light, dark = sorted(
+        (relative_luminance(first), relative_luminance(second)), reverse=True
+    )
+    return (light + 0.05) / (dark + 0.05)
 
 
 class ReplayTests(unittest.TestCase):
@@ -163,6 +196,98 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(first["schema_version"], BENCHMARK_SCHEMA_VERSION)
         self.assertEqual(first["suite"]["determinism_check"], "passed")
+
+
+class DashboardStyleRegressionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.stylesheet = STYLESHEET_PATH.read_text(encoding="utf-8")
+        root = css_block(cls.stylesheet, ":root")
+        cls.variables = dict(
+            re.findall(r"--([\w-]+)\s*:\s*(#[0-9a-fA-F]{6})\s*;", root)
+        )
+
+    def test_required_contrast_variables_exist(self) -> None:
+        required = {
+            "background",
+            "panel",
+            "panel-raised",
+            "border",
+            "text-primary",
+            "text-secondary",
+            "text-muted",
+            "drone-one",
+            "drone-two",
+            "success",
+            "danger",
+        }
+
+        self.assertTrue(required.issubset(self.variables))
+
+    def test_foreground_and_background_colors_are_distinct_and_readable(self) -> None:
+        backgrounds = {
+            self.variables["background"],
+            self.variables["panel"],
+            self.variables["panel-raised"],
+        }
+        foregrounds = {
+            self.variables["text-primary"],
+            self.variables["text-secondary"],
+        }
+
+        self.assertTrue(backgrounds.isdisjoint(foregrounds))
+        for background in backgrounds:
+            self.assertGreaterEqual(
+                contrast_ratio(self.variables["text-primary"], background),
+                7.0,
+            )
+            self.assertGreaterEqual(
+                contrast_ratio(self.variables["text-secondary"], background),
+                4.5,
+            )
+
+    def test_large_layout_containers_do_not_dim_the_interface(self) -> None:
+        for selector in ("body", ".app-shell", ".dashboard-grid"):
+            declarations = css_block(self.stylesheet, selector)
+            opacity = re.search(r"(?:^|;)\s*opacity\s*:\s*([\d.]+)", declarations)
+            if opacity is not None:
+                self.assertGreaterEqual(float(opacity.group(1)), 0.8)
+            self.assertNotRegex(declarations, r"(?:^|;)\s*filter\s*:")
+
+    def test_fullscreen_error_overlay_respects_hidden_state(self) -> None:
+        overlay = css_block(self.stylesheet, ".fatal-error")
+        self.assertIn("position: fixed", overlay)
+        self.assertNotRegex(overlay, r"(?:^|;)\s*display\s*:")
+        self.assertRegex(
+            css_block(self.stylesheet, ".fatal-error[hidden]"),
+            r"display\s*:\s*none\s*!important",
+        )
+        self.assertRegex(
+            css_block(self.stylesheet, ".fatal-error:not([hidden])"),
+            r"display\s*:\s*grid",
+        )
+        self.assertNotRegex(
+            self.stylesheet,
+            r"(?s)(?:body|\.app-shell|\.dashboard-grid)::(?:before|after)"
+            r"\s*\{[^}]*position\s*:\s*fixed[^}]*z-index",
+        )
+
+    def test_map_uses_replay_aspect_ratio_without_fixed_tall_viewport(self) -> None:
+        canvas = css_block(self.stylesheet, ".canvas-wrap")
+        javascript = (ASSET_DIRECTORY / "app.js").read_text(encoding="utf-8")
+
+        self.assertIn("aspect-ratio: 21 / 13", canvas)
+        self.assertIn("replay.map.width", javascript)
+        self.assertNotRegex(canvas, r"height\s*:\s*min\(")
+
+    def test_landed_shared_base_drones_use_separate_docking_markers(self) -> None:
+        javascript = (ASSET_DIRECTORY / "app.js").read_text(encoding="utf-8")
+
+        self.assertIn("function dockingMarkerOffset", javascript)
+        self.assertIn('drone.state === "LANDED"', javascript)
+        self.assertIn(
+            "dockingMarkerOffset(frame, droneId, geometry)", javascript
+        )
 
 
 if __name__ == "__main__":
