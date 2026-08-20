@@ -1,89 +1,129 @@
 # EchoRescue
 
-EchoRescue is a deterministic, grid-based search-and-rescue simulation. This
-current slice demonstrates two autonomous drones exploring an initially
-unknown floor with local sensing, a shared occupancy map, centrally decoupled
-frontier targets, A* path planning, deterministic survivor events, and
-independent energy-aware return-to-base behavior.
+EchoRescue is a deterministic, grid-based search-and-rescue simulation with a
+browser replay dashboard. Two drones explore an initially unknown floor, share
+an occupancy map, confirm survivors, and return independently to base. Mission
+decisions remain headless; the dashboard only renders a versioned replay.
 
-> Status: Phase 1 foundation. This is a software simulation, not evidence of
-> real-world flight safety. Communication, roles, failures, relay behavior,
-> replay files, and full mission reports belong to later phases.
-
-## Architecture
-
-Ground truth and the drones' discovered knowledge are deliberately separate:
-
-```text
-GridWorld -> local sensors -> shared OccupancyMap -> central assignments
-     |                                      |                 |
-     +-> per-drone survivor observations    +-> A* paths -> drone-1
-                    |                       +-> A* paths -> drone-2
-                    +-> shared confirmations and MissionLog
-```
-
-All simulation decisions use only the discovered occupancy map. The seed is
-owned by `SimulationConfig`, and the simulation uses deterministic ordering for
-frontier and path choices. Unconfirmed survivor observations are per drone: two
-single sightings by different drones do not combine into a confirmation.
-
-The default two-drone start uses the base and its free eastern neighbor. A
-configurable shared-base start is also supported. The base represents a docking
-zone with virtual slots: landed drones no longer block the base or adjacent
-cells, so both can finish at the same base without a grid collision.
+> **Dashboard preview placeholder:** add the final portfolio screenshot or GIF
+> here after capturing `http://127.0.0.1:8000` at a representative replay step.
 
 ## Quick start
 
-Python 3.10 or newer is required. The runtime has no third-party dependencies.
+Python 3.10 or newer is required. The runtime and dashboard have no third-party
+dependencies.
 
 ```bash
 python -m pip install -e .
-python -m echorescue --visualize --delay 0.03
+python -m echorescue --drones 2 --seed 7 --replay-out replays/seed_7.json
+python -m echorescue.dashboard --replay replays/seed_7.json
 ```
 
-For a fast headless run:
+Open <http://127.0.0.1:8000>. The dashboard provides playback, single-step
+navigation, click/drag timeline scrubbing, 0.25× through 8× speed, drone trails,
+planned paths, battery and state telemetry, confirmed survivors, event history,
+coverage, final metrics, and the verified single-/two-drone comparison.
+
+To reproduce the benchmark artifact:
+
+```bash
+python -m echorescue.benchmark --seeds 50 --output benchmarks/two_drone_50_seeds.json
+```
+
+The server automatically loads that default benchmark file when it exists. A
+different artifact can be selected explicitly:
+
+```bash
+python -m echorescue.dashboard --replay replays/seed_7.json --benchmark benchmarks/two_drone_50_seeds.json
+```
+
+## Architecture
+
+Simulation and presentation have a one-way boundary:
+
+```text
+SimulationConfig + seed
+          |
+          v
+ MultiDroneSimulation  --> JSON result
+          |
+    read-only observer
+          v
+ versioned replay JSON --> local HTTP server --> HTML/CSS/Canvas dashboard
+```
+
+The browser does not generate maps, plan paths, assign frontiers, detect
+survivors, account for energy, or decide movements. Each replay frame is a
+snapshot of the simulation's already-computed operator-visible state. It
+contains both drone states, batteries, targets and paths; the known occupancy
+map; confirmed survivors; coverage; and the events emitted at that step.
+
+Ground truth and discovered knowledge remain separate. Standard replays never
+contain the full wall set, unconfirmed survivor positions, or a ground-truth
+map. Unknown cells stay unknown until the simulation's sensors map them.
+Unconfirmed survivor observations remain per drone; only shared confirmations
+are exposed in the replay.
+
+Replay schema `1.0` intentionally stores full known-map snapshots per frame.
+This is simple, deterministic, and easy to audit. The checked-in Seed 7 replay
+is approximately 230 KB; future large maps may benefit from delta encoding.
+
+## Verified benchmark
+
+[`benchmarks/two_drone_50_seeds.json`](benchmarks/two_drone_50_seeds.json) is
+machine-generated from seeds 0–49. Every two-drone seed is executed twice for a
+determinism check, alongside the existing single-drone baseline.
+
+| Metric | Single drone | Two drones |
+| --- | ---: | ---: |
+| Average mission duration | 121.52 steps | 72.10 steps |
+| Survivor recall | 100% | 100% |
+| Wall collisions | 0 | 0 |
+| Drone collisions | n/a | 0 |
+| Duplicate exploration | n/a | 12.56% |
+
+The reported **40.67% shorter mission duration** is calculated as
+`(121.52 - 72.10) / 121.52 × 100`, rounded to two decimals. All 50 two-drone
+missions returned both drones, with no failures or timeouts. The trade-off is
+explicit: combined fleet path length averaged 134.64 cells versus 121.52 for
+one drone, an increase of about 10.8%.
+
+## Simulation controls
+
+For a headless JSON summary without a replay:
 
 ```bash
 python -m echorescue --seed 7 --drones 2
 ```
 
-The command prints a machine-readable JSON summary. Operator output never
-reveals unknown geometry or unconfirmed survivor positions. Survivor sensing
-can be configured with `--survivor-range` and `--confirmation-observations`.
-Energy settings are exposed as `--battery-capacity`, `--movement-energy`,
-`--sensor-energy`, `--wait-energy`, and `--energy-reserve`. Use `--drones 1`
-for the preserved single-drone regression mode, or `--start-mode shared-base`
-for two virtual launch slots at the base.
+The deterministic model exposes sensor, survivor, battery, reserve, wait-cost,
+map-size, obstacle-density and maximum-step options through `--help`. Use
+`--drones 1` for the preserved single-drone regression mode and `--start-mode
+shared-base` for two virtual launch slots at the base.
 
-## Tests
+## Verification
 
 ```bash
 python -m unittest discover -s tests -v
+python -m compileall -q src tests
 ```
 
-The suite covers seeded world generation, sensor occlusion, occupancy updates,
-frontier detection, A* planning, survivor event deduplication, hidden-state
-visualization, movement safety, and deterministic regression.
-It also verifies deterministic energy accounting, reserve-aware return
-decisions, known-free return paths, landing, and explicit emergency states.
-Multi-drone tests cover deterministic distinct target assignment, route
-blocking, vertex and edge-swap conflicts, per-drone event deduplication,
-independent return states, and joint mission termination.
+The suite covers seeded generation, sensing and occlusion, mapping, A* planning,
+survivor and energy events, return safety, deterministic multi-drone
+coordination, collision avoidance, replay determinism, hidden-state protection,
+event/metric fidelity, dashboard assets, and a local HTTP smoke test.
 
 ## Current limitations
 
-- one floor and at most two drones
-- cardinal, noise-free distance readings
-- static obstacles and a terminal visualization
-- survivor confirmation uses two unobstructed observations but does not yet
-  trigger a dedicated verification state
-- energy is an abstract deterministic budget, not a physical discharge model
-- return paths assume static, accurately mapped occupied/free cells
-- duplicate exploration is defined as the fraction of non-base visited cells
-  visited by both drones; sensor-footprint overlap is not yet counted
-- shared state is instantaneous; communication loss is not modeled
-- no roles, failures, relays, or task redistribution
-- no claim of hardware validation
+- one static 2D floor and at most two drones
+- cardinal, noise-free sensing and abstract deterministic energy units
+- replay schema compatibility is version-checked but has no migration layer
+- full occupancy snapshots favor transparency over file-size efficiency
+- the local server is intended for development and portfolio demos, not public
+  production hosting
+- the dashboard is desktop-first; it remains usable at narrow widths but has no
+  touch-specific gestures beyond the native range control
+- no communication model, roles, failures, relays, dynamic obstacles, ROS 2,
+  hardware integration, or 3D visualization
 
-The next safe increment is benchmark-driven refinement of target allocation;
-communication and roles remain intentionally out of scope.
+This is a software simulation and not evidence of real-world flight safety.

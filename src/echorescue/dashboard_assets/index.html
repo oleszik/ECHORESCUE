@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1018">
+    <title>EchoRescue Mission Replay</title>
+    <meta
+      name="description"
+      content="Deterministic two-drone search-and-rescue mission replay dashboard."
+    >
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span></div>
+          <div>
+            <p class="eyebrow">Autonomous SAR simulation</p>
+            <h1>EchoRescue <span>Mission Replay</span></h1>
+          </div>
+        </div>
+        <div class="header-meta">
+          <div class="seed-chip"><span>Seed</span><strong id="seedValue">—</strong></div>
+          <div class="status-pill loading" id="missionStatus">
+            <span class="status-dot"></span><span>Loading replay</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="control-deck panel" aria-label="Replay controls">
+        <div class="transport-controls">
+          <button id="restartButton" class="icon-button" aria-label="Restart replay" title="Restart">↺</button>
+          <button id="previousButton" class="icon-button" aria-label="Previous step" title="Previous step">‹</button>
+          <button id="playButton" class="play-button" aria-label="Play replay"><span id="playIcon">▶</span><span id="playLabel">Play</span></button>
+          <button id="nextButton" class="icon-button" aria-label="Next step" title="Next step">›</button>
+        </div>
+        <div class="timeline-block">
+          <div class="timeline-labels">
+            <span>Mission timeline</span>
+            <strong><span id="currentStep">0</span> / <span id="maxStep">0</span></strong>
+          </div>
+          <input id="timeline" type="range" min="0" max="0" value="0" aria-label="Mission timeline">
+        </div>
+        <label class="speed-control">
+          <span>Playback</span>
+          <select id="speedSelect" aria-label="Playback speed">
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="2">2×</option>
+            <option value="4">4×</option>
+            <option value="8">8×</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="map-panel panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Operator view</p>
+              <h2>Shared occupancy map</h2>
+            </div>
+            <div class="coverage-readout"><span id="coverageValue">0.0%</span><small>known</small></div>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="missionCanvas" aria-label="Mission occupancy map replay"></canvas>
+            <div class="map-legend" aria-label="Map legend">
+              <span><i class="swatch unknown"></i>Unknown</span>
+              <span><i class="swatch free"></i>Free</span>
+              <span><i class="swatch wall"></i>Occupied</span>
+              <span><i class="swatch survivor"></i>Confirmed</span>
+            </div>
+          </div>
+        </article>
+
+        <aside class="telemetry-column">
+          <section class="drone-card panel drone-one" id="droneCard1">
+            <div class="drone-card-head">
+              <div class="drone-identity"><span class="drone-number">1</span><div><p>drone-1</p><strong id="droneState1">—</strong></div></div>
+              <span class="coordinate" id="dronePosition1">—, —</span>
+            </div>
+            <div class="battery-label"><span>Energy reserve</span><strong id="droneEnergy1">—</strong></div>
+            <div class="battery-track"><span id="droneBattery1"></span></div>
+            <div class="drone-detail"><span>Current target</span><strong id="droneTarget1">—</strong></div>
+          </section>
+
+          <section class="drone-card panel drone-two" id="droneCard2">
+            <div class="drone-card-head">
+              <div class="drone-identity"><span class="drone-number">2</span><div><p>drone-2</p><strong id="droneState2">—</strong></div></div>
+              <span class="coordinate" id="dronePosition2">—, —</span>
+            </div>
+            <div class="battery-label"><span>Energy reserve</span><strong id="droneEnergy2">—</strong></div>
+            <div class="battery-track"><span id="droneBattery2"></span></div>
+            <div class="drone-detail"><span>Current target</span><strong id="droneTarget2">—</strong></div>
+          </section>
+
+          <section class="event-panel panel">
+            <div class="panel-heading compact"><div><p class="eyebrow">Telemetry</p><h2>Mission events</h2></div><span id="eventCount">0</span></div>
+            <ol class="event-feed" id="eventFeed" aria-live="polite"></ol>
+          </section>
+        </aside>
+      </section>
+
+      <section class="results-grid">
+        <article class="result-panel panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">Mission outcome</p><h2>Verified result</h2></div>
+            <div class="result-badge pending" id="resultBadge">In progress</div>
+          </div>
+          <div class="metric-grid">
+            <div><span>Survivor recall</span><strong id="metricRecall">—</strong></div>
+            <div><span>Drones returned</span><strong id="metricReturned">—</strong></div>
+            <div><span>Wall collisions</span><strong id="metricWalls">—</strong></div>
+            <div><span>Drone collisions</span><strong id="metricDrones">—</strong></div>
+            <div><span>Mission steps</span><strong id="metricSteps">—</strong></div>
+            <div><span>Duplicate exploration</span><strong id="metricDuplicate">—</strong></div>
+          </div>
+        </article>
+
+        <article class="benchmark-panel panel" id="benchmarkPanel">
+          <div class="panel-heading"><div><p class="eyebrow">50-seed benchmark</p><h2>Parallel exploration impact</h2></div><span class="verified-chip">Reproducible</span></div>
+          <div class="comparison-main">
+            <div><span>Single drone</span><strong id="singleSteps">—</strong><small>average steps</small></div>
+            <div class="comparison-arrow">→</div>
+            <div><span>Two drones</span><strong id="multiSteps">—</strong><small>average steps</small></div>
+            <div class="improvement"><strong id="improvementValue">—</strong><span>shorter duration</span></div>
+          </div>
+          <p class="benchmark-note" id="benchmarkNote">Benchmark artifact unavailable.</p>
+        </article>
+      </section>
+
+      <footer>
+        <span>Replay schema <strong id="schemaVersion">—</strong></span>
+        <span>Operator-safe data · No hidden ground truth</span>
+      </footer>
+    </main>
+    <div class="fatal-error" id="fatalError" hidden></div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

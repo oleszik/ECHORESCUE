@@ -3,6 +3,7 @@ import json
 
 from echorescue.config import SimulationConfig
 from echorescue.multi_simulation import MultiDroneSimulation
+from echorescue.replay import record_simulation, write_replay
 from echorescue.simulation import Simulation
 from echorescue.visualization import TerminalRenderer
 
@@ -33,6 +34,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--visualize", action="store_true")
     parser.add_argument("--delay", type=float, default=0.03)
+    parser.add_argument("--replay-out")
     parser.add_argument(
         "--show-ground-truth",
         action="store_true",
@@ -72,7 +74,13 @@ def main(argv: list[str] | None = None) -> None:
     renderer = None
     if args.visualize:
         renderer = TerminalRenderer(args.delay, args.show_ground_truth)
-    result = simulation.run(renderer)
+    if args.replay_out:
+        if not isinstance(simulation, MultiDroneSimulation):
+            raise SystemExit("--replay-out currently requires --drones 2")
+        replay, result = record_simulation(simulation, renderer)
+        write_replay(replay, args.replay_out)
+    else:
+        result = simulation.run(renderer)
     print(json.dumps(result.to_dict(), indent=2))
 
 
