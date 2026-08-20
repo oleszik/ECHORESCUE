@@ -24,6 +24,8 @@ def render_text(simulation: Simulation, show_ground_truth: bool = False) -> str:
                 else simulation.occupancy_map.cell_at(position)
             )
             symbol = symbols[state]
+            if position in simulation.confirmed_survivors:
+                symbol = "S"
             if position == simulation.world.base:
                 symbol = "B"
             if position == simulation.drone.position:
@@ -32,9 +34,10 @@ def render_text(simulation: Simulation, show_ground_truth: bool = False) -> str:
         rows.append("".join(row))
     rows.append(
         f"step={simulation.steps}  known={simulation.occupancy_map.explored_percent:.1f}%  "
+        f"survivors={len(simulation.confirmed_survivors)}/{len(simulation.world.survivors)}  "
         f"collisions={simulation.collisions}  status={simulation.termination_reason}"
     )
-    rows.append("legend: D=drone B=base #=wall .=free ?=unknown")
+    rows.append("legend: D=drone B=base S=confirmed survivor #=wall .=free ?=unknown")
     return "\n".join(rows)
 
 
@@ -55,4 +58,3 @@ class TerminalRenderer:
         self._first_frame = False
         if self.delay > 0:
             time.sleep(self.delay)
-

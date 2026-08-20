@@ -10,6 +10,9 @@ class SimulationConfig:
     seed: int = 7
     obstacle_density: float = 0.08
     sensor_range: int = 4
+    survivor_count: int = 3
+    survivor_sensor_range: int = 3
+    survivor_confirmation_observations: int = 2
     max_steps: int = 1_000
 
     def __post_init__(self) -> None:
@@ -19,6 +22,12 @@ class SimulationConfig:
             raise ValueError("obstacle_density must be between 0.0 and 0.35")
         if self.sensor_range < 1:
             raise ValueError("sensor_range must be positive")
+        interior_cells = (self.width - 2) * (self.height - 2)
+        if not 0 <= self.survivor_count < interior_cells:
+            raise ValueError("survivor_count must fit within the interior grid")
+        if self.survivor_sensor_range < 1:
+            raise ValueError("survivor_sensor_range must be positive")
+        if self.survivor_confirmation_observations < 2:
+            raise ValueError("survivor confirmation requires at least two observations")
         if self.max_steps < 1:
             raise ValueError("max_steps must be positive")
-

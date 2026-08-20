@@ -13,7 +13,11 @@ class EnvironmentAndSensorTests(unittest.TestCase):
         different = GridWorld.generate(SimulationConfig(seed=43))
 
         self.assertEqual(first.walls, second.walls)
+        self.assertEqual(first.survivors, second.survivors)
         self.assertNotEqual(first.walls, different.walls)
+        self.assertEqual(len(first.survivors), 3)
+        self.assertTrue(all(first.is_free(position) for position in first.survivors))
+        self.assertNotIn(first.base, first.survivors)
 
     def test_sensor_stops_at_wall(self) -> None:
         world = GridWorld(
@@ -31,4 +35,3 @@ class EnvironmentAndSensorTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

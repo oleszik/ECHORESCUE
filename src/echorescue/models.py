@@ -27,5 +27,5 @@ class Position:
 @dataclass(slots=True)
 class Drone:
     position: Position
+    identifier: str = "drone-1"
     path_length: int = 0
-

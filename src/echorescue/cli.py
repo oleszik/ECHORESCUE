@@ -14,6 +14,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--width", type=int, default=21)
     parser.add_argument("--height", type=int, default=13)
     parser.add_argument("--sensor-range", type=int, default=4)
+    parser.add_argument("--survivors", type=int, default=3)
+    parser.add_argument("--survivor-range", type=int, default=3)
+    parser.add_argument("--confirmation-observations", type=int, default=2)
     parser.add_argument("--max-steps", type=int, default=1_000)
     parser.add_argument(
         "--obstacle-density", type=float, default=0.08, metavar="FRACTION"
@@ -34,6 +37,9 @@ def main(argv: list[str] | None = None) -> None:
         seed=args.seed,
         obstacle_density=args.obstacle_density,
         sensor_range=args.sensor_range,
+        survivor_count=args.survivors,
+        survivor_sensor_range=args.survivor_range,
+        survivor_confirmation_observations=args.confirmation_observations,
         max_steps=args.max_steps,
     )
     simulation = Simulation(config)
@@ -46,4 +52,3 @@ def main(argv: list[str] | None = None) -> None:
 
 if __name__ == "__main__":
     main()
-

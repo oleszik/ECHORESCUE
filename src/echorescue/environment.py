@@ -14,6 +14,7 @@ class GridWorld:
     height: int
     base: Position
     walls: frozenset[Position]
+    survivors: frozenset[Position] = frozenset()
 
     @classmethod
     def generate(cls, config: SimulationConfig) -> "GridWorld":
@@ -47,7 +48,22 @@ class GridWorld:
             ):
                 walls.remove(candidate)
 
-        return cls(config.width, config.height, base, frozenset(walls))
+        survivor_candidates = [
+            position
+            for position in candidates
+            if position not in walls
+        ]
+        survivor_rng = Random(config.seed + 10_000_019)
+        survivor_rng.shuffle(survivor_candidates)
+        survivors = frozenset(survivor_candidates[: config.survivor_count])
+
+        return cls(
+            config.width,
+            config.height,
+            base,
+            frozenset(walls),
+            survivors,
+        )
 
     @staticmethod
     def _interior_is_connected(
@@ -83,4 +99,3 @@ class GridWorld:
 
     def is_free(self, position: Position) -> bool:
         return self.cell_at(position) is CellState.FREE
-
