@@ -5,8 +5,16 @@ browser replay dashboard. Two drones explore an initially unknown floor, share
 an occupancy map, confirm survivors, and return independently to base. Mission
 decisions remain headless; the dashboard only renders a versioned replay.
 
-> **Dashboard preview placeholder:** add the final portfolio screenshot or GIF
-> here after capturing `http://127.0.0.1:8000` at a representative replay step.
+## Mission replay
+
+![EchoRescue dashboard at mission step 42](docs/assets/echorescue-dashboard-step-42.png)
+
+<details>
+<summary>Watch the final mission phase through the safe return of both drones</summary>
+
+![EchoRescue deterministic mission replay](docs/assets/echorescue-mission-replay.gif)
+
+</details>
 
 ## Quick start
 
