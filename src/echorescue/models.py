@@ -14,6 +14,7 @@ class DroneStatus(str, Enum):
     LANDED = "LANDED"
     ENERGY_EMERGENCY = "ENERGY_EMERGENCY"
     RETURN_PATH_UNAVAILABLE = "RETURN_PATH_UNAVAILABLE"
+    FAILED = "FAILED"
 
 
 @dataclass(frozen=True, order=True, slots=True)

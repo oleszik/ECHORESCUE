@@ -17,6 +17,9 @@ class SimulationConfig:
     movement_energy_cost: float = 1.0
     sensor_energy_cost: float = 0.05
     energy_safety_reserve: float = 20.0
+    drone_count: int = 1
+    drone_start_positions: tuple[tuple[int, int], ...] | None = None
+    wait_energy_cost: float = 0.05
     max_steps: int = 1_000
 
     def __post_init__(self) -> None:
@@ -41,5 +44,22 @@ class SimulationConfig:
             raise ValueError("sensor_energy_cost must not be negative")
         if not 0 <= self.energy_safety_reserve < self.battery_capacity:
             raise ValueError("energy_safety_reserve must be below battery_capacity")
+        if self.drone_count not in (1, 2):
+            raise ValueError("drone_count must be 1 or 2")
+        if self.drone_start_positions is not None:
+            if len(self.drone_start_positions) != self.drone_count:
+                raise ValueError("one start position is required per drone")
+            if any(
+                not (0 < x < self.width - 1 and 0 < y < self.height - 1)
+                for x, y in self.drone_start_positions
+            ):
+                raise ValueError("drone start positions must be interior cells")
+            if self.drone_count == 2:
+                first, second = self.drone_start_positions
+                separation = abs(first[0] - second[0]) + abs(first[1] - second[1])
+                if separation not in (0, 1):
+                    raise ValueError("two start positions must match or be adjacent")
+        if self.wait_energy_cost < 0:
+            raise ValueError("wait_energy_cost must not be negative")
         if self.max_steps < 1:
             raise ValueError("max_steps must be positive")

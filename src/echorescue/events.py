@@ -12,6 +12,10 @@ class EventType(str, Enum):
     ENERGY_EMERGENCY = "energy_emergency"
     RETURN_PATH_UNAVAILABLE = "return_path_unavailable"
     RETURN_REPLANNED = "return_replanned"
+    FRONTIER_ASSIGNED = "frontier_assigned"
+    FRONTIER_REASSIGNED = "frontier_reassigned"
+    MOVEMENT_CONFLICT = "movement_conflict"
+    DRONE_WAITED = "drone_waited"
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,10 +57,16 @@ class MissionLog:
             EventType.SURVIVOR_CONFIRMED,
         }:
             key: tuple[object, ...] = (event.event_type, event.position)
-        elif event.event_type is EventType.RETURN_REPLANNED:
-            key = (event.event_type, event.step, event.position)
+        elif event.event_type in {
+            EventType.RETURN_REPLANNED,
+            EventType.FRONTIER_ASSIGNED,
+            EventType.FRONTIER_REASSIGNED,
+            EventType.MOVEMENT_CONFLICT,
+            EventType.DRONE_WAITED,
+        }:
+            key = (event.event_type, event.drone_id, event.step, event.position)
         else:
-            key = (event.event_type,)
+            key = (event.event_type, event.drone_id)
         if key in self._event_keys:
             return False
         self._event_keys.add(key)

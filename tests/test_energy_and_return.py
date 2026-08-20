@@ -48,6 +48,33 @@ class EnergyAndReturnTests(unittest.TestCase):
             simulation.estimated_return_energy + config.energy_safety_reserve,
         )
 
+    def test_projected_energy_limit_triggers_early_but_safe_return(self) -> None:
+        """Regression: RTB must start before frontier exhaustion."""
+
+        config = SimulationConfig(
+            seed=7,
+            battery_capacity=40.0,
+            movement_energy_cost=1.0,
+            sensor_energy_cost=0.0,
+            energy_safety_reserve=5.0,
+        )
+        simulation = Simulation(config)
+
+        while simulation.drone.status is DroneStatus.EXPLORE:
+            self.assertTrue(simulation.step())
+
+        self.assertEqual(simulation.drone.status, DroneStatus.RETURN_HOME)
+        self.assertTrue(simulation.occupancy_map.frontiers())
+        self.assertLess(
+            simulation.occupancy_map.explored_percent,
+            100.0,
+        )
+        result = simulation.run()
+        self.assertEqual(result.termination_reason, "returned_to_base")
+        self.assertTrue(result.returned_to_base)
+        self.assertFalse(result.energy_emergency)
+        self.assertGreaterEqual(result.energy_remaining, config.energy_safety_reserve)
+
     def test_return_path_uses_only_known_free_cells_and_no_frontier_targets(self) -> None:
         simulation = Simulation(
             SimulationConfig(
