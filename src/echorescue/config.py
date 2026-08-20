@@ -20,6 +20,7 @@ class SimulationConfig:
     drone_count: int = 1
     drone_start_positions: tuple[tuple[int, int], ...] | None = None
     wait_energy_cost: float = 0.05
+    communication_range: int = 8
     max_steps: int = 1_000
 
     def __post_init__(self) -> None:
@@ -61,5 +62,7 @@ class SimulationConfig:
                     raise ValueError("two start positions must match or be adjacent")
         if self.wait_energy_cost < 0:
             raise ValueError("wait_energy_cost must not be negative")
+        if self.communication_range < 1:
+            raise ValueError("communication_range must be positive")
         if self.max_steps < 1:
             raise ValueError("max_steps must be positive")

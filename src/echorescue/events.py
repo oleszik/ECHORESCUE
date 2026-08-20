@@ -16,6 +16,10 @@ class EventType(str, Enum):
     FRONTIER_REASSIGNED = "frontier_reassigned"
     MOVEMENT_CONFLICT = "movement_conflict"
     DRONE_WAITED = "drone_waited"
+    COMMUNICATION_LOST = "communication_lost"
+    COMMUNICATION_RESTORED = "communication_restored"
+    RELAY_LINK_ESTABLISHED = "relay_link_established"
+    RELAY_LINK_LOST = "relay_link_lost"
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,6 +67,10 @@ class MissionLog:
             EventType.FRONTIER_REASSIGNED,
             EventType.MOVEMENT_CONFLICT,
             EventType.DRONE_WAITED,
+            EventType.COMMUNICATION_LOST,
+            EventType.COMMUNICATION_RESTORED,
+            EventType.RELAY_LINK_ESTABLISHED,
+            EventType.RELAY_LINK_LOST,
         }:
             key = (event.event_type, event.drone_id, event.step, event.position)
         else:

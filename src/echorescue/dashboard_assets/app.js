@@ -9,6 +9,9 @@ const COLORS = {
   drone2: "#f59e0b",
   survivor: "#fde047",
   base: "#f1f5f9",
+  radioDirect: "#34d399",
+  radioRelay: "#c084fc",
+  radioPeer: "#94a3b8",
   textDark: "#071116",
 };
 
@@ -33,7 +36,7 @@ function cacheElements() {
     "improvementValue", "benchmarkNote", "benchmarkPanel", "fatalError",
   ].forEach((id) => { elements[id] = document.getElementById(id); });
   [1, 2].forEach((number) => {
-    ["State", "Position", "Energy", "Battery", "Target"].forEach((field) => {
+    ["State", "Position", "Energy", "Battery", "Target", "Communication"].forEach((field) => {
       elements[`drone${field}${number}`] = document.getElementById(`drone${field}${number}`);
     });
   });
@@ -95,6 +98,20 @@ function updateDroneCard(number, drone) {
   elements[`droneEnergy${number}`].textContent = `${drone.energy_remaining.toFixed(1)} units`;
   elements[`droneBattery${number}`].style.width = `${Math.max(0, Math.min(100, drone.energy_remaining_percent))}%`;
   elements[`droneTarget${number}`].textContent = drone.target ? `${drone.target[0]}, ${drone.target[1]}` : "—";
+  const communication = drone.communication;
+  const status = elements[`droneCommunication${number}`];
+  status.className = "communication-status";
+  if (communication.direct_to_base) {
+    status.textContent = "Direct to base";
+    status.classList.add("direct");
+  } else if (communication.via_relay) {
+    const relay = communication.relay_path.at(-2);
+    status.textContent = `Relay via ${relay}`;
+    status.classList.add("relay");
+  } else {
+    status.textContent = "Disconnected";
+    status.classList.add("offline");
+  }
 }
 
 function updateStatus(frame) {
@@ -236,6 +253,31 @@ function drawPolyline(context, points, geometry, color, width, dashed = false) {
   context.restore();
 }
 
+function drawCommunicationLinks(context, frame, geometry) {
+  for (const link of frame.communication.links) {
+    const first = frame.communication.nodes[link.from];
+    const second = frame.communication.nodes[link.to];
+    const [firstX, firstY] = cellCenter(first, geometry);
+    const [secondX, secondY] = cellCenter(second, geometry);
+    context.save();
+    context.strokeStyle = link.kind === "direct_base"
+      ? COLORS.radioDirect
+      : link.kind === "relay" ? COLORS.radioRelay : COLORS.radioPeer;
+    context.globalAlpha = link.kind === "peer" ? 0.52 : 0.82;
+    context.lineWidth = (link.kind === "relay" ? 2.2 : 1.7) * geometry.ratio;
+    if (link.kind === "relay") {
+      context.setLineDash([7 * geometry.ratio, 4 * geometry.ratio]);
+    } else if (link.kind === "peer") {
+      context.setLineDash([2 * geometry.ratio, 5 * geometry.ratio]);
+    }
+    context.beginPath();
+    context.moveTo(firstX, firstY);
+    context.lineTo(secondX, secondY);
+    context.stroke();
+    context.restore();
+  }
+}
+
 function drawMission() {
   if (!state.replay) return;
   const frame = state.replay.frames[state.frameIndex];
@@ -253,6 +295,8 @@ function drawMission() {
     });
   });
 
+  drawCommunicationLinks(context, frame, geometry);
+
   ["drone-1", "drone-2"].forEach((droneId, droneIndex) => {
     const color = droneIndex === 0 ? COLORS.drone1 : COLORS.drone2;
     const trail = state.replay.frames.slice(0, state.frameIndex + 1).map((item) => item.drones[droneId].position);
@@ -266,6 +310,11 @@ function drawMission() {
   context.strokeStyle = COLORS.base;
   context.lineWidth = 1.5 * ratio;
   context.strokeRect(baseX - baseSize, baseY - baseSize, baseSize * 2, baseSize * 2);
+  context.fillStyle = COLORS.base;
+  context.font = `800 ${Math.max(8 * ratio, baseSize * 0.9)}px Inter, system-ui, sans-serif`;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText("B", baseX, baseY);
   context.restore();
 
   frame.confirmed_survivors.forEach((position) => {

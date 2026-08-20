@@ -78,6 +78,24 @@ class ReplayTests(unittest.TestCase):
             self.assertEqual(
                 set(frame["drones"]), {"drone-1", "drone-2"}
             )
+            self.assertEqual(
+                set(frame["communication"]["nodes"]),
+                {"base", "drone-1", "drone-2"},
+            )
+            self.assertEqual(
+                frame["communication"]["nodes"]["base"],
+                self.replay["map"]["base"],
+            )
+            for drone_id, drone in frame["drones"].items():
+                self.assertIn("communication", drone)
+                self.assertEqual(
+                    frame["communication"]["nodes"][drone_id],
+                    drone["position"],
+                )
+            for link in frame["communication"]["links"]:
+                self.assertIn(link["from"], frame["communication"]["nodes"])
+                self.assertIn(link["to"], frame["communication"]["nodes"])
+                self.assertIn(link["kind"], {"direct_base", "relay", "peer"})
 
     def test_replay_exposes_only_discovered_world_state(self) -> None:
         payload = json.dumps(self.replay, sort_keys=True)
@@ -177,6 +195,8 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
 
                 self.assertIn("EchoRescue", html)
                 self.assertIn("drawMission", javascript)
+                self.assertIn("drawCommunicationLinks", javascript)
+                self.assertIn("droneCommunication1", html)
                 self.assertIn(".dashboard-grid", stylesheet)
                 self.assertEqual(
                     replay["schema_version"], REPLAY_SCHEMA_VERSION

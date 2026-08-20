@@ -1,9 +1,55 @@
 {
   "frames": [
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            2,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 219.95,
           "energy_remaining_percent": 99.977,
           "path_kind": "frontier",
@@ -16,6 +62,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 219.95,
           "energy_remaining_percent": 99.977,
           "path_kind": "frontier",
@@ -69,9 +121,55 @@
       "step": 0
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            2
+          ],
+          "drone-2": [
+            3,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 218.9,
           "energy_remaining_percent": 99.5,
           "path_kind": "frontier",
@@ -92,6 +190,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 218.9,
           "energy_remaining_percent": 99.5,
           "path_kind": "frontier",
@@ -153,9 +257,55 @@
       "step": 1
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            3
+          ],
+          "drone-2": [
+            4,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 217.85,
           "energy_remaining_percent": 99.023,
           "path_kind": "frontier",
@@ -176,6 +326,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 217.85,
           "energy_remaining_percent": 99.023,
           "path_kind": "frontier",
@@ -247,6 +403,46 @@
       "step": 2
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            4
+          ],
+          "drone-2": [
+            4,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -255,6 +451,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 216.8,
           "energy_remaining_percent": 98.545,
           "path_kind": "frontier",
@@ -275,6 +477,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 216.8,
           "energy_remaining_percent": 98.545,
           "path_kind": "frontier",
@@ -350,6 +558,46 @@
       "step": 3
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            2,
+            4
+          ],
+          "drone-2": [
+            5,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -358,6 +606,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 215.75,
           "energy_remaining_percent": 98.068,
           "path_kind": "frontier",
@@ -382,6 +636,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 215.75,
           "energy_remaining_percent": 98.068,
           "path_kind": "frontier",
@@ -437,6 +697,46 @@
       "step": 4
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            2,
+            5
+          ],
+          "drone-2": [
+            6,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -445,6 +745,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 214.7,
           "energy_remaining_percent": 97.591,
           "path_kind": "frontier",
@@ -469,6 +775,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 214.7,
           "energy_remaining_percent": 97.591,
           "path_kind": "frontier",
@@ -520,6 +832,41 @@
       "step": 5
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "drone-1",
+            "kind": "relay",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            3,
+            5
+          ],
+          "drone-2": [
+            6,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -528,6 +875,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 213.65,
           "energy_remaining_percent": 97.114,
           "path_kind": "frontier",
@@ -548,6 +901,16 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": false,
+            "relay_path": [
+              "base",
+              "drone-1",
+              "drone-2"
+            ],
+            "via_relay": true
+          },
           "energy_remaining": 213.65,
           "energy_remaining_percent": 97.114,
           "path_kind": "frontier",
@@ -569,6 +932,16 @@
         }
       },
       "events": [
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 213.65,
+          "event_type": "relay_link_established",
+          "position": [
+            6,
+            1
+          ],
+          "step": 6
+        },
         {
           "drone_id": "drone-1",
           "energy_remaining": 213.65,
@@ -609,6 +982,41 @@
       "step": 6
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "drone-1",
+            "kind": "relay",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            2,
+            5
+          ],
+          "drone-2": [
+            7,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -617,6 +1025,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 212.6,
           "energy_remaining_percent": 96.636,
           "path_kind": "frontier",
@@ -641,6 +1055,16 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": false,
+            "relay_path": [
+              "base",
+              "drone-1",
+              "drone-2"
+            ],
+            "via_relay": true
+          },
           "energy_remaining": 212.6,
           "energy_remaining_percent": 96.636,
           "path_kind": "frontier",
@@ -692,6 +1116,41 @@
       "step": 7
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            2,
+            6
+          ],
+          "drone-2": [
+            7,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -700,6 +1159,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 211.55,
           "energy_remaining_percent": 96.159,
           "path_kind": "frontier",
@@ -720,6 +1185,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 211.55,
           "energy_remaining_percent": 96.159,
           "path_kind": "frontier",
@@ -745,6 +1216,16 @@
         }
       },
       "events": [
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 211.55,
+          "event_type": "relay_link_lost",
+          "position": [
+            7,
+            2
+          ],
+          "step": 8
+        },
         {
           "drone_id": "drone-1",
           "energy_remaining": 211.55,
@@ -775,6 +1256,30 @@
       "step": 8
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            6
+          ],
+          "drone-2": [
+            8,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -783,6 +1288,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 210.5,
           "energy_remaining_percent": 95.682,
           "path_kind": "frontier",
@@ -803,6 +1314,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 210.5,
           "energy_remaining_percent": 95.682,
           "path_kind": "frontier",
@@ -824,6 +1341,26 @@
         }
       },
       "events": [
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 210.5,
+          "event_type": "communication_lost",
+          "position": [
+            1,
+            6
+          ],
+          "step": 9
+        },
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 210.5,
+          "event_type": "communication_lost",
+          "position": [
+            8,
+            2
+          ],
+          "step": 9
+        },
         {
           "drone_id": "drone-1",
           "energy_remaining": 210.5,
@@ -864,6 +1401,30 @@
       "step": 9
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            7
+          ],
+          "drone-2": [
+            9,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -872,6 +1433,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 209.45,
           "energy_remaining_percent": 95.205,
           "path_kind": "frontier",
@@ -892,6 +1459,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 209.45,
           "energy_remaining_percent": 95.205,
           "path_kind": "frontier",
@@ -953,6 +1526,30 @@
       "step": 10
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            8
+          ],
+          "drone-2": [
+            9,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -961,6 +1558,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 208.4,
           "energy_remaining_percent": 94.727,
           "path_kind": "frontier",
@@ -981,6 +1584,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 208.4,
           "energy_remaining_percent": 94.727,
           "path_kind": "frontier",
@@ -1042,6 +1651,30 @@
       "step": 11
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            9
+          ],
+          "drone-2": [
+            9,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -1050,6 +1683,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 207.35,
           "energy_remaining_percent": 94.25,
           "path_kind": "frontier",
@@ -1070,6 +1709,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 207.35,
           "energy_remaining_percent": 94.25,
           "path_kind": "frontier",
@@ -1135,6 +1780,30 @@
       "step": 12
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            10
+          ],
+          "drone-2": [
+            10,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -1143,6 +1812,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 206.3,
           "energy_remaining_percent": 93.773,
           "path_kind": "frontier",
@@ -1163,6 +1838,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 206.3,
           "energy_remaining_percent": 93.773,
           "path_kind": "frontier",
@@ -1224,6 +1905,30 @@
       "step": 13
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            2,
+            10
+          ],
+          "drone-2": [
+            11,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -1236,6 +1941,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 205.25,
           "energy_remaining_percent": 93.295,
           "path_kind": "frontier",
@@ -1256,6 +1967,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 205.25,
           "energy_remaining_percent": 93.295,
           "path_kind": "frontier",
@@ -1327,6 +2044,30 @@
       "step": 14
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            3,
+            10
+          ],
+          "drone-2": [
+            11,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -1339,6 +2080,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 204.2,
           "energy_remaining_percent": 92.818,
           "path_kind": "frontier",
@@ -1359,6 +2106,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 204.2,
           "energy_remaining_percent": 92.818,
           "path_kind": "frontier",
@@ -1420,6 +2173,30 @@
       "step": 15
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            4,
+            10
+          ],
+          "drone-2": [
+            12,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -1432,6 +2209,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 203.15,
           "energy_remaining_percent": 92.341,
           "path_kind": "frontier",
@@ -1452,6 +2235,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 203.15,
           "energy_remaining_percent": 92.341,
           "path_kind": "frontier",
@@ -1513,6 +2302,30 @@
       "step": 16
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            5,
+            10
+          ],
+          "drone-2": [
+            13,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -1525,6 +2338,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 202.1,
           "energy_remaining_percent": 91.864,
           "path_kind": "frontier",
@@ -1545,6 +2364,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 202.1,
           "energy_remaining_percent": 91.864,
           "path_kind": "frontier",
@@ -1606,6 +2431,30 @@
       "step": 17
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            5,
+            9
+          ],
+          "drone-2": [
+            14,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -1618,6 +2467,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 201.05,
           "energy_remaining_percent": 91.386,
           "path_kind": "frontier",
@@ -1638,6 +2493,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 201.05,
           "energy_remaining_percent": 91.386,
           "path_kind": "frontier",
@@ -1699,6 +2560,30 @@
       "step": 18
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            5,
+            8
+          ],
+          "drone-2": [
+            15,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -1711,6 +2596,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 200.0,
           "energy_remaining_percent": 90.909,
           "path_kind": "frontier",
@@ -1731,6 +2622,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 200.0,
           "energy_remaining_percent": 90.909,
           "path_kind": "frontier",
@@ -1792,6 +2689,36 @@
       "step": 19
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            5,
+            7
+          ],
+          "drone-2": [
+            16,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -1804,6 +2731,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 198.95,
           "energy_remaining_percent": 90.432,
           "path_kind": "frontier",
@@ -1824,6 +2757,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 198.95,
           "energy_remaining_percent": 90.432,
           "path_kind": "frontier",
@@ -1845,6 +2784,16 @@
         }
       },
       "events": [
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 198.95,
+          "event_type": "communication_restored",
+          "position": [
+            5,
+            7
+          ],
+          "step": 20
+        },
         {
           "drone_id": "drone-1",
           "energy_remaining": 198.95,
@@ -1885,6 +2834,36 @@
       "step": 20
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            6,
+            7
+          ],
+          "drone-2": [
+            15,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -1897,6 +2876,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 197.9,
           "energy_remaining_percent": 89.955,
           "path_kind": "frontier",
@@ -1929,6 +2914,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 197.9,
           "energy_remaining_percent": 89.955,
           "path_kind": "frontier",
@@ -1988,6 +2979,36 @@
       "step": 21
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            6,
+            6
+          ],
+          "drone-2": [
+            15,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2000,6 +3021,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 196.85,
           "energy_remaining_percent": 89.477,
           "path_kind": "frontier",
@@ -2032,6 +3059,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 196.85,
           "energy_remaining_percent": 89.477,
           "path_kind": "frontier",
@@ -2087,6 +3120,36 @@
       "step": 22
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            6,
+            5
+          ],
+          "drone-2": [
+            15,
+            3
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2099,6 +3162,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 195.8,
           "energy_remaining_percent": 89.0,
           "path_kind": "frontier",
@@ -2131,6 +3200,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 195.8,
           "energy_remaining_percent": 89.0,
           "path_kind": "frontier",
@@ -2192,6 +3267,36 @@
       "step": 23
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            6,
+            4
+          ],
+          "drone-2": [
+            16,
+            3
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2204,6 +3309,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 194.75,
           "energy_remaining_percent": 88.523,
           "path_kind": "frontier",
@@ -2236,6 +3347,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 194.75,
           "energy_remaining_percent": 88.523,
           "path_kind": "frontier",
@@ -2297,6 +3414,36 @@
       "step": 24
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            6,
+            5
+          ],
+          "drone-2": [
+            17,
+            3
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2309,6 +3456,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 193.7,
           "energy_remaining_percent": 88.045,
           "path_kind": "frontier",
@@ -2353,6 +3506,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 193.7,
           "energy_remaining_percent": 88.045,
           "path_kind": "frontier",
@@ -2404,6 +3563,36 @@
       "step": 25
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            7,
+            5
+          ],
+          "drone-2": [
+            17,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2416,6 +3605,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 192.65,
           "energy_remaining_percent": 87.568,
           "path_kind": "frontier",
@@ -2456,6 +3651,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 192.65,
           "energy_remaining_percent": 87.568,
           "path_kind": "frontier",
@@ -2507,6 +3708,30 @@
       "step": 26
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            8,
+            5
+          ],
+          "drone-2": [
+            18,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2519,6 +3744,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 191.6,
           "energy_remaining_percent": 87.091,
           "path_kind": "frontier",
@@ -2555,6 +3786,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 191.6,
           "energy_remaining_percent": 87.091,
           "path_kind": "frontier",
@@ -2576,6 +3813,16 @@
         }
       },
       "events": [
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 191.6,
+          "event_type": "communication_lost",
+          "position": [
+            8,
+            5
+          ],
+          "step": 27
+        },
         {
           "drone_id": "drone-2",
           "energy_remaining": 191.6,
@@ -2606,6 +3853,30 @@
       "step": 27
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            9,
+            5
+          ],
+          "drone-2": [
+            18,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2618,6 +3889,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 190.55,
           "energy_remaining_percent": 86.614,
           "path_kind": "frontier",
@@ -2650,6 +3927,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 190.55,
           "energy_remaining_percent": 86.614,
           "path_kind": "frontier",
@@ -2701,6 +3984,30 @@
       "step": 28
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            10,
+            5
+          ],
+          "drone-2": [
+            19,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2713,6 +4020,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 189.5,
           "energy_remaining_percent": 86.136,
           "path_kind": "frontier",
@@ -2741,6 +4054,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 189.5,
           "energy_remaining_percent": 86.136,
           "path_kind": "frontier",
@@ -2792,6 +4111,30 @@
       "step": 29
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            11,
+            5
+          ],
+          "drone-2": [
+            18,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2804,6 +4147,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 188.45,
           "energy_remaining_percent": 85.659,
           "path_kind": "frontier",
@@ -2828,6 +4177,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 188.45,
           "energy_remaining_percent": 85.659,
           "path_kind": "frontier",
@@ -2880,6 +4235,36 @@
       "step": 30
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            12,
+            5
+          ],
+          "drone-2": [
+            18,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2892,6 +4277,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 187.4,
           "energy_remaining_percent": 85.182,
           "path_kind": "frontier",
@@ -2912,6 +4303,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 187.4,
           "energy_remaining_percent": 85.182,
           "path_kind": "frontier",
@@ -2971,6 +4368,30 @@
       "step": 31
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            13,
+            5
+          ],
+          "drone-2": [
+            18,
+            3
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -2983,6 +4404,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 186.35,
           "energy_remaining_percent": 84.705,
           "path_kind": "frontier",
@@ -3003,6 +4430,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 186.35,
           "energy_remaining_percent": 84.705,
           "path_kind": "frontier",
@@ -3058,6 +4491,30 @@
       "step": 32
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            13,
+            6
+          ],
+          "drone-2": [
+            19,
+            3
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -3070,6 +4527,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 185.3,
           "energy_remaining_percent": 84.227,
           "path_kind": "frontier",
@@ -3090,6 +4553,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 185.3,
           "energy_remaining_percent": 84.227,
           "path_kind": "frontier",
@@ -3151,6 +4620,30 @@
       "step": 33
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            14,
+            6
+          ],
+          "drone-2": [
+            19,
+            4
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -3163,6 +4656,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 184.25,
           "energy_remaining_percent": 83.75,
           "path_kind": "frontier",
@@ -3183,6 +4682,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 184.25,
           "energy_remaining_percent": 83.75,
           "path_kind": "frontier",
@@ -3244,6 +4749,36 @@
       "step": 34
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            14,
+            7
+          ],
+          "drone-2": [
+            19,
+            5
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -3256,6 +4791,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 183.2,
           "energy_remaining_percent": 83.273,
           "path_kind": "frontier",
@@ -3280,6 +4821,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 183.2,
           "energy_remaining_percent": 83.273,
           "path_kind": "frontier",
@@ -3331,6 +4878,36 @@
       "step": 35
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            15,
+            7
+          ],
+          "drone-2": [
+            19,
+            6
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -3343,6 +4920,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 182.15,
           "energy_remaining_percent": 82.795,
           "path_kind": "frontier",
@@ -3363,6 +4946,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 182.15,
           "energy_remaining_percent": 82.795,
           "path_kind": "frontier",
@@ -3424,6 +5013,36 @@
       "step": 36
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            16,
+            7
+          ],
+          "drone-2": [
+            19,
+            7
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -3436,6 +5055,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 181.1,
           "energy_remaining_percent": 82.318,
           "path_kind": "frontier",
@@ -3456,6 +5081,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 181.1,
           "energy_remaining_percent": 82.318,
           "path_kind": "frontier",
@@ -3517,6 +5148,36 @@
       "step": 37
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            17,
+            7
+          ],
+          "drone-2": [
+            18,
+            7
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -3529,6 +5190,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 180.05,
           "energy_remaining_percent": 81.841,
           "path_kind": "frontier",
@@ -3549,6 +5216,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 180.05,
           "energy_remaining_percent": 81.841,
           "path_kind": "frontier",
@@ -3610,6 +5283,36 @@
       "step": 38
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            16,
+            7
+          ],
+          "drone-2": [
+            18,
+            8
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -3622,6 +5325,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 179.0,
           "energy_remaining_percent": 81.364,
           "path_kind": "frontier",
@@ -3654,6 +5363,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 179.0,
           "energy_remaining_percent": 81.364,
           "path_kind": "frontier",
@@ -3709,6 +5424,36 @@
       "step": 39
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            15,
+            7
+          ],
+          "drone-2": [
+            18,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -3721,6 +5466,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 177.95,
           "energy_remaining_percent": 80.886,
           "path_kind": "frontier",
@@ -3749,6 +5500,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 177.95,
           "energy_remaining_percent": 80.886,
           "path_kind": "frontier",
@@ -3804,6 +5561,36 @@
       "step": 40
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            14,
+            7
+          ],
+          "drone-2": [
+            18,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -3816,6 +5603,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 176.9,
           "energy_remaining_percent": 80.409,
           "path_kind": "frontier",
@@ -3840,6 +5633,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 176.9,
           "energy_remaining_percent": 80.409,
           "path_kind": "frontier",
@@ -3895,6 +5694,36 @@
       "step": 41
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            14,
+            8
+          ],
+          "drone-2": [
+            17,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -3907,6 +5736,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 175.85,
           "energy_remaining_percent": 79.932,
           "path_kind": "frontier",
@@ -3927,6 +5762,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 175.85,
           "energy_remaining_percent": 79.932,
           "path_kind": "frontier",
@@ -3992,6 +5833,36 @@
       "step": 42
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            13,
+            8
+          ],
+          "drone-2": [
+            16,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -4004,6 +5875,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 174.8,
           "energy_remaining_percent": 79.455,
           "path_kind": "frontier",
@@ -4024,6 +5901,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 174.8,
           "energy_remaining_percent": 79.455,
           "path_kind": "frontier",
@@ -4083,6 +5966,36 @@
       "step": 43
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            12,
+            8
+          ],
+          "drone-2": [
+            15,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -4095,6 +6008,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 173.75,
           "energy_remaining_percent": 78.977,
           "path_kind": "frontier",
@@ -4123,6 +6042,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 173.75,
           "energy_remaining_percent": 78.977,
           "path_kind": "frontier",
@@ -4188,6 +6113,36 @@
       "step": 44
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            11,
+            8
+          ],
+          "drone-2": [
+            14,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -4200,6 +6155,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 172.7,
           "energy_remaining_percent": 78.5,
           "path_kind": "frontier",
@@ -4228,6 +6189,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 172.7,
           "energy_remaining_percent": 78.5,
           "path_kind": "frontier",
@@ -4280,6 +6247,36 @@
       "step": 45
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            10,
+            8
+          ],
+          "drone-2": [
+            13,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -4292,6 +6289,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 171.65,
           "energy_remaining_percent": 78.023,
           "path_kind": "frontier",
@@ -4316,6 +6319,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 171.65,
           "energy_remaining_percent": 78.023,
           "path_kind": "frontier",
@@ -4385,6 +6394,30 @@
       "step": 46
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            10,
+            9
+          ],
+          "drone-2": [
+            12,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -4397,6 +6430,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 170.6,
           "energy_remaining_percent": 77.545,
           "path_kind": "frontier",
@@ -4425,6 +6464,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 170.6,
           "energy_remaining_percent": 77.545,
           "path_kind": "frontier",
@@ -4469,6 +6514,30 @@
       "step": 47
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            9,
+            9
+          ],
+          "drone-2": [
+            12,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -4485,6 +6554,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 169.55,
           "energy_remaining_percent": 77.068,
           "path_kind": "frontier",
@@ -4509,6 +6584,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 169.55,
           "energy_remaining_percent": 77.068,
           "path_kind": "frontier",
@@ -4580,6 +6661,36 @@
       "step": 48
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            8,
+            9
+          ],
+          "drone-2": [
+            11,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -4596,6 +6707,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 168.5,
           "energy_remaining_percent": 76.591,
           "path_kind": "frontier",
@@ -4624,6 +6741,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 168.5,
           "energy_remaining_percent": 76.591,
           "path_kind": "frontier",
@@ -4685,6 +6808,36 @@
       "step": 49
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            7,
+            9
+          ],
+          "drone-2": [
+            10,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -4701,6 +6854,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 167.45,
           "energy_remaining_percent": 76.114,
           "path_kind": "frontier",
@@ -4729,6 +6888,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 167.45,
           "energy_remaining_percent": 76.114,
           "path_kind": "frontier",
@@ -4796,6 +6961,36 @@
       "step": 50
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            6,
+            9
+          ],
+          "drone-2": [
+            9,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -4812,6 +7007,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 166.4,
           "energy_remaining_percent": 75.636,
           "path_kind": "frontier",
@@ -4860,6 +7061,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 166.4,
           "energy_remaining_percent": 75.636,
           "path_kind": "frontier",
@@ -4923,6 +7130,36 @@
       "step": 51
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            5,
+            9
+          ],
+          "drone-2": [
+            10,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -4939,6 +7176,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 165.35,
           "energy_remaining_percent": 75.159,
           "path_kind": "frontier",
@@ -4983,6 +7226,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 165.35,
           "energy_remaining_percent": 75.159,
           "path_kind": "frontier",
@@ -5067,6 +7316,36 @@
       "step": 52
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            4,
+            9
+          ],
+          "drone-2": [
+            11,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -5083,6 +7362,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 164.3,
           "energy_remaining_percent": 74.682,
           "path_kind": "frontier",
@@ -5123,6 +7408,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 164.3,
           "energy_remaining_percent": 74.682,
           "path_kind": "frontier",
@@ -5203,6 +7494,30 @@
       "step": 53
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            3,
+            9
+          ],
+          "drone-2": [
+            12,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -5219,6 +7534,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 163.25,
           "energy_remaining_percent": 74.205,
           "path_kind": "frontier",
@@ -5255,6 +7576,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 163.25,
           "energy_remaining_percent": 74.205,
           "path_kind": "frontier",
@@ -5331,6 +7658,30 @@
       "step": 54
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            2,
+            9
+          ],
+          "drone-2": [
+            13,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -5347,6 +7698,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 162.2,
           "energy_remaining_percent": 73.727,
           "path_kind": "frontier",
@@ -5379,6 +7736,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 162.2,
           "energy_remaining_percent": 73.727,
           "path_kind": "frontier",
@@ -5451,6 +7814,30 @@
       "step": 55
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            9
+          ],
+          "drone-2": [
+            14,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -5467,6 +7854,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 161.15,
           "energy_remaining_percent": 73.25,
           "path_kind": "frontier",
@@ -5495,6 +7888,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 161.15,
           "energy_remaining_percent": 73.25,
           "path_kind": "frontier",
@@ -5563,6 +7962,30 @@
       "step": 56
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            10
+          ],
+          "drone-2": [
+            15,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -5579,6 +8002,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 160.1,
           "energy_remaining_percent": 72.773,
           "path_kind": "frontier",
@@ -5603,6 +8032,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 160.1,
           "energy_remaining_percent": 72.773,
           "path_kind": "frontier",
@@ -5667,6 +8102,30 @@
       "step": 57
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            11
+          ],
+          "drone-2": [
+            15,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -5683,6 +8142,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 159.05,
           "energy_remaining_percent": 72.295,
           "path_kind": "frontier",
@@ -5703,6 +8168,12 @@
           ]
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 159.05,
           "energy_remaining_percent": 72.295,
           "path_kind": "frontier",
@@ -5774,6 +8245,30 @@
       "step": 58
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            11
+          ],
+          "drone-2": [
+            16,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -5790,6 +8285,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 158.95,
           "energy_remaining_percent": 72.25,
           "path_kind": "frontier",
@@ -5802,6 +8303,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 158.0,
           "energy_remaining_percent": 71.818,
           "path_kind": "frontier",
@@ -5869,6 +8376,30 @@
       "step": 59
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            11
+          ],
+          "drone-2": [
+            17,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -5885,6 +8416,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 158.85,
           "energy_remaining_percent": 72.205,
           "path_kind": "frontier",
@@ -5897,6 +8434,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 156.95,
           "energy_remaining_percent": 71.341,
           "path_kind": "frontier",
@@ -5960,6 +8503,30 @@
       "step": 60
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            11
+          ],
+          "drone-2": [
+            18,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -5976,6 +8543,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 158.75,
           "energy_remaining_percent": 72.159,
           "path_kind": "frontier",
@@ -5988,6 +8561,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 155.9,
           "energy_remaining_percent": 70.864,
           "path_kind": "frontier",
@@ -6047,6 +8626,30 @@
       "step": 61
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            11
+          ],
+          "drone-2": [
+            19,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -6063,6 +8666,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 158.65,
           "energy_remaining_percent": 72.114,
           "path_kind": "frontier",
@@ -6075,6 +8684,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 154.85,
           "energy_remaining_percent": 70.386,
           "path_kind": "frontier",
@@ -6130,6 +8745,30 @@
       "step": 62
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            11
+          ],
+          "drone-2": [
+            19,
+            11
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -6146,6 +8785,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 158.55,
           "energy_remaining_percent": 72.068,
           "path_kind": "frontier",
@@ -6158,6 +8803,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 153.8,
           "energy_remaining_percent": 69.909,
           "path_kind": "frontier",
@@ -6219,6 +8870,30 @@
       "step": 63
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            10
+          ],
+          "drone-2": [
+            19,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -6235,6 +8910,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 157.5,
           "energy_remaining_percent": 71.591,
           "path_kind": "return",
@@ -6296,6 +8977,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 152.75,
           "energy_remaining_percent": 69.432,
           "path_kind": "return",
@@ -6441,6 +9128,30 @@
       "step": 64
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            9
+          ],
+          "drone-2": [
+            18,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -6457,6 +9168,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 156.45,
           "energy_remaining_percent": 71.114,
           "path_kind": "return",
@@ -6514,6 +9231,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 151.7,
           "energy_remaining_percent": 68.955,
           "path_kind": "return",
@@ -6655,6 +9378,30 @@
       "step": 65
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            8
+          ],
+          "drone-2": [
+            17,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -6671,6 +9418,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 155.4,
           "energy_remaining_percent": 70.636,
           "path_kind": "return",
@@ -6724,6 +9477,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 150.65,
           "energy_remaining_percent": 68.477,
           "path_kind": "return",
@@ -6861,6 +9620,30 @@
       "step": 66
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            7
+          ],
+          "drone-2": [
+            16,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -6877,6 +9660,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 154.35,
           "energy_remaining_percent": 70.159,
           "path_kind": "return",
@@ -6926,6 +9715,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 149.6,
           "energy_remaining_percent": 68.0,
           "path_kind": "return",
@@ -7059,6 +9854,30 @@
       "step": 67
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            6
+          ],
+          "drone-2": [
+            15,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -7075,6 +9894,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 153.3,
           "energy_remaining_percent": 69.682,
           "path_kind": "return",
@@ -7120,6 +9945,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 148.55,
           "energy_remaining_percent": 67.523,
           "path_kind": "return",
@@ -7249,6 +10080,36 @@
       "step": 68
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            2,
+            6
+          ],
+          "drone-2": [
+            14,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -7265,6 +10126,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 152.25,
           "energy_remaining_percent": 69.205,
           "path_kind": "return",
@@ -7306,6 +10173,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 147.5,
           "energy_remaining_percent": 67.045,
           "path_kind": "return",
@@ -7411,7 +10284,18 @@
           "target": null
         }
       },
-      "events": [],
+      "events": [
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 152.25,
+          "event_type": "communication_restored",
+          "position": [
+            2,
+            6
+          ],
+          "step": 69
+        }
+      ],
       "explored_percent": 95.604,
       "occupancy": [
         "?####?##?#?######?##?",
@@ -7431,6 +10315,36 @@
       "step": 69
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            2,
+            5
+          ],
+          "drone-2": [
+            13,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -7447,6 +10361,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 151.2,
           "energy_remaining_percent": 68.727,
           "path_kind": "return",
@@ -7484,6 +10404,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 146.45,
           "energy_remaining_percent": 66.568,
           "path_kind": "return",
@@ -7605,6 +10531,36 @@
       "step": 70
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            2,
+            4
+          ],
+          "drone-2": [
+            12,
+            10
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -7621,6 +10577,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 150.15,
           "energy_remaining_percent": 68.25,
           "path_kind": "return",
@@ -7654,6 +10616,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.4,
           "energy_remaining_percent": 66.091,
           "path_kind": "return",
@@ -7771,6 +10739,36 @@
       "step": 71
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            4
+          ],
+          "drone-2": [
+            12,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -7787,6 +10785,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 149.1,
           "energy_remaining_percent": 67.773,
           "path_kind": "return",
@@ -7816,6 +10820,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 144.35,
           "energy_remaining_percent": 65.614,
           "path_kind": "return",
@@ -7929,6 +10939,36 @@
       "step": 72
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            3
+          ],
+          "drone-2": [
+            11,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -7945,6 +10985,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 148.05,
           "energy_remaining_percent": 67.295,
           "path_kind": "return",
@@ -7970,6 +11016,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 143.3,
           "energy_remaining_percent": 65.136,
           "path_kind": "return",
@@ -8079,6 +11131,36 @@
       "step": 73
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            2
+          ],
+          "drone-2": [
+            10,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -8095,6 +11177,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 147.0,
           "energy_remaining_percent": 66.818,
           "path_kind": "return",
@@ -8116,6 +11204,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 142.25,
           "energy_remaining_percent": 64.659,
           "path_kind": "return",
@@ -8221,6 +11315,36 @@
       "step": 74
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            9,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -8237,6 +11361,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -8249,6 +11379,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 141.2,
           "energy_remaining_percent": 64.182,
           "path_kind": "return",
@@ -8361,6 +11497,36 @@
       "step": 75
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            8,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -8377,6 +11543,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -8389,6 +11561,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 140.15,
           "energy_remaining_percent": 63.705,
           "path_kind": "return",
@@ -8486,6 +11664,36 @@
       "step": 76
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            7,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -8502,6 +11710,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -8514,6 +11728,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 139.1,
           "energy_remaining_percent": 63.227,
           "path_kind": "return",
@@ -8607,6 +11827,36 @@
       "step": 77
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            6,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -8623,6 +11873,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -8635,6 +11891,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 138.05,
           "energy_remaining_percent": 62.75,
           "path_kind": "return",
@@ -8724,6 +11986,36 @@
       "step": 78
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            5,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -8740,6 +12032,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -8752,6 +12050,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 137.0,
           "energy_remaining_percent": 62.273,
           "path_kind": "return",
@@ -8837,6 +12141,36 @@
       "step": 79
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            4,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -8853,6 +12187,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -8865,6 +12205,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 135.95,
           "energy_remaining_percent": 61.795,
           "path_kind": "return",
@@ -8946,6 +12292,36 @@
       "step": 80
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            3,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -8962,6 +12338,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -8974,6 +12356,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 134.9,
           "energy_remaining_percent": 61.318,
           "path_kind": "return",
@@ -9051,6 +12439,36 @@
       "step": 81
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            2,
+            9
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -9067,6 +12485,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -9079,6 +12503,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 133.85,
           "energy_remaining_percent": 60.841,
           "path_kind": "return",
@@ -9152,6 +12582,36 @@
       "step": 82
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            2,
+            8
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -9168,6 +12628,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -9180,6 +12646,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": false,
+            "direct_to_base": false,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 132.8,
           "energy_remaining_percent": 60.364,
           "path_kind": "return",
@@ -9249,6 +12721,46 @@
       "step": 83
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            2,
+            7
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -9265,6 +12777,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -9277,6 +12795,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 131.75,
           "energy_remaining_percent": 59.886,
           "path_kind": "return",
@@ -9322,7 +12846,18 @@
           "target": null
         }
       },
-      "events": [],
+      "events": [
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 131.75,
+          "event_type": "communication_restored",
+          "position": [
+            2,
+            7
+          ],
+          "step": 84
+        }
+      ],
       "explored_percent": 95.604,
       "occupancy": [
         "?####?##?#?######?##?",
@@ -9342,6 +12877,46 @@
       "step": 84
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            2,
+            6
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -9358,6 +12933,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -9370,6 +12951,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 130.7,
           "energy_remaining_percent": 59.409,
           "path_kind": "return",
@@ -9431,6 +13018,46 @@
       "step": 85
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            2,
+            5
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -9447,6 +13074,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -9459,6 +13092,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 129.65,
           "energy_remaining_percent": 58.932,
           "path_kind": "return",
@@ -9516,6 +13155,46 @@
       "step": 86
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            2,
+            4
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -9532,6 +13211,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -9544,6 +13229,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 128.6,
           "energy_remaining_percent": 58.455,
           "path_kind": "return",
@@ -9597,6 +13288,46 @@
       "step": 87
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            1,
+            4
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -9613,6 +13344,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -9625,6 +13362,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 127.55,
           "energy_remaining_percent": 57.977,
           "path_kind": "return",
@@ -9674,6 +13417,46 @@
       "step": 88
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            1,
+            3
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -9690,6 +13473,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -9702,6 +13491,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 126.5,
           "energy_remaining_percent": 57.5,
           "path_kind": "return",
@@ -9747,6 +13542,46 @@
       "step": 89
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            1,
+            2
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -9763,6 +13598,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -9775,6 +13616,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 125.45,
           "energy_remaining_percent": 57.023,
           "path_kind": "return",
@@ -9816,6 +13663,46 @@
       "step": 90
     },
     {
+      "communication": {
+        "base_station": {
+          "id": "base",
+          "position": [
+            1,
+            1
+          ]
+        },
+        "links": [
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-1"
+          },
+          {
+            "from": "base",
+            "kind": "direct_base",
+            "to": "drone-2"
+          },
+          {
+            "from": "drone-1",
+            "kind": "peer",
+            "to": "drone-2"
+          }
+        ],
+        "nodes": {
+          "base": [
+            1,
+            1
+          ],
+          "drone-1": [
+            1,
+            1
+          ],
+          "drone-2": [
+            1,
+            1
+          ]
+        }
+      },
       "confirmed_survivors": [
         [
           4,
@@ -9832,6 +13719,12 @@
       ],
       "drones": {
         "drone-1": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 145.95,
           "energy_remaining_percent": 66.341,
           "path_kind": "frontier",
@@ -9844,6 +13737,12 @@
           "target": null
         },
         "drone-2": {
+          "communication": {
+            "connected_to_base": true,
+            "direct_to_base": true,
+            "relay_path": [],
+            "via_relay": false
+          },
           "energy_remaining": 124.4,
           "energy_remaining_percent": 56.545,
           "path_kind": "frontier",
@@ -9917,7 +13816,19 @@
   },
   "metrics": {
     "collisions": 0,
+    "communication_outages_by_drone": {
+      "drone-1": 2,
+      "drone-2": 1
+    },
+    "communication_uptime_by_drone": {
+      "drone-1": 0.423913,
+      "drone-2": 0.184783
+    },
     "completed": true,
+    "direct_base_uptime_by_drone": {
+      "drone-1": 0.423913,
+      "drone-2": 0.163043
+    },
     "drone_drone_collisions": 0,
     "drone_status_by_drone": {
       "drone-1": "LANDED",
@@ -9937,6 +13848,10 @@
       "drone-2": 39
     },
     "known_cells": 261,
+    "longest_outage_by_drone": {
+      "drone-1": 42,
+      "drone-2": 75
+    },
     "mission_events": [
       {
         "drone_id": "drone-1",
@@ -10059,6 +13974,16 @@
         "step": 5
       },
       {
+        "drone_id": "drone-2",
+        "energy_remaining": 213.65,
+        "event_type": "relay_link_established",
+        "position": [
+          6,
+          1
+        ],
+        "step": 6
+      },
+      {
         "drone_id": "drone-1",
         "energy_remaining": 213.65,
         "event_type": "frontier_reassigned",
@@ -10089,6 +14014,16 @@
         "step": 7
       },
       {
+        "drone_id": "drone-2",
+        "energy_remaining": 211.55,
+        "event_type": "relay_link_lost",
+        "position": [
+          7,
+          2
+        ],
+        "step": 8
+      },
+      {
         "drone_id": "drone-1",
         "energy_remaining": 211.55,
         "event_type": "frontier_reassigned",
@@ -10097,6 +14032,26 @@
           6
         ],
         "step": 8
+      },
+      {
+        "drone_id": "drone-1",
+        "energy_remaining": 210.5,
+        "event_type": "communication_lost",
+        "position": [
+          1,
+          6
+        ],
+        "step": 9
+      },
+      {
+        "drone_id": "drone-2",
+        "energy_remaining": 210.5,
+        "event_type": "communication_lost",
+        "position": [
+          8,
+          2
+        ],
+        "step": 9
       },
       {
         "drone_id": "drone-1",
@@ -10331,6 +14286,16 @@
       {
         "drone_id": "drone-1",
         "energy_remaining": 198.95,
+        "event_type": "communication_restored",
+        "position": [
+          5,
+          7
+        ],
+        "step": 20
+      },
+      {
+        "drone_id": "drone-1",
+        "energy_remaining": 198.95,
         "event_type": "frontier_reassigned",
         "position": [
           9,
@@ -10427,6 +14392,16 @@
           2
         ],
         "step": 26
+      },
+      {
+        "drone_id": "drone-1",
+        "energy_remaining": 191.6,
+        "event_type": "communication_lost",
+        "position": [
+          8,
+          5
+        ],
+        "step": 27
       },
       {
         "drone_id": "drone-2",
@@ -10830,6 +14805,16 @@
       },
       {
         "drone_id": "drone-1",
+        "energy_remaining": 152.25,
+        "event_type": "communication_restored",
+        "position": [
+          2,
+          6
+        ],
+        "step": 69
+      },
+      {
+        "drone_id": "drone-1",
         "energy_remaining": 145.95,
         "event_type": "base_reached",
         "position": [
@@ -10837,6 +14822,16 @@
           1
         ],
         "step": 75
+      },
+      {
+        "drone_id": "drone-2",
+        "energy_remaining": 131.75,
+        "event_type": "communication_restored",
+        "position": [
+          2,
+          7
+        ],
+        "step": 84
       },
       {
         "drone_id": "drone-2",
@@ -11597,6 +15592,10 @@
         ]
       ]
     },
+    "relay_uptime_by_drone": {
+      "drone-1": 0.0,
+      "drone-2": 0.021739
+    },
     "return_path_length_by_drone": {
       "drone-1": 12,
       "drone-2": 28
@@ -11621,6 +15620,7 @@
   "mission": {
     "configuration": {
       "battery_capacity": 220.0,
+      "communication_range": 8,
       "drone_count": 2,
       "drone_start_positions": null,
       "energy_safety_reserve": 20.0,
@@ -11639,5 +15639,5 @@
     },
     "seed": 7
   },
-  "schema_version": "1.0"
+  "schema_version": "1.1"
 }

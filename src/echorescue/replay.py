@@ -3,6 +3,7 @@ from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
 
+from echorescue.communication import BASE_NODE_ID, CommunicationLink
 from echorescue.config import SimulationConfig
 from echorescue.models import CellState, DroneStatus, Position
 from echorescue.multi_simulation import (
@@ -11,7 +12,7 @@ from echorescue.multi_simulation import (
 )
 
 
-REPLAY_SCHEMA_VERSION = "1.0"
+REPLAY_SCHEMA_VERSION = "1.1"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -58,6 +59,7 @@ class ReplayRecorder:
         for drone_id, runtime in sorted(simulation.runtimes.items()):
             path = _remaining_path(runtime)
             target = runtime.active_frontier_target
+            connection = simulation.communication_snapshot.connections[drone_id]
             drones[drone_id] = {
                 "position": _position(runtime.drone.position),
                 "state": runtime.drone.status.value,
@@ -72,7 +74,33 @@ class ReplayRecorder:
                     if runtime.drone.status is DroneStatus.RETURN_HOME
                     else "frontier"
                 ),
+                "communication": {
+                    "connected_to_base": connection.connected_to_base,
+                    "direct_to_base": connection.direct_to_base,
+                    "via_relay": connection.via_relay,
+                    "relay_path": list(connection.relay_path),
+                },
             }
+        relay_edges = {
+            CommunicationLink.between(first, second)
+            for connection in (
+                simulation.communication_snapshot.connections.values()
+            )
+            for first, second in zip(
+                connection.relay_path, connection.relay_path[1:]
+            )
+        }
+        communication_links = []
+        for link in simulation.communication_snapshot.links:
+            if BASE_NODE_ID in (link.first, link.second):
+                kind = "direct_base"
+            elif link in relay_edges:
+                kind = "relay"
+            else:
+                kind = "peer"
+            communication_links.append(
+                {"from": link.first, "to": link.second, "kind": kind}
+            )
         frame = {
             "step": simulation.steps,
             "drones": drones,
@@ -82,6 +110,19 @@ class ReplayRecorder:
                 for position in sorted(simulation.confirmed_survivors)
             ],
             "events": [],
+            "communication": {
+                "base_station": {
+                    "id": BASE_NODE_ID,
+                    "position": _position(simulation.world.base),
+                },
+                "nodes": {
+                    node_id: _position(position)
+                    for node_id, position in sorted(
+                        simulation.communication_snapshot.nodes.items()
+                    )
+                },
+                "links": communication_links,
+            },
             "explored_percent": round(
                 simulation.occupancy_map.explored_percent, 3
             ),

@@ -2,6 +2,11 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from echorescue.config import SimulationConfig
+from echorescue.communication import (
+    CommunicationModel,
+    CommunicationSnapshot,
+    DroneConnection,
+)
 from echorescue.coordination import (
     FrontierAssignment,
     assign_frontiers,
@@ -78,6 +83,11 @@ class MultiSimulationResult:
     return_path_length_by_drone: dict[str, int]
     position_trace_by_drone: dict[str, tuple[Position, ...]]
     duplicate_exploration_ratio: float
+    communication_uptime_by_drone: dict[str, float]
+    direct_base_uptime_by_drone: dict[str, float]
+    relay_uptime_by_drone: dict[str, float]
+    communication_outages_by_drone: dict[str, int]
+    longest_outage_by_drone: dict[str, int]
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
@@ -124,6 +134,24 @@ class MultiSimulationResult:
             "duplicate_exploration_ratio": round(
                 self.duplicate_exploration_ratio, 6
             ),
+            "communication_uptime_by_drone": {
+                drone_id: round(uptime, 6)
+                for drone_id, uptime in (
+                    self.communication_uptime_by_drone.items()
+                )
+            },
+            "direct_base_uptime_by_drone": {
+                drone_id: round(uptime, 6)
+                for drone_id, uptime in self.direct_base_uptime_by_drone.items()
+            },
+            "relay_uptime_by_drone": {
+                drone_id: round(uptime, 6)
+                for drone_id, uptime in self.relay_uptime_by_drone.items()
+            },
+            "communication_outages_by_drone": dict(
+                self.communication_outages_by_drone
+            ),
+            "longest_outage_by_drone": dict(self.longest_outage_by_drone),
             "mission_success": self.mission_success,
             "mission_events": [event.to_dict() for event in self.mission_events],
         }
@@ -143,6 +171,9 @@ class MultiDroneSimulation:
         self.occupancy_map = OccupancyMap(config.width, config.height)
         self.sensor = DistanceSensor(config.sensor_range)
         self.survivor_sensor = SurvivorSensor(config.survivor_sensor_range)
+        self.communication_model = CommunicationModel(
+            config.communication_range
+        )
         self.mission_log = MissionLog()
         self.steps = 0
         self.collisions = 0
@@ -154,6 +185,14 @@ class MultiDroneSimulation:
         self._detected_survivors: set[Position] = set()
         self._confirmed_survivors: set[Position] = set()
         self._visited_by_cell: dict[Position, set[str]] = {}
+        self.communication_snapshot: CommunicationSnapshot
+        self._communication_samples = 0
+        self._communication_connected_samples: dict[str, int] = {}
+        self._communication_direct_samples: dict[str, int] = {}
+        self._communication_relay_samples: dict[str, int] = {}
+        self._communication_outages: dict[str, int] = {}
+        self._current_outage_steps: dict[str, int] = {}
+        self._longest_outage_steps: dict[str, int] = {}
 
         starts = self._resolve_start_positions()
         self.runtimes: dict[str, DroneRuntime] = {}
@@ -176,6 +215,7 @@ class MultiDroneSimulation:
             self._sense(runtime)
             if not runtime.terminal:
                 self._refresh_return_estimate(runtime)
+        self._sample_communication(record_events=False)
         self._update_completion()
 
     @property
@@ -275,6 +315,68 @@ class MultiDroneSimulation:
                 energy_remaining=runtime.battery.remaining,
             )
         )
+
+    def _sample_communication(self, *, record_events: bool = True) -> None:
+        """Observe radio state without feeding it back into mission behavior."""
+
+        previous = getattr(self, "communication_snapshot", None)
+        snapshot = self.communication_model.compute(
+            self.world,
+            self.world.base,
+            {
+                runtime.drone.identifier: runtime.drone.position
+                for runtime in self._ordered_runtimes()
+            },
+        )
+        self.communication_snapshot = snapshot
+        self._communication_samples += 1
+
+        for runtime in self._ordered_runtimes():
+            drone_id = runtime.drone.identifier
+            connection = snapshot.connections[drone_id]
+            self._communication_connected_samples[drone_id] = (
+                self._communication_connected_samples.get(drone_id, 0)
+                + int(connection.connected_to_base)
+            )
+            self._communication_direct_samples[drone_id] = (
+                self._communication_direct_samples.get(drone_id, 0)
+                + int(connection.direct_to_base)
+            )
+            self._communication_relay_samples[drone_id] = (
+                self._communication_relay_samples.get(drone_id, 0)
+                + int(connection.via_relay)
+            )
+
+            if connection.connected_to_base:
+                self._current_outage_steps[drone_id] = 0
+            else:
+                if self._current_outage_steps.get(drone_id, 0) == 0:
+                    self._communication_outages[drone_id] = (
+                        self._communication_outages.get(drone_id, 0) + 1
+                    )
+                current = self._current_outage_steps.get(drone_id, 0) + 1
+                self._current_outage_steps[drone_id] = current
+                self._longest_outage_steps[drone_id] = max(
+                    self._longest_outage_steps.get(drone_id, 0), current
+                )
+
+            if not record_events or previous is None:
+                continue
+            old_connection: DroneConnection = previous.connections[drone_id]
+            if (
+                old_connection.connected_to_base
+                and not connection.connected_to_base
+            ):
+                self._record_event(runtime, EventType.COMMUNICATION_LOST)
+            elif (
+                not old_connection.connected_to_base
+                and connection.connected_to_base
+            ):
+                self._record_event(runtime, EventType.COMMUNICATION_RESTORED)
+            if not old_connection.via_relay and connection.via_relay:
+                self._record_event(runtime, EventType.RELAY_LINK_ESTABLISHED)
+            elif old_connection.via_relay and not connection.via_relay:
+                self._record_event(runtime, EventType.RELAY_LINK_LOST)
 
     def _sense(self, runtime: DroneRuntime) -> None:
         if runtime.terminal:
@@ -642,7 +744,10 @@ class MultiDroneSimulation:
         self._prepare_energy_states()
         assignments = self._allocate_frontiers()
         intentions = self._plan_intentions(assignments)
+        previous_step = self.steps
         self._execute_intentions(intentions)
+        if self.steps != previous_step:
+            self._sample_communication()
         self._update_completion()
         return not self.completed
 
@@ -744,6 +849,35 @@ class MultiDroneSimulation:
                 for runtime in self._ordered_runtimes()
             },
             duplicate_exploration_ratio=duplicate_ratio,
+            communication_uptime_by_drone={
+                drone_id: (
+                    self._communication_connected_samples[drone_id]
+                    / self._communication_samples
+                )
+                for drone_id in sorted(self.runtimes)
+            },
+            direct_base_uptime_by_drone={
+                drone_id: (
+                    self._communication_direct_samples[drone_id]
+                    / self._communication_samples
+                )
+                for drone_id in sorted(self.runtimes)
+            },
+            relay_uptime_by_drone={
+                drone_id: (
+                    self._communication_relay_samples[drone_id]
+                    / self._communication_samples
+                )
+                for drone_id in sorted(self.runtimes)
+            },
+            communication_outages_by_drone={
+                drone_id: self._communication_outages.get(drone_id, 0)
+                for drone_id in sorted(self.runtimes)
+            },
+            longest_outage_by_drone={
+                drone_id: self._longest_outage_steps.get(drone_id, 0)
+                for drone_id in sorted(self.runtimes)
+            },
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )

@@ -18,6 +18,8 @@
   --free: #344760;
   --wall: #94a3b8;
   --survivor: #fde047;
+  --radio-direct: #34d399;
+  --radio-relay: #c084fc;
   --bg: var(--background);
   --surface: var(--panel);
   --surface-2: var(--panel-raised);
@@ -263,6 +265,9 @@ input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border: 2px s
 .swatch.free { color: var(--free); }
 .swatch.wall { color: var(--wall); }
 .swatch.survivor { color: var(--survivor); border-radius: 50%; }
+.swatch.direct-link, .swatch.relay-link { width: 15px; height: 2px; border-radius: 0; }
+.swatch.direct-link { color: var(--radio-direct); }
+.swatch.relay-link { color: var(--radio-relay); border-top: 1px dashed var(--radio-relay); background: transparent; }
 
 .telemetry-column { display: grid; grid-template-rows: auto auto minmax(280px, 1fr); gap: 12px; min-width: 0; }
 .drone-card { position: relative; overflow: hidden; padding: 15px; }
@@ -281,6 +286,9 @@ input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border: 2px s
 .battery-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--accent); box-shadow: 0 0 10px var(--accent-soft); transition: width .2s ease; }
 .drone-detail { margin-top: 12px; color: var(--muted); font-size: 10px; }
 .drone-detail strong { color: var(--text); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.communication-status.direct { color: var(--radio-direct); }
+.communication-status.relay { color: var(--radio-relay); }
+.communication-status.offline { color: var(--danger); }
 
 .event-panel { min-height: 0; padding: 15px; overflow: hidden; }
 .event-panel .panel-heading > span { display: grid; place-items: center; min-width: 28px; height: 24px; border-radius: 7px; background: var(--surface-3); color: var(--muted); font-size: 10px; }
