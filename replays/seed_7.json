@@ -60,6 +60,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -67,7 +68,8 @@
             1
           ],
           "state": "EXPLORE",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -86,6 +88,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -93,7 +96,8 @@
             1
           ],
           "state": "EXPLORE",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -286,6 +290,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -301,7 +306,8 @@
           "target": [
             1,
             2
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -320,6 +326,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -335,7 +342,8 @@
           "target": [
             3,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -528,6 +536,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -543,7 +552,8 @@
           "target": [
             1,
             3
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -562,6 +572,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -577,7 +588,8 @@
           "target": [
             4,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -785,6 +797,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -800,7 +813,8 @@
           "target": [
             1,
             4
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -819,6 +833,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -838,7 +853,8 @@
           "target": [
             5,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -1066,6 +1082,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1085,7 +1102,8 @@
           "target": [
             2,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -1104,6 +1122,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1123,7 +1142,8 @@
           "target": [
             6,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -1331,6 +1351,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1350,7 +1371,8 @@
           "target": [
             3,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -1369,6 +1391,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1384,7 +1407,8 @@
           "target": [
             6,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -1587,6 +1611,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1602,7 +1627,8 @@
           "target": [
             3,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -1625,6 +1651,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1640,7 +1667,8 @@
           "target": [
             6,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -1863,6 +1891,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1882,7 +1911,8 @@
           "target": [
             2,
             6
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -1905,6 +1935,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1920,7 +1951,8 @@
           "target": [
             7,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -2123,6 +2155,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2138,7 +2171,8 @@
           "target": [
             2,
             6
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -2157,6 +2191,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2176,7 +2211,8 @@
           "target": [
             8,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -2378,6 +2414,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2393,7 +2430,8 @@
           "target": [
             1,
             6
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -2412,6 +2450,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2427,7 +2466,8 @@
           "target": [
             8,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -2649,6 +2689,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2664,7 +2705,8 @@
           "target": [
             1,
             7
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -2683,6 +2725,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2698,7 +2741,8 @@
           "target": [
             9,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -2900,6 +2944,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2915,7 +2960,8 @@
           "target": [
             1,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -2934,6 +2980,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2949,7 +2996,8 @@
           "target": [
             9,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -3151,6 +3199,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3166,7 +3215,8 @@
           "target": [
             1,
             9
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -3185,6 +3235,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3204,7 +3255,8 @@
           "target": [
             10,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -3406,6 +3458,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3421,7 +3474,8 @@
           "target": [
             1,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -3440,6 +3494,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3455,7 +3510,8 @@
           "target": [
             10,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -3661,6 +3717,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3676,7 +3733,8 @@
           "target": [
             2,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -3695,6 +3753,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3710,7 +3769,8 @@
           "target": [
             11,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -3942,6 +4002,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3957,7 +4018,8 @@
           "target": [
             3,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -3976,6 +4038,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3991,7 +4054,8 @@
           "target": [
             11,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -4213,6 +4277,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -4228,7 +4293,8 @@
           "target": [
             4,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -4247,6 +4313,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -4262,7 +4329,8 @@
           "target": [
             12,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -4484,6 +4552,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -4499,7 +4568,8 @@
           "target": [
             5,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -4518,6 +4588,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -4533,7 +4604,8 @@
           "target": [
             13,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -4755,6 +4827,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -4770,7 +4843,8 @@
           "target": [
             5,
             9
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -4789,6 +4863,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -4804,7 +4879,8 @@
           "target": [
             14,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -5026,6 +5102,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5041,7 +5118,8 @@
           "target": [
             5,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -5060,6 +5138,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5075,7 +5154,8 @@
           "target": [
             15,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -5303,6 +5383,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5318,7 +5399,8 @@
           "target": [
             5,
             7
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -5337,6 +5419,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5352,7 +5435,8 @@
           "target": [
             16,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -5590,6 +5674,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5617,7 +5702,8 @@
           "target": [
             9,
             7
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -5636,6 +5722,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5659,7 +5746,8 @@
           "target": [
             15,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -5877,6 +5965,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5904,7 +5993,8 @@
           "target": [
             9,
             6
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -5923,6 +6013,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5942,7 +6033,8 @@
           "target": [
             15,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -6160,6 +6252,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -6187,7 +6280,8 @@
           "target": [
             9,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -6206,6 +6300,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -6221,7 +6316,8 @@
           "target": [
             15,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -6449,6 +6545,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -6476,7 +6573,8 @@
           "target": [
             9,
             4
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -6495,6 +6593,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -6510,7 +6609,8 @@
           "target": [
             16,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -6738,6 +6838,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -6777,7 +6878,8 @@
           "target": [
             12,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -6796,6 +6898,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -6811,7 +6914,8 @@
           "target": [
             17,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -7029,6 +7133,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -7064,7 +7169,8 @@
           "target": [
             12,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -7083,6 +7189,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -7098,7 +7205,8 @@
           "target": [
             17,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -7310,6 +7418,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -7341,7 +7450,8 @@
           "target": [
             12,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -7360,6 +7470,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -7375,7 +7486,8 @@
           "target": [
             18,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -7597,6 +7709,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -7624,7 +7737,8 @@
           "target": [
             12,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -7643,6 +7757,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -7658,7 +7773,8 @@
           "target": [
             18,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -7870,6 +7986,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -7893,7 +8010,8 @@
           "target": [
             12,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -7912,6 +8030,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -7927,7 +8046,8 @@
           "target": [
             19,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -8139,6 +8259,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -8158,7 +8279,8 @@
           "target": [
             12,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -8177,6 +8299,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -8204,7 +8327,8 @@
           "target": [
             19,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -8411,6 +8535,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -8426,7 +8551,8 @@
           "target": [
             12,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -8445,6 +8571,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -8468,7 +8595,8 @@
           "target": [
             19,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -8680,6 +8808,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -8695,7 +8824,8 @@
           "target": [
             13,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -8714,6 +8844,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -8733,7 +8864,8 @@
           "target": [
             19,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -8945,6 +9077,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -8960,7 +9093,8 @@
           "target": [
             13,
             6
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -8979,6 +9113,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -8994,7 +9129,8 @@
           "target": [
             19,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -9216,6 +9352,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -9231,7 +9368,8 @@
           "target": [
             14,
             6
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -9250,6 +9388,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -9265,7 +9404,8 @@
           "target": [
             19,
             4
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -9493,6 +9633,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -9512,7 +9653,8 @@
           "target": [
             15,
             7
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -9531,6 +9673,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -9546,7 +9689,8 @@
           "target": [
             19,
             5
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -9764,6 +9908,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -9779,7 +9924,8 @@
           "target": [
             15,
             7
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -9798,6 +9944,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -9813,7 +9960,8 @@
           "target": [
             19,
             6
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -10041,6 +10189,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -10056,7 +10205,8 @@
           "target": [
             16,
             7
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -10075,6 +10225,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -10090,7 +10241,8 @@
           "target": [
             19,
             7
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -10318,6 +10470,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -10333,7 +10486,8 @@
           "target": [
             17,
             7
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -10352,6 +10506,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -10367,7 +10522,8 @@
           "target": [
             18,
             7
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -10595,6 +10751,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -10622,7 +10779,8 @@
           "target": [
             14,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -10641,6 +10799,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -10660,7 +10819,8 @@
           "target": [
             19,
             8
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -10878,6 +11038,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -10901,7 +11062,8 @@
           "target": [
             14,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -10920,6 +11082,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -10939,7 +11102,8 @@
           "target": [
             19,
             9
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -11157,6 +11321,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -11176,7 +11341,8 @@
           "target": [
             14,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -11195,6 +11361,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -11214,7 +11381,8 @@
           "target": [
             19,
             10
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -11432,6 +11600,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -11447,7 +11616,8 @@
           "target": [
             14,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -11466,6 +11636,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -11485,7 +11656,8 @@
           "target": [
             17,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -11713,6 +11885,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -11728,7 +11901,8 @@
           "target": [
             13,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -11747,6 +11921,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -11770,7 +11945,8 @@
           "target": [
             15,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -11988,6 +12164,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -12011,7 +12188,8 @@
           "target": [
             11,
             9
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -12030,6 +12208,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -12049,7 +12228,8 @@
           "target": [
             15,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -12277,6 +12457,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -12300,7 +12481,8 @@
           "target": [
             10,
             9
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -12319,6 +12501,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -12346,7 +12529,8 @@
           "target": [
             12,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -12553,6 +12737,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -12572,7 +12757,8 @@
           "target": [
             10,
             9
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -12591,6 +12777,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -12614,7 +12801,8 @@
           "target": [
             12,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -12836,6 +13024,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -12859,7 +13048,8 @@
           "target": [
             9,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -12878,6 +13068,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -12897,7 +13088,8 @@
           "target": [
             12,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -13102,6 +13294,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -13121,7 +13314,8 @@
           "target": [
             9,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -13140,6 +13334,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -13155,7 +13350,8 @@
           "target": [
             12,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -13413,6 +13609,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -13436,7 +13633,8 @@
           "target": [
             7,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -13455,6 +13653,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -13470,7 +13669,8 @@
           "target": [
             11,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -13718,6 +13918,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -13741,7 +13942,8 @@
           "target": [
             7,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -13760,6 +13962,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -13791,7 +13994,8 @@
           "target": [
             6,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -14029,6 +14233,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -14072,7 +14277,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -14091,6 +14297,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -14118,7 +14325,8 @@
           "target": [
             6,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -14356,6 +14564,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -14395,7 +14604,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -14414,6 +14624,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -14473,7 +14684,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -14700,6 +14912,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -14735,7 +14948,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -14754,6 +14968,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -14809,7 +15024,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -15030,6 +15246,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -15061,7 +15278,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -15080,6 +15298,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -15131,7 +15350,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -15352,6 +15572,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -15379,7 +15600,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -15398,6 +15620,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -15445,7 +15668,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -15666,6 +15890,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -15689,7 +15914,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -15708,6 +15934,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -15751,7 +15978,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -15972,6 +16200,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -15991,7 +16220,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -16010,6 +16240,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -16049,7 +16280,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -16270,6 +16502,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -16285,7 +16518,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -16304,6 +16538,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -16339,7 +16574,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -16571,6 +16807,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -16578,7 +16815,8 @@
             11
           ],
           "state": "EXPLORE",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -16597,6 +16835,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -16628,7 +16867,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -16860,6 +17100,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -16867,7 +17108,8 @@
             11
           ],
           "state": "EXPLORE",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -16886,6 +17128,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -16913,7 +17156,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -17145,6 +17389,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -17152,7 +17397,8 @@
             11
           ],
           "state": "EXPLORE",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -17171,6 +17417,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -17194,7 +17441,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -17426,6 +17674,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -17433,7 +17682,8 @@
             11
           ],
           "state": "EXPLORE",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -17452,6 +17702,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -17471,7 +17722,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -17703,6 +17955,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -17710,7 +17963,8 @@
             11
           ],
           "state": "EXPLORE",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -17729,6 +17983,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -17744,7 +17999,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -17986,6 +18242,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -18042,7 +18299,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -18061,6 +18319,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -18181,7 +18440,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -18402,6 +18662,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -18454,7 +18715,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -18473,6 +18735,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -18589,7 +18852,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -18810,6 +19074,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -18858,7 +19123,8 @@
             8
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -18877,6 +19143,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -18989,7 +19256,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -19210,6 +19478,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -19254,7 +19523,8 @@
             7
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -19273,6 +19543,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -19381,7 +19652,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -19602,6 +19874,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -19642,7 +19915,8 @@
             6
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -19661,6 +19935,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -19765,7 +20040,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -19992,6 +20268,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -20028,7 +20305,8 @@
             6
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -20047,6 +20325,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -20147,7 +20426,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -20385,6 +20665,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -20417,7 +20698,8 @@
             5
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -20436,6 +20718,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -20532,7 +20815,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -20759,6 +21043,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -20787,7 +21072,8 @@
             4
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -20806,6 +21092,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -20898,7 +21185,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -21125,6 +21413,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -21149,7 +21438,8 @@
             4
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -21168,6 +21458,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -21256,7 +21547,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -21483,6 +21775,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -21503,7 +21796,8 @@
             3
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -21522,6 +21816,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -21606,7 +21901,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -21833,6 +22129,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -21849,7 +22146,8 @@
             2
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -21868,6 +22166,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -21948,7 +22247,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -22175,6 +22475,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -22182,7 +22483,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -22201,6 +22503,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -22277,7 +22580,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -22515,6 +22819,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -22522,7 +22827,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -22541,6 +22847,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -22613,7 +22920,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -22840,6 +23148,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -22847,7 +23156,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -22866,6 +23176,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -22934,7 +23245,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -23161,6 +23473,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -23168,7 +23481,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -23187,6 +23501,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -23251,7 +23566,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -23478,6 +23794,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -23485,7 +23802,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -23504,6 +23822,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -23564,7 +23883,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -23791,6 +24111,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -23798,7 +24119,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -23817,6 +24139,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -23873,7 +24196,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -24100,6 +24424,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -24107,7 +24432,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -24126,6 +24452,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -24178,7 +24505,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -24405,6 +24733,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -24412,7 +24741,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -24431,6 +24761,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -24479,7 +24810,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -24706,6 +25038,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -24713,7 +25046,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -24732,6 +25066,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -24776,7 +25111,8 @@
             8
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -25013,6 +25349,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -25020,7 +25357,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -25039,6 +25377,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -25079,7 +25418,8 @@
             7
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -25327,6 +25667,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -25334,7 +25675,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -25353,6 +25695,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -25389,7 +25732,8 @@
             6
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -25626,6 +25970,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -25633,7 +25978,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -25652,6 +25998,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -25684,7 +26031,8 @@
             5
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -25921,6 +26269,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -25928,7 +26277,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -25947,6 +26297,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -25975,7 +26326,8 @@
             4
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -26212,6 +26564,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -26219,7 +26572,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -26238,6 +26592,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -26262,7 +26617,8 @@
             4
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -26499,6 +26855,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -26506,7 +26863,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -26525,6 +26883,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -26545,7 +26904,8 @@
             3
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -26782,6 +27142,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -26789,7 +27150,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -26808,6 +27170,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "return",
           "planned_path": [
             [
@@ -26824,7 +27187,8 @@
             2
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -27061,6 +27425,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -27068,7 +27433,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -27087,6 +27453,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -27094,7 +27461,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -27311,6 +27679,7 @@
       "drone-2": 0
     },
     "collisions": 0,
+    "communication_detected_conflicts": 0,
     "communication_outages_by_drone": {
       "drone-1": 2,
       "drone-2": 1
@@ -27320,6 +27689,9 @@
       "drone-2": 0.184783
     },
     "completed": true,
+    "corridor_deadlocks": 0,
+    "deadlocks_resolved": 0,
+    "deconfliction_delay_steps": 0,
     "direct_base_uptime_by_drone": {
       "drone-1": 0.423913,
       "drone-2": 0.163043
@@ -27348,7 +27720,9 @@
       "drone-1": 0.0,
       "drone-2": 0.0
     },
+    "local_motion_conflicts": 0,
     "local_replanning_by_drone": {},
+    "local_replans_due_to_drones": 0,
     "local_survivors_confirmed_by_drone": {
       "drone-1": 0,
       "drone-2": 0
@@ -29104,6 +29478,7 @@
         ]
       ]
     },
+    "proximity_detected_conflicts": 0,
     "redundant_frontier_assignments": 0,
     "relay_uptime_by_drone": {
       "drone-1": 0.0,
@@ -29139,6 +29514,10 @@
     "wait_steps_by_drone": {
       "drone-1": 5,
       "drone-2": 0
+    },
+    "yield_steps_by_drone": {
+      "drone-1": 0,
+      "drone-2": 0
     }
   },
   "mission": {
@@ -29146,15 +29525,20 @@
       "base_knowledge_store_enabled": true,
       "battery_capacity": 220.0,
       "communication_range": 8,
+      "deadlock_wait_threshold": 3,
+      "distributed_deconfliction_enabled": true,
       "drone_count": 2,
       "drone_start_positions": null,
       "energy_safety_reserve": 20.0,
       "height": 13,
+      "intent_reservation_steps": 3,
       "knowledge_mode": "shared",
       "local_map_shadow_mode": null,
       "max_steps": 1000,
+      "motion_intent_ttl": 4,
       "movement_energy_cost": 1.0,
       "obstacle_density": 0.08,
+      "proximity_sensor_range": 2,
       "seed": 7,
       "sensor_energy_cost": 0.05,
       "sensor_range": 4,
@@ -29167,5 +29551,5 @@
     "knowledge_mode": "shared",
     "seed": 7
   },
-  "schema_version": "1.3"
+  "schema_version": "1.4"
 }

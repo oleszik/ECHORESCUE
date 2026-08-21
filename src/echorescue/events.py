@@ -29,6 +29,12 @@ class EventType(str, Enum):
     STALE_TARGET_DISCARDED = "stale_target_discarded"
     SURVIVOR_KNOWLEDGE_SYNCHRONIZED = "survivor_knowledge_synchronized"
     SAFETY_SHIELD_INTERVENTION = "safety_shield_intervention"
+    MOTION_INTENT_SHARED = "motion_intent_shared"
+    YIELD_STARTED = "yield_started"
+    YIELD_ENDED = "yield_ended"
+    LOCAL_COLLISION_AVOIDED = "local_collision_avoided"
+    CORRIDOR_DEADLOCK_DETECTED = "corridor_deadlock_detected"
+    DEADLOCK_REPLANNED = "deadlock_replanned"
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,6 +103,12 @@ class MissionLog:
             EventType.STALE_TARGET_DISCARDED,
             EventType.SURVIVOR_KNOWLEDGE_SYNCHRONIZED,
             EventType.SAFETY_SHIELD_INTERVENTION,
+            EventType.MOTION_INTENT_SHARED,
+            EventType.YIELD_STARTED,
+            EventType.YIELD_ENDED,
+            EventType.LOCAL_COLLISION_AVOIDED,
+            EventType.CORRIDOR_DEADLOCK_DETECTED,
+            EventType.DEADLOCK_REPLANNED,
         }:
             key = (event.event_type, event.drone_id, event.step, event.position)
         else:

@@ -42,6 +42,7 @@ python -m echorescue.benchmark --seeds 50 --output benchmarks/two_drone_50_seeds
 python -m echorescue.communication_benchmark --seeds 50 --output benchmarks/communication_50_seeds.json
 python -m echorescue.shadow_benchmark --seeds 50 --output benchmarks/shadow_mode_50_seeds.json
 python -m echorescue.knowledge_benchmark --seeds 50 --output benchmarks/knowledge_modes_50_seeds.json
+python -m echorescue.deconfliction_benchmark --seeds 50 --output benchmarks/distributed_deconfliction_50_seeds.json
 ```
 
 The server automatically loads that default benchmark file when it exists. A
@@ -145,9 +146,30 @@ it blocks a locally planned movement, the replay records a
 no such event. This is simulation safety containment, not decentralized proof
 of collision avoidance.
 
-Replay schema `1.3` stores the active mode and labels operator, drone-local, and
-base knowledge explicitly. Full map snapshots remain intentionally simple and
-auditable; future large maps may benefit from delta encoding.
+Replay schema `1.4` stores the active mode, labels operator, drone-local, and
+base knowledge explicitly, and includes the short motion intent/reservation
+that was available for distributed deconfliction. Full map snapshots remain
+intentionally simple and auditable; future large maps may benefit from delta
+encoding.
+
+### Distributed deconfliction
+
+Active Local mode shares position, state, remaining energy, next movement, and
+a two- or three-step reservation only inside the current radio component. When
+radio is unavailable, a configurable short-range proximity sensor propagates
+only through free cells; it can see around an open corner but never through a
+wall. Conflict priority is deterministic: urgent RTB, lower safe energy margin,
+longer waiting time, then stable drone ID. Repeated blocks trigger a local
+deadlock replan. The central movement resolver remains unchanged as the final
+shield and is not consulted by normal planning.
+
+The reproducible 50-seed artifact is
+[`benchmarks/distributed_deconfliction_50_seeds.json`](benchmarks/distributed_deconfliction_50_seeds.json).
+It reports 100% base-known Survivor Recall, zero collisions, safe return of both
+drones in every mission, and zero central shield interventions. Mean duration
+changes from 75.10 to 75.30 steps (+0.27%); targeted corridor tests cover vertex,
+edge-swap, wall-occluded proximity, repeated blocking, deterministic replanning,
+and starvation prevention.
 
 ## Verified benchmark
 
@@ -180,11 +202,11 @@ The mode comparison at
 runs every seed twice in all three modes at radio range 8. Shared and Shadow
 retain the verified fingerprint exactly. Active Local completed all 50 missions
 with 100% base-known Survivor Recall, both drones safely returned, zero wall or
-drone collisions, and zero timeouts. It averaged 75.10 steps versus 72.10 for
-Shared/Shadow, with five logged safety-shield interventions, 28 redundant
+drone collisions, and zero timeouts. It averaged 75.30 steps versus 72.10 for
+Shared/Shadow, with zero safety-shield interventions, 30 redundant
 frontier assignments, an average peak map divergence of 24.29%, and no final
 divergence. There were no failed seeds to classify; the measurable cost is
-3.00 additional average steps and substantially more local replanning caused by
+3.20 additional average steps and substantially more local replanning caused by
 partial knowledge, disconnection, and deterministic target reconciliation.
 
 ## Simulation controls

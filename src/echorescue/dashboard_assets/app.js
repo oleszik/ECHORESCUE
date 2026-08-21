@@ -35,7 +35,7 @@ function cacheElements() {
     "speedSelect", "mapViewSelect", "mapViewTitle", "mapViewPurpose", "missionCanvas", "coverageValue", "eventFeed", "eventCount",
     "resultBadge", "metricRecall", "metricReturned", "metricWalls", "metricDrones",
     "metricSteps", "metricDuplicate", "schemaVersion", "singleSteps", "multiSteps",
-    "improvementValue", "benchmarkNote", "benchmarkPanel", "fatalError",
+    "improvementValue", "benchmarkNote", "benchmarkPanel", "fatalError", "droneCard1", "droneCard2",
   ].forEach((id) => { elements[id] = document.getElementById(id); });
   [1, 2].forEach((number) => {
     ["State", "Position", "Energy", "Battery", "Target", "Communication", "Coverage", "Survivors", "DataAge"].forEach((field) => {
@@ -99,7 +99,8 @@ function setFrame(index) {
 
 function updateDroneCard(number, drone) {
   const [x, y] = drone.position;
-  elements[`droneState${number}`].textContent = drone.state.replaceAll("_", " ");
+  elements[`droneState${number}`].textContent = `${drone.yielding ? "YIELDING · " : ""}${drone.state.replaceAll("_", " ")}`;
+  elements[`droneCard${number}`].classList.toggle("yielding", Boolean(drone.yielding));
   elements[`dronePosition${number}`].textContent = `${x}, ${y}`;
   elements[`droneEnergy${number}`].textContent = `${drone.energy_remaining.toFixed(1)} units`;
   elements[`droneBattery${number}`].style.width = `${Math.max(0, Math.min(100, drone.energy_remaining_percent))}%`;
@@ -151,6 +152,9 @@ function updateStatus(frame) {
 }
 
 function eventColor(event) {
+  if (event.event_type === "safety_shield_intervention") return "#fb7185";
+  if (["local_collision_avoided", "yield_started", "yield_ended", "deadlock_replanned"].includes(event.event_type)) return "#34d399";
+  if (event.event_type === "corridor_deadlock_detected") return "#f59e0b";
   if (event.drone_id === "drone-1") return COLORS.drone1;
   if (event.drone_id === "drone-2") return COLORS.drone2;
   return "#8d9cb0";
@@ -319,6 +323,25 @@ function drawCommunicationLinks(context, frame, geometry) {
   }
 }
 
+function drawMotionReservation(context, drone, geometry, color) {
+  const intent = drone.motion_intent;
+  if (!intent?.reservation?.length) return;
+  const points = [intent.current_position, ...intent.reservation];
+  context.save();
+  context.globalAlpha = drone.yielding ? 0.95 : 0.68;
+  context.strokeStyle = color;
+  context.lineWidth = 2.6 * geometry.ratio;
+  context.lineCap = "round";
+  context.setLineDash([1.5 * geometry.ratio, 4 * geometry.ratio]);
+  context.beginPath();
+  points.forEach((position, index) => {
+    const [x, y] = cellCenter(position, geometry);
+    if (index === 0) context.moveTo(x, y); else context.lineTo(x, y);
+  });
+  context.stroke();
+  context.restore();
+}
+
 function drawMission() {
   if (!state.replay) return;
   const frame = state.replay.frames[state.frameIndex];
@@ -357,6 +380,7 @@ function drawMission() {
     const trail = state.replay.frames.slice(0, state.frameIndex + 1).map((item) => item.drones[droneId].position);
     drawPolyline(context, trail, geometry, `${color}88`, 1.5);
     drawPolyline(context, frame.drones[droneId].planned_path, geometry, color, 1.5, true);
+    drawMotionReservation(context, frame.drones[droneId], geometry, color);
   });
 
   const [baseX, baseY] = cellCenter(state.replay.map.base, geometry);

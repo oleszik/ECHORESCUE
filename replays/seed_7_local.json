@@ -60,6 +60,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -67,7 +68,8 @@
             1
           ],
           "state": "EXPLORE",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -86,6 +88,7 @@
             "oldest_data_age": 0,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -93,7 +96,8 @@
             1
           ],
           "state": "EXPLORE",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -175,6 +179,26 @@
           "drone_id": "drone-2",
           "energy_remaining": 219.95,
           "event_type": "local_frontier_selected",
+          "position": [
+            3,
+            1
+          ],
+          "step": 0
+        },
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 219.95,
+          "event_type": "motion_intent_shared",
+          "position": [
+            1,
+            2
+          ],
+          "step": 0
+        },
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 219.95,
+          "event_type": "motion_intent_shared",
           "position": [
             3,
             1
@@ -350,6 +374,26 @@
             "oldest_data_age": 1,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              1
+            ],
+            "energy_remaining": 219.95,
+            "next_position": [
+              1,
+              2
+            ],
+            "reservation": [
+              [
+                1,
+                2
+              ]
+            ],
+            "safe_energy_margin": 199.95,
+            "state": "EXPLORE",
+            "valid_until_step": 4
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -365,7 +409,8 @@
           "target": [
             1,
             2
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -384,6 +429,26 @@
             "oldest_data_age": 1,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              1
+            ],
+            "energy_remaining": 219.95,
+            "next_position": [
+              3,
+              1
+            ],
+            "reservation": [
+              [
+                3,
+                1
+              ]
+            ],
+            "safe_energy_margin": 198.9,
+            "state": "EXPLORE",
+            "valid_until_step": 4
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -399,7 +464,8 @@
           "target": [
             3,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -656,6 +722,26 @@
             "oldest_data_age": 2,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              2
+            ],
+            "energy_remaining": 218.9,
+            "next_position": [
+              1,
+              3
+            ],
+            "reservation": [
+              [
+                1,
+                3
+              ]
+            ],
+            "safe_energy_margin": 197.85,
+            "state": "EXPLORE",
+            "valid_until_step": 5
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -671,7 +757,8 @@
           "target": [
             1,
             3
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -690,6 +777,26 @@
             "oldest_data_age": 2,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              3,
+              1
+            ],
+            "energy_remaining": 218.9,
+            "next_position": [
+              4,
+              1
+            ],
+            "reservation": [
+              [
+                4,
+                1
+              ]
+            ],
+            "safe_energy_margin": 196.8,
+            "state": "EXPLORE",
+            "valid_until_step": 5
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -705,7 +812,8 @@
           "target": [
             4,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -977,6 +1085,26 @@
             "oldest_data_age": 3,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              3
+            ],
+            "energy_remaining": 217.85,
+            "next_position": [
+              1,
+              4
+            ],
+            "reservation": [
+              [
+                1,
+                4
+              ]
+            ],
+            "safe_energy_margin": 195.75,
+            "state": "EXPLORE",
+            "valid_until_step": 6
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -992,7 +1120,8 @@
           "target": [
             1,
             4
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -1010,6 +1139,30 @@
             "known_coverage": 13.186813,
             "oldest_data_age": 3,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              4,
+              1
+            ],
+            "energy_remaining": 217.85,
+            "next_position": [
+              4,
+              2
+            ],
+            "reservation": [
+              [
+                4,
+                2
+              ],
+              [
+                5,
+                2
+              ]
+            ],
+            "safe_energy_margin": 194.7,
+            "state": "EXPLORE",
+            "valid_until_step": 6
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -1030,7 +1183,8 @@
           "target": [
             5,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -1342,6 +1496,30 @@
             "oldest_data_age": 3,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              4
+            ],
+            "energy_remaining": 216.8,
+            "next_position": [
+              2,
+              4
+            ],
+            "reservation": [
+              [
+                2,
+                4
+              ],
+              [
+                2,
+                5
+              ]
+            ],
+            "safe_energy_margin": 193.65,
+            "state": "EXPLORE",
+            "valid_until_step": 7
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1361,7 +1539,8 @@
           "target": [
             2,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -1379,6 +1558,30 @@
             "known_coverage": 15.750916,
             "oldest_data_age": 3,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              4,
+              2
+            ],
+            "energy_remaining": 216.8,
+            "next_position": [
+              5,
+              2
+            ],
+            "reservation": [
+              [
+                5,
+                2
+              ],
+              [
+                6,
+                2
+              ]
+            ],
+            "safe_energy_margin": 192.6,
+            "state": "EXPLORE",
+            "valid_until_step": 7
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -1399,7 +1602,8 @@
           "target": [
             6,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -1661,6 +1865,30 @@
             "oldest_data_age": 4,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              4
+            ],
+            "energy_remaining": 215.75,
+            "next_position": [
+              2,
+              5
+            ],
+            "reservation": [
+              [
+                2,
+                5
+              ],
+              [
+                3,
+                5
+              ]
+            ],
+            "safe_energy_margin": 191.55,
+            "state": "EXPLORE",
+            "valid_until_step": 8
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1680,7 +1908,8 @@
           "target": [
             3,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -1699,6 +1928,26 @@
             "oldest_data_age": 4,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              2
+            ],
+            "energy_remaining": 215.75,
+            "next_position": [
+              6,
+              2
+            ],
+            "reservation": [
+              [
+                6,
+                2
+              ]
+            ],
+            "safe_energy_margin": 190.5,
+            "state": "EXPLORE",
+            "valid_until_step": 8
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1714,7 +1963,8 @@
           "target": [
             6,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -1971,6 +2221,26 @@
             "oldest_data_age": 5,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              5
+            ],
+            "energy_remaining": 214.7,
+            "next_position": [
+              3,
+              5
+            ],
+            "reservation": [
+              [
+                3,
+                5
+              ]
+            ],
+            "safe_energy_margin": 189.45,
+            "state": "EXPLORE",
+            "valid_until_step": 9
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -1986,7 +2256,8 @@
           "target": [
             3,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -2009,6 +2280,26 @@
             "oldest_data_age": 5,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              6,
+              2
+            ],
+            "energy_remaining": 214.7,
+            "next_position": [
+              6,
+              1
+            ],
+            "reservation": [
+              [
+                6,
+                1
+              ]
+            ],
+            "safe_energy_margin": 188.4,
+            "state": "EXPLORE",
+            "valid_until_step": 9
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2024,7 +2315,8 @@
           "target": [
             6,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -2311,6 +2603,30 @@
             "oldest_data_age": 6,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              3,
+              5
+            ],
+            "energy_remaining": 213.65,
+            "next_position": [
+              2,
+              5
+            ],
+            "reservation": [
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                6
+              ]
+            ],
+            "safe_energy_margin": 187.35,
+            "state": "EXPLORE",
+            "valid_until_step": 10
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2330,7 +2646,8 @@
           "target": [
             2,
             6
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -2353,6 +2670,26 @@
             "oldest_data_age": 6,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              6,
+              1
+            ],
+            "energy_remaining": 213.65,
+            "next_position": [
+              7,
+              1
+            ],
+            "reservation": [
+              [
+                7,
+                1
+              ]
+            ],
+            "safe_energy_margin": 186.3,
+            "state": "EXPLORE",
+            "valid_until_step": 10
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2368,7 +2705,8 @@
           "target": [
             7,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -2625,6 +2963,26 @@
             "oldest_data_age": 7,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              5
+            ],
+            "energy_remaining": 212.6,
+            "next_position": [
+              2,
+              6
+            ],
+            "reservation": [
+              [
+                2,
+                6
+              ]
+            ],
+            "safe_energy_margin": 187.35,
+            "state": "EXPLORE",
+            "valid_until_step": 11
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2640,7 +2998,8 @@
           "target": [
             2,
             6
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -2658,6 +3017,30 @@
             "known_coverage": 22.710623,
             "oldest_data_age": 7,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              7,
+              1
+            ],
+            "energy_remaining": 212.6,
+            "next_position": [
+              7,
+              2
+            ],
+            "reservation": [
+              [
+                7,
+                2
+              ],
+              [
+                8,
+                2
+              ]
+            ],
+            "safe_energy_margin": 184.2,
+            "state": "EXPLORE",
+            "valid_until_step": 11
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -2678,7 +3061,8 @@
           "target": [
             8,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -2934,6 +3318,26 @@
             "oldest_data_age": 8,
             "stale_cells": 14
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              6
+            ],
+            "energy_remaining": 211.55,
+            "next_position": [
+              1,
+              6
+            ],
+            "reservation": [
+              [
+                1,
+                6
+              ]
+            ],
+            "safe_energy_margin": 185.25,
+            "state": "EXPLORE",
+            "valid_until_step": 12
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2949,7 +3353,8 @@
           "target": [
             1,
             6
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -2968,6 +3373,26 @@
             "oldest_data_age": 8,
             "stale_cells": 9
           },
+          "motion_intent": {
+            "current_position": [
+              7,
+              2
+            ],
+            "energy_remaining": 211.55,
+            "next_position": [
+              8,
+              2
+            ],
+            "reservation": [
+              [
+                8,
+                2
+              ]
+            ],
+            "safe_energy_margin": 184.2,
+            "state": "EXPLORE",
+            "valid_until_step": 12
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -2983,7 +3408,8 @@
           "target": [
             8,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -3300,6 +3726,26 @@
             "oldest_data_age": 9,
             "stale_cells": 21
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              6
+            ],
+            "energy_remaining": 210.5,
+            "next_position": [
+              1,
+              7
+            ],
+            "reservation": [
+              [
+                1,
+                7
+              ]
+            ],
+            "safe_energy_margin": 183.15,
+            "state": "EXPLORE",
+            "valid_until_step": 13
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3315,7 +3761,8 @@
           "target": [
             1,
             7
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -3334,6 +3781,26 @@
             "oldest_data_age": 9,
             "stale_cells": 15
           },
+          "motion_intent": {
+            "current_position": [
+              8,
+              2
+            ],
+            "energy_remaining": 210.5,
+            "next_position": [
+              9,
+              2
+            ],
+            "reservation": [
+              [
+                9,
+                2
+              ]
+            ],
+            "safe_energy_margin": 182.1,
+            "state": "EXPLORE",
+            "valid_until_step": 13
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3349,7 +3816,8 @@
           "target": [
             9,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -3742,6 +4210,26 @@
             "oldest_data_age": 10,
             "stale_cells": 22
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              7
+            ],
+            "energy_remaining": 209.45,
+            "next_position": [
+              1,
+              8
+            ],
+            "reservation": [
+              [
+                1,
+                8
+              ]
+            ],
+            "safe_energy_margin": 181.05,
+            "state": "EXPLORE",
+            "valid_until_step": 14
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3757,7 +4245,8 @@
           "target": [
             1,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -3776,6 +4265,26 @@
             "oldest_data_age": 10,
             "stale_cells": 21
           },
+          "motion_intent": {
+            "current_position": [
+              9,
+              2
+            ],
+            "energy_remaining": 209.45,
+            "next_position": [
+              9,
+              1
+            ],
+            "reservation": [
+              [
+                9,
+                1
+              ]
+            ],
+            "safe_energy_margin": 180.0,
+            "state": "EXPLORE",
+            "valid_until_step": 14
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -3791,7 +4300,8 @@
           "target": [
             9,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -4232,6 +4742,26 @@
             "oldest_data_age": 11,
             "stale_cells": 22
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              8
+            ],
+            "energy_remaining": 208.4,
+            "next_position": [
+              1,
+              9
+            ],
+            "reservation": [
+              [
+                1,
+                9
+              ]
+            ],
+            "safe_energy_margin": 178.95,
+            "state": "EXPLORE",
+            "valid_until_step": 15
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -4247,7 +4777,8 @@
           "target": [
             1,
             9
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -4265,6 +4796,30 @@
             "known_coverage": 27.472527,
             "oldest_data_age": 11,
             "stale_cells": 26
+          },
+          "motion_intent": {
+            "current_position": [
+              9,
+              1
+            ],
+            "energy_remaining": 208.4,
+            "next_position": [
+              9,
+              2
+            ],
+            "reservation": [
+              [
+                9,
+                2
+              ],
+              [
+                10,
+                2
+              ]
+            ],
+            "safe_energy_margin": 177.9,
+            "state": "EXPLORE",
+            "valid_until_step": 15
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -4285,7 +4840,8 @@
           "target": [
             10,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -4748,6 +5304,26 @@
             "oldest_data_age": 12,
             "stale_cells": 24
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              9
+            ],
+            "energy_remaining": 207.35,
+            "next_position": [
+              1,
+              10
+            ],
+            "reservation": [
+              [
+                1,
+                10
+              ]
+            ],
+            "safe_energy_margin": 176.85,
+            "state": "EXPLORE",
+            "valid_until_step": 16
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -4763,7 +5339,8 @@
           "target": [
             1,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -4782,6 +5359,26 @@
             "oldest_data_age": 12,
             "stale_cells": 31
           },
+          "motion_intent": {
+            "current_position": [
+              9,
+              2
+            ],
+            "energy_remaining": 207.35,
+            "next_position": [
+              10,
+              2
+            ],
+            "reservation": [
+              [
+                10,
+                2
+              ]
+            ],
+            "safe_energy_margin": 177.9,
+            "state": "EXPLORE",
+            "valid_until_step": 16
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -4797,7 +5394,8 @@
           "target": [
             10,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -5318,6 +5916,26 @@
             "oldest_data_age": 13,
             "stale_cells": 31
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              10
+            ],
+            "energy_remaining": 206.3,
+            "next_position": [
+              2,
+              10
+            ],
+            "reservation": [
+              [
+                2,
+                10
+              ]
+            ],
+            "safe_energy_margin": 174.75,
+            "state": "EXPLORE",
+            "valid_until_step": 17
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5333,7 +5951,8 @@
           "target": [
             2,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -5352,6 +5971,26 @@
             "oldest_data_age": 13,
             "stale_cells": 34
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              2
+            ],
+            "energy_remaining": 206.3,
+            "next_position": [
+              11,
+              2
+            ],
+            "reservation": [
+              [
+                11,
+                2
+              ]
+            ],
+            "safe_energy_margin": 175.8,
+            "state": "EXPLORE",
+            "valid_until_step": 17
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5367,7 +6006,8 @@
           "target": [
             11,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -5982,6 +6622,26 @@
             "oldest_data_age": 14,
             "stale_cells": 35
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              10
+            ],
+            "energy_remaining": 205.25,
+            "next_position": [
+              3,
+              10
+            ],
+            "reservation": [
+              [
+                3,
+                10
+              ]
+            ],
+            "safe_energy_margin": 174.75,
+            "state": "EXPLORE",
+            "valid_until_step": 18
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -5997,7 +6657,8 @@
           "target": [
             3,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -6016,6 +6677,26 @@
             "oldest_data_age": 14,
             "stale_cells": 37
           },
+          "motion_intent": {
+            "current_position": [
+              11,
+              2
+            ],
+            "energy_remaining": 205.25,
+            "next_position": [
+              11,
+              1
+            ],
+            "reservation": [
+              [
+                11,
+                1
+              ]
+            ],
+            "safe_energy_margin": 173.7,
+            "state": "EXPLORE",
+            "valid_until_step": 18
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -6031,7 +6712,8 @@
           "target": [
             11,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -6692,6 +7374,26 @@
             "oldest_data_age": 15,
             "stale_cells": 40
           },
+          "motion_intent": {
+            "current_position": [
+              3,
+              10
+            ],
+            "energy_remaining": 204.2,
+            "next_position": [
+              4,
+              10
+            ],
+            "reservation": [
+              [
+                4,
+                10
+              ]
+            ],
+            "safe_energy_margin": 172.65,
+            "state": "EXPLORE",
+            "valid_until_step": 19
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -6707,7 +7409,8 @@
           "target": [
             4,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -6726,6 +7429,26 @@
             "oldest_data_age": 15,
             "stale_cells": 41
           },
+          "motion_intent": {
+            "current_position": [
+              11,
+              1
+            ],
+            "energy_remaining": 204.2,
+            "next_position": [
+              12,
+              1
+            ],
+            "reservation": [
+              [
+                12,
+                1
+              ]
+            ],
+            "safe_energy_margin": 171.6,
+            "state": "EXPLORE",
+            "valid_until_step": 19
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -6741,7 +7464,8 @@
           "target": [
             12,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -7466,6 +8190,26 @@
             "oldest_data_age": 16,
             "stale_cells": 45
           },
+          "motion_intent": {
+            "current_position": [
+              4,
+              10
+            ],
+            "energy_remaining": 203.15,
+            "next_position": [
+              5,
+              10
+            ],
+            "reservation": [
+              [
+                5,
+                10
+              ]
+            ],
+            "safe_energy_margin": 170.55,
+            "state": "EXPLORE",
+            "valid_until_step": 20
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -7481,7 +8225,8 @@
           "target": [
             5,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -7500,6 +8245,26 @@
             "oldest_data_age": 16,
             "stale_cells": 45
           },
+          "motion_intent": {
+            "current_position": [
+              12,
+              1
+            ],
+            "energy_remaining": 203.15,
+            "next_position": [
+              13,
+              1
+            ],
+            "reservation": [
+              [
+                13,
+                1
+              ]
+            ],
+            "safe_energy_margin": 169.5,
+            "state": "EXPLORE",
+            "valid_until_step": 20
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -7515,7 +8280,8 @@
           "target": [
             13,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -8304,6 +9070,26 @@
             "oldest_data_age": 17,
             "stale_cells": 49
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              10
+            ],
+            "energy_remaining": 202.1,
+            "next_position": [
+              5,
+              9
+            ],
+            "reservation": [
+              [
+                5,
+                9
+              ]
+            ],
+            "safe_energy_margin": 168.45,
+            "state": "EXPLORE",
+            "valid_until_step": 21
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -8319,7 +9105,8 @@
           "target": [
             5,
             9
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -8338,6 +9125,26 @@
             "oldest_data_age": 17,
             "stale_cells": 50
           },
+          "motion_intent": {
+            "current_position": [
+              13,
+              1
+            ],
+            "energy_remaining": 202.1,
+            "next_position": [
+              14,
+              1
+            ],
+            "reservation": [
+              [
+                14,
+                1
+              ]
+            ],
+            "safe_energy_margin": 167.4,
+            "state": "EXPLORE",
+            "valid_until_step": 21
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -8353,7 +9160,8 @@
           "target": [
             14,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -9206,6 +10014,26 @@
             "oldest_data_age": 18,
             "stale_cells": 53
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              9
+            ],
+            "energy_remaining": 201.05,
+            "next_position": [
+              5,
+              8
+            ],
+            "reservation": [
+              [
+                5,
+                8
+              ]
+            ],
+            "safe_energy_margin": 168.45,
+            "state": "EXPLORE",
+            "valid_until_step": 22
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -9221,7 +10049,8 @@
           "target": [
             5,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -9240,6 +10069,26 @@
             "oldest_data_age": 18,
             "stale_cells": 55
           },
+          "motion_intent": {
+            "current_position": [
+              14,
+              1
+            ],
+            "energy_remaining": 201.05,
+            "next_position": [
+              15,
+              1
+            ],
+            "reservation": [
+              [
+                15,
+                1
+              ]
+            ],
+            "safe_energy_margin": 165.3,
+            "state": "EXPLORE",
+            "valid_until_step": 22
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -9255,7 +10104,8 @@
           "target": [
             15,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -10182,6 +11032,26 @@
             "oldest_data_age": 19,
             "stale_cells": 55
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              8
+            ],
+            "energy_remaining": 200.0,
+            "next_position": [
+              5,
+              7
+            ],
+            "reservation": [
+              [
+                5,
+                7
+              ]
+            ],
+            "safe_energy_margin": 168.45,
+            "state": "EXPLORE",
+            "valid_until_step": 23
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -10197,7 +11067,8 @@
           "target": [
             5,
             7
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -10216,6 +11087,26 @@
             "oldest_data_age": 19,
             "stale_cells": 60
           },
+          "motion_intent": {
+            "current_position": [
+              15,
+              1
+            ],
+            "energy_remaining": 200.0,
+            "next_position": [
+              16,
+              1
+            ],
+            "reservation": [
+              [
+                16,
+                1
+              ]
+            ],
+            "safe_energy_margin": 163.2,
+            "state": "EXPLORE",
+            "valid_until_step": 23
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -10231,7 +11122,8 @@
           "target": [
             16,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -11071,6 +11963,34 @@
             "oldest_data_age": 20,
             "stale_cells": 52
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              7
+            ],
+            "energy_remaining": 198.95,
+            "next_position": [
+              5,
+              6
+            ],
+            "reservation": [
+              [
+                5,
+                6
+              ],
+              [
+                6,
+                6
+              ],
+              [
+                7,
+                6
+              ]
+            ],
+            "safe_energy_margin": 168.45,
+            "state": "EXPLORE",
+            "valid_until_step": 24
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -11094,7 +12014,8 @@
           "target": [
             7,
             6
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -11112,6 +12033,34 @@
             "known_coverage": 39.56044,
             "oldest_data_age": 20,
             "stale_cells": 65
+          },
+          "motion_intent": {
+            "current_position": [
+              16,
+              1
+            ],
+            "energy_remaining": 198.95,
+            "next_position": [
+              15,
+              1
+            ],
+            "reservation": [
+              [
+                15,
+                1
+              ],
+              [
+                15,
+                2
+              ],
+              [
+                15,
+                3
+              ]
+            ],
+            "safe_energy_margin": 161.1,
+            "state": "EXPLORE",
+            "valid_until_step": 24
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -11136,7 +12085,8 @@
           "target": [
             15,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -11910,6 +12860,34 @@
             "oldest_data_age": 21,
             "stale_cells": 51
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              6
+            ],
+            "energy_remaining": 197.9,
+            "next_position": [
+              5,
+              5
+            ],
+            "reservation": [
+              [
+                5,
+                5
+              ],
+              [
+                6,
+                5
+              ],
+              [
+                7,
+                5
+              ]
+            ],
+            "safe_energy_margin": 168.45,
+            "state": "EXPLORE",
+            "valid_until_step": 25
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -11933,7 +12911,8 @@
           "target": [
             7,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -11951,6 +12930,30 @@
             "known_coverage": 39.92674,
             "oldest_data_age": 21,
             "stale_cells": 73
+          },
+          "motion_intent": {
+            "current_position": [
+              15,
+              1
+            ],
+            "energy_remaining": 197.9,
+            "next_position": [
+              15,
+              2
+            ],
+            "reservation": [
+              [
+                15,
+                2
+              ],
+              [
+                15,
+                3
+              ]
+            ],
+            "safe_energy_margin": 161.1,
+            "state": "EXPLORE",
+            "valid_until_step": 25
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -11971,7 +12974,8 @@
           "target": [
             15,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -12737,6 +13741,34 @@
             "oldest_data_age": 22,
             "stale_cells": 54
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              5
+            ],
+            "energy_remaining": 196.85,
+            "next_position": [
+              5,
+              4
+            ],
+            "reservation": [
+              [
+                5,
+                4
+              ],
+              [
+                6,
+                4
+              ],
+              [
+                7,
+                4
+              ]
+            ],
+            "safe_energy_margin": 168.45,
+            "state": "EXPLORE",
+            "valid_until_step": 26
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -12760,7 +13792,8 @@
           "target": [
             7,
             4
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -12779,6 +13812,26 @@
             "oldest_data_age": 22,
             "stale_cells": 81
           },
+          "motion_intent": {
+            "current_position": [
+              15,
+              2
+            ],
+            "energy_remaining": 196.85,
+            "next_position": [
+              15,
+              3
+            ],
+            "reservation": [
+              [
+                15,
+                3
+              ]
+            ],
+            "safe_energy_margin": 161.1,
+            "state": "EXPLORE",
+            "valid_until_step": 26
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -12794,7 +13847,8 @@
           "target": [
             15,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -13604,6 +14658,34 @@
             "oldest_data_age": 23,
             "stale_cells": 57
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              4
+            ],
+            "energy_remaining": 195.8,
+            "next_position": [
+              5,
+              3
+            ],
+            "reservation": [
+              [
+                5,
+                3
+              ],
+              [
+                6,
+                3
+              ],
+              [
+                7,
+                3
+              ]
+            ],
+            "safe_energy_margin": 168.45,
+            "state": "EXPLORE",
+            "valid_until_step": 27
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -13627,7 +14709,8 @@
           "target": [
             7,
             3
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -13646,6 +14729,26 @@
             "oldest_data_age": 23,
             "stale_cells": 89
           },
+          "motion_intent": {
+            "current_position": [
+              15,
+              3
+            ],
+            "energy_remaining": 195.8,
+            "next_position": [
+              16,
+              3
+            ],
+            "reservation": [
+              [
+                16,
+                3
+              ]
+            ],
+            "safe_energy_margin": 159.0,
+            "state": "EXPLORE",
+            "valid_until_step": 27
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -13661,7 +14764,8 @@
           "target": [
             16,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -14495,6 +15599,34 @@
             "oldest_data_age": 24,
             "stale_cells": 60
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              3
+            ],
+            "energy_remaining": 194.75,
+            "next_position": [
+              6,
+              3
+            ],
+            "reservation": [
+              [
+                6,
+                3
+              ],
+              [
+                7,
+                3
+              ],
+              [
+                8,
+                3
+              ]
+            ],
+            "safe_energy_margin": 168.45,
+            "state": "EXPLORE",
+            "valid_until_step": 28
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -14522,7 +15654,8 @@
           "target": [
             9,
             3
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -14541,6 +15674,26 @@
             "oldest_data_age": 24,
             "stale_cells": 93
           },
+          "motion_intent": {
+            "current_position": [
+              16,
+              3
+            ],
+            "energy_remaining": 194.75,
+            "next_position": [
+              17,
+              3
+            ],
+            "reservation": [
+              [
+                17,
+                3
+              ]
+            ],
+            "safe_energy_margin": 156.9,
+            "state": "EXPLORE",
+            "valid_until_step": 28
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -14556,7 +15709,8 @@
           "target": [
             17,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -15422,6 +16576,34 @@
             "oldest_data_age": 25,
             "stale_cells": 57
           },
+          "motion_intent": {
+            "current_position": [
+              6,
+              3
+            ],
+            "energy_remaining": 193.7,
+            "next_position": [
+              6,
+              2
+            ],
+            "reservation": [
+              [
+                6,
+                2
+              ],
+              [
+                7,
+                2
+              ],
+              [
+                8,
+                2
+              ]
+            ],
+            "safe_energy_margin": 166.35,
+            "state": "EXPLORE",
+            "valid_until_step": 29
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -15449,7 +16631,8 @@
           "target": [
             9,
             2
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -15468,6 +16651,26 @@
             "oldest_data_age": 25,
             "stale_cells": 100
           },
+          "motion_intent": {
+            "current_position": [
+              17,
+              3
+            ],
+            "energy_remaining": 193.7,
+            "next_position": [
+              17,
+              2
+            ],
+            "reservation": [
+              [
+                17,
+                2
+              ]
+            ],
+            "safe_energy_margin": 154.8,
+            "state": "EXPLORE",
+            "valid_until_step": 29
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -15483,7 +16686,8 @@
           "target": [
             17,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -16345,6 +17549,34 @@
             "oldest_data_age": 26,
             "stale_cells": 59
           },
+          "motion_intent": {
+            "current_position": [
+              6,
+              2
+            ],
+            "energy_remaining": 192.65,
+            "next_position": [
+              7,
+              2
+            ],
+            "reservation": [
+              [
+                7,
+                2
+              ],
+              [
+                8,
+                2
+              ],
+              [
+                9,
+                2
+              ]
+            ],
+            "safe_energy_margin": 166.35,
+            "state": "EXPLORE",
+            "valid_until_step": 30
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -16368,7 +17600,8 @@
           "target": [
             9,
             2
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -16387,6 +17620,26 @@
             "oldest_data_age": 26,
             "stale_cells": 103
           },
+          "motion_intent": {
+            "current_position": [
+              17,
+              2
+            ],
+            "energy_remaining": 192.65,
+            "next_position": [
+              18,
+              2
+            ],
+            "reservation": [
+              [
+                18,
+                2
+              ]
+            ],
+            "safe_energy_margin": 152.7,
+            "state": "EXPLORE",
+            "valid_until_step": 30
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -16402,7 +17655,8 @@
           "target": [
             18,
             2
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -17282,6 +18536,30 @@
             "oldest_data_age": 27,
             "stale_cells": 59
           },
+          "motion_intent": {
+            "current_position": [
+              7,
+              2
+            ],
+            "energy_remaining": 191.6,
+            "next_position": [
+              8,
+              2
+            ],
+            "reservation": [
+              [
+                8,
+                2
+              ],
+              [
+                9,
+                2
+              ]
+            ],
+            "safe_energy_margin": 164.25,
+            "state": "EXPLORE",
+            "valid_until_step": 31
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -17301,7 +18579,8 @@
           "target": [
             9,
             2
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -17320,6 +18599,26 @@
             "oldest_data_age": 27,
             "stale_cells": 105
           },
+          "motion_intent": {
+            "current_position": [
+              18,
+              2
+            ],
+            "energy_remaining": 191.6,
+            "next_position": [
+              18,
+              1
+            ],
+            "reservation": [
+              [
+                18,
+                1
+              ]
+            ],
+            "safe_energy_margin": 150.6,
+            "state": "EXPLORE",
+            "valid_until_step": 31
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -17335,7 +18634,8 @@
           "target": [
             18,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -18226,6 +19526,26 @@
             "oldest_data_age": 28,
             "stale_cells": 57
           },
+          "motion_intent": {
+            "current_position": [
+              8,
+              2
+            ],
+            "energy_remaining": 190.55,
+            "next_position": [
+              9,
+              2
+            ],
+            "reservation": [
+              [
+                9,
+                2
+              ]
+            ],
+            "safe_energy_margin": 162.15,
+            "state": "EXPLORE",
+            "valid_until_step": 32
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -18241,7 +19561,8 @@
           "target": [
             9,
             2
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -18260,6 +19581,26 @@
             "oldest_data_age": 28,
             "stale_cells": 108
           },
+          "motion_intent": {
+            "current_position": [
+              18,
+              1
+            ],
+            "energy_remaining": 190.55,
+            "next_position": [
+              19,
+              1
+            ],
+            "reservation": [
+              [
+                19,
+                1
+              ]
+            ],
+            "safe_energy_margin": 148.5,
+            "state": "EXPLORE",
+            "valid_until_step": 32
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -18275,7 +19616,8 @@
           "target": [
             19,
             1
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -19172,6 +20514,26 @@
             "oldest_data_age": 29,
             "stale_cells": 56
           },
+          "motion_intent": {
+            "current_position": [
+              9,
+              2
+            ],
+            "energy_remaining": 189.5,
+            "next_position": [
+              9,
+              1
+            ],
+            "reservation": [
+              [
+                9,
+                1
+              ]
+            ],
+            "safe_energy_margin": 160.05,
+            "state": "EXPLORE",
+            "valid_until_step": 33
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -19187,7 +20549,8 @@
           "target": [
             9,
             1
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -19205,6 +20568,34 @@
             "known_coverage": 48.351648,
             "oldest_data_age": 29,
             "stale_cells": 109
+          },
+          "motion_intent": {
+            "current_position": [
+              19,
+              1
+            ],
+            "energy_remaining": 189.5,
+            "next_position": [
+              18,
+              1
+            ],
+            "reservation": [
+              [
+                18,
+                1
+              ],
+              [
+                18,
+                2
+              ],
+              [
+                18,
+                3
+              ]
+            ],
+            "safe_energy_margin": 146.4,
+            "state": "EXPLORE",
+            "valid_until_step": 33
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -19233,7 +20624,8 @@
           "target": [
             19,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -20106,6 +21498,34 @@
             "oldest_data_age": 30,
             "stale_cells": 56
           },
+          "motion_intent": {
+            "current_position": [
+              9,
+              1
+            ],
+            "energy_remaining": 188.45,
+            "next_position": [
+              9,
+              2
+            ],
+            "reservation": [
+              [
+                9,
+                2
+              ],
+              [
+                10,
+                2
+              ],
+              [
+                11,
+                2
+              ]
+            ],
+            "safe_energy_margin": 157.95,
+            "state": "EXPLORE",
+            "valid_until_step": 34
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -20129,7 +21549,8 @@
           "target": [
             11,
             2
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -20147,6 +21568,34 @@
             "known_coverage": 48.351648,
             "oldest_data_age": 30,
             "stale_cells": 109
+          },
+          "motion_intent": {
+            "current_position": [
+              18,
+              1
+            ],
+            "energy_remaining": 188.45,
+            "next_position": [
+              18,
+              2
+            ],
+            "reservation": [
+              [
+                18,
+                2
+              ],
+              [
+                18,
+                3
+              ],
+              [
+                19,
+                3
+              ]
+            ],
+            "safe_energy_margin": 146.4,
+            "state": "EXPLORE",
+            "valid_until_step": 34
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -20171,7 +21620,8 @@
           "target": [
             19,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -21023,6 +22473,30 @@
             "oldest_data_age": 31,
             "stale_cells": 55
           },
+          "motion_intent": {
+            "current_position": [
+              9,
+              2
+            ],
+            "energy_remaining": 187.4,
+            "next_position": [
+              10,
+              2
+            ],
+            "reservation": [
+              [
+                10,
+                2
+              ],
+              [
+                11,
+                2
+              ]
+            ],
+            "safe_energy_margin": 157.95,
+            "state": "EXPLORE",
+            "valid_until_step": 35
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -21042,7 +22516,8 @@
           "target": [
             11,
             2
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -21060,6 +22535,30 @@
             "known_coverage": 48.351648,
             "oldest_data_age": 31,
             "stale_cells": 110
+          },
+          "motion_intent": {
+            "current_position": [
+              18,
+              2
+            ],
+            "energy_remaining": 187.4,
+            "next_position": [
+              18,
+              3
+            ],
+            "reservation": [
+              [
+                18,
+                3
+              ],
+              [
+                19,
+                3
+              ]
+            ],
+            "safe_energy_margin": 146.4,
+            "state": "EXPLORE",
+            "valid_until_step": 35
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -21080,7 +22579,8 @@
           "target": [
             19,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -21928,6 +23428,26 @@
             "oldest_data_age": 32,
             "stale_cells": 52
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              2
+            ],
+            "energy_remaining": 186.35,
+            "next_position": [
+              11,
+              2
+            ],
+            "reservation": [
+              [
+                11,
+                2
+              ]
+            ],
+            "safe_energy_margin": 155.85,
+            "state": "EXPLORE",
+            "valid_until_step": 36
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -21943,7 +23463,8 @@
           "target": [
             11,
             2
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -21962,6 +23483,26 @@
             "oldest_data_age": 32,
             "stale_cells": 117
           },
+          "motion_intent": {
+            "current_position": [
+              18,
+              3
+            ],
+            "energy_remaining": 186.35,
+            "next_position": [
+              19,
+              3
+            ],
+            "reservation": [
+              [
+                19,
+                3
+              ]
+            ],
+            "safe_energy_margin": 146.4,
+            "state": "EXPLORE",
+            "valid_until_step": 36
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -21977,7 +23518,8 @@
           "target": [
             19,
             3
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -22870,6 +24412,26 @@
             "oldest_data_age": 33,
             "stale_cells": 50
           },
+          "motion_intent": {
+            "current_position": [
+              11,
+              2
+            ],
+            "energy_remaining": 185.3,
+            "next_position": [
+              11,
+              1
+            ],
+            "reservation": [
+              [
+                11,
+                1
+              ]
+            ],
+            "safe_energy_margin": 153.75,
+            "state": "EXPLORE",
+            "valid_until_step": 37
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -22885,7 +24447,8 @@
           "target": [
             11,
             1
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -22904,6 +24467,26 @@
             "oldest_data_age": 33,
             "stale_cells": 121
           },
+          "motion_intent": {
+            "current_position": [
+              19,
+              3
+            ],
+            "energy_remaining": 185.3,
+            "next_position": [
+              19,
+              4
+            ],
+            "reservation": [
+              [
+                19,
+                4
+              ]
+            ],
+            "safe_energy_margin": 144.3,
+            "state": "EXPLORE",
+            "valid_until_step": 37
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -22919,7 +24502,8 @@
           "target": [
             19,
             4
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -23812,6 +25396,26 @@
             "oldest_data_age": 34,
             "stale_cells": 48
           },
+          "motion_intent": {
+            "current_position": [
+              11,
+              1
+            ],
+            "energy_remaining": 184.25,
+            "next_position": [
+              12,
+              1
+            ],
+            "reservation": [
+              [
+                12,
+                1
+              ]
+            ],
+            "safe_energy_margin": 151.65,
+            "state": "EXPLORE",
+            "valid_until_step": 38
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -23827,7 +25431,8 @@
           "target": [
             12,
             1
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -23846,6 +25451,26 @@
             "oldest_data_age": 34,
             "stale_cells": 126
           },
+          "motion_intent": {
+            "current_position": [
+              19,
+              4
+            ],
+            "energy_remaining": 184.25,
+            "next_position": [
+              19,
+              5
+            ],
+            "reservation": [
+              [
+                19,
+                5
+              ]
+            ],
+            "safe_energy_margin": 142.2,
+            "state": "EXPLORE",
+            "valid_until_step": 38
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -23861,7 +25486,8 @@
           "target": [
             19,
             5
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -24764,6 +26390,26 @@
             "oldest_data_age": 35,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              12,
+              1
+            ],
+            "energy_remaining": 183.2,
+            "next_position": [
+              13,
+              1
+            ],
+            "reservation": [
+              [
+                13,
+                1
+              ]
+            ],
+            "safe_energy_margin": 149.55,
+            "state": "EXPLORE",
+            "valid_until_step": 39
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -24779,7 +26425,8 @@
           "target": [
             13,
             1
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -24798,6 +26445,26 @@
             "oldest_data_age": 35,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              19,
+              5
+            ],
+            "energy_remaining": 183.2,
+            "next_position": [
+              18,
+              5
+            ],
+            "reservation": [
+              [
+                18,
+                5
+              ]
+            ],
+            "safe_energy_margin": 140.1,
+            "state": "EXPLORE",
+            "valid_until_step": 39
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -24813,7 +26480,8 @@
           "target": [
             18,
             5
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -24927,6 +26595,26 @@
           "event_type": "local_frontier_selected",
           "position": [
             19,
+            6
+          ],
+          "step": 36
+        },
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 182.15,
+          "event_type": "motion_intent_shared",
+          "position": [
+            13,
+            2
+          ],
+          "step": 36
+        },
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 182.15,
+          "event_type": "motion_intent_shared",
+          "position": [
+            18,
             6
           ],
           "step": 36
@@ -25432,6 +27120,34 @@
             "oldest_data_age": 36,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              13,
+              1
+            ],
+            "energy_remaining": 182.15,
+            "next_position": [
+              13,
+              2
+            ],
+            "reservation": [
+              [
+                13,
+                2
+              ],
+              [
+                13,
+                3
+              ],
+              [
+                13,
+                4
+              ]
+            ],
+            "safe_energy_margin": 147.45,
+            "state": "EXPLORE",
+            "valid_until_step": 40
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -25459,7 +27175,8 @@
           "target": [
             13,
             5
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -25477,6 +27194,30 @@
             "known_coverage": 71.428571,
             "oldest_data_age": 36,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              18,
+              5
+            ],
+            "energy_remaining": 182.15,
+            "next_position": [
+              18,
+              6
+            ],
+            "reservation": [
+              [
+                18,
+                6
+              ],
+              [
+                19,
+                6
+              ]
+            ],
+            "safe_energy_margin": 140.1,
+            "state": "EXPLORE",
+            "valid_until_step": 40
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -25497,7 +27238,8 @@
           "target": [
             19,
             6
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -26102,6 +27844,34 @@
             "oldest_data_age": 37,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              13,
+              2
+            ],
+            "energy_remaining": 181.1,
+            "next_position": [
+              12,
+              2
+            ],
+            "reservation": [
+              [
+                12,
+                2
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                11,
+                3
+              ]
+            ],
+            "safe_energy_margin": 147.45,
+            "state": "EXPLORE",
+            "valid_until_step": 41
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -26129,7 +27899,8 @@
           "target": [
             11,
             4
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -26147,6 +27918,30 @@
             "known_coverage": 72.893773,
             "oldest_data_age": 37,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              18,
+              6
+            ],
+            "energy_remaining": 181.1,
+            "next_position": [
+              17,
+              6
+            ],
+            "reservation": [
+              [
+                17,
+                6
+              ],
+              [
+                17,
+                7
+              ]
+            ],
+            "safe_energy_margin": 138.0,
+            "state": "EXPLORE",
+            "valid_until_step": 41
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -26167,7 +27962,8 @@
           "target": [
             17,
             7
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -26762,6 +28558,34 @@
             "oldest_data_age": 38,
             "stale_cells": 17
           },
+          "motion_intent": {
+            "current_position": [
+              12,
+              2
+            ],
+            "energy_remaining": 180.05,
+            "next_position": [
+              11,
+              2
+            ],
+            "reservation": [
+              [
+                11,
+                2
+              ],
+              [
+                11,
+                3
+              ],
+              [
+                11,
+                4
+              ]
+            ],
+            "safe_energy_margin": 147.45,
+            "state": "EXPLORE",
+            "valid_until_step": 42
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -26785,7 +28609,8 @@
           "target": [
             11,
             4
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -26803,6 +28628,30 @@
             "known_coverage": 73.992674,
             "oldest_data_age": 38,
             "stale_cells": 15
+          },
+          "motion_intent": {
+            "current_position": [
+              17,
+              6
+            ],
+            "energy_remaining": 180.05,
+            "next_position": [
+              16,
+              6
+            ],
+            "reservation": [
+              [
+                16,
+                6
+              ],
+              [
+                16,
+                7
+              ]
+            ],
+            "safe_energy_margin": 138.0,
+            "state": "EXPLORE",
+            "valid_until_step": 42
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -26823,7 +28672,8 @@
           "target": [
             16,
             7
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -27399,6 +29249,30 @@
             "oldest_data_age": 39,
             "stale_cells": 26
           },
+          "motion_intent": {
+            "current_position": [
+              11,
+              2
+            ],
+            "energy_remaining": 179.0,
+            "next_position": [
+              11,
+              3
+            ],
+            "reservation": [
+              [
+                11,
+                3
+              ],
+              [
+                11,
+                4
+              ]
+            ],
+            "safe_energy_margin": 147.45,
+            "state": "EXPLORE",
+            "valid_until_step": 43
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -27418,7 +29292,8 @@
           "target": [
             11,
             4
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -27436,6 +29311,30 @@
             "known_coverage": 75.091575,
             "oldest_data_age": 39,
             "stale_cells": 18
+          },
+          "motion_intent": {
+            "current_position": [
+              16,
+              6
+            ],
+            "energy_remaining": 179.0,
+            "next_position": [
+              15,
+              6
+            ],
+            "reservation": [
+              [
+                15,
+                6
+              ],
+              [
+                14,
+                6
+              ]
+            ],
+            "safe_energy_margin": 138.0,
+            "state": "EXPLORE",
+            "valid_until_step": 43
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -27456,7 +29355,8 @@
           "target": [
             14,
             6
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -28050,6 +29950,26 @@
             "oldest_data_age": 40,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              11,
+              3
+            ],
+            "energy_remaining": 177.95,
+            "next_position": [
+              11,
+              4
+            ],
+            "reservation": [
+              [
+                11,
+                4
+              ]
+            ],
+            "safe_energy_margin": 145.35,
+            "state": "EXPLORE",
+            "valid_until_step": 44
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -28065,7 +29985,8 @@
           "target": [
             11,
             4
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -28084,6 +30005,26 @@
             "oldest_data_age": 40,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              15,
+              6
+            ],
+            "energy_remaining": 177.95,
+            "next_position": [
+              14,
+              6
+            ],
+            "reservation": [
+              [
+                14,
+                6
+              ]
+            ],
+            "safe_energy_margin": 138.0,
+            "state": "EXPLORE",
+            "valid_until_step": 44
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -28099,7 +30040,8 @@
           "target": [
             14,
             6
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -28201,6 +30143,26 @@
           "drone_id": "drone-2",
           "energy_remaining": 176.9,
           "event_type": "local_frontier_selected",
+          "position": [
+            13,
+            6
+          ],
+          "step": 41
+        },
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 176.9,
+          "event_type": "motion_intent_shared",
+          "position": [
+            10,
+            4
+          ],
+          "step": 41
+        },
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 176.9,
+          "event_type": "motion_intent_shared",
           "position": [
             13,
             6
@@ -28796,6 +30758,26 @@
             "oldest_data_age": 41,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              11,
+              4
+            ],
+            "energy_remaining": 176.9,
+            "next_position": [
+              10,
+              4
+            ],
+            "reservation": [
+              [
+                10,
+                4
+              ]
+            ],
+            "safe_energy_margin": 143.25,
+            "state": "EXPLORE",
+            "valid_until_step": 45
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -28811,7 +30793,8 @@
           "target": [
             10,
             4
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -28830,6 +30813,26 @@
             "oldest_data_age": 41,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              14,
+              6
+            ],
+            "energy_remaining": 176.9,
+            "next_position": [
+              13,
+              6
+            ],
+            "reservation": [
+              [
+                13,
+                6
+              ]
+            ],
+            "safe_energy_margin": 138.0,
+            "state": "EXPLORE",
+            "valid_until_step": 45
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -28845,7 +30848,8 @@
           "target": [
             13,
             6
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -29538,6 +31542,34 @@
             "oldest_data_age": 42,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              4
+            ],
+            "energy_remaining": 175.85,
+            "next_position": [
+              10,
+              5
+            ],
+            "reservation": [
+              [
+                10,
+                5
+              ],
+              [
+                10,
+                6
+              ],
+              [
+                10,
+                7
+              ]
+            ],
+            "safe_energy_margin": 143.25,
+            "state": "EXPLORE",
+            "valid_until_step": 46
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -29565,7 +31597,8 @@
           "target": [
             11,
             7
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -29584,6 +31617,26 @@
             "oldest_data_age": 42,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              13,
+              6
+            ],
+            "energy_remaining": 175.85,
+            "next_position": [
+              12,
+              6
+            ],
+            "reservation": [
+              [
+                12,
+                6
+              ]
+            ],
+            "safe_energy_margin": 138.0,
+            "state": "EXPLORE",
+            "valid_until_step": 46
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -29599,7 +31652,8 @@
           "target": [
             12,
             6
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -30312,6 +32366,34 @@
             "oldest_data_age": 43,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              5
+            ],
+            "energy_remaining": 174.8,
+            "next_position": [
+              10,
+              6
+            ],
+            "reservation": [
+              [
+                10,
+                6
+              ],
+              [
+                10,
+                7
+              ],
+              [
+                10,
+                8
+              ]
+            ],
+            "safe_energy_margin": 141.15,
+            "state": "EXPLORE",
+            "valid_until_step": 47
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -30339,7 +32421,8 @@
           "target": [
             11,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -30357,6 +32440,30 @@
             "known_coverage": 82.051282,
             "oldest_data_age": 43,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              12,
+              6
+            ],
+            "energy_remaining": 174.8,
+            "next_position": [
+              12,
+              7
+            ],
+            "reservation": [
+              [
+                12,
+                7
+              ],
+              [
+                12,
+                8
+              ]
+            ],
+            "safe_energy_margin": 138.0,
+            "state": "EXPLORE",
+            "valid_until_step": 47
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -30377,7 +32484,8 @@
           "target": [
             12,
             8
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -31058,6 +33166,34 @@
             "oldest_data_age": 44,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              6
+            ],
+            "energy_remaining": 173.75,
+            "next_position": [
+              10,
+              7
+            ],
+            "reservation": [
+              [
+                10,
+                7
+              ],
+              [
+                10,
+                8
+              ],
+              [
+                11,
+                8
+              ]
+            ],
+            "safe_energy_margin": 139.05,
+            "state": "EXPLORE",
+            "valid_until_step": 48
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -31081,7 +33217,8 @@
           "target": [
             11,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -31100,6 +33237,26 @@
             "oldest_data_age": 44,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              12,
+              7
+            ],
+            "energy_remaining": 173.75,
+            "next_position": [
+              12,
+              8
+            ],
+            "reservation": [
+              [
+                12,
+                8
+              ]
+            ],
+            "safe_energy_margin": 135.9,
+            "state": "EXPLORE",
+            "valid_until_step": 48
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -31115,7 +33272,8 @@
           "target": [
             12,
             8
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -31828,6 +33986,30 @@
             "oldest_data_age": 45,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              7
+            ],
+            "energy_remaining": 172.7,
+            "next_position": [
+              10,
+              8
+            ],
+            "reservation": [
+              [
+                10,
+                8
+              ],
+              [
+                11,
+                8
+              ]
+            ],
+            "safe_energy_margin": 136.95,
+            "state": "EXPLORE",
+            "valid_until_step": 49
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -31847,7 +34029,8 @@
           "target": [
             11,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -31866,6 +34049,26 @@
             "oldest_data_age": 45,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              12,
+              8
+            ],
+            "energy_remaining": 172.7,
+            "next_position": [
+              13,
+              8
+            ],
+            "reservation": [
+              [
+                13,
+                8
+              ]
+            ],
+            "safe_energy_margin": 133.8,
+            "state": "EXPLORE",
+            "valid_until_step": 49
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -31881,7 +34084,8 @@
           "target": [
             13,
             8
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -32614,6 +34818,26 @@
             "oldest_data_age": 46,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              8
+            ],
+            "energy_remaining": 171.65,
+            "next_position": [
+              11,
+              8
+            ],
+            "reservation": [
+              [
+                11,
+                8
+              ]
+            ],
+            "safe_energy_margin": 134.85,
+            "state": "EXPLORE",
+            "valid_until_step": 50
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -32629,7 +34853,8 @@
           "target": [
             11,
             8
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -32647,6 +34872,30 @@
             "known_coverage": 85.714286,
             "oldest_data_age": 46,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              13,
+              8
+            ],
+            "energy_remaining": 171.65,
+            "next_position": [
+              12,
+              8
+            ],
+            "reservation": [
+              [
+                12,
+                8
+              ],
+              [
+                12,
+                9
+              ]
+            ],
+            "safe_energy_margin": 131.7,
+            "state": "EXPLORE",
+            "valid_until_step": 50
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -32667,7 +34916,8 @@
           "target": [
             12,
             9
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -33428,6 +35678,34 @@
             "oldest_data_age": 47,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              11,
+              8
+            ],
+            "energy_remaining": 170.6,
+            "next_position": [
+              10,
+              8
+            ],
+            "reservation": [
+              [
+                10,
+                8
+              ],
+              [
+                10,
+                9
+              ],
+              [
+                9,
+                9
+              ]
+            ],
+            "safe_energy_margin": 132.75,
+            "state": "EXPLORE",
+            "valid_until_step": 51
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -33455,7 +35733,8 @@
           "target": [
             9,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -33473,6 +35752,34 @@
             "known_coverage": 85.714286,
             "oldest_data_age": 47,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              12,
+              8
+            ],
+            "energy_remaining": 170.6,
+            "next_position": [
+              12,
+              9
+            ],
+            "reservation": [
+              [
+                12,
+                9
+              ],
+              [
+                12,
+                10
+              ],
+              [
+                12,
+                11
+              ]
+            ],
+            "safe_energy_margin": 131.7,
+            "state": "EXPLORE",
+            "valid_until_step": 51
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -33497,7 +35804,8 @@
           "target": [
             12,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -34212,6 +36520,34 @@
             "oldest_data_age": 48,
             "stale_cells": 12
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              8
+            ],
+            "energy_remaining": 169.55,
+            "next_position": [
+              10,
+              9
+            ],
+            "reservation": [
+              [
+                10,
+                9
+              ],
+              [
+                9,
+                9
+              ],
+              [
+                9,
+                10
+              ]
+            ],
+            "safe_energy_margin": 132.75,
+            "state": "EXPLORE",
+            "valid_until_step": 52
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -34235,7 +36571,8 @@
           "target": [
             9,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -34253,6 +36590,30 @@
             "known_coverage": 85.714286,
             "oldest_data_age": 48,
             "stale_cells": 15
+          },
+          "motion_intent": {
+            "current_position": [
+              12,
+              9
+            ],
+            "energy_remaining": 169.55,
+            "next_position": [
+              12,
+              10
+            ],
+            "reservation": [
+              [
+                12,
+                10
+              ],
+              [
+                12,
+                11
+              ]
+            ],
+            "safe_energy_margin": 129.6,
+            "state": "EXPLORE",
+            "valid_until_step": 52
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -34273,7 +36634,8 @@
           "target": [
             12,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -34943,6 +37305,30 @@
             "oldest_data_age": 49,
             "stale_cells": 20
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              9
+            ],
+            "energy_remaining": 168.5,
+            "next_position": [
+              9,
+              9
+            ],
+            "reservation": [
+              [
+                9,
+                9
+              ],
+              [
+                9,
+                10
+              ]
+            ],
+            "safe_energy_margin": 130.65,
+            "state": "EXPLORE",
+            "valid_until_step": 53
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -34962,7 +37348,8 @@
           "target": [
             9,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -34981,6 +37368,26 @@
             "oldest_data_age": 49,
             "stale_cells": 18
           },
+          "motion_intent": {
+            "current_position": [
+              12,
+              10
+            ],
+            "energy_remaining": 168.5,
+            "next_position": [
+              12,
+              11
+            ],
+            "reservation": [
+              [
+                12,
+                11
+              ]
+            ],
+            "safe_energy_margin": 127.5,
+            "state": "EXPLORE",
+            "valid_until_step": 53
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -34996,7 +37403,8 @@
           "target": [
             12,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -35777,6 +38185,30 @@
             "oldest_data_age": 50,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              9,
+              9
+            ],
+            "energy_remaining": 167.45,
+            "next_position": [
+              8,
+              9
+            ],
+            "reservation": [
+              [
+                8,
+                9
+              ],
+              [
+                8,
+                10
+              ]
+            ],
+            "safe_energy_margin": 130.65,
+            "state": "EXPLORE",
+            "valid_until_step": 54
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -35796,7 +38228,8 @@
           "target": [
             8,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -35815,6 +38248,26 @@
             "oldest_data_age": 50,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              12,
+              11
+            ],
+            "energy_remaining": 167.45,
+            "next_position": [
+              11,
+              11
+            ],
+            "reservation": [
+              [
+                11,
+                11
+              ]
+            ],
+            "safe_energy_margin": 125.4,
+            "state": "EXPLORE",
+            "valid_until_step": 54
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -35830,7 +38283,8 @@
           "target": [
             11,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -35954,6 +38408,26 @@
           "event_type": "local_frontier_selected",
           "position": [
             14,
+            11
+          ],
+          "step": 51
+        },
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 166.4,
+          "event_type": "motion_intent_shared",
+          "position": [
+            7,
+            9
+          ],
+          "step": 51
+        },
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 166.4,
+          "event_type": "motion_intent_shared",
+          "position": [
+            12,
             11
           ],
           "step": 51
@@ -36673,6 +39147,34 @@
             "oldest_data_age": 51,
             "stale_cells": 14
           },
+          "motion_intent": {
+            "current_position": [
+              8,
+              9
+            ],
+            "energy_remaining": 166.4,
+            "next_position": [
+              7,
+              9
+            ],
+            "reservation": [
+              [
+                7,
+                9
+              ],
+              [
+                6,
+                9
+              ],
+              [
+                6,
+                10
+              ]
+            ],
+            "safe_energy_margin": 130.65,
+            "state": "EXPLORE",
+            "valid_until_step": 55
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -36696,7 +39198,8 @@
           "target": [
             6,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -36714,6 +39217,34 @@
             "known_coverage": 89.377289,
             "oldest_data_age": 51,
             "stale_cells": 16
+          },
+          "motion_intent": {
+            "current_position": [
+              11,
+              11
+            ],
+            "energy_remaining": 166.4,
+            "next_position": [
+              12,
+              11
+            ],
+            "reservation": [
+              [
+                12,
+                11
+              ],
+              [
+                13,
+                11
+              ],
+              [
+                14,
+                11
+              ]
+            ],
+            "safe_energy_margin": 125.4,
+            "state": "EXPLORE",
+            "valid_until_step": 55
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -36738,7 +39269,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -37465,6 +39997,30 @@
             "oldest_data_age": 52,
             "stale_cells": 19
           },
+          "motion_intent": {
+            "current_position": [
+              7,
+              9
+            ],
+            "energy_remaining": 165.35,
+            "next_position": [
+              6,
+              9
+            ],
+            "reservation": [
+              [
+                6,
+                9
+              ],
+              [
+                6,
+                10
+              ]
+            ],
+            "safe_energy_margin": 130.65,
+            "state": "EXPLORE",
+            "valid_until_step": 56
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -37484,7 +40040,8 @@
           "target": [
             6,
             10
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -37502,6 +40059,30 @@
             "known_coverage": 89.377289,
             "oldest_data_age": 52,
             "stale_cells": 24
+          },
+          "motion_intent": {
+            "current_position": [
+              12,
+              11
+            ],
+            "energy_remaining": 165.35,
+            "next_position": [
+              13,
+              11
+            ],
+            "reservation": [
+              [
+                13,
+                11
+              ],
+              [
+                14,
+                11
+              ]
+            ],
+            "safe_energy_margin": 123.3,
+            "state": "EXPLORE",
+            "valid_until_step": 56
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -37522,7 +40103,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -38286,6 +40868,34 @@
             "oldest_data_age": 53,
             "stale_cells": 24
           },
+          "motion_intent": {
+            "current_position": [
+              6,
+              9
+            ],
+            "energy_remaining": 164.3,
+            "next_position": [
+              5,
+              9
+            ],
+            "reservation": [
+              [
+                5,
+                9
+              ],
+              [
+                4,
+                9
+              ],
+              [
+                3,
+                9
+              ]
+            ],
+            "safe_energy_margin": 130.65,
+            "state": "EXPLORE",
+            "valid_until_step": 57
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -38325,7 +40935,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -38344,6 +40955,26 @@
             "oldest_data_age": 53,
             "stale_cells": 32
           },
+          "motion_intent": {
+            "current_position": [
+              13,
+              11
+            ],
+            "energy_remaining": 164.3,
+            "next_position": [
+              14,
+              11
+            ],
+            "reservation": [
+              [
+                14,
+                11
+              ]
+            ],
+            "safe_energy_margin": 121.2,
+            "state": "EXPLORE",
+            "valid_until_step": 57
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -38359,7 +40990,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -39132,6 +41764,34 @@
             "oldest_data_age": 54,
             "stale_cells": 29
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              9
+            ],
+            "energy_remaining": 163.25,
+            "next_position": [
+              4,
+              9
+            ],
+            "reservation": [
+              [
+                4,
+                9
+              ],
+              [
+                3,
+                9
+              ],
+              [
+                2,
+                9
+              ]
+            ],
+            "safe_energy_margin": 130.65,
+            "state": "EXPLORE",
+            "valid_until_step": 58
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -39167,7 +41827,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -39186,6 +41847,26 @@
             "oldest_data_age": 54,
             "stale_cells": 40
           },
+          "motion_intent": {
+            "current_position": [
+              14,
+              11
+            ],
+            "energy_remaining": 163.25,
+            "next_position": [
+              15,
+              11
+            ],
+            "reservation": [
+              [
+                15,
+                11
+              ]
+            ],
+            "safe_energy_margin": 119.1,
+            "state": "EXPLORE",
+            "valid_until_step": 58
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -39201,7 +41882,8 @@
           "target": [
             15,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -39982,6 +42664,34 @@
             "oldest_data_age": 55,
             "stale_cells": 35
           },
+          "motion_intent": {
+            "current_position": [
+              4,
+              9
+            ],
+            "energy_remaining": 162.2,
+            "next_position": [
+              3,
+              9
+            ],
+            "reservation": [
+              [
+                3,
+                9
+              ],
+              [
+                2,
+                9
+              ],
+              [
+                1,
+                9
+              ]
+            ],
+            "safe_energy_margin": 130.65,
+            "state": "EXPLORE",
+            "valid_until_step": 59
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -40013,7 +42723,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -40031,6 +42742,34 @@
             "known_coverage": 90.47619,
             "oldest_data_age": 55,
             "stale_cells": 46
+          },
+          "motion_intent": {
+            "current_position": [
+              15,
+              11
+            ],
+            "energy_remaining": 162.2,
+            "next_position": [
+              15,
+              10
+            ],
+            "reservation": [
+              [
+                15,
+                10
+              ],
+              [
+                16,
+                10
+              ],
+              [
+                17,
+                10
+              ]
+            ],
+            "safe_energy_margin": 117.0,
+            "state": "EXPLORE",
+            "valid_until_step": 59
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -40055,7 +42794,8 @@
           "target": [
             17,
             10
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -40823,6 +43563,34 @@
             "oldest_data_age": 56,
             "stale_cells": 40
           },
+          "motion_intent": {
+            "current_position": [
+              3,
+              9
+            ],
+            "energy_remaining": 161.15,
+            "next_position": [
+              2,
+              9
+            ],
+            "reservation": [
+              [
+                2,
+                9
+              ],
+              [
+                1,
+                9
+              ],
+              [
+                1,
+                10
+              ]
+            ],
+            "safe_energy_margin": 130.65,
+            "state": "EXPLORE",
+            "valid_until_step": 60
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -40850,7 +43618,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -40868,6 +43637,30 @@
             "known_coverage": 90.842491,
             "oldest_data_age": 56,
             "stale_cells": 53
+          },
+          "motion_intent": {
+            "current_position": [
+              15,
+              10
+            ],
+            "energy_remaining": 161.15,
+            "next_position": [
+              16,
+              10
+            ],
+            "reservation": [
+              [
+                16,
+                10
+              ],
+              [
+                17,
+                10
+              ]
+            ],
+            "safe_energy_margin": 117.0,
+            "state": "EXPLORE",
+            "valid_until_step": 60
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -40888,7 +43681,8 @@
           "target": [
             17,
             10
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -41664,6 +44458,34 @@
             "oldest_data_age": 57,
             "stale_cells": 46
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              9
+            ],
+            "energy_remaining": 160.1,
+            "next_position": [
+              1,
+              9
+            ],
+            "reservation": [
+              [
+                1,
+                9
+              ],
+              [
+                1,
+                10
+              ],
+              [
+                1,
+                11
+              ]
+            ],
+            "safe_energy_margin": 130.65,
+            "state": "EXPLORE",
+            "valid_until_step": 61
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -41687,7 +44509,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -41706,6 +44529,26 @@
             "oldest_data_age": 57,
             "stale_cells": 60
           },
+          "motion_intent": {
+            "current_position": [
+              16,
+              10
+            ],
+            "energy_remaining": 160.1,
+            "next_position": [
+              17,
+              10
+            ],
+            "reservation": [
+              [
+                17,
+                10
+              ]
+            ],
+            "safe_energy_margin": 114.9,
+            "state": "EXPLORE",
+            "valid_until_step": 61
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -41721,7 +44564,8 @@
           "target": [
             17,
             10
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -42534,6 +45378,30 @@
             "oldest_data_age": 58,
             "stale_cells": 51
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              9
+            ],
+            "energy_remaining": 159.05,
+            "next_position": [
+              1,
+              10
+            ],
+            "reservation": [
+              [
+                1,
+                10
+              ],
+              [
+                1,
+                11
+              ]
+            ],
+            "safe_energy_margin": 128.55,
+            "state": "EXPLORE",
+            "valid_until_step": 62
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -42553,7 +45421,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -42572,6 +45441,26 @@
             "oldest_data_age": 58,
             "stale_cells": 61
           },
+          "motion_intent": {
+            "current_position": [
+              17,
+              10
+            ],
+            "energy_remaining": 159.05,
+            "next_position": [
+              18,
+              10
+            ],
+            "reservation": [
+              [
+                18,
+                10
+              ]
+            ],
+            "safe_energy_margin": 112.8,
+            "state": "EXPLORE",
+            "valid_until_step": 62
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -42587,7 +45476,8 @@
           "target": [
             18,
             10
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -43408,6 +46298,26 @@
             "oldest_data_age": 59,
             "stale_cells": 57
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              10
+            ],
+            "energy_remaining": 158.0,
+            "next_position": [
+              1,
+              11
+            ],
+            "reservation": [
+              [
+                1,
+                11
+              ]
+            ],
+            "safe_energy_margin": 126.45,
+            "state": "EXPLORE",
+            "valid_until_step": 63
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -43423,7 +46333,8 @@
           "target": [
             1,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -43442,6 +46353,26 @@
             "oldest_data_age": 59,
             "stale_cells": 62
           },
+          "motion_intent": {
+            "current_position": [
+              18,
+              10
+            ],
+            "energy_remaining": 158.0,
+            "next_position": [
+              19,
+              10
+            ],
+            "reservation": [
+              [
+                19,
+                10
+              ]
+            ],
+            "safe_energy_margin": 110.7,
+            "state": "EXPLORE",
+            "valid_until_step": 63
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -43457,7 +46388,8 @@
           "target": [
             19,
             10
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -44322,6 +47254,34 @@
             "oldest_data_age": 60,
             "stale_cells": 59
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              11
+            ],
+            "energy_remaining": 156.95,
+            "next_position": [
+              2,
+              11
+            ],
+            "reservation": [
+              [
+                2,
+                11
+              ],
+              [
+                3,
+                11
+              ],
+              [
+                4,
+                11
+              ]
+            ],
+            "safe_energy_margin": 124.35,
+            "state": "EXPLORE",
+            "valid_until_step": 64
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -44385,7 +47345,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -44404,6 +47365,26 @@
             "oldest_data_age": 60,
             "stale_cells": 62
           },
+          "motion_intent": {
+            "current_position": [
+              19,
+              10
+            ],
+            "energy_remaining": 156.95,
+            "next_position": [
+              19,
+              9
+            ],
+            "reservation": [
+              [
+                19,
+                9
+              ]
+            ],
+            "safe_energy_margin": 108.6,
+            "state": "EXPLORE",
+            "valid_until_step": 64
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -44419,7 +47400,8 @@
           "target": [
             19,
             9
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -45272,6 +48254,34 @@
             "oldest_data_age": 61,
             "stale_cells": 61
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              11
+            ],
+            "energy_remaining": 155.9,
+            "next_position": [
+              3,
+              11
+            ],
+            "reservation": [
+              [
+                3,
+                11
+              ],
+              [
+                4,
+                11
+              ],
+              [
+                5,
+                11
+              ]
+            ],
+            "safe_energy_margin": 124.35,
+            "state": "EXPLORE",
+            "valid_until_step": 65
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -45331,7 +48341,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -45350,6 +48361,26 @@
             "oldest_data_age": 61,
             "stale_cells": 62
           },
+          "motion_intent": {
+            "current_position": [
+              19,
+              9
+            ],
+            "energy_remaining": 155.9,
+            "next_position": [
+              19,
+              8
+            ],
+            "reservation": [
+              [
+                19,
+                8
+              ]
+            ],
+            "safe_energy_margin": 108.6,
+            "state": "EXPLORE",
+            "valid_until_step": 65
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -45365,7 +48396,8 @@
           "target": [
             19,
             8
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -46226,6 +49258,34 @@
             "oldest_data_age": 62,
             "stale_cells": 62
           },
+          "motion_intent": {
+            "current_position": [
+              3,
+              11
+            ],
+            "energy_remaining": 154.85,
+            "next_position": [
+              4,
+              11
+            ],
+            "reservation": [
+              [
+                4,
+                11
+              ],
+              [
+                5,
+                11
+              ],
+              [
+                6,
+                11
+              ]
+            ],
+            "safe_energy_margin": 122.25,
+            "state": "EXPLORE",
+            "valid_until_step": 66
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -46281,7 +49341,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -46300,6 +49361,26 @@
             "oldest_data_age": 62,
             "stale_cells": 63
           },
+          "motion_intent": {
+            "current_position": [
+              19,
+              8
+            ],
+            "energy_remaining": 154.85,
+            "next_position": [
+              19,
+              7
+            ],
+            "reservation": [
+              [
+                19,
+                7
+              ]
+            ],
+            "safe_energy_margin": 108.6,
+            "state": "EXPLORE",
+            "valid_until_step": 66
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -46315,7 +49396,8 @@
           "target": [
             19,
             7
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -47184,6 +50266,34 @@
             "oldest_data_age": 63,
             "stale_cells": 61
           },
+          "motion_intent": {
+            "current_position": [
+              4,
+              11
+            ],
+            "energy_remaining": 153.8,
+            "next_position": [
+              5,
+              11
+            ],
+            "reservation": [
+              [
+                5,
+                11
+              ],
+              [
+                6,
+                11
+              ],
+              [
+                7,
+                11
+              ]
+            ],
+            "safe_energy_margin": 120.15,
+            "state": "EXPLORE",
+            "valid_until_step": 67
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -47235,7 +50345,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -47253,6 +50364,34 @@
             "known_coverage": 93.772894,
             "oldest_data_age": 63,
             "stale_cells": 64
+          },
+          "motion_intent": {
+            "current_position": [
+              19,
+              7
+            ],
+            "energy_remaining": 153.8,
+            "next_position": [
+              19,
+              8
+            ],
+            "reservation": [
+              [
+                19,
+                8
+              ],
+              [
+                19,
+                9
+              ],
+              [
+                19,
+                10
+              ]
+            ],
+            "safe_energy_margin": 108.6,
+            "state": "EXPLORE",
+            "valid_until_step": 67
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -47281,7 +50420,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -48129,6 +51269,34 @@
             "oldest_data_age": 64,
             "stale_cells": 60
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              11
+            ],
+            "energy_remaining": 152.75,
+            "next_position": [
+              6,
+              11
+            ],
+            "reservation": [
+              [
+                6,
+                11
+              ],
+              [
+                7,
+                11
+              ],
+              [
+                8,
+                11
+              ]
+            ],
+            "safe_energy_margin": 118.05,
+            "state": "EXPLORE",
+            "valid_until_step": 68
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -48176,7 +51344,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -48194,6 +51363,34 @@
             "known_coverage": 93.772894,
             "oldest_data_age": 64,
             "stale_cells": 65
+          },
+          "motion_intent": {
+            "current_position": [
+              19,
+              8
+            ],
+            "energy_remaining": 152.75,
+            "next_position": [
+              19,
+              9
+            ],
+            "reservation": [
+              [
+                19,
+                9
+              ],
+              [
+                19,
+                10
+              ],
+              [
+                19,
+                11
+              ]
+            ],
+            "safe_energy_margin": 106.5,
+            "state": "EXPLORE",
+            "valid_until_step": 68
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -48218,7 +51415,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -49066,6 +52264,34 @@
             "oldest_data_age": 65,
             "stale_cells": 59
           },
+          "motion_intent": {
+            "current_position": [
+              6,
+              11
+            ],
+            "energy_remaining": 151.7,
+            "next_position": [
+              7,
+              11
+            ],
+            "reservation": [
+              [
+                7,
+                11
+              ],
+              [
+                8,
+                11
+              ],
+              [
+                9,
+                11
+              ]
+            ],
+            "safe_energy_margin": 115.95,
+            "state": "EXPLORE",
+            "valid_until_step": 69
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -49109,7 +52335,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -49127,6 +52354,30 @@
             "known_coverage": 93.772894,
             "oldest_data_age": 65,
             "stale_cells": 66
+          },
+          "motion_intent": {
+            "current_position": [
+              19,
+              9
+            ],
+            "energy_remaining": 151.7,
+            "next_position": [
+              19,
+              10
+            ],
+            "reservation": [
+              [
+                19,
+                10
+              ],
+              [
+                19,
+                11
+              ]
+            ],
+            "safe_energy_margin": 104.4,
+            "state": "EXPLORE",
+            "valid_until_step": 69
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -49147,7 +52398,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -49995,6 +53247,34 @@
             "oldest_data_age": 66,
             "stale_cells": 59
           },
+          "motion_intent": {
+            "current_position": [
+              7,
+              11
+            ],
+            "energy_remaining": 150.65,
+            "next_position": [
+              8,
+              11
+            ],
+            "reservation": [
+              [
+                8,
+                11
+              ],
+              [
+                9,
+                11
+              ],
+              [
+                10,
+                11
+              ]
+            ],
+            "safe_energy_margin": 113.85,
+            "state": "EXPLORE",
+            "valid_until_step": 70
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -50034,7 +53314,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -50053,6 +53334,26 @@
             "oldest_data_age": 66,
             "stale_cells": 71
           },
+          "motion_intent": {
+            "current_position": [
+              19,
+              10
+            ],
+            "energy_remaining": 150.65,
+            "next_position": [
+              19,
+              11
+            ],
+            "reservation": [
+              [
+                19,
+                11
+              ]
+            ],
+            "safe_energy_margin": 102.3,
+            "state": "EXPLORE",
+            "valid_until_step": 70
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -50068,7 +53369,8 @@
           "target": [
             19,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -50945,6 +54247,34 @@
             "oldest_data_age": 67,
             "stale_cells": 58
           },
+          "motion_intent": {
+            "current_position": [
+              8,
+              11
+            ],
+            "energy_remaining": 149.6,
+            "next_position": [
+              9,
+              11
+            ],
+            "reservation": [
+              [
+                9,
+                11
+              ],
+              [
+                10,
+                11
+              ],
+              [
+                11,
+                11
+              ]
+            ],
+            "safe_energy_margin": 111.75,
+            "state": "EXPLORE",
+            "valid_until_step": 71
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -50980,7 +54310,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -50998,6 +54329,34 @@
             "known_coverage": 94.139194,
             "oldest_data_age": 67,
             "stale_cells": 75
+          },
+          "motion_intent": {
+            "current_position": [
+              19,
+              11
+            ],
+            "energy_remaining": 149.6,
+            "next_position": [
+              19,
+              10
+            ],
+            "reservation": [
+              [
+                19,
+                10
+              ],
+              [
+                18,
+                10
+              ],
+              [
+                17,
+                10
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "EXPLORE",
+            "valid_until_step": 71
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -51066,7 +54425,8 @@
           "target": [
             7,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -51922,6 +55282,34 @@
             "oldest_data_age": 68,
             "stale_cells": 57
           },
+          "motion_intent": {
+            "current_position": [
+              9,
+              11
+            ],
+            "energy_remaining": 148.55,
+            "next_position": [
+              10,
+              11
+            ],
+            "reservation": [
+              [
+                10,
+                11
+              ],
+              [
+                11,
+                11
+              ],
+              [
+                12,
+                11
+              ]
+            ],
+            "safe_energy_margin": 109.65,
+            "state": "EXPLORE",
+            "valid_until_step": 72
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -51953,7 +55341,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -51971,6 +55360,34 @@
             "known_coverage": 94.139194,
             "oldest_data_age": 68,
             "stale_cells": 80
+          },
+          "motion_intent": {
+            "current_position": [
+              19,
+              10
+            ],
+            "energy_remaining": 148.55,
+            "next_position": [
+              18,
+              10
+            ],
+            "reservation": [
+              [
+                18,
+                10
+              ],
+              [
+                17,
+                10
+              ],
+              [
+                16,
+                10
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "EXPLORE",
+            "valid_until_step": 72
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -52035,7 +55452,8 @@
           "target": [
             7,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [],
@@ -52897,6 +56315,34 @@
             "oldest_data_age": 69,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              11
+            ],
+            "energy_remaining": 147.5,
+            "next_position": [
+              11,
+              11
+            ],
+            "reservation": [
+              [
+                11,
+                11
+              ],
+              [
+                12,
+                11
+              ],
+              [
+                13,
+                11
+              ]
+            ],
+            "safe_energy_margin": 107.55,
+            "state": "EXPLORE",
+            "valid_until_step": 73
+          },
           "path_kind": "frontier",
           "planned_path": [
             [
@@ -52924,7 +56370,8 @@
           "target": [
             14,
             11
-          ]
+          ],
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -52942,6 +56389,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 69,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              18,
+              10
+            ],
+            "energy_remaining": 147.5,
+            "next_position": [
+              17,
+              10
+            ],
+            "reservation": [
+              [
+                17,
+                10
+              ],
+              [
+                16,
+                10
+              ],
+              [
+                15,
+                10
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "EXPLORE",
+            "valid_until_step": 73
           },
           "path_kind": "frontier",
           "planned_path": [
@@ -53002,7 +56477,8 @@
           "target": [
             7,
             11
-          ]
+          ],
+          "yielding": false
         }
       },
       "events": [
@@ -53106,6 +56582,26 @@
           "event_type": "return_started",
           "position": [
             17,
+            10
+          ],
+          "step": 70
+        },
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 146.45,
+          "event_type": "motion_intent_shared",
+          "position": [
+            10,
+            11
+          ],
+          "step": 70
+        },
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 146.45,
+          "event_type": "motion_intent_shared",
+          "position": [
+            16,
             10
           ],
           "step": 70
@@ -53899,6 +57395,34 @@
             "oldest_data_age": 70,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              11,
+              11
+            ],
+            "energy_remaining": 146.45,
+            "next_position": [
+              10,
+              11
+            ],
+            "reservation": [
+              [
+                10,
+                11
+              ],
+              [
+                9,
+                11
+              ],
+              [
+                8,
+                11
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 74
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -53987,7 +57511,8 @@
             11
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -54005,6 +57530,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 70,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              17,
+              10
+            ],
+            "energy_remaining": 146.45,
+            "next_position": [
+              16,
+              10
+            ],
+            "reservation": [
+              [
+                16,
+                10
+              ],
+              [
+                15,
+                10
+              ],
+              [
+                14,
+                10
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 74
           },
           "path_kind": "return",
           "planned_path": [
@@ -54114,7 +57667,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -54951,6 +58505,34 @@
             "oldest_data_age": 71,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              10,
+              11
+            ],
+            "energy_remaining": 145.4,
+            "next_position": [
+              9,
+              11
+            ],
+            "reservation": [
+              [
+                9,
+                11
+              ],
+              [
+                8,
+                11
+              ],
+              [
+                7,
+                11
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 75
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -55035,7 +58617,8 @@
             11
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -55053,6 +58636,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 71,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              16,
+              10
+            ],
+            "energy_remaining": 145.4,
+            "next_position": [
+              15,
+              10
+            ],
+            "reservation": [
+              [
+                15,
+                10
+              ],
+              [
+                14,
+                10
+              ],
+              [
+                13,
+                10
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 75
           },
           "path_kind": "return",
           "planned_path": [
@@ -55158,7 +58769,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -55989,6 +59601,34 @@
             "oldest_data_age": 72,
             "stale_cells": 14
           },
+          "motion_intent": {
+            "current_position": [
+              9,
+              11
+            ],
+            "energy_remaining": 144.35,
+            "next_position": [
+              8,
+              11
+            ],
+            "reservation": [
+              [
+                8,
+                11
+              ],
+              [
+                7,
+                11
+              ],
+              [
+                6,
+                11
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 76
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -56069,7 +59709,8 @@
             11
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -56087,6 +59728,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 72,
             "stale_cells": 14
+          },
+          "motion_intent": {
+            "current_position": [
+              15,
+              10
+            ],
+            "energy_remaining": 144.35,
+            "next_position": [
+              14,
+              10
+            ],
+            "reservation": [
+              [
+                14,
+                10
+              ],
+              [
+                13,
+                10
+              ],
+              [
+                12,
+                10
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 76
           },
           "path_kind": "return",
           "planned_path": [
@@ -56188,7 +59857,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -56974,6 +60644,34 @@
             "oldest_data_age": 73,
             "stale_cells": 19
           },
+          "motion_intent": {
+            "current_position": [
+              8,
+              11
+            ],
+            "energy_remaining": 143.3,
+            "next_position": [
+              7,
+              11
+            ],
+            "reservation": [
+              [
+                7,
+                11
+              ],
+              [
+                6,
+                11
+              ],
+              [
+                5,
+                11
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 77
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -57050,7 +60748,8 @@
             11
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -57068,6 +60767,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 73,
             "stale_cells": 20
+          },
+          "motion_intent": {
+            "current_position": [
+              14,
+              10
+            ],
+            "energy_remaining": 143.3,
+            "next_position": [
+              13,
+              10
+            ],
+            "reservation": [
+              [
+                13,
+                10
+              ],
+              [
+                12,
+                10
+              ],
+              [
+                12,
+                9
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 77
           },
           "path_kind": "return",
           "planned_path": [
@@ -57165,7 +60892,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -57951,6 +61679,34 @@
             "oldest_data_age": 74,
             "stale_cells": 25
           },
+          "motion_intent": {
+            "current_position": [
+              7,
+              11
+            ],
+            "energy_remaining": 142.25,
+            "next_position": [
+              6,
+              11
+            ],
+            "reservation": [
+              [
+                6,
+                11
+              ],
+              [
+                5,
+                11
+              ],
+              [
+                4,
+                11
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 78
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -58023,7 +61779,8 @@
             11
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -58041,6 +61798,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 74,
             "stale_cells": 25
+          },
+          "motion_intent": {
+            "current_position": [
+              13,
+              10
+            ],
+            "energy_remaining": 142.25,
+            "next_position": [
+              12,
+              10
+            ],
+            "reservation": [
+              [
+                12,
+                10
+              ],
+              [
+                12,
+                9
+              ],
+              [
+                11,
+                9
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 78
           },
           "path_kind": "return",
           "planned_path": [
@@ -58134,7 +61919,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [],
@@ -58926,6 +62712,34 @@
             "oldest_data_age": 75,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              6,
+              11
+            ],
+            "energy_remaining": 141.2,
+            "next_position": [
+              5,
+              11
+            ],
+            "reservation": [
+              [
+                5,
+                11
+              ],
+              [
+                4,
+                11
+              ],
+              [
+                3,
+                11
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 79
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -58994,7 +62808,8 @@
             11
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -59012,6 +62827,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 75,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              12,
+              10
+            ],
+            "energy_remaining": 141.2,
+            "next_position": [
+              12,
+              9
+            ],
+            "reservation": [
+              [
+                12,
+                9
+              ],
+              [
+                11,
+                9
+              ],
+              [
+                10,
+                9
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 79
           },
           "path_kind": "return",
           "planned_path": [
@@ -59101,7 +62944,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -59155,6 +62999,26 @@
           "event_type": "map_cells_received",
           "position": [
             12,
+            9
+          ],
+          "step": 76
+        },
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 140.15,
+          "event_type": "motion_intent_shared",
+          "position": [
+            4,
+            11
+          ],
+          "step": 76
+        },
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 140.15,
+          "event_type": "motion_intent_shared",
+          "position": [
+            11,
             9
           ],
           "step": 76
@@ -59948,6 +63812,34 @@
             "oldest_data_age": 76,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              5,
+              11
+            ],
+            "energy_remaining": 140.15,
+            "next_position": [
+              4,
+              11
+            ],
+            "reservation": [
+              [
+                4,
+                11
+              ],
+              [
+                3,
+                11
+              ],
+              [
+                2,
+                11
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 80
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -60012,7 +63904,8 @@
             11
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -60030,6 +63923,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 76,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              12,
+              9
+            ],
+            "energy_remaining": 140.15,
+            "next_position": [
+              11,
+              9
+            ],
+            "reservation": [
+              [
+                11,
+                9
+              ],
+              [
+                10,
+                9
+              ],
+              [
+                9,
+                9
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 80
           },
           "path_kind": "return",
           "planned_path": [
@@ -60115,7 +64036,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -60952,6 +64874,34 @@
             "oldest_data_age": 77,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              4,
+              11
+            ],
+            "energy_remaining": 139.1,
+            "next_position": [
+              3,
+              11
+            ],
+            "reservation": [
+              [
+                3,
+                11
+              ],
+              [
+                2,
+                11
+              ],
+              [
+                2,
+                10
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 81
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -61012,7 +64962,8 @@
             11
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -61030,6 +64981,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 77,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              11,
+              9
+            ],
+            "energy_remaining": 139.1,
+            "next_position": [
+              10,
+              9
+            ],
+            "reservation": [
+              [
+                10,
+                9
+              ],
+              [
+                9,
+                9
+              ],
+              [
+                8,
+                9
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 81
           },
           "path_kind": "return",
           "planned_path": [
@@ -61111,7 +65090,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -61948,6 +65928,34 @@
             "oldest_data_age": 78,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              3,
+              11
+            ],
+            "energy_remaining": 138.05,
+            "next_position": [
+              2,
+              11
+            ],
+            "reservation": [
+              [
+                2,
+                11
+              ],
+              [
+                2,
+                10
+              ],
+              [
+                2,
+                9
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 82
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -62004,7 +66012,8 @@
             11
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -62022,6 +66031,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 78,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              10,
+              9
+            ],
+            "energy_remaining": 138.05,
+            "next_position": [
+              9,
+              9
+            ],
+            "reservation": [
+              [
+                9,
+                9
+              ],
+              [
+                8,
+                9
+              ],
+              [
+                7,
+                9
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 82
           },
           "path_kind": "return",
           "planned_path": [
@@ -62099,7 +66136,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -62936,6 +66974,34 @@
             "oldest_data_age": 79,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              11
+            ],
+            "energy_remaining": 137.0,
+            "next_position": [
+              2,
+              10
+            ],
+            "reservation": [
+              [
+                2,
+                10
+              ],
+              [
+                2,
+                9
+              ],
+              [
+                2,
+                8
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 83
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -62988,7 +67054,8 @@
             10
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -63006,6 +67073,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 79,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              9,
+              9
+            ],
+            "energy_remaining": 137.0,
+            "next_position": [
+              8,
+              9
+            ],
+            "reservation": [
+              [
+                8,
+                9
+              ],
+              [
+                7,
+                9
+              ],
+              [
+                6,
+                9
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 83
           },
           "path_kind": "return",
           "planned_path": [
@@ -63079,7 +67174,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -63916,6 +68012,34 @@
             "oldest_data_age": 80,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              10
+            ],
+            "energy_remaining": 135.95,
+            "next_position": [
+              2,
+              9
+            ],
+            "reservation": [
+              [
+                2,
+                9
+              ],
+              [
+                2,
+                8
+              ],
+              [
+                2,
+                7
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 84
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -63964,7 +68088,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -63982,6 +68107,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 80,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              8,
+              9
+            ],
+            "energy_remaining": 135.95,
+            "next_position": [
+              7,
+              9
+            ],
+            "reservation": [
+              [
+                7,
+                9
+              ],
+              [
+                6,
+                9
+              ],
+              [
+                5,
+                9
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 84
           },
           "path_kind": "return",
           "planned_path": [
@@ -64051,7 +68204,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -64888,6 +69042,34 @@
             "oldest_data_age": 81,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              9
+            ],
+            "energy_remaining": 134.9,
+            "next_position": [
+              2,
+              8
+            ],
+            "reservation": [
+              [
+                2,
+                8
+              ],
+              [
+                2,
+                7
+              ],
+              [
+                2,
+                6
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 85
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -64932,7 +69114,8 @@
             8
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -64950,6 +69133,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 81,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              7,
+              9
+            ],
+            "energy_remaining": 134.9,
+            "next_position": [
+              6,
+              9
+            ],
+            "reservation": [
+              [
+                6,
+                9
+              ],
+              [
+                5,
+                9
+              ],
+              [
+                4,
+                9
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 85
           },
           "path_kind": "return",
           "planned_path": [
@@ -65015,7 +69226,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -65861,6 +70073,34 @@
             "oldest_data_age": 82,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              8
+            ],
+            "energy_remaining": 133.85,
+            "next_position": [
+              2,
+              7
+            ],
+            "reservation": [
+              [
+                2,
+                7
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                2,
+                5
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 86
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -65901,7 +70141,8 @@
             7
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -65923,6 +70164,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 82,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              6,
+              9
+            ],
+            "energy_remaining": 133.85,
+            "next_position": [
+              5,
+              9
+            ],
+            "reservation": [
+              [
+                5,
+                9
+              ],
+              [
+                4,
+                9
+              ],
+              [
+                3,
+                9
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 86
           },
           "path_kind": "return",
           "planned_path": [
@@ -65984,7 +70253,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -66301,6 +70571,34 @@
             "oldest_data_age": 83,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              7
+            ],
+            "energy_remaining": 132.8,
+            "next_position": [
+              2,
+              6
+            ],
+            "reservation": [
+              [
+                2,
+                6
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                4
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 87
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -66337,7 +70635,8 @@
             6
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -66359,6 +70658,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 83,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              5,
+              9
+            ],
+            "energy_remaining": 132.8,
+            "next_position": [
+              4,
+              9
+            ],
+            "reservation": [
+              [
+                4,
+                9
+              ],
+              [
+                4,
+                8
+              ],
+              [
+                4,
+                7
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 87
           },
           "path_kind": "return",
           "planned_path": [
@@ -66416,7 +70743,8 @@
             9
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -66688,6 +71016,34 @@
             "oldest_data_age": 84,
             "stale_cells": 17
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              6
+            ],
+            "energy_remaining": 131.75,
+            "next_position": [
+              2,
+              5
+            ],
+            "reservation": [
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                1,
+                4
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 88
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -66720,7 +71076,8 @@
             5
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -66738,6 +71095,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 84,
             "stale_cells": 12
+          },
+          "motion_intent": {
+            "current_position": [
+              4,
+              9
+            ],
+            "energy_remaining": 131.75,
+            "next_position": [
+              4,
+              8
+            ],
+            "reservation": [
+              [
+                4,
+                8
+              ],
+              [
+                4,
+                7
+              ],
+              [
+                4,
+                6
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 88
           },
           "path_kind": "return",
           "planned_path": [
@@ -66791,7 +71176,8 @@
             8
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -67050,6 +71436,34 @@
             "oldest_data_age": 85,
             "stale_cells": 22
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              5
+            ],
+            "energy_remaining": 130.7,
+            "next_position": [
+              2,
+              4
+            ],
+            "reservation": [
+              [
+                2,
+                4
+              ],
+              [
+                1,
+                4
+              ],
+              [
+                1,
+                3
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 89
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -67078,7 +71492,8 @@
             4
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -67096,6 +71511,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 85,
             "stale_cells": 19
+          },
+          "motion_intent": {
+            "current_position": [
+              4,
+              8
+            ],
+            "energy_remaining": 130.7,
+            "next_position": [
+              3,
+              8
+            ],
+            "reservation": [
+              [
+                3,
+                8
+              ],
+              [
+                2,
+                8
+              ],
+              [
+                2,
+                7
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 89
           },
           "path_kind": "return",
           "planned_path": [
@@ -67145,7 +71588,8 @@
             8
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -67384,6 +71828,34 @@
             "oldest_data_age": 86,
             "stale_cells": 30
           },
+          "motion_intent": {
+            "current_position": [
+              2,
+              4
+            ],
+            "energy_remaining": 129.65,
+            "next_position": [
+              1,
+              4
+            ],
+            "reservation": [
+              [
+                1,
+                4
+              ],
+              [
+                1,
+                3
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 90
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -67408,7 +71880,8 @@
             4
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -67426,6 +71899,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 86,
             "stale_cells": 18
+          },
+          "motion_intent": {
+            "current_position": [
+              3,
+              8
+            ],
+            "energy_remaining": 129.65,
+            "next_position": [
+              2,
+              8
+            ],
+            "reservation": [
+              [
+                2,
+                8
+              ],
+              [
+                2,
+                7
+              ],
+              [
+                2,
+                6
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 90
           },
           "path_kind": "return",
           "planned_path": [
@@ -67471,7 +71972,8 @@
             8
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -67715,6 +72217,34 @@
             "oldest_data_age": 87,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              4
+            ],
+            "energy_remaining": 128.6,
+            "next_position": [
+              1,
+              3
+            ],
+            "reservation": [
+              [
+                1,
+                3
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 91
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -67735,7 +72265,8 @@
             3
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -67753,6 +72284,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 87,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              2,
+              8
+            ],
+            "energy_remaining": 128.6,
+            "next_position": [
+              2,
+              7
+            ],
+            "reservation": [
+              [
+                2,
+                7
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                2,
+                5
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 91
           },
           "path_kind": "return",
           "planned_path": [
@@ -67794,7 +72353,8 @@
             7
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -67849,6 +72409,26 @@
           "position": [
             2,
             7
+          ],
+          "step": 88
+        },
+        {
+          "drone_id": "drone-1",
+          "energy_remaining": 127.55,
+          "event_type": "motion_intent_shared",
+          "position": [
+            1,
+            2
+          ],
+          "step": 88
+        },
+        {
+          "drone_id": "drone-2",
+          "energy_remaining": 127.55,
+          "event_type": "motion_intent_shared",
+          "position": [
+            2,
+            6
           ],
           "step": 88
         }
@@ -68086,6 +72666,30 @@
             "oldest_data_age": 88,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              3
+            ],
+            "energy_remaining": 127.55,
+            "next_position": [
+              1,
+              2
+            ],
+            "reservation": [
+              [
+                1,
+                2
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 92
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -68102,7 +72706,8 @@
             2
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -68120,6 +72725,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 88,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              2,
+              7
+            ],
+            "energy_remaining": 127.55,
+            "next_position": [
+              2,
+              6
+            ],
+            "reservation": [
+              [
+                2,
+                6
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                4
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 92
           },
           "path_kind": "return",
           "planned_path": [
@@ -68157,7 +72790,8 @@
             6
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -68439,6 +73073,26 @@
             "oldest_data_age": 89,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              2
+            ],
+            "energy_remaining": 126.5,
+            "next_position": [
+              1,
+              1
+            ],
+            "reservation": [
+              [
+                1,
+                1
+              ]
+            ],
+            "safe_energy_margin": 105.45,
+            "state": "RETURN_HOME",
+            "valid_until_step": 93
+          },
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -68446,7 +73100,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -68464,6 +73119,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 89,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              2,
+              6
+            ],
+            "energy_remaining": 126.5,
+            "next_position": [
+              2,
+              5
+            ],
+            "reservation": [
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                2,
+                3
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 93
           },
           "path_kind": "return",
           "planned_path": [
@@ -68497,7 +73180,8 @@
             5
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -68789,6 +73473,7 @@
             "oldest_data_age": 90,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -68796,7 +73481,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -68814,6 +73500,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 90,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              2,
+              5
+            ],
+            "energy_remaining": 125.45,
+            "next_position": [
+              2,
+              4
+            ],
+            "reservation": [
+              [
+                2,
+                4
+              ],
+              [
+                1,
+                4
+              ],
+              [
+                1,
+                3
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 94
           },
           "path_kind": "return",
           "planned_path": [
@@ -68843,7 +73557,8 @@
             4
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -69103,6 +73818,7 @@
             "oldest_data_age": 91,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -69110,7 +73826,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -69128,6 +73845,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 91,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              2,
+              4
+            ],
+            "energy_remaining": 124.4,
+            "next_position": [
+              1,
+              4
+            ],
+            "reservation": [
+              [
+                1,
+                4
+              ],
+              [
+                1,
+                3
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 95
           },
           "path_kind": "return",
           "planned_path": [
@@ -69153,7 +73898,8 @@
             4
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -69413,6 +74159,7 @@
             "oldest_data_age": 92,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -69420,7 +74167,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -69438,6 +74186,34 @@
             "known_coverage": 95.604396,
             "oldest_data_age": 92,
             "stale_cells": 0
+          },
+          "motion_intent": {
+            "current_position": [
+              1,
+              4
+            ],
+            "energy_remaining": 123.35,
+            "next_position": [
+              1,
+              3
+            ],
+            "reservation": [
+              [
+                1,
+                3
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 96
           },
           "path_kind": "return",
           "planned_path": [
@@ -69459,7 +74235,8 @@
             3
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -69719,6 +74496,7 @@
             "oldest_data_age": 93,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -69726,7 +74504,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -69745,6 +74524,30 @@
             "oldest_data_age": 93,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              3
+            ],
+            "energy_remaining": 122.3,
+            "next_position": [
+              1,
+              2
+            ],
+            "reservation": [
+              [
+                1,
+                2
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 97
+          },
           "path_kind": "return",
           "planned_path": [
             [
@@ -69761,7 +74564,8 @@
             2
           ],
           "state": "RETURN_HOME",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -70021,6 +74825,7 @@
             "oldest_data_age": 94,
             "stale_cells": 0
           },
+          "motion_intent": null,
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -70028,7 +74833,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         },
         "drone-2": {
           "communication": {
@@ -70047,6 +74853,26 @@
             "oldest_data_age": 94,
             "stale_cells": 0
           },
+          "motion_intent": {
+            "current_position": [
+              1,
+              2
+            ],
+            "energy_remaining": 121.25,
+            "next_position": [
+              1,
+              1
+            ],
+            "reservation": [
+              [
+                1,
+                1
+              ]
+            ],
+            "safe_energy_margin": 100.2,
+            "state": "RETURN_HOME",
+            "valid_until_step": 98
+          },
           "path_kind": "frontier",
           "planned_path": [],
           "position": [
@@ -70054,7 +74880,8 @@
             1
           ],
           "state": "LANDED",
-          "target": null
+          "target": null,
+          "yielding": false
         }
       },
       "events": [
@@ -70293,6 +75120,7 @@
       "drone-2": 838
     },
     "collisions": 0,
+    "communication_detected_conflicts": 0,
     "communication_outages_by_drone": {
       "drone-1": 2,
       "drone-2": 2
@@ -70302,6 +75130,9 @@
       "drone-2": 0.197917
     },
     "completed": true,
+    "corridor_deadlocks": 0,
+    "deadlocks_resolved": 0,
+    "deconfliction_delay_steps": 0,
     "direct_base_uptime_by_drone": {
       "drone-1": 0.3125,
       "drone-2": 0.15625
@@ -70330,10 +75161,12 @@
       "drone-1": 95.604396,
       "drone-2": 95.604396
     },
+    "local_motion_conflicts": 0,
     "local_replanning_by_drone": {
       "drone-1": 39,
       "drone-2": 49
     },
+    "local_replans_due_to_drones": 0,
     "local_survivors_confirmed_by_drone": {
       "drone-1": 3,
       "drone-2": 3
@@ -70427,6 +75260,26 @@
         "drone_id": "drone-2",
         "energy_remaining": 219.95,
         "event_type": "local_frontier_selected",
+        "position": [
+          3,
+          1
+        ],
+        "step": 0
+      },
+      {
+        "drone_id": "drone-1",
+        "energy_remaining": 219.95,
+        "event_type": "motion_intent_shared",
+        "position": [
+          1,
+          2
+        ],
+        "step": 0
+      },
+      {
+        "drone_id": "drone-2",
+        "energy_remaining": 219.95,
+        "event_type": "motion_intent_shared",
         "position": [
           3,
           1
@@ -72228,6 +77081,26 @@
         "step": 36
       },
       {
+        "drone_id": "drone-1",
+        "energy_remaining": 182.15,
+        "event_type": "motion_intent_shared",
+        "position": [
+          13,
+          2
+        ],
+        "step": 36
+      },
+      {
+        "drone_id": "drone-2",
+        "energy_remaining": 182.15,
+        "event_type": "motion_intent_shared",
+        "position": [
+          18,
+          6
+        ],
+        "step": 36
+      },
+      {
         "cell_count": 14,
         "drone_id": "drone-1",
         "energy_remaining": 181.1,
@@ -72493,6 +77366,26 @@
         "drone_id": "drone-2",
         "energy_remaining": 176.9,
         "event_type": "local_frontier_selected",
+        "position": [
+          13,
+          6
+        ],
+        "step": 41
+      },
+      {
+        "drone_id": "drone-1",
+        "energy_remaining": 176.9,
+        "event_type": "motion_intent_shared",
+        "position": [
+          10,
+          4
+        ],
+        "step": 41
+      },
+      {
+        "drone_id": "drone-2",
+        "energy_remaining": 176.9,
+        "event_type": "motion_intent_shared",
         "position": [
           13,
           6
@@ -73143,6 +78036,26 @@
       },
       {
         "drone_id": "drone-1",
+        "energy_remaining": 166.4,
+        "event_type": "motion_intent_shared",
+        "position": [
+          7,
+          9
+        ],
+        "step": 51
+      },
+      {
+        "drone_id": "drone-2",
+        "energy_remaining": 166.4,
+        "event_type": "motion_intent_shared",
+        "position": [
+          12,
+          11
+        ],
+        "step": 51
+      },
+      {
+        "drone_id": "drone-1",
         "energy_remaining": 164.3,
         "event_type": "stale_target_discarded",
         "position": [
@@ -73466,6 +78379,26 @@
         "step": 70
       },
       {
+        "drone_id": "drone-1",
+        "energy_remaining": 146.45,
+        "event_type": "motion_intent_shared",
+        "position": [
+          10,
+          11
+        ],
+        "step": 70
+      },
+      {
+        "drone_id": "drone-2",
+        "energy_remaining": 146.45,
+        "event_type": "motion_intent_shared",
+        "position": [
+          16,
+          10
+        ],
+        "step": 70
+      },
+      {
         "cell_count": 14,
         "drone_id": "drone-1",
         "energy_remaining": 145.4,
@@ -73603,6 +78536,26 @@
         "event_type": "map_cells_received",
         "position": [
           12,
+          9
+        ],
+        "step": 76
+      },
+      {
+        "drone_id": "drone-1",
+        "energy_remaining": 140.15,
+        "event_type": "motion_intent_shared",
+        "position": [
+          4,
+          11
+        ],
+        "step": 76
+      },
+      {
+        "drone_id": "drone-2",
+        "energy_remaining": 140.15,
+        "event_type": "motion_intent_shared",
+        "position": [
+          11,
           9
         ],
         "step": 76
@@ -74103,6 +79056,26 @@
         "position": [
           2,
           7
+        ],
+        "step": 88
+      },
+      {
+        "drone_id": "drone-1",
+        "energy_remaining": 127.55,
+        "event_type": "motion_intent_shared",
+        "position": [
+          1,
+          2
+        ],
+        "step": 88
+      },
+      {
+        "drone_id": "drone-2",
+        "energy_remaining": 127.55,
+        "event_type": "motion_intent_shared",
+        "position": [
+          2,
+          6
         ],
         "step": 88
       },
@@ -75106,6 +80079,7 @@
         ]
       ]
     },
+    "proximity_detected_conflicts": 0,
     "redundant_frontier_assignments": 0,
     "relay_uptime_by_drone": {
       "drone-1": 0.0,
@@ -75141,6 +80115,10 @@
     "wait_steps_by_drone": {
       "drone-1": 0,
       "drone-2": 0
+    },
+    "yield_steps_by_drone": {
+      "drone-1": 0,
+      "drone-2": 0
     }
   },
   "mission": {
@@ -75148,15 +80126,20 @@
       "base_knowledge_store_enabled": true,
       "battery_capacity": 220.0,
       "communication_range": 8,
+      "deadlock_wait_threshold": 3,
+      "distributed_deconfliction_enabled": true,
       "drone_count": 2,
       "drone_start_positions": null,
       "energy_safety_reserve": 20.0,
       "height": 13,
+      "intent_reservation_steps": 3,
       "knowledge_mode": "local",
       "local_map_shadow_mode": null,
       "max_steps": 1000,
+      "motion_intent_ttl": 4,
       "movement_energy_cost": 1.0,
       "obstacle_density": 0.08,
+      "proximity_sensor_range": 2,
       "seed": 7,
       "sensor_energy_cost": 0.05,
       "sensor_range": 4,
@@ -75169,5 +80152,5 @@
     "knowledge_mode": "local",
     "seed": 7
   },
-  "schema_version": "1.3"
+  "schema_version": "1.4"
 }

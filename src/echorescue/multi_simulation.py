@@ -12,6 +12,14 @@ from echorescue.coordination import (
     assign_frontiers,
     resolve_movements,
 )
+from echorescue.deconfliction import (
+    IntentConflict,
+    MotionIntent,
+    ProximitySensor,
+    detect_intent_conflict,
+    priority_key,
+    proximity_risk,
+)
 from echorescue.energy import Battery
 from echorescue.environment import GridWorld
 from echorescue.events import EventType, MissionEvent, MissionLog
@@ -54,6 +62,9 @@ class DroneRuntime:
         default_factory=dict
     )
     return_replan_required: bool = False
+    yielding: bool = False
+    yield_steps: int = 0
+    consecutive_yield_steps: int = 0
 
     @property
     def terminal(self) -> bool:
@@ -115,6 +126,14 @@ class MultiSimulationResult:
     local_replanning_by_drone: dict[str, int]
     unique_cells_transferred: int
     semantic_cell_changes_transferred: int
+    local_motion_conflicts: int
+    communication_detected_conflicts: int
+    proximity_detected_conflicts: int
+    yield_steps_by_drone: dict[str, int]
+    corridor_deadlocks: int
+    deadlocks_resolved: int
+    local_replans_due_to_drones: int
+    deconfliction_delay_steps: int
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
@@ -224,6 +243,20 @@ class MultiSimulationResult:
             "semantic_cell_changes_transferred": (
                 self.semantic_cell_changes_transferred
             ),
+            "local_motion_conflicts": self.local_motion_conflicts,
+            "communication_detected_conflicts": (
+                self.communication_detected_conflicts
+            ),
+            "proximity_detected_conflicts": (
+                self.proximity_detected_conflicts
+            ),
+            "yield_steps_by_drone": dict(self.yield_steps_by_drone),
+            "corridor_deadlocks": self.corridor_deadlocks,
+            "deadlocks_resolved": self.deadlocks_resolved,
+            "local_replans_due_to_drones": (
+                self.local_replans_due_to_drones
+            ),
+            "deconfliction_delay_steps": self.deconfliction_delay_steps,
             "mission_success": self.mission_success,
             "mission_events": [event.to_dict() for event in self.mission_events],
         }
@@ -246,6 +279,9 @@ class MultiDroneSimulation:
         self.survivor_sensor = SurvivorSensor(config.survivor_sensor_range)
         self.communication_model = CommunicationModel(
             config.communication_range
+        )
+        self.proximity_sensor = ProximitySensor(
+            config.proximity_sensor_range
         )
         self.mission_log = MissionLog()
         self.steps = 0
@@ -283,6 +319,20 @@ class MultiDroneSimulation:
         self._local_replanning_by_drone: dict[str, int] = {}
         self._peer_connected_at_last_allocation = True
         self._pending_reconnect_targets: set[str] = set()
+        self.motion_intents: dict[str, MotionIntent] = {}
+        self.local_motion_conflicts = 0
+        self.communication_detected_conflicts = 0
+        self.proximity_detected_conflicts = 0
+        self.corridor_deadlocks = 0
+        self.deadlocks_resolved = 0
+        self.local_replans_due_to_drones = 0
+        self.deconfliction_delay_steps = 0
+        self._active_deconfliction_signature: tuple[object, ...] | None = None
+        self._deconfliction_repeat_count = 0
+        self._deadlock_reported_for_signature = False
+        self._intent_sharing_active: dict[str, bool] = {}
+        self._last_shared_intent_status: dict[str, DroneStatus] = {}
+        self._last_communicated_intents: dict[str, MotionIntent] = {}
 
         starts = self._resolve_start_positions()
         self.runtimes: dict[str, DroneRuntime] = {}
@@ -1059,6 +1109,332 @@ class MultiDroneSimulation:
                 intentions[runtime.drone.identifier] = destination
         return intentions
 
+    def _intent_reservation(
+        self,
+        runtime: DroneRuntime,
+        next_position: Position,
+    ) -> tuple[Position, ...]:
+        path = (
+            runtime.current_return_path
+            if runtime.drone.status is DroneStatus.RETURN_HOME
+            else runtime.planned_path
+        )
+        future: list[Position] = []
+        if next_position != runtime.drone.position:
+            future.append(next_position)
+        if runtime.drone.position in path:
+            start = path.index(runtime.drone.position) + 1
+            for position in path[start:]:
+                if not future or position != future[-1]:
+                    future.append(position)
+        elif next_position in path:
+            start = path.index(next_position) + 1
+            for position in path[start:]:
+                if position != future[-1]:
+                    future.append(position)
+        if not future:
+            future.append(runtime.drone.position)
+        return tuple(future[: self.config.intent_reservation_steps])
+
+    def _motion_intent(
+        self,
+        runtime: DroneRuntime,
+        next_position: Position,
+    ) -> MotionIntent:
+        estimated_return = runtime.estimated_return_energy
+        safe_margin = (
+            runtime.battery.remaining
+            - (estimated_return if estimated_return is not None else 0.0)
+            - self.config.energy_safety_reserve
+        )
+        return MotionIntent(
+            drone_id=runtime.drone.identifier,
+            current_position=runtime.drone.position,
+            next_position=next_position,
+            reservation=self._intent_reservation(runtime, next_position),
+            status=runtime.drone.status,
+            energy_remaining=runtime.battery.remaining,
+            safe_energy_margin=safe_margin,
+            valid_until_step=self.steps + self.config.motion_intent_ttl,
+        )
+
+    def _peer_intents_communicated(self) -> bool:
+        return "drone-2" in self._communication_component("drone-1")
+
+    def _record_intent_sharing(self, communicated: bool) -> None:
+        for drone_id, intent in sorted(self.motion_intents.items()):
+            active = self._intent_sharing_active.get(drone_id, False)
+            status_changed = (
+                self._last_shared_intent_status.get(drone_id)
+                is not intent.status
+            )
+            if communicated and (not active or status_changed):
+                self._record_event(
+                    self.runtimes[drone_id],
+                    EventType.MOTION_INTENT_SHARED,
+                    intent.next_position,
+                )
+            self._intent_sharing_active[drone_id] = communicated
+            if communicated:
+                self._last_shared_intent_status[drone_id] = intent.status
+                self._last_communicated_intents[drone_id] = intent
+
+    def _avoidance_step(
+        self,
+        runtime: DroneRuntime,
+        raw_next: Position,
+        forbidden: set[Position],
+    ) -> Position | None:
+        decision_map = runtime.local_map
+        target = (
+            self.world.base
+            if runtime.drone.status is DroneStatus.RETURN_HOME
+            else runtime.active_frontier_target
+        )
+        candidates = []
+        for candidate in runtime.drone.position.neighbors():
+            if (
+                candidate == raw_next
+                or candidate in forbidden
+                or not decision_map.is_known_free(candidate)
+            ):
+                continue
+
+            path_length = 0
+            if target is not None:
+                path = astar(
+                    candidate,
+                    target,
+                    lambda position: (
+                        decision_map.is_known_free(position)
+                        and position not in forbidden
+                    ),
+                )
+                if path is None:
+                    continue
+                path_length = len(path)
+            free_neighbors = sum(
+                decision_map.is_known_free(neighbor)
+                for neighbor in candidate.neighbors()
+            )
+            candidates.append(
+                (-free_neighbors, path_length, candidate.y, candidate.x, candidate)
+            )
+        return min(candidates)[-1] if candidates else None
+
+    def _finish_yield_states(
+        self,
+        yielding_now: set[str],
+        delayed_now: set[str],
+    ) -> None:
+        for runtime in self._ordered_runtimes():
+            drone_id = runtime.drone.identifier
+            if drone_id in yielding_now:
+                if not runtime.yielding:
+                    self._record_event(runtime, EventType.YIELD_STARTED)
+                runtime.yielding = True
+                runtime.consecutive_yield_steps += 1
+                if drone_id in delayed_now:
+                    runtime.yield_steps += 1
+            elif runtime.yielding:
+                runtime.yielding = False
+                runtime.consecutive_yield_steps = 0
+                self._record_event(runtime, EventType.YIELD_ENDED)
+
+    def _deconflict_intentions(
+        self,
+        intentions: dict[str, Position],
+    ) -> dict[str, Position]:
+        if (
+            self.knowledge_mode != "local"
+            or not self.config.distributed_deconfliction_enabled
+            or len(intentions) < 2
+        ):
+            self.motion_intents = {
+                drone_id: self._motion_intent(
+                    self.runtimes[drone_id], destination
+                )
+                for drone_id, destination in sorted(intentions.items())
+            }
+            self._finish_yield_states(set(), set())
+            return intentions
+
+        self.motion_intents = {
+            drone_id: self._motion_intent(
+                self.runtimes[drone_id], destination
+            )
+            for drone_id, destination in sorted(intentions.items())
+        }
+        drone_ids = tuple(sorted(self.motion_intents))
+        first_id, second_id = drone_ids
+        first = self.motion_intents[first_id]
+        second = self.motion_intents[second_id]
+        communicated = self._peer_intents_communicated()
+        self._record_intent_sharing(communicated)
+
+        conflict: IntentConflict | None = None
+        source: str | None = None
+        proximity_risks: dict[str, str] = {}
+        if communicated:
+            conflict = detect_intent_conflict(first, second, self.world.base)
+            if conflict is not None:
+                source = "communication"
+        else:
+            visible = self.proximity_sensor.can_detect(
+                self.world,
+                first.current_position,
+                second.current_position,
+            )
+            if visible:
+                for intent, other_position in (
+                    (first, second.current_position),
+                    (second, first.current_position),
+                ):
+                    risk = proximity_risk(intent, other_position)
+                    if risk is not None:
+                        proximity_risks[intent.drone_id] = risk
+            if proximity_risks:
+                source = "proximity"
+                kind = sorted(proximity_risks.values())[0]
+                position = min(
+                    self.motion_intents[drone_id].next_position
+                    for drone_id in proximity_risks
+                )
+                conflict = IntentConflict(kind, position, drone_ids)
+
+        if conflict is None or source is None:
+            self._active_deconfliction_signature = None
+            self._deconfliction_repeat_count = 0
+            self._deadlock_reported_for_signature = False
+            self._finish_yield_states(set(), set())
+            return intentions
+
+        self.local_motion_conflicts += 1
+        if source == "communication":
+            self.communication_detected_conflicts += 1
+            winner_id = min(
+                drone_ids,
+                key=lambda drone_id: priority_key(
+                    self.motion_intents[drone_id],
+                    self.runtimes[drone_id].consecutive_yield_steps,
+                ),
+            )
+            loser_id = next(
+                drone_id for drone_id in drone_ids if drone_id != winner_id
+            )
+        else:
+            if source == "proximity":
+                self.proximity_detected_conflicts += 1
+            if len(proximity_risks) == 1:
+                loser_id = next(iter(proximity_risks))
+                winner_id = next(
+                    drone_id for drone_id in drone_ids if drone_id != loser_id
+                )
+            else:
+                winner_id = min(
+                    drone_ids,
+                    key=lambda drone_id: priority_key(
+                        self.motion_intents[drone_id],
+                        self.runtimes[drone_id].consecutive_yield_steps,
+                    ),
+                )
+                loser_id = next(
+                    drone_id
+                    for drone_id in drone_ids
+                    if drone_id != winner_id
+                )
+
+        signature = (
+            source,
+            conflict.kind,
+            tuple(
+                (
+                    drone_id,
+                    self.motion_intents[drone_id].current_position,
+                    self.motion_intents[drone_id].next_position,
+                )
+                for drone_id in drone_ids
+            ),
+        )
+        if signature == self._active_deconfliction_signature:
+            self._deconfliction_repeat_count += 1
+        else:
+            self._active_deconfliction_signature = signature
+            self._deconfliction_repeat_count = 1
+            self._deadlock_reported_for_signature = False
+            self._record_event(
+                self.runtimes[loser_id],
+                EventType.LOCAL_COLLISION_AVOIDED,
+                conflict.position,
+            )
+
+        resolved = dict(intentions)
+        yielding_now = {loser_id}
+        delayed_now = {loser_id}
+        resolved[loser_id] = self.motion_intents[loser_id].current_position
+        # Both drones must stop only for an immediate swap or when the
+        # priority winner would enter the loser's currently occupied cell.
+        # A future head-on reservation is resolved by yielding the loser now;
+        # stopping both sides would recreate the same reservation forever.
+        blocking_conflict = (
+            conflict.kind == "edge_swap"
+            or self.motion_intents[winner_id].next_position
+            == self.motion_intents[loser_id].current_position
+        )
+        if blocking_conflict:
+            resolved[winner_id] = self.motion_intents[winner_id].current_position
+            yielding_now.add(winner_id)
+            delayed_now.add(winner_id)
+
+        if self._deconfliction_repeat_count >= self.config.deadlock_wait_threshold:
+            if not self._deadlock_reported_for_signature:
+                self.corridor_deadlocks += 1
+                self._deadlock_reported_for_signature = True
+                self._record_event(
+                    self.runtimes[loser_id],
+                    EventType.CORRIDOR_DEADLOCK_DETECTED,
+                    conflict.position,
+                )
+            other_intent = self.motion_intents[winner_id]
+            forbidden = {
+                other_intent.current_position,
+                other_intent.next_position,
+                *other_intent.reservation,
+            }
+            loser_runtime = self.runtimes[loser_id]
+            avoidance = self._avoidance_step(
+                loser_runtime,
+                self.motion_intents[loser_id].next_position,
+                forbidden,
+            )
+            self.local_replans_due_to_drones += 1
+            if avoidance is not None:
+                resolved[loser_id] = avoidance
+                delayed_now.discard(loser_id)
+                resolved[winner_id] = other_intent.current_position
+                yielding_now.add(winner_id)
+                delayed_now.add(winner_id)
+                self.deadlocks_resolved += 1
+                self._record_event(
+                    loser_runtime,
+                    EventType.DEADLOCK_REPLANNED,
+                    avoidance,
+                )
+            else:
+                if loser_runtime.drone.status is DroneStatus.RETURN_HOME:
+                    loser_runtime.return_replan_required = True
+                else:
+                    loser_runtime.active_frontier_target = None
+                    loser_runtime.planned_path = ()
+                self._record_event(
+                    loser_runtime, EventType.DEADLOCK_REPLANNED
+                )
+
+        if delayed_now:
+            self.deconfliction_delay_steps += 1
+        self._finish_yield_states(yielding_now, delayed_now)
+        return resolved
+
     def _execute_intentions(self, intentions: dict[str, Position]) -> None:
         if not intentions:
             return
@@ -1197,6 +1573,7 @@ class MultiDroneSimulation:
         self._prepare_energy_states()
         assignments = self._allocate_frontiers()
         intentions = self._plan_intentions(assignments)
+        intentions = self._deconflict_intentions(intentions)
         previous_step = self.steps
         self._execute_intentions(intentions)
         if self.steps != previous_step:
@@ -1424,6 +1801,19 @@ class MultiDroneSimulation:
             semantic_cell_changes_transferred=(
                 self._semantic_cell_changes_transferred
             ),
+            local_motion_conflicts=self.local_motion_conflicts,
+            communication_detected_conflicts=(
+                self.communication_detected_conflicts
+            ),
+            proximity_detected_conflicts=self.proximity_detected_conflicts,
+            yield_steps_by_drone={
+                drone_id: self.runtimes[drone_id].yield_steps
+                for drone_id in sorted(self.runtimes)
+            },
+            corridor_deadlocks=self.corridor_deadlocks,
+            deadlocks_resolved=self.deadlocks_resolved,
+            local_replans_due_to_drones=self.local_replans_due_to_drones,
+            deconfliction_delay_steps=self.deconfliction_delay_steps,
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )

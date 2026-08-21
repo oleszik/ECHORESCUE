@@ -29,6 +29,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--energy-reserve", type=float, default=20.0)
     parser.add_argument("--wait-energy", type=float, default=0.05)
     parser.add_argument("--communication-range", type=int, default=8)
+    parser.add_argument("--proximity-range", type=int, default=2)
+    parser.add_argument("--intent-reservation-steps", type=int, choices=(2, 3), default=3)
+    parser.add_argument("--motion-intent-ttl", type=int, default=4)
+    parser.add_argument("--deadlock-wait-threshold", type=int, default=3)
+    parser.add_argument(
+        "--disable-distributed-deconfliction", action="store_true"
+    )
     parser.add_argument(
         "--knowledge-mode",
         choices=("shared", "shadow", "local"),
@@ -74,6 +81,13 @@ def main(argv: list[str] | None = None) -> None:
         drone_start_positions=start_positions,
         wait_energy_cost=args.wait_energy,
         communication_range=args.communication_range,
+        proximity_sensor_range=args.proximity_range,
+        intent_reservation_steps=args.intent_reservation_steps,
+        motion_intent_ttl=args.motion_intent_ttl,
+        deadlock_wait_threshold=args.deadlock_wait_threshold,
+        distributed_deconfliction_enabled=(
+            not args.disable_distributed_deconfliction
+        ),
         knowledge_mode=args.knowledge_mode,
         base_knowledge_store_enabled=not args.disable_base_knowledge_store,
         max_steps=args.max_steps,

@@ -21,6 +21,11 @@ class SimulationConfig:
     drone_start_positions: tuple[tuple[int, int], ...] | None = None
     wait_energy_cost: float = 0.05
     communication_range: int = 8
+    proximity_sensor_range: int = 2
+    intent_reservation_steps: int = 3
+    motion_intent_ttl: int = 4
+    deadlock_wait_threshold: int = 3
+    distributed_deconfliction_enabled: bool = True
     knowledge_mode: str = "shared"
     local_map_shadow_mode: bool | None = None
     base_knowledge_store_enabled: bool = True
@@ -67,6 +72,14 @@ class SimulationConfig:
             raise ValueError("wait_energy_cost must not be negative")
         if self.communication_range < 1:
             raise ValueError("communication_range must be positive")
+        if self.proximity_sensor_range < 1:
+            raise ValueError("proximity_sensor_range must be positive")
+        if not 2 <= self.intent_reservation_steps <= 3:
+            raise ValueError("intent_reservation_steps must be 2 or 3")
+        if self.motion_intent_ttl < 1:
+            raise ValueError("motion_intent_ttl must be positive")
+        if self.deadlock_wait_threshold < 2:
+            raise ValueError("deadlock_wait_threshold must be at least 2")
         if self.knowledge_mode not in {"shared", "shadow", "local"}:
             raise ValueError("knowledge_mode must be shared, shadow, or local")
         if self.max_steps < 1:

@@ -13,7 +13,7 @@ from echorescue.multi_simulation import (
 )
 
 
-REPLAY_SCHEMA_VERSION = "1.3"
+REPLAY_SCHEMA_VERSION = "1.4"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -76,6 +76,11 @@ class ReplayRecorder:
             path = _remaining_path(runtime)
             target = runtime.active_frontier_target
             connection = simulation.communication_snapshot.connections[drone_id]
+            intent = (
+                simulation.motion_intents.get(drone_id)
+                if simulation.knowledge_mode == "local"
+                else None
+            )
             drones[drone_id] = {
                 "position": _position(runtime.drone.position),
                 "state": runtime.drone.status.value,
@@ -89,6 +94,29 @@ class ReplayRecorder:
                     "return"
                     if runtime.drone.status is DroneStatus.RETURN_HOME
                     else "frontier"
+                ),
+                "yielding": runtime.yielding,
+                "motion_intent": (
+                    {
+                        "current_position": _position(
+                            intent.current_position
+                        ),
+                        "next_position": _position(intent.next_position),
+                        "reservation": [
+                            _position(position)
+                            for position in intent.reservation
+                        ],
+                        "state": intent.status.value,
+                        "energy_remaining": round(
+                            intent.energy_remaining, 6
+                        ),
+                        "safe_energy_margin": round(
+                            intent.safe_energy_margin, 6
+                        ),
+                        "valid_until_step": intent.valid_until_step,
+                    }
+                    if intent is not None
+                    else None
                 ),
                 "communication": {
                     "connected_to_base": connection.connected_to_base,
