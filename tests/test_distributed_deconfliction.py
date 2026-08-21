@@ -10,7 +10,7 @@ from echorescue.events import EventType
 from echorescue.mapping import OccupancyMap
 from echorescue.models import CellState, DroneStatus, Position
 from echorescue.multi_simulation import MultiDroneSimulation
-from echorescue.replay import generate_replay
+from echorescue.replay import REPLAY_SCHEMA_VERSION, generate_replay
 
 
 def local_simulation(**overrides: object) -> MultiDroneSimulation:
@@ -112,7 +112,7 @@ class DistributedDeconflictionTests(unittest.TestCase):
             )
         )
 
-        self.assertEqual(replay["schema_version"], "1.4")
+        self.assertEqual(replay["schema_version"], REPLAY_SCHEMA_VERSION)
         self.assertTrue(
             any(
                 drone["motion_intent"] is not None

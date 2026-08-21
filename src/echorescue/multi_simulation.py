@@ -23,11 +23,12 @@ from echorescue.deconfliction import (
 from echorescue.energy import Battery
 from echorescue.environment import GridWorld
 from echorescue.events import EventType, MissionEvent, MissionLog
-from echorescue.knowledge import KnowledgeMap
+from echorescue.knowledge import CellKnowledge, KnowledgeMap
 from echorescue.map_sync import ShadowMapSynchronizer
 from echorescue.mapping import OccupancyMap
 from echorescue.models import Drone, DroneStatus, Position
 from echorescue.planning import astar
+from echorescue.relay import RelayPlan, select_relay_plan
 from echorescue.sensors import DistanceSensor
 from echorescue.survivors import SurvivorSensor
 
@@ -65,6 +66,26 @@ class DroneRuntime:
     yielding: bool = False
     yield_steps: int = 0
     consecutive_yield_steps: int = 0
+    base_acknowledged_records: dict[Position, CellKnowledge] = field(
+        default_factory=dict
+    )
+    base_acknowledged_survivors: set[Position] = field(default_factory=set)
+    relay_target: Position | None = None
+    relay_scout_id: str | None = None
+    relay_scout_position: Position | None = None
+    relay_plan: RelayPlan | None = None
+    relay_started_step: int | None = None
+    relay_role_steps: int = 0
+    relay_path_length: int = 0
+    relay_link_achieved: bool = False
+    relay_payload_forwarded: bool = False
+    relay_payload_positions: set[Position] = field(default_factory=set)
+    relay_payload_survivors: set[Position] = field(default_factory=set)
+    relay_energy_at_start: float | None = None
+    relay_path_length_at_start: int = 0
+    relay_outage_at_start: int = 0
+    relay_cooldown_until_step: int = 0
+    holding_for_relay: bool = False
 
     @property
     def terminal(self) -> bool:
@@ -134,6 +155,20 @@ class MultiSimulationResult:
     deadlocks_resolved: int
     local_replans_due_to_drones: int
     deconfliction_delay_steps: int
+    relay_strategy: str
+    relay_deployments: int
+    successful_relay_deployments: int
+    failed_relay_deployments: int
+    relay_steps_by_drone: dict[str, int]
+    relay_path_length_by_drone: dict[str, int]
+    relay_unique_cells_forwarded: int
+    relay_survivor_confirmations_forwarded: int
+    relay_outages_shortened: int
+    base_known_coverage_over_time: tuple[float, ...]
+    time_to_first_base_survivor_confirmation: int | None
+    time_to_all_base_survivor_confirmations: int | None
+    relay_energy_consumed: float
+    relay_mission_delay_steps: int
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
@@ -257,6 +292,35 @@ class MultiSimulationResult:
                 self.local_replans_due_to_drones
             ),
             "deconfliction_delay_steps": self.deconfliction_delay_steps,
+            "relay_strategy": self.relay_strategy,
+            "relay_deployments": self.relay_deployments,
+            "successful_relay_deployments": (
+                self.successful_relay_deployments
+            ),
+            "failed_relay_deployments": self.failed_relay_deployments,
+            "relay_steps_by_drone": dict(self.relay_steps_by_drone),
+            "relay_path_length_by_drone": dict(
+                self.relay_path_length_by_drone
+            ),
+            "relay_unique_cells_forwarded": (
+                self.relay_unique_cells_forwarded
+            ),
+            "relay_survivor_confirmations_forwarded": (
+                self.relay_survivor_confirmations_forwarded
+            ),
+            "relay_outages_shortened": self.relay_outages_shortened,
+            "base_known_coverage_over_time": [
+                round(coverage, 6)
+                for coverage in self.base_known_coverage_over_time
+            ],
+            "time_to_first_base_survivor_confirmation": (
+                self.time_to_first_base_survivor_confirmation
+            ),
+            "time_to_all_base_survivor_confirmations": (
+                self.time_to_all_base_survivor_confirmations
+            ),
+            "relay_energy_consumed": round(self.relay_energy_consumed, 6),
+            "relay_mission_delay_steps": self.relay_mission_delay_steps,
             "mission_success": self.mission_success,
             "mission_events": [event.to_dict() for event in self.mission_events],
         }
@@ -333,6 +397,15 @@ class MultiDroneSimulation:
         self._intent_sharing_active: dict[str, bool] = {}
         self._last_shared_intent_status: dict[str, DroneStatus] = {}
         self._last_communicated_intents: dict[str, MotionIntent] = {}
+        self.relay_deployments = 0
+        self.successful_relay_deployments = 0
+        self.failed_relay_deployments = 0
+        self._relay_unique_cells_forwarded: set[Position] = set()
+        self._relay_survivors_forwarded: set[Position] = set()
+        self.relay_outages_shortened = 0
+        self._relay_energy_consumed = 0.0
+        self._relay_mission_delay_steps = 0
+        self._base_known_coverage_history: list[float] = []
 
         starts = self._resolve_start_positions()
         self.runtimes: dict[str, DroneRuntime] = {}
@@ -372,6 +445,8 @@ class MultiDroneSimulation:
         self._sample_communication(record_events=False)
         self._sync_shadow_maps()
         self._sync_survivor_knowledge()
+        self._acknowledge_base_uploads()
+        self._record_base_coverage()
         if self.knowledge_mode == "local":
             self._record_base_event(EventType.KNOWLEDGE_MODE_ACTIVATED)
         self._update_completion()
@@ -395,6 +470,37 @@ class MultiDroneSimulation:
     @property
     def knowledge_sync_enabled(self) -> bool:
         return self.knowledge_mode in {"shadow", "local"}
+
+    @property
+    def adaptive_relay_enabled(self) -> bool:
+        return (
+            self.knowledge_mode == "local"
+            and self.config.relay_strategy == "adaptive"
+        )
+
+    def _record_base_coverage(self) -> None:
+        coverage = (
+            self.base_knowledge_map.known_coverage
+            if self.base_knowledge_map is not None
+            else 0.0
+        )
+        self._base_known_coverage_history.append(coverage)
+
+    def _acknowledge_base_uploads(self) -> None:
+        if self.knowledge_mode != "local":
+            return
+        for runtime in self._ordered_runtimes():
+            connection = self.communication_snapshot.connections[
+                runtime.drone.identifier
+            ]
+            if not connection.connected_to_base:
+                continue
+            runtime.base_acknowledged_records = dict(
+                runtime.local_map.records
+            )
+            runtime.base_acknowledged_survivors = set(
+                runtime.confirmed_survivors
+            )
 
     def _ordered_runtimes(self) -> tuple[DroneRuntime, ...]:
         return tuple(self.runtimes[key] for key in sorted(self.runtimes))
@@ -496,6 +602,7 @@ class MultiDroneSimulation:
         event_type: EventType,
         position: Position | None = None,
         cell_count: int | None = None,
+        survivor_count: int | None = None,
     ) -> None:
         self.mission_log.record(
             MissionEvent(
@@ -505,6 +612,7 @@ class MultiDroneSimulation:
                 event_type=event_type,
                 energy_remaining=runtime.battery.remaining,
                 cell_count=cell_count,
+                survivor_count=survivor_count,
             )
         )
 
@@ -767,12 +875,364 @@ class MultiDroneSimulation:
                 self._confirmed_survivors.add(position)
                 self._record_event(runtime, EventType.SURVIVOR_CONFIRMED, position)
 
+    @staticmethod
+    def _relay_payload(
+        runtime: DroneRuntime,
+    ) -> tuple[set[Position], set[Position]]:
+        records = {
+            position: record for position, record in runtime.local_map.records
+        }
+        cells = {
+            position
+            for position, record in records.items()
+            if runtime.base_acknowledged_records.get(position) != record
+        }
+        survivors = (
+            runtime.confirmed_survivors
+            - runtime.base_acknowledged_survivors
+        )
+        return cells, set(survivors)
+
+    def _relay_plan_for(
+        self,
+        runtime: DroneRuntime,
+        scout_position: Position,
+    ) -> RelayPlan | None:
+        blocked = frozenset(
+            {
+                scout_position,
+            }
+            if scout_position != self.world.base
+            else set()
+        )
+        return select_relay_plan(
+            runtime.local_map,
+            runtime.drone.position,
+            self.world.base,
+            scout_position,
+            max_range=self.config.communication_range,
+            energy_remaining=runtime.battery.remaining,
+            movement_cycle_cost=runtime.battery.movement_cycle_cost,
+            safety_reserve=self.config.energy_safety_reserve,
+            energy_margin=self.config.relay_energy_margin,
+            blocked=blocked,
+        )
+
+    def _set_relay_plan(
+        self,
+        runtime: DroneRuntime,
+        plan: RelayPlan,
+    ) -> None:
+        target_changed = runtime.relay_target != plan.position
+        runtime.relay_target = plan.position
+        runtime.relay_plan = plan
+        runtime.planned_path = plan.path
+        if target_changed:
+            self._record_event(
+                runtime,
+                EventType.RELAY_POSITION_SELECTED,
+                plan.position,
+            )
+
+    def _finish_relay_role(
+        self,
+        runtime: DroneRuntime,
+        *,
+        successful: bool,
+    ) -> None:
+        if runtime.drone.status is not DroneStatus.RELAY:
+            return
+        scout_id = runtime.relay_scout_id
+        if successful:
+            self.successful_relay_deployments += 1
+        else:
+            self.failed_relay_deployments += 1
+        if runtime.relay_energy_at_start is not None:
+            self._relay_energy_consumed += max(
+                0.0,
+                runtime.relay_energy_at_start - runtime.battery.remaining,
+            )
+        self._record_event(runtime, EventType.RELAY_ROLE_RELEASED)
+        runtime.drone.status = DroneStatus.EXPLORE
+        runtime.active_frontier_target = None
+        runtime.planned_path = ()
+        runtime.relay_target = None
+        runtime.relay_scout_id = None
+        runtime.relay_scout_position = None
+        runtime.relay_plan = None
+        runtime.relay_started_step = None
+        runtime.relay_link_achieved = False
+        runtime.relay_payload_forwarded = False
+        runtime.relay_payload_positions.clear()
+        runtime.relay_payload_survivors.clear()
+        runtime.relay_energy_at_start = None
+        runtime.relay_cooldown_until_step = (
+            self.steps + self.config.relay_cooldown_steps
+        )
+        if scout_id in self.runtimes:
+            self.runtimes[scout_id].holding_for_relay = False
+
+    def _abort_relay_for_energy(self, runtime: DroneRuntime) -> None:
+        self._record_event(runtime, EventType.RELAY_ABORTED_FOR_ENERGY)
+        self._finish_relay_role(runtime, successful=False)
+        path = self._known_return_path(runtime, avoid_other_drones=False)
+        if path is None:
+            self._fail_return_path(runtime)
+        else:
+            self._start_return(runtime, path)
+
+    def _assign_adaptive_relay(self) -> None:
+        if not self.adaptive_relay_enabled:
+            return
+        # Frontier allocation runs immediately before this method.  Refuse a
+        # deployment once the local planners have established that exploration
+        # is complete: normal RTB will restore base connectivity more cheaply.
+        if self._exploration_complete:
+            return
+        if self.relay_deployments >= self.config.relay_max_deployments:
+            return
+        if any(
+            runtime.drone.status is DroneStatus.RELAY
+            for runtime in self._ordered_runtimes()
+        ):
+            return
+        if not self.communication_snapshot.has_link("drone-1", "drone-2"):
+            return
+        if any(
+            connection.connected_to_base
+            for connection in self.communication_snapshot.connections.values()
+        ):
+            return
+
+        tasks = []
+        drone_ids = tuple(sorted(self.runtimes))
+        for relay_id in drone_ids:
+            scout_id = next(
+                drone_id for drone_id in drone_ids if drone_id != relay_id
+            )
+            relay = self.runtimes[relay_id]
+            scout = self.runtimes[scout_id]
+            if (
+                relay.drone.status is not DroneStatus.EXPLORE
+                or scout.drone.status is not DroneStatus.EXPLORE
+                or self.steps < relay.relay_cooldown_until_step
+            ):
+                continue
+            outage = self._current_outage_steps.get(scout_id, 0)
+            if outage < self.config.relay_min_outage_steps:
+                continue
+            cells, survivors = self._relay_payload(scout)
+            if (
+                not survivors
+                and (
+                    self.base_knowledge_map is None
+                    or len(cells) < self.config.relay_min_unsynced_cells
+                )
+            ):
+                continue
+            plan = self._relay_plan_for(relay, scout.drone.position)
+            if plan is None:
+                continue
+            benefit = 100 * len(survivors) + len(cells) + outage
+            ratio = benefit / max(1, plan.movement_cost)
+            if ratio + 1e-9 < self.config.relay_min_benefit_ratio:
+                continue
+            tasks.append(
+                (
+                    -len(survivors),
+                    -len(cells),
+                    -outage,
+                    plan.movement_cost,
+                    -relay.battery.remaining,
+                    relay_id,
+                    scout_id,
+                    plan,
+                    cells,
+                    survivors,
+                )
+            )
+        if not tasks:
+            return
+        (
+            _,
+            _,
+            _,
+            _,
+            _,
+            relay_id,
+            scout_id,
+            plan,
+            cells,
+            survivors,
+        ) = min(tasks)
+        relay = self.runtimes[relay_id]
+        relay.drone.status = DroneStatus.RELAY
+        relay.active_frontier_target = None
+        relay.relay_scout_id = scout_id
+        relay.relay_scout_position = self.runtimes[scout_id].drone.position
+        relay.relay_started_step = self.steps
+        relay.relay_link_achieved = False
+        relay.relay_payload_forwarded = False
+        relay.relay_payload_positions = set(cells)
+        relay.relay_payload_survivors = set(survivors)
+        relay.relay_energy_at_start = relay.battery.remaining
+        relay.relay_path_length_at_start = relay.drone.path_length
+        relay.relay_outage_at_start = self._current_outage_steps.get(
+            scout_id, 0
+        )
+        self.runtimes[scout_id].holding_for_relay = True
+        self.relay_deployments += 1
+        self._record_event(relay, EventType.RELAY_ROLE_ASSIGNED)
+        self._set_relay_plan(relay, plan)
+
+    def _maintain_adaptive_relay(self) -> None:
+        if not self.adaptive_relay_enabled:
+            return
+        for relay in self._ordered_runtimes():
+            if relay.drone.status is not DroneStatus.RELAY:
+                continue
+            scout_id = relay.relay_scout_id
+            if scout_id is None:
+                self._finish_relay_role(relay, successful=False)
+                continue
+            scout = self.runtimes[scout_id]
+            if scout.terminal or scout.drone.status is DroneStatus.RETURN_HOME:
+                self._finish_relay_role(relay, successful=False)
+                continue
+            if self.communication_snapshot.has_link(
+                relay.drone.identifier, scout_id
+            ):
+                relay.relay_scout_position = scout.drone.position
+            if (
+                self.communication_snapshot.connections[
+                    scout_id
+                ].direct_to_base
+            ):
+                self._finish_relay_role(relay, successful=False)
+                continue
+            role_steps = (
+                self.steps - relay.relay_started_step
+                if relay.relay_started_step is not None
+                else 0
+            )
+            if role_steps >= self.config.relay_max_role_steps:
+                self._finish_relay_role(relay, successful=False)
+                continue
+            return_path = self._known_return_path(
+                relay, avoid_other_drones=False
+            )
+            required_return = (
+                relay.battery.estimate_path(len(return_path))
+                if return_path is not None
+                else float("inf")
+            )
+            if (
+                relay.battery.remaining + 1e-9
+                < required_return
+                + self.config.energy_safety_reserve
+                + self.config.relay_energy_margin
+            ):
+                self._abort_relay_for_energy(relay)
+                continue
+            scout_position = relay.relay_scout_position
+            if scout_position is None:
+                self._finish_relay_role(relay, successful=False)
+                continue
+            plan = self._relay_plan_for(relay, scout_position)
+            if plan is None:
+                self._finish_relay_role(relay, successful=False)
+                continue
+            self._set_relay_plan(relay, plan)
+
+    def _plan_relay_intention(self, runtime: DroneRuntime) -> Position:
+        runtime.relay_role_steps += 1
+        plan = runtime.relay_plan
+        if plan is None or runtime.relay_target is None:
+            return runtime.drone.position
+        path = astar(
+            runtime.drone.position,
+            runtime.relay_target,
+            runtime.local_map.is_known_free,
+        )
+        if path is None:
+            self._finish_relay_role(runtime, successful=False)
+            return runtime.drone.position
+        runtime.planned_path = path
+        if len(path) < 2:
+            return runtime.drone.position
+        return path[1]
+
+    def _update_relay_after_sync(
+        self,
+        base_before: dict[Position, CellKnowledge],
+        survivors_before: set[Position],
+    ) -> None:
+        if not self.adaptive_relay_enabled:
+            return
+        base_after = (
+            dict(self.base_knowledge_map.records)
+            if self.base_knowledge_map is not None
+            else {}
+        )
+        new_base_cells = {
+            position
+            for position, record in base_after.items()
+            if base_before.get(position) != record
+        }
+        new_base_survivors = (
+            self._base_confirmed_survivors - survivors_before
+        )
+        for relay in self._ordered_runtimes():
+            if relay.drone.status is not DroneStatus.RELAY:
+                continue
+            scout_id = relay.relay_scout_id
+            if scout_id is None:
+                continue
+            chain_active = (
+                self.communication_snapshot.has_link(
+                    "base", relay.drone.identifier
+                )
+                and self.communication_snapshot.has_link(
+                    relay.drone.identifier, scout_id
+                )
+            )
+            if chain_active and not relay.relay_link_achieved:
+                relay.relay_link_achieved = True
+                self.relay_outages_shortened += 1
+                self._record_event(relay, EventType.RELAY_LINK_ACHIEVED)
+            if not chain_active:
+                continue
+            forwarded_cells = (
+                new_base_cells & relay.relay_payload_positions
+            )
+            forwarded_survivors = (
+                new_base_survivors & relay.relay_payload_survivors
+            )
+            if forwarded_cells or forwarded_survivors:
+                self._relay_unique_cells_forwarded.update(forwarded_cells)
+                self._relay_survivors_forwarded.update(
+                    forwarded_survivors
+                )
+                relay.relay_payload_forwarded = True
+                self._record_event(
+                    relay,
+                    EventType.RELAY_PAYLOAD_FORWARDED,
+                    cell_count=len(forwarded_cells),
+                    survivor_count=len(forwarded_survivors),
+                )
+                self._finish_relay_role(relay, successful=True)
+
     def _objectives_complete(self) -> bool:
         if self.knowledge_mode == "local":
             return False
         return len(self._confirmed_survivors) == len(self.world.survivors)
 
     def _fail_energy(self, runtime: DroneRuntime) -> None:
+        if runtime.drone.status is DroneStatus.RELAY:
+            self._record_event(
+                runtime, EventType.RELAY_ABORTED_FOR_ENERGY
+            )
+            self._finish_relay_role(runtime, successful=False)
         runtime.drone.status = DroneStatus.ENERGY_EMERGENCY
         runtime.energy_emergency = True
         runtime.active_frontier_target = None
@@ -781,6 +1241,8 @@ class MultiDroneSimulation:
         self._record_event(runtime, EventType.ENERGY_EMERGENCY)
 
     def _fail_return_path(self, runtime: DroneRuntime) -> None:
+        if runtime.drone.status is DroneStatus.RELAY:
+            self._finish_relay_role(runtime, successful=False)
         runtime.drone.status = DroneStatus.RETURN_PATH_UNAVAILABLE
         runtime.active_frontier_target = None
         runtime.planned_path = ()
@@ -848,7 +1310,10 @@ class MultiDroneSimulation:
         explorers = {
             runtime.drone.identifier: runtime.drone.position
             for runtime in self._ordered_runtimes()
-            if runtime.drone.status is DroneStatus.EXPLORE
+            if (
+                runtime.drone.status is DroneStatus.EXPLORE
+                and not runtime.holding_for_relay
+            )
         }
         if not explorers:
             return {}
@@ -900,7 +1365,10 @@ class MultiDroneSimulation:
         explorers = {
             runtime.drone.identifier: runtime.drone.position
             for runtime in self._ordered_runtimes()
-            if runtime.drone.status is DroneStatus.EXPLORE
+            if (
+                runtime.drone.status is DroneStatus.EXPLORE
+                and not runtime.holding_for_relay
+            )
         }
         if not explorers:
             return {}
@@ -1101,6 +1569,11 @@ class MultiDroneSimulation:
                 continue
             if runtime.drone.status is DroneStatus.RETURN_HOME:
                 destination = self._plan_return_intention(runtime)
+            elif runtime.drone.status is DroneStatus.RELAY:
+                destination = self._plan_relay_intention(runtime)
+            elif runtime.holding_for_relay:
+                self._relay_mission_delay_steps += 1
+                destination = runtime.drone.position
             else:
                 destination = self._plan_explore_intention(
                     runtime, assignments.get(runtime.drone.identifier)
@@ -1189,7 +1662,11 @@ class MultiDroneSimulation:
         target = (
             self.world.base
             if runtime.drone.status is DroneStatus.RETURN_HOME
-            else runtime.active_frontier_target
+            else (
+                runtime.relay_target
+                if runtime.drone.status is DroneStatus.RELAY
+                else runtime.active_frontier_target
+            )
         )
         candidates = []
         for candidate in runtime.drone.position.neighbors():
@@ -1310,7 +1787,16 @@ class MultiDroneSimulation:
             return intentions
 
         self.local_motion_conflicts += 1
-        if source == "communication":
+        if (
+            source == "communication"
+            and conflict.kind == "occupied_current_cell"
+        ):
+            self.communication_detected_conflicts += 1
+            if first.next_position == second.current_position:
+                loser_id, winner_id = first_id, second_id
+            else:
+                loser_id, winner_id = second_id, first_id
+        elif source == "communication":
             self.communication_detected_conflicts += 1
             winner_id = min(
                 drone_ids,
@@ -1500,6 +1986,8 @@ class MultiDroneSimulation:
             runtime = self.runtimes[drone_id]
             runtime.drone.position = destination
             runtime.drone.path_length += 1
+            if runtime.drone.status is DroneStatus.RELAY:
+                runtime.relay_path_length += 1
             if runtime.drone.status is DroneStatus.RETURN_HOME:
                 runtime.return_path_length += 1
                 if runtime.current_return_path:
@@ -1562,6 +2050,10 @@ class MultiDroneSimulation:
         if self.steps >= self.config.max_steps:
             for runtime in self._ordered_runtimes():
                 if not runtime.terminal:
+                    if runtime.drone.status is DroneStatus.RELAY:
+                        self._finish_relay_role(
+                            runtime, successful=False
+                        )
                     runtime.drone.status = DroneStatus.FAILED
                     runtime.active_frontier_target = None
                     runtime.planned_path = ()
@@ -1571,15 +2063,28 @@ class MultiDroneSimulation:
             return False
 
         self._prepare_energy_states()
+        self._maintain_adaptive_relay()
         assignments = self._allocate_frontiers()
+        self._assign_adaptive_relay()
         intentions = self._plan_intentions(assignments)
         intentions = self._deconflict_intentions(intentions)
         previous_step = self.steps
         self._execute_intentions(intentions)
         if self.steps != previous_step:
+            base_before = (
+                dict(self.base_knowledge_map.records)
+                if self.base_knowledge_map is not None
+                else {}
+            )
+            survivors_before = set(self._base_confirmed_survivors)
             self._sample_communication()
             self._sync_shadow_maps()
             self._sync_survivor_knowledge()
+            self._update_relay_after_sync(
+                base_before, survivors_before
+            )
+            self._acknowledge_base_uploads()
+            self._record_base_coverage()
         self._update_completion()
         return not self.completed
 
@@ -1598,6 +2103,15 @@ class MultiDroneSimulation:
             event.step
             for event in self.mission_log.events
             if event.event_type is EventType.SURVIVOR_DETECTED
+        ]
+        base_confirmation_steps = [
+            event.step
+            for event in self.mission_log.events
+            if (
+                event.event_type
+                is EventType.SURVIVOR_KNOWLEDGE_SYNCHRONIZED
+                and event.drone_id == "base"
+            )
         ]
         survivors_total = len(self.world.survivors)
         reported_detected = (
@@ -1814,6 +2328,42 @@ class MultiDroneSimulation:
             deadlocks_resolved=self.deadlocks_resolved,
             local_replans_due_to_drones=self.local_replans_due_to_drones,
             deconfliction_delay_steps=self.deconfliction_delay_steps,
+            relay_strategy=self.config.relay_strategy,
+            relay_deployments=self.relay_deployments,
+            successful_relay_deployments=(
+                self.successful_relay_deployments
+            ),
+            failed_relay_deployments=self.failed_relay_deployments,
+            relay_steps_by_drone={
+                drone_id: self.runtimes[drone_id].relay_role_steps
+                for drone_id in sorted(self.runtimes)
+            },
+            relay_path_length_by_drone={
+                drone_id: self.runtimes[drone_id].relay_path_length
+                for drone_id in sorted(self.runtimes)
+            },
+            relay_unique_cells_forwarded=len(
+                self._relay_unique_cells_forwarded
+            ),
+            relay_survivor_confirmations_forwarded=len(
+                self._relay_survivors_forwarded
+            ),
+            relay_outages_shortened=self.relay_outages_shortened,
+            base_known_coverage_over_time=tuple(
+                self._base_known_coverage_history
+            ),
+            time_to_first_base_survivor_confirmation=(
+                min(base_confirmation_steps)
+                if base_confirmation_steps
+                else None
+            ),
+            time_to_all_base_survivor_confirmations=(
+                max(base_confirmation_steps)
+                if len(base_confirmation_steps) == survivors_total
+                else None
+            ),
+            relay_energy_consumed=self._relay_energy_consumed,
+            relay_mission_delay_steps=self._relay_mission_delay_steps,
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )

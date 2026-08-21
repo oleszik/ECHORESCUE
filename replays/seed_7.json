@@ -67,6 +67,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": null,
           "yielding": false
@@ -95,6 +104,15 @@
             2,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": null,
           "yielding": false
@@ -302,6 +320,15 @@
             1,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -338,6 +365,15 @@
             3,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             3,
@@ -548,6 +584,15 @@
             1,
             3
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -584,6 +629,15 @@
             4,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             4,
@@ -809,6 +863,15 @@
             1,
             4
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -849,6 +912,15 @@
             4,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             5,
@@ -1098,6 +1170,15 @@
             2,
             4
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             2,
@@ -1138,6 +1219,15 @@
             5,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             6,
@@ -1367,6 +1457,15 @@
             2,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             3,
@@ -1403,6 +1502,15 @@
             6,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             6,
@@ -1623,6 +1731,15 @@
             3,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             3,
@@ -1663,6 +1780,15 @@
             6,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             6,
@@ -1907,6 +2033,15 @@
             2,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             2,
@@ -1947,6 +2082,15 @@
             7,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             7,
@@ -2167,6 +2311,15 @@
             2,
             6
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             2,
@@ -2207,6 +2360,15 @@
             7,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             8,
@@ -2426,6 +2588,15 @@
             1,
             6
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -2462,6 +2633,15 @@
             8,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             8,
@@ -2701,6 +2881,15 @@
             1,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -2737,6 +2926,15 @@
             9,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             9,
@@ -2956,6 +3154,15 @@
             1,
             8
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -2992,6 +3199,15 @@
             9,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             9,
@@ -3211,6 +3427,15 @@
             1,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -3251,6 +3476,15 @@
             9,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             10,
@@ -3470,6 +3704,15 @@
             1,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -3506,6 +3749,15 @@
             10,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             10,
@@ -3729,6 +3981,15 @@
             2,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             2,
@@ -3765,6 +4026,15 @@
             11,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             11,
@@ -4014,6 +4284,15 @@
             3,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             3,
@@ -4050,6 +4329,15 @@
             11,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             11,
@@ -4289,6 +4577,15 @@
             4,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             4,
@@ -4325,6 +4622,15 @@
             12,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -4564,6 +4870,15 @@
             5,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             5,
@@ -4600,6 +4915,15 @@
             13,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             13,
@@ -4839,6 +5163,15 @@
             5,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             5,
@@ -4875,6 +5208,15 @@
             14,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             14,
@@ -5114,6 +5456,15 @@
             5,
             8
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             5,
@@ -5150,6 +5501,15 @@
             15,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             15,
@@ -5395,6 +5755,15 @@
             5,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             5,
@@ -5431,6 +5800,15 @@
             16,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             16,
@@ -5698,6 +6076,15 @@
             6,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             9,
@@ -5742,6 +6129,15 @@
             15,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             15,
@@ -5989,6 +6385,15 @@
             6,
             6
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             9,
@@ -6029,6 +6434,15 @@
             15,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             15,
@@ -6276,6 +6690,15 @@
             6,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             9,
@@ -6312,6 +6735,15 @@
             15,
             3
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             15,
@@ -6569,6 +7001,15 @@
             6,
             4
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             9,
@@ -6605,6 +7046,15 @@
             16,
             3
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             16,
@@ -6874,6 +7324,15 @@
             6,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -6910,6 +7369,15 @@
             17,
             3
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             17,
@@ -7165,6 +7633,15 @@
             7,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -7201,6 +7678,15 @@
             17,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             17,
@@ -7446,6 +7932,15 @@
             8,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -7482,6 +7977,15 @@
             18,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             18,
@@ -7733,6 +8237,15 @@
             9,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -7769,6 +8282,15 @@
             18,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             18,
@@ -8006,6 +8528,15 @@
             10,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -8042,6 +8573,15 @@
             19,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -8275,6 +8815,15 @@
             11,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -8323,6 +8872,15 @@
             18,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -8547,6 +9105,15 @@
             12,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -8591,6 +9158,15 @@
             18,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -8820,6 +9396,15 @@
             13,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             13,
@@ -8860,6 +9445,15 @@
             18,
             3
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -9089,6 +9683,15 @@
             13,
             6
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             13,
@@ -9125,6 +9728,15 @@
             19,
             3
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -9364,6 +9976,15 @@
             14,
             6
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             14,
@@ -9400,6 +10021,15 @@
             19,
             4
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -9649,6 +10279,15 @@
             14,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             15,
@@ -9685,6 +10324,15 @@
             19,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -9920,6 +10568,15 @@
             15,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             15,
@@ -9956,6 +10613,15 @@
             19,
             6
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -10201,6 +10867,15 @@
             16,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             16,
@@ -10237,6 +10912,15 @@
             19,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -10482,6 +11166,15 @@
             17,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             17,
@@ -10518,6 +11211,15 @@
             18,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             18,
@@ -10775,6 +11477,15 @@
             16,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             14,
@@ -10815,6 +11526,15 @@
             18,
             8
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -11058,6 +11778,15 @@
             15,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             14,
@@ -11098,6 +11827,15 @@
             18,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -11337,6 +12075,15 @@
             14,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             14,
@@ -11377,6 +12124,15 @@
             18,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -11612,6 +12368,15 @@
             14,
             8
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             14,
@@ -11652,6 +12417,15 @@
             17,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             17,
@@ -11897,6 +12671,15 @@
             13,
             8
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             13,
@@ -11941,6 +12724,15 @@
             16,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             15,
@@ -12184,6 +12976,15 @@
             12,
             8
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             11,
@@ -12224,6 +13025,15 @@
             15,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             15,
@@ -12477,6 +13287,15 @@
             11,
             8
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             10,
@@ -12525,6 +13344,15 @@
             14,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -12753,6 +13581,15 @@
             10,
             8
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             10,
@@ -12797,6 +13634,15 @@
             13,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -13044,6 +13890,15 @@
             10,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             9,
@@ -13084,6 +13939,15 @@
             12,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -13310,6 +14174,15 @@
             9,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             9,
@@ -13346,6 +14219,15 @@
             12,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             12,
@@ -13629,6 +14511,15 @@
             8,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             7,
@@ -13665,6 +14556,15 @@
             11,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             11,
@@ -13938,6 +14838,15 @@
             7,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             7,
@@ -13990,6 +14899,15 @@
             10,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             6,
@@ -14273,6 +15191,15 @@
             6,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -14321,6 +15248,15 @@
             9,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             6,
@@ -14600,6 +15536,15 @@
             5,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -14680,6 +15625,15 @@
             10,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -14944,6 +15898,15 @@
             4,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -15020,6 +15983,15 @@
             11,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -15274,6 +16246,15 @@
             3,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -15346,6 +16327,15 @@
             12,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -15596,6 +16586,15 @@
             2,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -15664,6 +16663,15 @@
             13,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -15910,6 +16918,15 @@
             1,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -15974,6 +16991,15 @@
             14,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -16216,6 +17242,15 @@
             1,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -16276,6 +17311,15 @@
             15,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -16514,6 +17558,15 @@
             1,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             1,
@@ -16570,6 +17623,15 @@
             15,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -16814,6 +17876,15 @@
             1,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": null,
           "yielding": false
@@ -16863,6 +17934,15 @@
             16,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -17107,6 +18187,15 @@
             1,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": null,
           "yielding": false
@@ -17152,6 +18241,15 @@
             17,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -17396,6 +18494,15 @@
             1,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": null,
           "yielding": false
@@ -17437,6 +18544,15 @@
             18,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -17681,6 +18797,15 @@
             1,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": null,
           "yielding": false
@@ -17718,6 +18843,15 @@
             19,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -17962,6 +19096,15 @@
             1,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": null,
           "yielding": false
@@ -17995,6 +19138,15 @@
             19,
             11
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "EXPLORE",
           "target": [
             19,
@@ -18298,6 +19450,15 @@
             1,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -18439,6 +19600,15 @@
             19,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -18714,6 +19884,15 @@
             1,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -18851,6 +20030,15 @@
             18,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -19122,6 +20310,15 @@
             1,
             8
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -19255,6 +20452,15 @@
             17,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -19522,6 +20728,15 @@
             1,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -19651,6 +20866,15 @@
             16,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -19914,6 +21138,15 @@
             1,
             6
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -20039,6 +21272,15 @@
             15,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -20304,6 +21546,15 @@
             2,
             6
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -20425,6 +21676,15 @@
             14,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -20697,6 +21957,15 @@
             2,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -20814,6 +22083,15 @@
             13,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -21071,6 +22349,15 @@
             2,
             4
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -21184,6 +22471,15 @@
             12,
             10
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -21437,6 +22733,15 @@
             1,
             4
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -21546,6 +22851,15 @@
             12,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -21795,6 +23109,15 @@
             1,
             3
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -21900,6 +23223,15 @@
             11,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -22145,6 +23477,15 @@
             1,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -22246,6 +23587,15 @@
             10,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -22482,6 +23832,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -22579,6 +23938,15 @@
             9,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -22826,6 +24194,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -22919,6 +24296,15 @@
             8,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -23155,6 +24541,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -23244,6 +24639,15 @@
             7,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -23480,6 +24884,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -23565,6 +24978,15 @@
             6,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -23801,6 +25223,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -23882,6 +25313,15 @@
             5,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -24118,6 +25558,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -24195,6 +25644,15 @@
             4,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -24431,6 +25889,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -24504,6 +25971,15 @@
             3,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -24740,6 +26216,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -24809,6 +26294,15 @@
             2,
             9
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -25045,6 +26539,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -25110,6 +26613,15 @@
             2,
             8
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -25356,6 +26868,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -25417,6 +26938,15 @@
             2,
             7
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -25674,6 +27204,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -25731,6 +27270,15 @@
             2,
             6
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -25977,6 +27525,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -26030,6 +27587,15 @@
             2,
             5
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -26276,6 +27842,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -26325,6 +27900,15 @@
             2,
             4
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -26571,6 +28155,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -26616,6 +28209,15 @@
             1,
             4
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -26862,6 +28464,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -26903,6 +28514,15 @@
             1,
             3
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -27149,6 +28769,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -27186,6 +28815,15 @@
             1,
             2
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "RETURN_HOME",
           "target": null,
           "yielding": false
@@ -27432,6 +29070,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -27460,6 +29107,15 @@
             1,
             1
           ],
+          "relay": {
+            "active": false,
+            "holding_for_relay": false,
+            "link_achieved": false,
+            "position": null,
+            "role_steps": 0,
+            "scout_id": null,
+            "strategy": "off"
+          },
           "state": "LANDED",
           "target": null,
           "yielding": false
@@ -27668,6 +29324,100 @@
   },
   "metrics": {
     "base_known_coverage": 0.0,
+    "base_known_coverage_over_time": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
     "base_survivors_confirmed": 3,
     "base_survivors_detected": 3,
     "cells_received_by_drone": {
@@ -27710,6 +29460,7 @@
       "drone-2": 124.4
     },
     "explored_percent": 95.604,
+    "failed_relay_deployments": 0,
     "frontier_assignments_by_drone": {
       "drone-1": 37,
       "drone-2": 39
@@ -29480,6 +31231,21 @@
     },
     "proximity_detected_conflicts": 0,
     "redundant_frontier_assignments": 0,
+    "relay_deployments": 0,
+    "relay_energy_consumed": 0.0,
+    "relay_mission_delay_steps": 0,
+    "relay_outages_shortened": 0,
+    "relay_path_length_by_drone": {
+      "drone-1": 0,
+      "drone-2": 0
+    },
+    "relay_steps_by_drone": {
+      "drone-1": 0,
+      "drone-2": 0
+    },
+    "relay_strategy": "off",
+    "relay_survivor_confirmations_forwarded": 0,
+    "relay_unique_cells_forwarded": 0,
     "relay_uptime_by_drone": {
       "drone-1": 0.0,
       "drone-2": 0.021739
@@ -29501,6 +31267,7 @@
       "drone-2": 0
     },
     "steps": 91,
+    "successful_relay_deployments": 0,
     "survivor_recall": 1.0,
     "survivor_recall_at_base": 1.0,
     "survivors_confirmed": 3,
@@ -29508,6 +31275,8 @@
     "survivors_total": 3,
     "targets_discarded_after_reconnect": 0,
     "termination_reason": "exploration_complete",
+    "time_to_all_base_survivor_confirmations": null,
+    "time_to_first_base_survivor_confirmation": null,
     "time_to_first_detection": 2,
     "time_to_map_convergence": null,
     "unique_cells_transferred": 0,
@@ -29539,6 +31308,14 @@
       "movement_energy_cost": 1.0,
       "obstacle_density": 0.08,
       "proximity_sensor_range": 2,
+      "relay_cooldown_steps": 8,
+      "relay_energy_margin": 5.0,
+      "relay_max_deployments": 1,
+      "relay_max_role_steps": 16,
+      "relay_min_benefit_ratio": 20.0,
+      "relay_min_outage_steps": 40,
+      "relay_min_unsynced_cells": 240,
+      "relay_strategy": "off",
       "seed": 7,
       "sensor_energy_cost": 0.05,
       "sensor_range": 4,
@@ -29549,7 +31326,8 @@
       "width": 21
     },
     "knowledge_mode": "shared",
+    "relay_strategy": "off",
     "seed": 7
   },
-  "schema_version": "1.4"
+  "schema_version": "1.5"
 }

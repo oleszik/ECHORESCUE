@@ -13,7 +13,7 @@ from echorescue.multi_simulation import (
 )
 
 
-REPLAY_SCHEMA_VERSION = "1.4"
+REPLAY_SCHEMA_VERSION = "1.5"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -74,7 +74,11 @@ class ReplayRecorder:
         drones = {}
         for drone_id, runtime in sorted(simulation.runtimes.items()):
             path = _remaining_path(runtime)
-            target = runtime.active_frontier_target
+            target = (
+                runtime.relay_target
+                if runtime.drone.status is DroneStatus.RELAY
+                else runtime.active_frontier_target
+            )
             connection = simulation.communication_snapshot.connections[drone_id]
             intent = (
                 simulation.motion_intents.get(drone_id)
@@ -93,8 +97,25 @@ class ReplayRecorder:
                 "path_kind": (
                     "return"
                     if runtime.drone.status is DroneStatus.RETURN_HOME
-                    else "frontier"
+                    else (
+                        "relay"
+                        if runtime.drone.status is DroneStatus.RELAY
+                        else "frontier"
+                    )
                 ),
+                "relay": {
+                    "active": runtime.drone.status is DroneStatus.RELAY,
+                    "strategy": simulation.config.relay_strategy,
+                    "position": (
+                        _position(runtime.relay_target)
+                        if runtime.relay_target is not None
+                        else None
+                    ),
+                    "scout_id": runtime.relay_scout_id,
+                    "link_achieved": runtime.relay_link_achieved,
+                    "role_steps": runtime.relay_role_steps,
+                    "holding_for_relay": runtime.holding_for_relay,
+                },
                 "yielding": runtime.yielding,
                 "motion_intent": (
                     {
@@ -304,6 +325,7 @@ class ReplayRecorder:
             "mission": {
                 "seed": simulation.config.seed,
                 "knowledge_mode": simulation.knowledge_mode,
+                "relay_strategy": simulation.config.relay_strategy,
                 "configuration": configuration,
             },
             "map": {

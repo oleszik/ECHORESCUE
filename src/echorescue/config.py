@@ -26,6 +26,14 @@ class SimulationConfig:
     motion_intent_ttl: int = 4
     deadlock_wait_threshold: int = 3
     distributed_deconfliction_enabled: bool = True
+    relay_strategy: str = "off"
+    relay_min_outage_steps: int = 40
+    relay_min_unsynced_cells: int = 240
+    relay_max_role_steps: int = 16
+    relay_cooldown_steps: int = 8
+    relay_max_deployments: int = 1
+    relay_energy_margin: float = 5.0
+    relay_min_benefit_ratio: float = 20.0
     knowledge_mode: str = "shared"
     local_map_shadow_mode: bool | None = None
     base_knowledge_store_enabled: bool = True
@@ -80,8 +88,29 @@ class SimulationConfig:
             raise ValueError("motion_intent_ttl must be positive")
         if self.deadlock_wait_threshold < 2:
             raise ValueError("deadlock_wait_threshold must be at least 2")
+        if self.relay_strategy not in {"off", "adaptive"}:
+            raise ValueError("relay_strategy must be off or adaptive")
+        if self.relay_min_outage_steps < 1:
+            raise ValueError("relay_min_outage_steps must be positive")
+        if self.relay_min_unsynced_cells < 1:
+            raise ValueError("relay_min_unsynced_cells must be positive")
+        if self.relay_max_role_steps < 1:
+            raise ValueError("relay_max_role_steps must be positive")
+        if self.relay_cooldown_steps < 1:
+            raise ValueError("relay_cooldown_steps must be positive")
+        if self.relay_max_deployments < 1:
+            raise ValueError("relay_max_deployments must be positive")
+        if self.relay_energy_margin < 0:
+            raise ValueError("relay_energy_margin must not be negative")
+        if self.relay_min_benefit_ratio <= 0:
+            raise ValueError("relay_min_benefit_ratio must be positive")
         if self.knowledge_mode not in {"shared", "shadow", "local"}:
             raise ValueError("knowledge_mode must be shared, shadow, or local")
+        if (
+            self.relay_strategy == "adaptive"
+            and self.effective_knowledge_mode != "local"
+        ):
+            raise ValueError("adaptive relay requires knowledge_mode=local")
         if self.max_steps < 1:
             raise ValueError("max_steps must be positive")
 

@@ -85,6 +85,20 @@ def detect_intent_conflict(
         and first.current_position != second.current_position
     ):
         return IntentConflict("edge_swap", first.next_position, drone_ids)
+    if (
+        first.next_position == second.current_position
+        and first.current_position != second.current_position
+    ):
+        return IntentConflict(
+            "occupied_current_cell", first.next_position, drone_ids
+        )
+    if (
+        second.next_position == first.current_position
+        and first.current_position != second.current_position
+    ):
+        return IntentConflict(
+            "occupied_current_cell", second.next_position, drone_ids
+        )
 
     first_path = _reservation(first)
     second_path = _reservation(second)

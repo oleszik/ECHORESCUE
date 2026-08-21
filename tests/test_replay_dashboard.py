@@ -1,9 +1,11 @@
 import json
 import re
+import subprocess
 import tempfile
 import threading
 import unittest
 from pathlib import Path
+from urllib.error import HTTPError
 from urllib.request import urlopen
 
 from echorescue.benchmark import BENCHMARK_SCHEMA_VERSION, run_benchmark
@@ -22,6 +24,27 @@ from echorescue.replay import (
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 STYLESHEET_PATH = ASSET_DIRECTORY / "styles.css"
+APP_PATH = ASSET_DIRECTORY / "app.js"
+
+
+def benchmark_view(payload: object) -> dict[str, object]:
+    script = f"""
+const app = require({json.dumps(str(APP_PATH))});
+let input = "";
+process.stdin.setEncoding("utf8");
+process.stdin.on("data", chunk => input += chunk);
+process.stdin.on("end", () => process.stdout.write(
+  JSON.stringify(app.safeBenchmarkView(JSON.parse(input)))
+));
+"""
+    completed = subprocess.run(
+        ["node", "-e", script],
+        input=json.dumps(payload),
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return json.loads(completed.stdout)
 
 
 def css_block(stylesheet: str, selector: str) -> str:
@@ -263,6 +286,110 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(first["schema_version"], BENCHMARK_SCHEMA_VERSION)
         self.assertEqual(first["suite"]["determinism_check"], "passed")
+
+    def test_relay_replay_works_without_a_benchmark(self) -> None:
+        replay_path = REPOSITORY_ROOT / "replays" / "seed_7_relay.json"
+        server = create_server(replay_path, benchmark_path=None, port=0)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            host, port = server.server_address[:2]
+            with urlopen(f"http://{host}:{port}/replay.json", timeout=5) as response:
+                replay = json.load(response)
+            with self.assertRaises(HTTPError) as error:
+                urlopen(f"http://{host}:{port}/benchmark.json", timeout=5)
+            self.assertEqual(error.exception.code, 404)
+            self.assertEqual(replay["mission"]["relay_strategy"], "adaptive")
+            self.assertEqual(
+                benchmark_view(None),
+                {
+                    "status": "unavailable",
+                    "message": "Benchmark artifact unavailable.",
+                },
+            )
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=5)
+
+    def test_adaptive_relay_benchmark_schema_is_mapped_correctly(self) -> None:
+        payload = json.loads(
+            (
+                REPOSITORY_ROOT
+                / "benchmarks"
+                / "adaptive_relay_50_seeds.json"
+            ).read_text(encoding="utf-8")
+        )
+
+        view = benchmark_view(payload)
+
+        self.assertEqual(view["status"], "ready")
+        self.assertEqual(view["format"], "adaptive_relay")
+        self.assertEqual(view["baselineLabel"], "Relay off")
+        self.assertEqual(view["candidateLabel"], "Adaptive relay")
+        self.assertEqual(view["baselineSteps"], 75.3)
+        self.assertEqual(view["candidateSteps"], 77.92)
+        self.assertEqual(view["improvementValue"], "+1.40 pp")
+
+    def test_older_versioned_benchmark_formats_remain_supported(self) -> None:
+        expected = {
+            "two_drone_50_seeds.json": "parallel_exploration",
+            "knowledge_modes_50_seeds.json": "knowledge_modes",
+            "distributed_deconfliction_50_seeds.json": (
+                "distributed_deconfliction"
+            ),
+            "communication_50_seeds.json": "communication",
+            "shadow_mode_50_seeds.json": "shadow_mode",
+        }
+        for filename, format_name in expected.items():
+            with self.subTest(filename=filename):
+                payload = json.loads(
+                    (REPOSITORY_ROOT / "benchmarks" / filename).read_text(
+                        encoding="utf-8"
+                    )
+                )
+                view = benchmark_view(payload)
+                self.assertEqual(view["status"], "ready")
+                self.assertEqual(view["format"], format_name)
+
+    def test_missing_average_mission_steps_is_rendered_as_unavailable(self) -> None:
+        payload = json.loads(
+            (
+                REPOSITORY_ROOT
+                / "benchmarks"
+                / "adaptive_relay_50_seeds.json"
+            ).read_text(encoding="utf-8")
+        )
+        del payload["active_local_adaptive_relay"]["average_mission_steps"]
+
+        view = benchmark_view(payload)
+
+        self.assertEqual(view["status"], "ready")
+        self.assertEqual(view["baselineSteps"], 75.3)
+        self.assertIsNone(view["candidateSteps"])
+
+    def test_unknown_and_incomplete_benchmarks_report_precise_errors(self) -> None:
+        unknown = benchmark_view({"schema_version": "9.9", "metrics": {}})
+        incomplete = benchmark_view(
+            {
+                "schema_version": "1.0",
+                "active_local_relay_off": {},
+            }
+        )
+
+        self.assertEqual(unknown["status"], "invalid")
+        self.assertIn("Unrecognized benchmark format", unknown["message"])
+        self.assertIn("schema_version: 9.9", unknown["message"])
+        self.assertEqual(incomplete["status"], "invalid")
+        self.assertIn(
+            'missing required object "active_local_adaptive_relay"',
+            incomplete["message"],
+        )
+        malformed = benchmark_view(
+            {"__benchmark_load_error": "Unable to parse /benchmark.json as JSON"}
+        )
+        self.assertEqual(malformed["status"], "invalid")
+        self.assertIn("Unable to parse /benchmark.json", malformed["message"])
 
 
 class DashboardStyleRegressionTests(unittest.TestCase):

@@ -37,6 +37,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--disable-distributed-deconfliction", action="store_true"
     )
     parser.add_argument(
+        "--relay-strategy", choices=("off", "adaptive"), default="off"
+    )
+    parser.add_argument("--relay-min-outage-steps", type=int, default=40)
+    parser.add_argument("--relay-min-unsynced-cells", type=int, default=240)
+    parser.add_argument("--relay-max-role-steps", type=int, default=16)
+    parser.add_argument("--relay-cooldown-steps", type=int, default=8)
+    parser.add_argument("--relay-max-deployments", type=int, default=1)
+    parser.add_argument("--relay-energy-margin", type=float, default=5.0)
+    parser.add_argument("--relay-min-benefit-ratio", type=float, default=20.0)
+    parser.add_argument(
         "--knowledge-mode",
         choices=("shared", "shadow", "local"),
         default="shared",
@@ -88,6 +98,14 @@ def main(argv: list[str] | None = None) -> None:
         distributed_deconfliction_enabled=(
             not args.disable_distributed_deconfliction
         ),
+        relay_strategy=args.relay_strategy,
+        relay_min_outage_steps=args.relay_min_outage_steps,
+        relay_min_unsynced_cells=args.relay_min_unsynced_cells,
+        relay_max_role_steps=args.relay_max_role_steps,
+        relay_cooldown_steps=args.relay_cooldown_steps,
+        relay_max_deployments=args.relay_max_deployments,
+        relay_energy_margin=args.relay_energy_margin,
+        relay_min_benefit_ratio=args.relay_min_benefit_ratio,
         knowledge_mode=args.knowledge_mode,
         base_knowledge_store_enabled=not args.disable_base_knowledge_store,
         max_steps=args.max_steps,

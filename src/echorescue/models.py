@@ -10,6 +10,7 @@ class CellState(str, Enum):
 
 class DroneStatus(str, Enum):
     EXPLORE = "EXPLORE"
+    RELAY = "RELAY"
     RETURN_HOME = "RETURN_HOME"
     LANDED = "LANDED"
     ENERGY_EMERGENCY = "ENERGY_EMERGENCY"

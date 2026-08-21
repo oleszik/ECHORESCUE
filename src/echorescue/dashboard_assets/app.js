@@ -36,6 +36,9 @@ function cacheElements() {
     "resultBadge", "metricRecall", "metricReturned", "metricWalls", "metricDrones",
     "metricSteps", "metricDuplicate", "schemaVersion", "singleSteps", "multiSteps",
     "improvementValue", "benchmarkNote", "benchmarkPanel", "fatalError", "droneCard1", "droneCard2",
+    "relaySummary", "relaySummaryState", "metricRelayDeployments", "metricRelayCells",
+    "metricRelaySurvivors", "metricRelayDelay", "metricRelayEnergy", "metricBaseCoverage",
+    "benchmarkTitle", "benchmarkBadge", "baselineLabel", "candidateLabel", "improvementLabel",
   ].forEach((id) => { elements[id] = document.getElementById(id); });
   [1, 2].forEach((number) => {
     ["State", "Position", "Energy", "Battery", "Target", "Communication", "Coverage", "Survivors", "DataAge"].forEach((field) => {
@@ -50,7 +53,19 @@ async function loadJson(url, required = true) {
     if (!required) return null;
     throw new Error(`Unable to load ${url} (${response.status})`);
   }
-  return response.json();
+  try {
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Unable to parse ${url} as JSON: ${error.message}`);
+  }
+}
+
+async function loadOptionalBenchmark(url) {
+  try {
+    return await loadJson(url, false);
+  } catch (error) {
+    return { __benchmark_load_error: error.message };
+  }
 }
 
 function validateReplay(replay) {
@@ -71,7 +86,10 @@ function initializeReplay(replay, benchmark) {
   const knowledgeMode = replay.mission.knowledge_mode || replay.mission.configuration?.knowledge_mode || "shared";
   state.mapView = knowledgeMode === "local" ? "base" : "operator";
   elements.mapViewSelect.value = state.mapView;
-  elements.knowledgeMode.textContent = knowledgeMode.toUpperCase();
+  const relayStrategy = replay.mission.relay_strategy || replay.mission.configuration?.relay_strategy || "off";
+  elements.knowledgeMode.textContent = relayStrategy === "adaptive"
+    ? `${knowledgeMode.toUpperCase()} · ADAPTIVE RELAY`
+    : knowledgeMode.toUpperCase();
   elements.seedValue.textContent = replay.mission.seed;
   elements.schemaVersion.textContent = replay.schema_version;
   elements.timeline.max = replay.frames.length - 1;
@@ -99,8 +117,10 @@ function setFrame(index) {
 
 function updateDroneCard(number, drone) {
   const [x, y] = drone.position;
-  elements[`droneState${number}`].textContent = `${drone.yielding ? "YIELDING · " : ""}${drone.state.replaceAll("_", " ")}`;
+  const relayHold = drone.relay?.holding_for_relay ? "RELAY HOLD · " : "";
+  elements[`droneState${number}`].textContent = `${drone.yielding ? "YIELDING · " : relayHold}${drone.state.replaceAll("_", " ")}`;
   elements[`droneCard${number}`].classList.toggle("yielding", Boolean(drone.yielding));
+  elements[`droneCard${number}`].classList.toggle("relay-active", Boolean(drone.relay?.active));
   elements[`dronePosition${number}`].textContent = `${x}, ${y}`;
   elements[`droneEnergy${number}`].textContent = `${drone.energy_remaining.toFixed(1)} units`;
   elements[`droneBattery${number}`].style.width = `${Math.max(0, Math.min(100, drone.energy_remaining_percent))}%`;
@@ -153,6 +173,8 @@ function updateStatus(frame) {
 
 function eventColor(event) {
   if (event.event_type === "safety_shield_intervention") return "#fb7185";
+  if (["relay_link_achieved", "relay_payload_forwarded"].includes(event.event_type)) return "#34d399";
+  if (event.event_type.startsWith("relay_role_") || event.event_type === "relay_position_selected") return COLORS.radioRelay;
   if (["local_collision_avoided", "yield_started", "yield_ended", "deadlock_replanned"].includes(event.event_type)) return "#34d399";
   if (event.event_type === "corridor_deadlock_detected") return "#f59e0b";
   if (event.drone_id === "drone-1") return COLORS.drone1;
@@ -207,7 +229,8 @@ function updateEventFeed() {
     title.textContent = eventLabel(event.event_type);
     const detail = document.createElement("span");
     const cells = event.cell_count == null ? "" : ` · ${event.cell_count} cells`;
-    detail.textContent = `${event.drone_id} · [${event.position.join(", ")}]${cells}`;
+    const survivors = event.survivor_count == null ? "" : ` · ${event.survivor_count} survivors`;
+    detail.textContent = `${event.drone_id} · [${event.position.join(", ")}]${cells}${survivors}`;
     copy.append(title, detail);
     item.append(step, node, copy);
     elements.eventFeed.append(item);
@@ -222,20 +245,229 @@ function populateMetrics() {
   elements.metricDrones.textContent = metrics.drone_drone_collisions;
   elements.metricSteps.textContent = metrics.steps;
   elements.metricDuplicate.textContent = `${(metrics.duplicate_exploration_ratio * 100).toFixed(2)}%`;
+  const adaptive = metrics.relay_strategy === "adaptive";
+  elements.relaySummary.classList.toggle("inactive", !adaptive);
+  elements.relaySummaryState.textContent = adaptive ? "ENABLED" : "OFF";
+  const successfulDeployments = metrics.successful_relay_deployments;
+  const deployments = metrics.relay_deployments;
+  elements.metricRelayDeployments.textContent = Number.isFinite(successfulDeployments) && Number.isFinite(deployments)
+    ? `${successfulDeployments}/${deployments}` : "—";
+  elements.metricRelayCells.textContent = formatOptionalNumber(metrics.relay_unique_cells_forwarded, 0);
+  elements.metricRelaySurvivors.textContent = formatOptionalNumber(metrics.relay_survivor_confirmations_forwarded, 0);
+  elements.metricRelayDelay.textContent = formatOptionalNumber(metrics.relay_mission_delay_steps, 0, " steps");
+  elements.metricRelayEnergy.textContent = formatOptionalNumber(metrics.relay_energy_consumed, 1, " units");
+  elements.metricBaseCoverage.textContent = formatOptionalNumber(metrics.base_known_coverage, 1, "%");
+}
+
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function hasOwn(object, key) {
+  return Object.prototype.hasOwnProperty.call(object, key);
+}
+
+function requiredObject(object, key, formatName) {
+  if (!isRecord(object[key])) {
+    throw new Error(`${formatName} benchmark is missing required object "${key}".`);
+  }
+  return object[key];
+}
+
+function optionalNumber(object, key, path) {
+  if (!hasOwn(object, key) || object[key] === null) return null;
+  if (typeof object[key] !== "number" || !Number.isFinite(object[key])) {
+    throw new Error(`Benchmark field "${path}.${key}" must be a finite number.`);
+  }
+  return object[key];
+}
+
+function formatOptionalNumber(value, digits = 2, suffix = "") {
+  return Number.isFinite(value) ? `${value.toFixed(digits)}${suffix}` : "—";
+}
+
+function signedMetric(value, suffix) {
+  if (!Number.isFinite(value)) return "—";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(2)}${suffix}`;
+}
+
+function joinBenchmarkNote(parts) {
+  return parts.length ? parts.join(" ") : "Optional benchmark values are not available.";
+}
+
+function normalizeAdaptiveRelayBenchmark(benchmark) {
+  const off = requiredObject(benchmark, "active_local_relay_off", "Adaptive Relay");
+  const adaptive = requiredObject(benchmark, "active_local_adaptive_relay", "Adaptive Relay");
+  const tradeOff = hasOwn(benchmark, "trade_off")
+    ? requiredObject(benchmark, "trade_off", "Adaptive Relay") : {};
+  const offSteps = optionalNumber(off, "average_mission_steps", "active_local_relay_off");
+  const adaptiveSteps = optionalNumber(adaptive, "average_mission_steps", "active_local_adaptive_relay");
+  const offUptime = optionalNumber(off, "average_communication_uptime", "active_local_relay_off");
+  const adaptiveUptime = optionalNumber(adaptive, "average_communication_uptime", "active_local_adaptive_relay");
+  const uptimeGain = optionalNumber(tradeOff, "communication_uptime_percentage_points", "trade_off");
+  const cells = optionalNumber(adaptive, "relay_unique_cells_forwarded", "active_local_adaptive_relay");
+  const deployments = optionalNumber(adaptive, "successful_relay_deployments", "active_local_adaptive_relay");
+  const parts = [];
+  if (Number.isFinite(offUptime) && Number.isFinite(adaptiveUptime)) {
+    parts.push(`Communication uptime: ${(offUptime * 100).toFixed(2)}% off versus ${(adaptiveUptime * 100).toFixed(2)}% adaptive.`);
+  }
+  if (Number.isFinite(offSteps) && Number.isFinite(adaptiveSteps)) {
+    parts.push(`Average duration: ${offSteps.toFixed(2)} versus ${adaptiveSteps.toFixed(2)} steps.`);
+  }
+  if (Number.isFinite(cells) && Number.isFinite(deployments)) {
+    parts.push(`${deployments.toFixed(0)} successful deployments forwarded ${cells.toFixed(0)} cells.`);
+  }
+  return {
+    status: "ready",
+    format: "adaptive_relay",
+    title: "Adaptive relay trade-off",
+    baselineLabel: "Relay off",
+    candidateLabel: "Adaptive relay",
+    baselineSteps: offSteps,
+    candidateSteps: adaptiveSteps,
+    improvementValue: signedMetric(uptimeGain, " pp"),
+    improvementLabel: "uptime gain",
+    note: joinBenchmarkNote(parts),
+  };
+}
+
+function normalizeParallelBenchmark(benchmark) {
+  const single = requiredObject(benchmark, "single_drone", "Parallel exploration");
+  const multi = requiredObject(benchmark, "two_drone", "Parallel exploration");
+  const comparison = hasOwn(benchmark, "comparison")
+    ? requiredObject(benchmark, "comparison", "Parallel exploration") : {};
+  const singleSteps = optionalNumber(single, "average_mission_steps", "single_drone");
+  const multiSteps = optionalNumber(multi, "average_mission_steps", "two_drone");
+  const reduction = optionalNumber(comparison, "mission_duration_reduction_percent", "comparison");
+  const duplicate = optionalNumber(multi, "average_duplicate_exploration_ratio", "two_drone");
+  const pathIncrease = optionalNumber(comparison, "combined_path_length_increase_percent", "comparison");
+  const parts = [];
+  if (Number.isFinite(duplicate)) parts.push(`Duplicate exploration was ${(duplicate * 100).toFixed(2)}%.`);
+  if (Number.isFinite(pathIncrease)) parts.push(`Combined fleet path length was ${pathIncrease.toFixed(1)}% higher.`);
+  return {
+    status: "ready",
+    format: "parallel_exploration",
+    title: "Parallel exploration impact",
+    baselineLabel: "Single drone",
+    candidateLabel: "Two drones",
+    baselineSteps: singleSteps,
+    candidateSteps: multiSteps,
+    improvementValue: Number.isFinite(reduction) ? `${reduction.toFixed(2)}%` : "—",
+    improvementLabel: "shorter duration",
+    note: joinBenchmarkNote(parts),
+  };
+}
+
+function normalizeKnowledgeModesBenchmark(benchmark) {
+  const modes = requiredObject(benchmark, "modes", "Knowledge modes");
+  const shared = requiredObject(modes, "shared", "Knowledge modes");
+  const local = requiredObject(modes, "local", "Knowledge modes");
+  return {
+    status: "ready",
+    format: "knowledge_modes",
+    title: "Knowledge-mode comparison",
+    baselineLabel: "Shared",
+    candidateLabel: "Active local",
+    baselineSteps: optionalNumber(shared, "average_mission_steps", "modes.shared"),
+    candidateSteps: optionalNumber(local, "average_mission_steps", "modes.local"),
+    improvementValue: "—",
+    improvementLabel: "not available",
+    note: "Shared and Active Local mission durations from the versioned mode benchmark.",
+  };
+}
+
+function normalizeDeconflictionBenchmark(benchmark) {
+  const legacy = requiredObject(benchmark, "legacy_safety_shield_baseline", "Deconfliction");
+  const distributed = requiredObject(benchmark, "distributed_deconfliction", "Deconfliction");
+  const delta = hasOwn(benchmark, "mission_duration_delta")
+    ? requiredObject(benchmark, "mission_duration_delta", "Deconfliction") : {};
+  const deltaPercent = optionalNumber(delta, "percent", "mission_duration_delta");
+  return {
+    status: "ready",
+    format: "distributed_deconfliction",
+    title: "Distributed deconfliction",
+    baselineLabel: "Legacy shield",
+    candidateLabel: "Distributed",
+    baselineSteps: optionalNumber(legacy, "average_mission_steps", "legacy_safety_shield_baseline"),
+    candidateSteps: optionalNumber(distributed, "average_mission_steps", "distributed_deconfliction"),
+    improvementValue: signedMetric(deltaPercent, "%"),
+    improvementLabel: "duration delta",
+    note: "Legacy Safety-Shield and distributed-deconfliction mission durations.",
+  };
+}
+
+function normalizeMissionTelemetryBenchmark(benchmark) {
+  const behavior = requiredObject(benchmark, "mission_behavior", "Mission telemetry");
+  return {
+    status: "ready",
+    format: hasOwn(benchmark, "communication") ? "communication" : "shadow_mode",
+    title: hasOwn(benchmark, "communication") ? "Communication telemetry" : "Shadow-map telemetry",
+    baselineLabel: "Mission behavior",
+    candidateLabel: "Comparison",
+    baselineSteps: optionalNumber(behavior, "average_mission_steps", "mission_behavior"),
+    candidateSteps: null,
+    improvementValue: "—",
+    improvementLabel: "not available",
+    note: "This benchmark contains one mission series; comparative values are not available.",
+  };
+}
+
+function normalizeBenchmark(benchmark) {
+  if (!isRecord(benchmark)) throw new Error("Benchmark root must be a JSON object.");
+  if (hasOwn(benchmark, "schema_version") && typeof benchmark.schema_version !== "string") {
+    throw new Error('Benchmark field "schema_version" must be a string.');
+  }
+  if (hasOwn(benchmark, "active_local_relay_off") || hasOwn(benchmark, "active_local_adaptive_relay")) {
+    return normalizeAdaptiveRelayBenchmark(benchmark);
+  }
+  if (hasOwn(benchmark, "single_drone") || hasOwn(benchmark, "two_drone")) {
+    return normalizeParallelBenchmark(benchmark);
+  }
+  if (hasOwn(benchmark, "modes")) return normalizeKnowledgeModesBenchmark(benchmark);
+  if (hasOwn(benchmark, "distributed_deconfliction") || hasOwn(benchmark, "legacy_safety_shield_baseline")) {
+    return normalizeDeconflictionBenchmark(benchmark);
+  }
+  if (hasOwn(benchmark, "mission_behavior")) return normalizeMissionTelemetryBenchmark(benchmark);
+  const version = typeof benchmark.schema_version === "string" ? benchmark.schema_version : "missing";
+  throw new Error(`Unrecognized benchmark format (schema_version: ${version}).`);
+}
+
+function safeBenchmarkView(benchmark) {
+  if (benchmark === null || benchmark === undefined) {
+    return { status: "unavailable", message: "Benchmark artifact unavailable." };
+  }
+  if (isRecord(benchmark) && typeof benchmark.__benchmark_load_error === "string") {
+    return { status: "invalid", message: `Benchmark unavailable: ${benchmark.__benchmark_load_error}` };
+  }
+  try {
+    return normalizeBenchmark(benchmark);
+  } catch (error) {
+    return { status: "invalid", message: `Benchmark unavailable: ${error.message}` };
+  }
 }
 
 function populateBenchmark() {
-  const benchmark = state.benchmark;
-  if (!benchmark) {
-    elements.benchmarkPanel.classList.add("unavailable");
+  const view = safeBenchmarkView(state.benchmark);
+  elements.benchmarkPanel.classList.remove("unavailable", "invalid");
+  elements.singleSteps.textContent = "—";
+  elements.multiSteps.textContent = "—";
+  elements.improvementValue.textContent = "—";
+  if (view.status !== "ready") {
+    elements.benchmarkPanel.classList.add(view.status);
+    elements.benchmarkBadge.textContent = view.status === "invalid" ? "Invalid artifact" : "Unavailable";
+    elements.benchmarkNote.textContent = view.message;
     return;
   }
-  elements.singleSteps.textContent = benchmark.single_drone.average_mission_steps.toFixed(2);
-  elements.multiSteps.textContent = benchmark.two_drone.average_mission_steps.toFixed(2);
-  elements.improvementValue.textContent = `${benchmark.comparison.mission_duration_reduction_percent.toFixed(2)}%`;
-  const duplicate = benchmark.two_drone.average_duplicate_exploration_ratio * 100;
-  const pathIncrease = benchmark.comparison.combined_path_length_increase_percent;
-  elements.benchmarkNote.textContent = `Both modes achieved 100% survivor recall with zero wall collisions. Two drones recorded zero inter-drone collisions and ${duplicate.toFixed(2)}% duplicate exploration; combined fleet path length was ${pathIncrease.toFixed(1)}% higher.`;
+  elements.benchmarkTitle.textContent = view.title;
+  elements.benchmarkBadge.textContent = "Reproducible";
+  elements.baselineLabel.textContent = view.baselineLabel;
+  elements.candidateLabel.textContent = view.candidateLabel;
+  elements.singleSteps.textContent = formatOptionalNumber(view.baselineSteps, 2);
+  elements.multiSteps.textContent = formatOptionalNumber(view.candidateSteps, 2);
+  elements.improvementValue.textContent = view.improvementValue;
+  elements.improvementLabel.textContent = view.improvementLabel;
+  elements.benchmarkNote.textContent = view.note;
 }
 
 function canvasGeometry() {
@@ -299,18 +531,26 @@ function drawPolyline(context, points, geometry, color, width, dashed = false) {
 }
 
 function drawCommunicationLinks(context, frame, geometry) {
+  const activeRelay = Object.entries(frame.drones).find(([, drone]) => drone.relay?.active);
+  const relayId = activeRelay?.[0];
+  const scoutId = activeRelay?.[1].relay?.scout_id;
   for (const link of frame.communication.links) {
     const first = frame.communication.nodes[link.from];
     const second = frame.communication.nodes[link.to];
     const [firstX, firstY] = cellCenter(first, geometry);
     const [secondX, secondY] = cellCenter(second, geometry);
     context.save();
-    context.strokeStyle = link.kind === "direct_base"
+    const adaptiveChain = relayId && scoutId && (
+      new Set([link.from, link.to]).size === 2
+      && (([link.from, link.to].includes("base") && [link.from, link.to].includes(relayId))
+        || ([link.from, link.to].includes(relayId) && [link.from, link.to].includes(scoutId)))
+    );
+    context.strokeStyle = adaptiveChain ? COLORS.radioRelay : link.kind === "direct_base"
       ? COLORS.radioDirect
       : link.kind === "relay" ? COLORS.radioRelay : COLORS.radioPeer;
-    context.globalAlpha = link.kind === "peer" ? 0.52 : 0.82;
-    context.lineWidth = (link.kind === "relay" ? 2.2 : 1.7) * geometry.ratio;
-    if (link.kind === "relay") {
+    context.globalAlpha = adaptiveChain ? 1 : link.kind === "peer" ? 0.52 : 0.82;
+    context.lineWidth = (adaptiveChain ? 3.2 : link.kind === "relay" ? 2.2 : 1.7) * geometry.ratio;
+    if (adaptiveChain || link.kind === "relay") {
       context.setLineDash([7 * geometry.ratio, 4 * geometry.ratio]);
     } else if (link.kind === "peer") {
       context.setLineDash([2 * geometry.ratio, 5 * geometry.ratio]);
@@ -416,10 +656,17 @@ function drawMission() {
       context.save();
       context.translate(x, y);
       context.rotate(Math.PI / 4);
-      context.strokeStyle = color;
-      context.lineWidth = 1.5 * ratio;
+      context.strokeStyle = drone.relay?.active ? COLORS.radioRelay : color;
+      context.lineWidth = (drone.relay?.active ? 2.5 : 1.5) * ratio;
       context.strokeRect(-size, -size, size * 2, size * 2);
       context.restore();
+      if (drone.relay?.active) {
+        context.fillStyle = COLORS.radioRelay;
+        context.font = `800 ${Math.max(8 * ratio, cell * 0.22)}px Inter, system-ui, sans-serif`;
+        context.textAlign = "center";
+        context.textBaseline = "bottom";
+        context.fillText("R", x, y - size - 2 * ratio);
+      }
     }
     const [cellX, cellY] = cellCenter(drone.position, geometry);
     const [dockX, dockY] = dockingMarkerOffset(frame, droneId, geometry);
@@ -505,7 +752,7 @@ async function main() {
   try {
     const [replay, benchmark] = await Promise.all([
       loadJson("/replay.json"),
-      loadJson("/benchmark.json", false),
+      loadOptionalBenchmark("/benchmark.json"),
     ]);
     initializeReplay(replay, benchmark);
   } catch (error) {
@@ -513,4 +760,10 @@ async function main() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", main);
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { normalizeBenchmark, safeBenchmarkView };
+}
+
+if (typeof document !== "undefined") {
+  document.addEventListener("DOMContentLoaded", main);
+}

@@ -141,15 +141,26 @@
             <div><span>Mission steps</span><strong id="metricSteps">—</strong></div>
             <div><span>Duplicate exploration</span><strong id="metricDuplicate">—</strong></div>
           </div>
+          <div class="relay-summary" id="relaySummary">
+            <div class="relay-summary-head"><span>Adaptive relay impact</span><strong id="relaySummaryState">—</strong></div>
+            <div class="relay-metric-grid">
+              <div><span>Successful deployments</span><strong id="metricRelayDeployments">—</strong></div>
+              <div><span>Cells forwarded</span><strong id="metricRelayCells">—</strong></div>
+              <div><span>Survivors forwarded</span><strong id="metricRelaySurvivors">—</strong></div>
+              <div><span>Controlled delay</span><strong id="metricRelayDelay">—</strong></div>
+              <div><span>Relay energy</span><strong id="metricRelayEnergy">—</strong></div>
+              <div><span>Base coverage</span><strong id="metricBaseCoverage">—</strong></div>
+            </div>
+          </div>
         </article>
 
         <article class="benchmark-panel panel" id="benchmarkPanel">
-          <div class="panel-heading"><div><p class="eyebrow">50-seed benchmark</p><h2>Parallel exploration impact</h2></div><span class="verified-chip">Reproducible</span></div>
+          <div class="panel-heading"><div><p class="eyebrow">50-seed benchmark</p><h2 id="benchmarkTitle">Parallel exploration impact</h2></div><span class="verified-chip" id="benchmarkBadge">Reproducible</span></div>
           <div class="comparison-main">
-            <div><span>Single drone</span><strong id="singleSteps">—</strong><small>average steps</small></div>
+            <div><span id="baselineLabel">Single drone</span><strong id="singleSteps">—</strong><small>average steps</small></div>
             <div class="comparison-arrow">→</div>
-            <div><span>Two drones</span><strong id="multiSteps">—</strong><small>average steps</small></div>
-            <div class="improvement"><strong id="improvementValue">—</strong><span>shorter duration</span></div>
+            <div><span id="candidateLabel">Two drones</span><strong id="multiSteps">—</strong><small>average steps</small></div>
+            <div class="improvement"><strong id="improvementValue">—</strong><span id="improvementLabel">shorter duration</span></div>
           </div>
           <p class="benchmark-note" id="benchmarkNote">Benchmark artifact unavailable.</p>
         </article>

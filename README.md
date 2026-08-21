@@ -25,6 +25,7 @@ dependencies.
 python -m pip install -e .
 python -m echorescue --drones 2 --seed 7 --replay-out replays/seed_7.json
 python -m echorescue --drones 2 --seed 7 --knowledge-mode local --replay-out replays/seed_7_local.json
+python -m echorescue --drones 2 --seed 7 --knowledge-mode local --relay-strategy adaptive --replay-out replays/seed_7_relay.json
 python -m echorescue.dashboard --replay replays/seed_7.json
 ```
 
@@ -43,6 +44,7 @@ python -m echorescue.communication_benchmark --seeds 50 --output benchmarks/comm
 python -m echorescue.shadow_benchmark --seeds 50 --output benchmarks/shadow_mode_50_seeds.json
 python -m echorescue.knowledge_benchmark --seeds 50 --output benchmarks/knowledge_modes_50_seeds.json
 python -m echorescue.deconfliction_benchmark --seeds 50 --output benchmarks/distributed_deconfliction_50_seeds.json
+python -m echorescue.relay_benchmark --seeds 50 --output benchmarks/adaptive_relay_50_seeds.json
 ```
 
 The server automatically loads that default benchmark file when it exists. A
@@ -146,9 +148,11 @@ it blocks a locally planned movement, the replay records a
 no such event. This is simulation safety containment, not decentralized proof
 of collision avoidance.
 
-Replay schema `1.4` stores the active mode, labels operator, drone-local, and
-base knowledge explicitly, and includes the short motion intent/reservation
-that was available for distributed deconfliction. Full map snapshots remain
+Replay schema `1.5` stores the active mode and Relay strategy, labels operator,
+drone-local, and base knowledge explicitly, and includes the short motion
+intent/reservation that was available for distributed deconfliction. Relay
+frames also expose the locally selected waypoint, designated Scout, held/active
+state, and achieved communication chain. Full map snapshots remain
 intentionally simple and auditable; future large maps may benefit from delta
 encoding.
 
@@ -170,6 +174,32 @@ drones in every mission, and zero central shield interventions. Mean duration
 changes from 75.10 to 75.30 steps (+0.27%); targeted corridor tests cover vertex,
 edge-swap, wall-occluded proximity, repeated blocking, deterministic replanning,
 and starvation prevention.
+
+### Adaptive Relay role
+
+`--relay-strategy adaptive` is available only with Active Local Knowledge and
+is deliberately opt-in; `off` remains the default. After a sustained outage,
+one drone may temporarily enter `RELAY` when the disconnected peer has
+unacknowledged map or Survivor knowledge. Candidate waypoints are selected and
+replanned exclusively from the Relay drone's local free cells. Each plan must
+predict local line of sight to both base and the last communicated Scout
+position, remain locally reachable, and preserve the configured energy reserve
+plus Relay margin. A bounded role duration and deployment count prevent Relay
+starvation. RTB priority and distributed deconfliction remain in force.
+
+The versioned comparison at
+[`benchmarks/adaptive_relay_50_seeds.json`](benchmarks/adaptive_relay_50_seeds.json)
+runs seeds 0–49 at radio range 8, repeats every adaptive run, and verifies the
+`off` behavior fingerprint. Adaptive Relay completed 25/25 deployments and
+forwarded 4,353 unique per-mission cell positions plus 44 Survivor
+confirmations. Average communication uptime improved from 32.94% to 34.33%
+(+1.40 percentage points), and mean time to first base-known Survivor improved
+slightly from 21.44 to 21.24 steps. The explicit cost was 75.30 to 77.92 mean
+mission steps (+3.48%), 1.83% more combined path, and 1.99% more fleet energy.
+Both variants retained 100% Survivor Recall, safe return in all 50 missions,
+zero collisions, zero timeouts, and zero central Safety-Shield interventions.
+This measurable communication gain passes the benchmark acceptance rule but is
+not sufficient reason to change the default strategy automatically.
 
 ## Verified benchmark
 
@@ -247,10 +277,13 @@ and a local HTTP smoke test.
 - the dashboard is desktop-first; it remains usable at narrow widths but has no
   touch-specific gestures beyond the native range control
 - communication and map synchronization are instantaneous and lossless; there
-  is no delay, bandwidth limit, packet loss, relay role, or behavior adaptation
-- Active Local mode is opt-in and has only a central simulator safety shield;
-  it does not claim fully decentralized collision avoidance
-- no roles, injected failures, dynamic obstacles, ROS 2, hardware integration,
-  or 3D visualization
+  is no delay, bandwidth limit, packet loss, or multi-hop role negotiation
+- Adaptive Relay uses only two drones, freezes the designated Scout briefly,
+  and optimizes a deterministic local benefit heuristic rather than a learned
+  or globally optimal policy
+- Active Local mode is opt-in and retains a central simulator Safety Shield as
+  a final fail-safe; it does not claim real-world decentralized flight safety
+- no persistent role hierarchy, injected failures, dynamic obstacles, ROS 2,
+  hardware integration, or 3D visualization
 
 This is a software simulation and not evidence of real-world flight safety.

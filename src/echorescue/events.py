@@ -35,6 +35,12 @@ class EventType(str, Enum):
     LOCAL_COLLISION_AVOIDED = "local_collision_avoided"
     CORRIDOR_DEADLOCK_DETECTED = "corridor_deadlock_detected"
     DEADLOCK_REPLANNED = "deadlock_replanned"
+    RELAY_ROLE_ASSIGNED = "relay_role_assigned"
+    RELAY_POSITION_SELECTED = "relay_position_selected"
+    RELAY_LINK_ACHIEVED = "relay_link_achieved"
+    RELAY_PAYLOAD_FORWARDED = "relay_payload_forwarded"
+    RELAY_ROLE_RELEASED = "relay_role_released"
+    RELAY_ABORTED_FOR_ENERGY = "relay_aborted_for_energy"
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,6 +51,7 @@ class MissionEvent:
     event_type: EventType
     energy_remaining: float | None = None
     cell_count: int | None = None
+    survivor_count: int | None = None
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -60,6 +67,8 @@ class MissionEvent:
         }
         if self.cell_count is not None:
             payload["cell_count"] = self.cell_count
+        if self.survivor_count is not None:
+            payload["survivor_count"] = self.survivor_count
         return payload
 
 
@@ -109,6 +118,12 @@ class MissionLog:
             EventType.LOCAL_COLLISION_AVOIDED,
             EventType.CORRIDOR_DEADLOCK_DETECTED,
             EventType.DEADLOCK_REPLANNED,
+            EventType.RELAY_ROLE_ASSIGNED,
+            EventType.RELAY_POSITION_SELECTED,
+            EventType.RELAY_LINK_ACHIEVED,
+            EventType.RELAY_PAYLOAD_FORWARDED,
+            EventType.RELAY_ROLE_RELEASED,
+            EventType.RELAY_ABORTED_FOR_ENERGY,
         }:
             key = (event.event_type, event.drone_id, event.step, event.position)
         else:
