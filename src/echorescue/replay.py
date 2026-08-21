@@ -5,6 +5,7 @@ from pathlib import Path
 
 from echorescue.communication import BASE_NODE_ID, CommunicationLink
 from echorescue.config import SimulationConfig
+from echorescue.knowledge import KnowledgeMap
 from echorescue.models import CellState, DroneStatus, Position
 from echorescue.multi_simulation import (
     MultiDroneSimulation,
@@ -12,7 +13,7 @@ from echorescue.multi_simulation import (
 )
 
 
-REPLAY_SCHEMA_VERSION = "1.1"
+REPLAY_SCHEMA_VERSION = "1.3"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -25,6 +26,10 @@ def _position(position: Position) -> list[int]:
 
 
 def _map_rows(simulation: MultiDroneSimulation) -> list[str]:
+    if simulation.knowledge_mode == "local":
+        return _knowledge_rows(
+            simulation.shadow_synchronizer.shared_shadow_map()
+        )
     return [
         "".join(
             CELL_SYMBOLS[
@@ -33,6 +38,16 @@ def _map_rows(simulation: MultiDroneSimulation) -> list[str]:
             for x in range(simulation.config.width)
         )
         for y in range(simulation.config.height)
+    ]
+
+
+def _knowledge_rows(knowledge_map: KnowledgeMap) -> list[str]:
+    return [
+        "".join(
+            CELL_SYMBOLS[knowledge_map.cell_at(Position(x, y))]
+            for x in range(knowledge_map.width)
+        )
+        for y in range(knowledge_map.height)
     ]
 
 
@@ -55,6 +70,7 @@ class ReplayRecorder:
         self._frames: list[dict[str, object]] = []
 
     def capture(self, simulation: MultiDroneSimulation) -> None:
+        shared_shadow_map = simulation.shadow_synchronizer.shared_shadow_map()
         drones = {}
         for drone_id, runtime in sorted(simulation.runtimes.items()):
             path = _remaining_path(runtime)
@@ -80,6 +96,27 @@ class ReplayRecorder:
                     "via_relay": connection.via_relay,
                     "relay_path": list(connection.relay_path),
                 },
+                "knowledge": {
+                    "known_coverage": round(
+                        runtime.local_map.known_coverage, 6
+                    ),
+                    "stale_cells": len(
+                        runtime.local_map.stale_against(shared_shadow_map)
+                    ),
+                    "average_data_age": round(
+                        runtime.local_map.average_data_age(simulation.steps),
+                        3,
+                    ),
+                    "oldest_data_age": runtime.local_map.oldest_data_age(
+                        simulation.steps
+                    ),
+                    "detected_survivors": len(
+                        runtime.detected_survivors
+                    ),
+                    "confirmed_survivors": len(
+                        runtime.confirmed_survivors
+                    ),
+                },
             }
         relay_edges = {
             CommunicationLink.between(first, second)
@@ -101,10 +138,93 @@ class ReplayRecorder:
             communication_links.append(
                 {"from": link.first, "to": link.second, "kind": kind}
             )
+        operator_rows = _map_rows(simulation)
+        base_map = simulation.base_knowledge_map
+        knowledge_maps = {
+            "operator": {
+                "occupancy": operator_rows,
+                "known_coverage": round(
+                    (
+                        shared_shadow_map.known_coverage
+                        if simulation.knowledge_mode == "local"
+                        else simulation.occupancy_map.explored_percent
+                    ),
+                    6,
+                ),
+                "differences_from_shadow": [],
+                "confirmed_survivors": [
+                    _position(position)
+                    for position in sorted(simulation.confirmed_survivors)
+                ],
+                "purpose": "evaluation_aggregate",
+            },
+            **{
+                drone_id: {
+                    "occupancy": _knowledge_rows(runtime.local_map),
+                    "known_coverage": round(
+                        runtime.local_map.known_coverage, 6
+                    ),
+                    "differences_from_shadow": [
+                        _position(position)
+                        for position in runtime.local_map.differs_from(
+                            shared_shadow_map
+                        )
+                    ],
+                    "confirmed_survivors": [
+                        _position(position)
+                        for position in sorted(
+                            runtime.confirmed_survivors
+                            if simulation.knowledge_mode == "local"
+                            else simulation.confirmed_survivors
+                        )
+                    ],
+                    "purpose": "local_decision_knowledge",
+                }
+                for drone_id, runtime in sorted(simulation.runtimes.items())
+            },
+            "base": {
+                "occupancy": (
+                    _knowledge_rows(base_map)
+                    if base_map is not None
+                    else ["?" * simulation.config.width]
+                    * simulation.config.height
+                ),
+                "known_coverage": round(
+                    base_map.known_coverage if base_map is not None else 0.0,
+                    6,
+                ),
+                "differences_from_shadow": [
+                    _position(position)
+                    for position in (
+                        base_map.differs_from(shared_shadow_map)
+                        if base_map is not None
+                        else tuple(
+                            position for position, _ in shared_shadow_map.records
+                        )
+                    )
+                ],
+                "confirmed_survivors": [
+                    _position(position)
+                    for position in sorted(
+                        simulation.confirmed_survivors
+                    )
+                ],
+                "purpose": "base_operational_knowledge",
+            },
+        }
         frame = {
             "step": simulation.steps,
             "drones": drones,
-            "occupancy": _map_rows(simulation),
+            "occupancy": operator_rows,
+            "knowledge_maps": knowledge_maps,
+            "shadow_knowledge": {
+                "shared_coverage": round(
+                    shared_shadow_map.known_coverage, 6
+                ),
+                "map_divergence_between_drones": round(
+                    simulation.shadow_synchronizer.divergence_ratio(), 6
+                ),
+            },
             "confirmed_survivors": [
                 _position(position)
                 for position in sorted(simulation.confirmed_survivors)
@@ -124,7 +244,12 @@ class ReplayRecorder:
                 "links": communication_links,
             },
             "explored_percent": round(
-                simulation.occupancy_map.explored_percent, 3
+                (
+                    shared_shadow_map.known_coverage
+                    if simulation.knowledge_mode == "local"
+                    else simulation.occupancy_map.explored_percent
+                ),
+                3,
             ),
         }
         if self._frames and self._frames[-1]["step"] == simulation.steps:
@@ -150,6 +275,7 @@ class ReplayRecorder:
             "schema_version": REPLAY_SCHEMA_VERSION,
             "mission": {
                 "seed": simulation.config.seed,
+                "knowledge_mode": simulation.knowledge_mode,
                 "configuration": configuration,
             },
             "map": {

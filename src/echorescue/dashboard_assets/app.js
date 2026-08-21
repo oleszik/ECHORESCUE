@@ -12,6 +12,7 @@ const COLORS = {
   radioDirect: "#34d399",
   radioRelay: "#c084fc",
   radioPeer: "#94a3b8",
+  knowledgeGap: "#fb7185",
   textDark: "#071116",
 };
 
@@ -22,21 +23,22 @@ const state = {
   playing: false,
   speed: 1,
   timer: null,
+  mapView: "operator",
 };
 
 const elements = {};
 
 function cacheElements() {
   [
-    "seedValue", "missionStatus", "restartButton", "previousButton", "playButton",
+    "seedValue", "knowledgeMode", "missionStatus", "restartButton", "previousButton", "playButton",
     "playIcon", "playLabel", "nextButton", "timeline", "currentStep", "maxStep",
-    "speedSelect", "missionCanvas", "coverageValue", "eventFeed", "eventCount",
+    "speedSelect", "mapViewSelect", "mapViewTitle", "mapViewPurpose", "missionCanvas", "coverageValue", "eventFeed", "eventCount",
     "resultBadge", "metricRecall", "metricReturned", "metricWalls", "metricDrones",
     "metricSteps", "metricDuplicate", "schemaVersion", "singleSteps", "multiSteps",
     "improvementValue", "benchmarkNote", "benchmarkPanel", "fatalError",
   ].forEach((id) => { elements[id] = document.getElementById(id); });
   [1, 2].forEach((number) => {
-    ["State", "Position", "Energy", "Battery", "Target", "Communication"].forEach((field) => {
+    ["State", "Position", "Energy", "Battery", "Target", "Communication", "Coverage", "Survivors", "DataAge"].forEach((field) => {
       elements[`drone${field}${number}`] = document.getElementById(`drone${field}${number}`);
     });
   });
@@ -66,6 +68,10 @@ function initializeReplay(replay, benchmark) {
   validateReplay(replay);
   state.replay = replay;
   state.benchmark = benchmark;
+  const knowledgeMode = replay.mission.knowledge_mode || replay.mission.configuration?.knowledge_mode || "shared";
+  state.mapView = knowledgeMode === "local" ? "base" : "operator";
+  elements.mapViewSelect.value = state.mapView;
+  elements.knowledgeMode.textContent = knowledgeMode.toUpperCase();
   elements.seedValue.textContent = replay.mission.seed;
   elements.schemaVersion.textContent = replay.schema_version;
   elements.timeline.max = replay.frames.length - 1;
@@ -82,7 +88,7 @@ function setFrame(index) {
   const frame = state.replay.frames[state.frameIndex];
   elements.timeline.value = state.frameIndex;
   elements.currentStep.textContent = frame.step;
-  elements.coverageValue.textContent = `${frame.explored_percent.toFixed(1)}%`;
+  updateMapReadout(frame);
   updateDroneCard(1, frame.drones["drone-1"]);
   updateDroneCard(2, frame.drones["drone-2"]);
   updateStatus(frame);
@@ -98,6 +104,9 @@ function updateDroneCard(number, drone) {
   elements[`droneEnergy${number}`].textContent = `${drone.energy_remaining.toFixed(1)} units`;
   elements[`droneBattery${number}`].style.width = `${Math.max(0, Math.min(100, drone.energy_remaining_percent))}%`;
   elements[`droneTarget${number}`].textContent = drone.target ? `${drone.target[0]}, ${drone.target[1]}` : "—";
+  elements[`droneCoverage${number}`].textContent = `${drone.knowledge.known_coverage.toFixed(1)}%`;
+  elements[`droneSurvivors${number}`].textContent = `${drone.knowledge.confirmed_survivors || 0} confirmed`;
+  elements[`droneDataAge${number}`].textContent = `${drone.knowledge.average_data_age.toFixed(1)} avg · ${drone.knowledge.oldest_data_age} max`;
   const communication = drone.communication;
   const status = elements[`droneCommunication${number}`];
   status.className = "communication-status";
@@ -112,6 +121,24 @@ function updateDroneCard(number, drone) {
     status.textContent = "Disconnected";
     status.classList.add("offline");
   }
+}
+
+function selectedKnowledgeMap(frame) {
+  return frame.knowledge_maps[state.mapView] || frame.knowledge_maps.operator;
+}
+
+function updateMapReadout(frame) {
+  const knowledgeMap = selectedKnowledgeMap(frame);
+  elements.coverageValue.textContent = `${knowledgeMap.known_coverage.toFixed(1)}%`;
+  const labels = {
+    operator: ["Global operator map", "Evaluation aggregate · never used for local decisions"],
+    "drone-1": ["Local map · drone-1", "Decision knowledge held by drone-1"],
+    "drone-2": ["Local map · drone-2", "Decision knowledge held by drone-2"],
+    base: ["Base knowledge", "Operational knowledge received over radio"],
+  };
+  const [title, purpose] = labels[state.mapView] || labels.operator;
+  elements.mapViewTitle.textContent = title;
+  elements.mapViewPurpose.textContent = purpose;
 }
 
 function updateStatus(frame) {
@@ -134,9 +161,22 @@ function eventLabel(type) {
 }
 
 function updateEventFeed() {
+  const knowledgeMode = state.replay.mission.knowledge_mode || "shared";
+  const eventVisible = (event) => {
+    if (knowledgeMode !== "local") return true;
+    if (["survivor_detected", "survivor_confirmed"].includes(event.event_type)) {
+      return state.mapView === event.drone_id;
+    }
+    if (event.event_type === "survivor_knowledge_synchronized") {
+      if (["operator", "base"].includes(state.mapView)) return event.drone_id === "base";
+      return event.drone_id === state.mapView;
+    }
+    return true;
+  };
   const events = state.replay.frames
     .slice(0, state.frameIndex + 1)
     .flatMap((frame) => frame.events.map((event) => ({ ...event, frameStep: frame.step })))
+    .filter(eventVisible)
     .slice(-12)
     .reverse();
   elements.eventFeed.replaceChildren();
@@ -162,7 +202,8 @@ function updateEventFeed() {
     const title = document.createElement("strong");
     title.textContent = eventLabel(event.event_type);
     const detail = document.createElement("span");
-    detail.textContent = `${event.drone_id} · [${event.position.join(", ")}]`;
+    const cells = event.cell_count == null ? "" : ` · ${event.cell_count} cells`;
+    detail.textContent = `${event.drone_id} · [${event.position.join(", ")}]${cells}`;
     copy.append(title, detail);
     item.append(step, node, copy);
     elements.eventFeed.append(item);
@@ -283,15 +324,29 @@ function drawMission() {
   const frame = state.replay.frames[state.frameIndex];
   const geometry = canvasGeometry();
   const { context, ratio, cell, offsetX, offsetY } = geometry;
+  const knowledgeMap = selectedKnowledgeMap(frame);
+  const differences = new Set(
+    knowledgeMap.differences_from_shadow.map((position) => position.join(","))
+  );
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
-  frame.occupancy.forEach((row, y) => {
+  knowledgeMap.occupancy.forEach((row, y) => {
     [...row].forEach((symbol, x) => {
       context.fillStyle = symbol === "?" ? COLORS.unknown : symbol === "." ? COLORS.free : COLORS.occupied;
       context.fillRect(offsetX + x * cell, offsetY + y * cell, cell, cell);
       context.strokeStyle = COLORS.grid;
       context.lineWidth = Math.max(0.6, ratio * 0.55);
       context.strokeRect(offsetX + x * cell, offsetY + y * cell, cell, cell);
+      if (differences.has(`${x},${y}`)) {
+        context.strokeStyle = COLORS.knowledgeGap;
+        context.lineWidth = Math.max(1.2, ratio * 1.4);
+        context.strokeRect(
+          offsetX + x * cell + ratio,
+          offsetY + y * cell + ratio,
+          cell - ratio * 2,
+          cell - ratio * 2,
+        );
+      }
     });
   });
 
@@ -317,7 +372,7 @@ function drawMission() {
   context.fillText("B", baseX, baseY);
   context.restore();
 
-  frame.confirmed_survivors.forEach((position) => {
+  (knowledgeMap.confirmed_survivors || frame.confirmed_survivors).forEach((position) => {
     const [x, y] = cellCenter(position, geometry);
     context.beginPath();
     context.fillStyle = COLORS.survivor;
@@ -399,6 +454,12 @@ function bindControls() {
   elements.speedSelect.addEventListener("change", (event) => {
     state.speed = Number(event.target.value);
     if (state.playing) scheduleNext();
+  });
+  elements.mapViewSelect.addEventListener("change", (event) => {
+    state.mapView = event.target.value;
+    updateMapReadout(state.replay.frames[state.frameIndex]);
+    updateEventFeed();
+    drawMission();
   });
   window.addEventListener("keydown", (event) => {
     if (event.target.matches("input, select, button")) return;

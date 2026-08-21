@@ -88,6 +88,7 @@ class ReplayTests(unittest.TestCase):
             )
             for drone_id, drone in frame["drones"].items():
                 self.assertIn("communication", drone)
+                self.assertIn("knowledge", drone)
                 self.assertEqual(
                     frame["communication"]["nodes"][drone_id],
                     drone["position"],
@@ -96,6 +97,12 @@ class ReplayTests(unittest.TestCase):
                 self.assertIn(link["from"], frame["communication"]["nodes"])
                 self.assertIn(link["to"], frame["communication"]["nodes"])
                 self.assertIn(link["kind"], {"direct_base", "relay", "peer"})
+            self.assertEqual(
+                set(frame["knowledge_maps"]),
+                {"operator", "drone-1", "drone-2", "base"},
+            )
+            for view in frame["knowledge_maps"].values():
+                self.assertEqual(len(view["occupancy"]), self.config.height)
 
     def test_replay_exposes_only_discovered_world_state(self) -> None:
         payload = json.dumps(self.replay, sort_keys=True)
@@ -136,12 +143,43 @@ class ReplayTests(unittest.TestCase):
     def test_final_metrics_match_existing_result_json(self) -> None:
         self.assertEqual(self.replay["metrics"], self.result.to_dict())
 
+    def test_active_local_replay_separates_operator_and_base_knowledge(self) -> None:
+        replay = generate_replay(
+            SimulationConfig(
+                seed=7,
+                drone_count=2,
+                communication_range=8,
+                knowledge_mode="local",
+            )
+        )
+
+        self.assertEqual(replay["mission"]["knowledge_mode"], "local")
+        for frame in replay["frames"]:
+            maps = frame["knowledge_maps"]
+            self.assertEqual(
+                maps["operator"]["purpose"], "evaluation_aggregate"
+            )
+            self.assertEqual(
+                maps["base"]["purpose"], "base_operational_knowledge"
+            )
+            self.assertEqual(
+                frame["confirmed_survivors"],
+                maps["base"]["confirmed_survivors"],
+            )
+            self.assertEqual(
+                maps["operator"]["confirmed_survivors"],
+                maps["base"]["confirmed_survivors"],
+            )
+
 
 class DashboardAndBenchmarkTests(unittest.TestCase):
     def test_dashboard_assets_and_versioned_artifacts_are_present(self) -> None:
         for name in ("index.html", "styles.css", "app.js"):
             self.assertTrue((ASSET_DIRECTORY / name).is_file())
         replay_path = REPOSITORY_ROOT / "replays" / "seed_7.json"
+        local_replay_path = (
+            REPOSITORY_ROOT / "replays" / "seed_7_local.json"
+        )
         benchmark_path = (
             REPOSITORY_ROOT / "benchmarks" / "two_drone_50_seeds.json"
         )
@@ -151,6 +189,11 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
             ],
             REPLAY_SCHEMA_VERSION,
         )
+        local_replay = json.loads(
+            local_replay_path.read_text(encoding="utf-8")
+        )
+        self.assertEqual(local_replay["schema_version"], REPLAY_SCHEMA_VERSION)
+        self.assertEqual(local_replay["mission"]["knowledge_mode"], "local")
         self.assertEqual(
             json.loads(benchmark_path.read_text(encoding="utf-8"))[
                 "schema_version"
@@ -197,6 +240,10 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
                 self.assertIn("drawMission", javascript)
                 self.assertIn("drawCommunicationLinks", javascript)
                 self.assertIn("droneCommunication1", html)
+                self.assertIn("mapViewSelect", html)
+                self.assertIn("knowledgeMode", html)
+                self.assertIn("selectedKnowledgeMap", javascript)
+                self.assertIn("evaluation aggregate", javascript.lower())
                 self.assertIn(".dashboard-grid", stylesheet)
                 self.assertEqual(
                     replay["schema_version"], REPLAY_SCHEMA_VERSION

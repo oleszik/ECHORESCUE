@@ -22,6 +22,7 @@
           </div>
         </div>
         <div class="header-meta">
+          <div class="mode-chip"><span>Knowledge</span><strong id="knowledgeMode">—</strong></div>
           <div class="seed-chip"><span>Seed</span><strong id="seedValue">—</strong></div>
           <div class="status-pill loading" id="missionStatus">
             <span class="status-dot"></span><span>Loading replay</span>
@@ -61,9 +62,20 @@
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Operator view</p>
-              <h2>Shared occupancy map</h2>
+              <h2 id="mapViewTitle">Shared occupancy map</h2>
+              <p class="map-purpose" id="mapViewPurpose">Evaluation aggregate</p>
             </div>
-            <div class="coverage-readout"><span id="coverageValue">0.0%</span><small>known</small></div>
+            <div class="map-view-controls">
+              <label>Map view
+                <select id="mapViewSelect" aria-label="Map knowledge view">
+                  <option value="operator">Shared operator map</option>
+                  <option value="drone-1">Local map · drone-1</option>
+                  <option value="drone-2">Local map · drone-2</option>
+                  <option value="base">Base knowledge</option>
+                </select>
+              </label>
+              <div class="coverage-readout"><span id="coverageValue">0.0%</span><small>known</small></div>
+            </div>
           </div>
           <div class="canvas-wrap">
             <canvas id="missionCanvas" aria-label="Mission occupancy map replay"></canvas>
@@ -74,6 +86,7 @@
               <span><i class="swatch survivor"></i>Confirmed</span>
               <span><i class="swatch direct-link"></i>Direct radio</span>
               <span><i class="swatch relay-link"></i>Relay radio</span>
+              <span><i class="swatch knowledge-gap"></i>Knowledge difference</span>
             </div>
           </div>
         </article>
@@ -88,6 +101,9 @@
             <div class="battery-track"><span id="droneBattery1"></span></div>
             <div class="drone-detail"><span>Current target</span><strong id="droneTarget1">—</strong></div>
             <div class="drone-detail"><span>Communication</span><strong id="droneCommunication1" class="communication-status">—</strong></div>
+            <div class="drone-detail"><span>Local coverage</span><strong id="droneCoverage1">—</strong></div>
+            <div class="drone-detail"><span>Local survivors</span><strong id="droneSurvivors1">—</strong></div>
+            <div class="drone-detail"><span>Data age</span><strong id="droneDataAge1">—</strong></div>
           </section>
 
           <section class="drone-card panel drone-two" id="droneCard2">
@@ -99,6 +115,9 @@
             <div class="battery-track"><span id="droneBattery2"></span></div>
             <div class="drone-detail"><span>Current target</span><strong id="droneTarget2">—</strong></div>
             <div class="drone-detail"><span>Communication</span><strong id="droneCommunication2" class="communication-status">—</strong></div>
+            <div class="drone-detail"><span>Local coverage</span><strong id="droneCoverage2">—</strong></div>
+            <div class="drone-detail"><span>Local survivors</span><strong id="droneSurvivors2">—</strong></div>
+            <div class="drone-detail"><span>Data age</span><strong id="droneDataAge2">—</strong></div>
           </section>
 
           <section class="event-panel panel">

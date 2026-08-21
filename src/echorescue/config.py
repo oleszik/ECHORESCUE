@@ -21,6 +21,9 @@ class SimulationConfig:
     drone_start_positions: tuple[tuple[int, int], ...] | None = None
     wait_energy_cost: float = 0.05
     communication_range: int = 8
+    knowledge_mode: str = "shared"
+    local_map_shadow_mode: bool | None = None
+    base_knowledge_store_enabled: bool = True
     max_steps: int = 1_000
 
     def __post_init__(self) -> None:
@@ -64,5 +67,13 @@ class SimulationConfig:
             raise ValueError("wait_energy_cost must not be negative")
         if self.communication_range < 1:
             raise ValueError("communication_range must be positive")
+        if self.knowledge_mode not in {"shared", "shadow", "local"}:
+            raise ValueError("knowledge_mode must be shared, shadow, or local")
         if self.max_steps < 1:
             raise ValueError("max_steps must be positive")
+
+    @property
+    def effective_knowledge_mode(self) -> str:
+        if self.local_map_shadow_mode is None:
+            return self.knowledge_mode
+        return "shadow" if self.local_map_shadow_mode else "shared"

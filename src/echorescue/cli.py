@@ -29,6 +29,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--energy-reserve", type=float, default=20.0)
     parser.add_argument("--wait-energy", type=float, default=0.05)
     parser.add_argument("--communication-range", type=int, default=8)
+    parser.add_argument(
+        "--knowledge-mode",
+        choices=("shared", "shadow", "local"),
+        default="shared",
+    )
+    parser.add_argument("--disable-base-knowledge-store", action="store_true")
     parser.add_argument("--max-steps", type=int, default=1_000)
     parser.add_argument(
         "--obstacle-density", type=float, default=0.08, metavar="FRACTION"
@@ -68,6 +74,8 @@ def main(argv: list[str] | None = None) -> None:
         drone_start_positions=start_positions,
         wait_energy_cost=args.wait_energy,
         communication_range=args.communication_range,
+        knowledge_mode=args.knowledge_mode,
+        base_knowledge_store_enabled=not args.disable_base_knowledge_store,
         max_steps=args.max_steps,
     )
     simulation = (

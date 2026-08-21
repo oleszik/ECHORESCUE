@@ -46,6 +46,26 @@ class MissionLogTests(unittest.TestCase):
         self.assertFalse(log.record(confirmed))
         self.assertEqual(log.events, (detected, confirmed))
 
+    def test_local_survivor_events_are_deduplicated_per_drone(self) -> None:
+        log = MissionLog()
+        position = Position(4, 3)
+        first = MissionEvent(
+            position,
+            step=5,
+            drone_id="drone-1",
+            event_type=EventType.SURVIVOR_DETECTED,
+        )
+        second = MissionEvent(
+            position,
+            step=8,
+            drone_id="drone-2",
+            event_type=EventType.SURVIVOR_DETECTED,
+        )
+
+        self.assertTrue(log.record(first))
+        self.assertTrue(log.record(second))
+        self.assertEqual(log.events, (first, second))
+
     def test_state_transition_events_are_deduplicated_per_drone(self) -> None:
         log = MissionLog()
         first = MissionEvent(

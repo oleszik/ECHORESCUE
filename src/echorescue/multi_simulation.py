@@ -15,6 +15,8 @@ from echorescue.coordination import (
 from echorescue.energy import Battery
 from echorescue.environment import GridWorld
 from echorescue.events import EventType, MissionEvent, MissionLog
+from echorescue.knowledge import KnowledgeMap
+from echorescue.map_sync import ShadowMapSynchronizer
 from echorescue.mapping import OccupancyMap
 from echorescue.models import Drone, DroneStatus, Position
 from echorescue.planning import astar
@@ -34,6 +36,7 @@ TERMINAL_STATUSES = {
 class DroneRuntime:
     drone: Drone
     battery: Battery
+    local_map: KnowledgeMap
     active_frontier_target: Position | None = None
     planned_path: tuple[Position, ...] = ()
     current_return_path: tuple[Position, ...] = ()
@@ -45,6 +48,8 @@ class DroneRuntime:
     frontier_assignments: int = 0
     position_trace: list[Position] = field(default_factory=list)
     survivor_observations: dict[Position, int] = field(default_factory=dict)
+    detected_survivors: set[Position] = field(default_factory=set)
+    confirmed_survivors: set[Position] = field(default_factory=set)
     last_survivor_observation_step: dict[Position, int] = field(
         default_factory=dict
     )
@@ -58,6 +63,7 @@ class DroneRuntime:
 @dataclass(frozen=True, slots=True)
 class MultiSimulationResult:
     seed: int
+    knowledge_mode: str
     completed: bool
     termination_reason: str
     steps: int
@@ -88,12 +94,34 @@ class MultiSimulationResult:
     relay_uptime_by_drone: dict[str, float]
     communication_outages_by_drone: dict[str, int]
     longest_outage_by_drone: dict[str, int]
+    local_known_coverage_by_drone: dict[str, float]
+    base_known_coverage: float
+    shared_shadow_coverage: float
+    map_divergence_between_drones: float
+    peak_map_divergence_between_drones: float
+    stale_cells_by_drone: dict[str, int]
+    cells_uploaded_by_drone: dict[str, int]
+    cells_received_by_drone: dict[str, int]
+    map_sync_events: int
+    time_to_map_convergence: int | None
+    survivor_recall_at_base: float
+    local_survivors_detected_by_drone: dict[str, int]
+    local_survivors_confirmed_by_drone: dict[str, int]
+    base_survivors_detected: int
+    base_survivors_confirmed: int
+    safety_shield_interventions: int
+    redundant_frontier_assignments: int
+    targets_discarded_after_reconnect: int
+    local_replanning_by_drone: dict[str, int]
+    unique_cells_transferred: int
+    semantic_cell_changes_transferred: int
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
     def to_dict(self) -> dict[str, object]:
         return {
             "seed": self.seed,
+            "knowledge_mode": self.knowledge_mode,
             "completed": self.completed,
             "termination_reason": self.termination_reason,
             "steps": self.steps,
@@ -152,6 +180,50 @@ class MultiSimulationResult:
                 self.communication_outages_by_drone
             ),
             "longest_outage_by_drone": dict(self.longest_outage_by_drone),
+            "local_known_coverage_by_drone": {
+                drone_id: round(coverage, 6)
+                for drone_id, coverage in (
+                    self.local_known_coverage_by_drone.items()
+                )
+            },
+            "base_known_coverage": round(self.base_known_coverage, 6),
+            "shared_shadow_coverage": round(self.shared_shadow_coverage, 6),
+            "map_divergence_between_drones": round(
+                self.map_divergence_between_drones, 6
+            ),
+            "peak_map_divergence_between_drones": round(
+                self.peak_map_divergence_between_drones, 6
+            ),
+            "stale_cells_by_drone": dict(self.stale_cells_by_drone),
+            "cells_uploaded_by_drone": dict(self.cells_uploaded_by_drone),
+            "cells_received_by_drone": dict(self.cells_received_by_drone),
+            "map_sync_events": self.map_sync_events,
+            "time_to_map_convergence": self.time_to_map_convergence,
+            "survivor_recall_at_base": round(
+                self.survivor_recall_at_base, 6
+            ),
+            "local_survivors_detected_by_drone": dict(
+                self.local_survivors_detected_by_drone
+            ),
+            "local_survivors_confirmed_by_drone": dict(
+                self.local_survivors_confirmed_by_drone
+            ),
+            "base_survivors_detected": self.base_survivors_detected,
+            "base_survivors_confirmed": self.base_survivors_confirmed,
+            "safety_shield_interventions": self.safety_shield_interventions,
+            "redundant_frontier_assignments": (
+                self.redundant_frontier_assignments
+            ),
+            "targets_discarded_after_reconnect": (
+                self.targets_discarded_after_reconnect
+            ),
+            "local_replanning_by_drone": dict(
+                self.local_replanning_by_drone
+            ),
+            "unique_cells_transferred": self.unique_cells_transferred,
+            "semantic_cell_changes_transferred": (
+                self.semantic_cell_changes_transferred
+            ),
             "mission_success": self.mission_success,
             "mission_events": [event.to_dict() for event in self.mission_events],
         }
@@ -167,6 +239,7 @@ class MultiDroneSimulation:
         if config.drone_count != 2:
             raise ValueError("MultiDroneSimulation requires drone_count=2")
         self.config = config
+        self.knowledge_mode = config.effective_knowledge_mode
         self.world = GridWorld.generate(config)
         self.occupancy_map = OccupancyMap(config.width, config.height)
         self.sensor = DistanceSensor(config.sensor_range)
@@ -184,6 +257,8 @@ class MultiDroneSimulation:
         self._exploration_complete = False
         self._detected_survivors: set[Position] = set()
         self._confirmed_survivors: set[Position] = set()
+        self._base_detected_survivors: set[Position] = set()
+        self._base_confirmed_survivors: set[Position] = set()
         self._visited_by_cell: dict[Position, set[str]] = {}
         self.communication_snapshot: CommunicationSnapshot
         self._communication_samples = 0
@@ -193,6 +268,21 @@ class MultiDroneSimulation:
         self._communication_outages: dict[str, int] = {}
         self._current_outage_steps: dict[str, int] = {}
         self._longest_outage_steps: dict[str, int] = {}
+        self._cells_uploaded_by_drone: dict[str, int] = {}
+        self._cells_received_by_drone: dict[str, int] = {}
+        self._map_sync_events = 0
+        self._time_to_map_convergence: int | None = None
+        self._peak_map_divergence = 0.0
+        self._shadow_maps_converged = True
+        self._map_sync_session_active = False
+        self._unique_cells_transferred: set[Position] = set()
+        self._semantic_cell_changes_transferred = 0
+        self.safety_shield_interventions = 0
+        self.redundant_frontier_assignments = 0
+        self.targets_discarded_after_reconnect = 0
+        self._local_replanning_by_drone: dict[str, int] = {}
+        self._peer_connected_at_last_allocation = True
+        self._pending_reconnect_targets: set[str] = set()
 
         starts = self._resolve_start_positions()
         self.runtimes: dict[str, DroneRuntime] = {}
@@ -205,17 +295,35 @@ class MultiDroneSimulation:
                     movement_cost=config.movement_energy_cost,
                     sensor_cost=config.sensor_energy_cost,
                 ),
+                local_map=KnowledgeMap(config.width, config.height),
                 position_trace=[position],
             )
             self.runtimes[drone_id] = runtime
             if position != self.world.base:
                 self._visited_by_cell.setdefault(position, set()).add(drone_id)
 
+        self.base_knowledge_map = (
+            KnowledgeMap(config.width, config.height)
+            if config.base_knowledge_store_enabled
+            else None
+        )
+        self.shadow_synchronizer = ShadowMapSynchronizer(
+            {
+                drone_id: runtime.local_map
+                for drone_id, runtime in self.runtimes.items()
+            },
+            self.base_knowledge_map,
+        )
+
         for runtime in self._ordered_runtimes():
             self._sense(runtime)
             if not runtime.terminal:
                 self._refresh_return_estimate(runtime)
         self._sample_communication(record_events=False)
+        self._sync_shadow_maps()
+        self._sync_survivor_knowledge()
+        if self.knowledge_mode == "local":
+            self._record_base_event(EventType.KNOWLEDGE_MODE_ACTIVATED)
         self._update_completion()
 
     @property
@@ -224,11 +332,19 @@ class MultiDroneSimulation:
 
     @property
     def confirmed_survivors(self) -> frozenset[Position]:
+        if self.knowledge_mode == "local":
+            return frozenset(self._base_confirmed_survivors)
         return frozenset(self._confirmed_survivors)
 
     @property
     def detected_survivors(self) -> frozenset[Position]:
+        if self.knowledge_mode == "local":
+            return frozenset(self._base_detected_survivors)
         return frozenset(self._detected_survivors)
+
+    @property
+    def knowledge_sync_enabled(self) -> bool:
+        return self.knowledge_mode in {"shadow", "local"}
 
     def _ordered_runtimes(self) -> tuple[DroneRuntime, ...]:
         return tuple(self.runtimes[key] for key in sorted(self.runtimes))
@@ -245,15 +361,37 @@ class MultiDroneSimulation:
         return starts[0], starts[1]
 
     def _other_blockers(self, runtime: DroneRuntime) -> set[Position]:
+        visible_ids = None
+        if self.knowledge_mode == "local":
+            visible_ids = set(self._communication_component(runtime.drone.identifier))
         return {
             other.drone.position
             for other in self._ordered_runtimes()
             if (
                 other.drone.identifier != runtime.drone.identifier
+                and (
+                    visible_ids is None
+                    or other.drone.identifier in visible_ids
+                )
                 and other.drone.status is not DroneStatus.LANDED
                 and other.drone.position != self.world.base
             )
         }
+
+    def _decision_map(self, runtime: DroneRuntime) -> object:
+        if self.knowledge_mode == "local":
+            return runtime.local_map
+        return self.occupancy_map
+
+    def _communication_component(self, node_id: str) -> tuple[str, ...]:
+        if not hasattr(self, "communication_snapshot"):
+            return (node_id,)
+        for component in self.shadow_synchronizer.connected_components(
+            self.communication_snapshot
+        ):
+            if node_id in component:
+                return component
+        return (node_id,)
 
     def _known_return_path(
         self,
@@ -263,11 +401,12 @@ class MultiDroneSimulation:
     ) -> tuple[Position, ...] | None:
         start = origin or runtime.drone.position
         blocked = self._other_blockers(runtime) if avoid_other_drones else set()
+        decision_map = self._decision_map(runtime)
 
         def passable(position: Position) -> bool:
             if position == self.world.base:
-                return self.occupancy_map.is_known_free(position)
-            return self.occupancy_map.is_known_free(position) and (
+                return decision_map.is_known_free(position)
+            return decision_map.is_known_free(position) and (
                 position == start or position not in blocked
             )
 
@@ -286,12 +425,13 @@ class MultiDroneSimulation:
         self, runtime: DroneRuntime, path: tuple[Position, ...]
     ) -> bool:
         blocked = self._other_blockers(runtime)
+        decision_map = self._decision_map(runtime)
         return (
             bool(path)
             and path[0] == runtime.drone.position
             and path[-1] == self.world.base
             and all(
-                self.occupancy_map.is_known_free(position) for position in path
+                decision_map.is_known_free(position) for position in path
             )
             and (len(path) == 1 or path[1] not in blocked)
             and all(
@@ -305,6 +445,7 @@ class MultiDroneSimulation:
         runtime: DroneRuntime,
         event_type: EventType,
         position: Position | None = None,
+        cell_count: int | None = None,
     ) -> None:
         self.mission_log.record(
             MissionEvent(
@@ -313,6 +454,22 @@ class MultiDroneSimulation:
                 drone_id=runtime.drone.identifier,
                 event_type=event_type,
                 energy_remaining=runtime.battery.remaining,
+                cell_count=cell_count,
+            )
+        )
+
+    def _record_base_event(
+        self,
+        event_type: EventType,
+        cell_count: int | None = None,
+    ) -> None:
+        self.mission_log.record(
+            MissionEvent(
+                position=self.world.base,
+                step=self.steps,
+                drone_id="base",
+                event_type=event_type,
+                cell_count=cell_count,
             )
         )
 
@@ -330,6 +487,29 @@ class MultiDroneSimulation:
         )
         self.communication_snapshot = snapshot
         self._communication_samples += 1
+
+        if self.knowledge_mode == "local" and previous is not None:
+            def peers_share_component(candidate: CommunicationSnapshot) -> bool:
+                return any(
+                    {"drone-1", "drone-2"}.issubset(component)
+                    for component in self.shadow_synchronizer.connected_components(
+                        candidate
+                    )
+                )
+
+            if (
+                not peers_share_component(previous)
+                and peers_share_component(snapshot)
+            ):
+                for runtime in self._ordered_runtimes():
+                    target = runtime.active_frontier_target
+                    if (
+                        target is not None
+                        and target in runtime.local_map.frontiers()
+                    ):
+                        self._pending_reconnect_targets.add(
+                            runtime.drone.identifier
+                        )
 
         for runtime in self._ordered_runtimes():
             drone_id = runtime.drone.identifier
@@ -378,6 +558,113 @@ class MultiDroneSimulation:
             elif old_connection.via_relay and not connection.via_relay:
                 self._record_event(runtime, EventType.RELAY_LINK_LOST)
 
+    def _sync_shadow_maps(self) -> None:
+        if not self.knowledge_sync_enabled:
+            return
+
+        previous_converged = self._shadow_maps_converged
+        self._peak_map_divergence = max(
+            self._peak_map_divergence,
+            self.shadow_synchronizer.divergence_ratio(),
+        )
+        report = self.shadow_synchronizer.sync(self.communication_snapshot)
+        current_converged = self.shadow_synchronizer.maps_converged()
+        self._peak_map_divergence = max(
+            self._peak_map_divergence,
+            self.shadow_synchronizer.divergence_ratio(),
+        )
+
+        if not report.sync_available:
+            self._map_sync_session_active = False
+        if report.transfer_occurred:
+            self._map_sync_events += 1
+            self._unique_cells_transferred.update(
+                report.transferred_positions
+            )
+            self._semantic_cell_changes_transferred += (
+                report.semantic_cell_changes
+            )
+            if not self._map_sync_session_active:
+                self._record_base_event(EventType.MAP_SYNC_STARTED)
+            self._map_sync_session_active = True
+            for runtime in self._ordered_runtimes():
+                drone_id = runtime.drone.identifier
+                uploaded = report.uploaded_by_drone[drone_id]
+                received = report.received_by_drone[drone_id]
+                self._cells_uploaded_by_drone[drone_id] = (
+                    self._cells_uploaded_by_drone.get(drone_id, 0) + uploaded
+                )
+                self._cells_received_by_drone[drone_id] = (
+                    self._cells_received_by_drone.get(drone_id, 0) + received
+                )
+                if uploaded:
+                    self._record_event(
+                        runtime,
+                        EventType.MAP_CELLS_UPLOADED,
+                        cell_count=uploaded,
+                    )
+                if received:
+                    self._record_event(
+                        runtime,
+                        EventType.MAP_CELLS_RECEIVED,
+                        cell_count=received,
+                    )
+            if not previous_converged and current_converged:
+                self._record_base_event(EventType.MAP_CONVERGED)
+                if self._time_to_map_convergence is None:
+                    self._time_to_map_convergence = self.steps
+
+        self._shadow_maps_converged = current_converged
+
+    def _sync_survivor_knowledge(self) -> None:
+        if self.knowledge_mode != "local":
+            return
+        for component in self.shadow_synchronizer.connected_components(
+            self.communication_snapshot
+        ):
+            drone_ids = [
+                node_id for node_id in component if node_id in self.runtimes
+            ]
+            include_base = "base" in component
+            if len(drone_ids) + int(include_base) < 2:
+                continue
+            detected = set()
+            confirmed = set()
+            for drone_id in drone_ids:
+                runtime = self.runtimes[drone_id]
+                detected.update(runtime.detected_survivors)
+                confirmed.update(runtime.confirmed_survivors)
+            if include_base:
+                detected.update(self._base_detected_survivors)
+                confirmed.update(self._base_confirmed_survivors)
+
+            for drone_id in drone_ids:
+                runtime = self.runtimes[drone_id]
+                new_confirmed = confirmed - runtime.confirmed_survivors
+                runtime.detected_survivors.update(detected)
+                runtime.confirmed_survivors.update(confirmed)
+                for position in sorted(new_confirmed):
+                    self._record_event(
+                        runtime,
+                        EventType.SURVIVOR_KNOWLEDGE_SYNCHRONIZED,
+                        position,
+                    )
+            if include_base:
+                new_base_confirmed = confirmed - self._base_confirmed_survivors
+                self._base_detected_survivors.update(detected)
+                self._base_confirmed_survivors.update(confirmed)
+                for position in sorted(new_base_confirmed):
+                    self.mission_log.record(
+                        MissionEvent(
+                            position=position,
+                            step=self.steps,
+                            drone_id="base",
+                            event_type=(
+                                EventType.SURVIVOR_KNOWLEDGE_SYNCHRONIZED
+                            ),
+                        )
+                    )
+
     def _sense(self, runtime: DroneRuntime) -> None:
         if runtime.terminal:
             return
@@ -385,7 +672,14 @@ class MultiDroneSimulation:
             self._fail_energy(runtime)
             return
         observations = self.sensor.observe(self.world, runtime.drone.position)
-        self.occupancy_map.update(observations)
+        if self.knowledge_sync_enabled:
+            runtime.local_map.observe(
+                observations,
+                step=self.steps,
+                source_id=runtime.drone.identifier,
+            )
+        if self.knowledge_mode != "local":
+            self.occupancy_map.update(observations)
         self._observe_survivors(runtime)
 
     def _observe_survivors(self, runtime: DroneRuntime) -> None:
@@ -396,6 +690,23 @@ class MultiDroneSimulation:
             runtime.last_survivor_observation_step[position] = self.steps
             count = runtime.survivor_observations.get(position, 0) + 1
             runtime.survivor_observations[position] = count
+            if self.knowledge_mode == "local":
+                if position not in runtime.detected_survivors:
+                    runtime.detected_survivors.add(position)
+                    self._detected_survivors.add(position)
+                    self._record_event(
+                        runtime, EventType.SURVIVOR_DETECTED, position
+                    )
+                if (
+                    count >= self.config.survivor_confirmation_observations
+                    and position not in runtime.confirmed_survivors
+                ):
+                    runtime.confirmed_survivors.add(position)
+                    self._confirmed_survivors.add(position)
+                    self._record_event(
+                        runtime, EventType.SURVIVOR_CONFIRMED, position
+                    )
+                continue
             if position not in self._detected_survivors:
                 self._detected_survivors.add(position)
                 self._record_event(runtime, EventType.SURVIVOR_DETECTED, position)
@@ -407,6 +718,8 @@ class MultiDroneSimulation:
                 self._record_event(runtime, EventType.SURVIVOR_CONFIRMED, position)
 
     def _objectives_complete(self) -> bool:
+        if self.knowledge_mode == "local":
+            return False
         return len(self._confirmed_survivors) == len(self.world.survivors)
 
     def _fail_energy(self, runtime: DroneRuntime) -> None:
@@ -469,7 +782,10 @@ class MultiDroneSimulation:
             )
             if runtime.battery.remaining + 1e-9 < required:
                 if runtime.drone.position == self.world.base:
-                    if self._objectives_complete():
+                    if (
+                        self.knowledge_mode == "local"
+                        or self._objectives_complete()
+                    ):
                         self._start_return(runtime, return_path)
                     else:
                         self._fail_energy(runtime)
@@ -477,6 +793,8 @@ class MultiDroneSimulation:
                     self._start_return(runtime, return_path)
 
     def _allocate_frontiers(self) -> dict[str, FrontierAssignment]:
+        if self.knowledge_mode == "local":
+            return self._allocate_local_frontiers()
         explorers = {
             runtime.drone.identifier: runtime.drone.position
             for runtime in self._ordered_runtimes()
@@ -526,6 +844,131 @@ class MultiDroneSimulation:
                 )
                 runtime.frontier_assignments += 1
                 self._record_event(runtime, event_type, assignment.target)
+        return assignments
+
+    def _allocate_local_frontiers(self) -> dict[str, FrontierAssignment]:
+        explorers = {
+            runtime.drone.identifier: runtime.drone.position
+            for runtime in self._ordered_runtimes()
+            if runtime.drone.status is DroneStatus.EXPLORE
+        }
+        if not explorers:
+            return {}
+
+        components = []
+        for component in self.shadow_synchronizer.connected_components(
+            self.communication_snapshot
+        ):
+            members = tuple(
+                drone_id for drone_id in component if drone_id in explorers
+            )
+            if members:
+                components.append(members)
+        peer_connected = any(len(component) == 2 for component in components)
+        assignments: dict[str, FrontierAssignment] = {}
+        changed_targets: set[str] = set()
+        any_frontiers = False
+
+        for component in components:
+            # Synchronization has already made every radio-connected member's
+            # store identical. Coordination therefore reads one actual local
+            # map, never the global evaluation map or an implicit merged view.
+            component_map = self.runtimes[min(component)].local_map
+            frontiers = component_map.frontiers()
+            any_frontiers = any_frontiers or bool(frontiers)
+            frontier_set = set(frontiers)
+            current_targets = {
+                drone_id: self.runtimes[drone_id].active_frontier_target
+                for drone_id in component
+            }
+
+            claimed_targets: set[Position] = set()
+            for drone_id in sorted(component):
+                runtime = self.runtimes[drone_id]
+                target = runtime.active_frontier_target
+                stale = (
+                    target is not None
+                    and (
+                        target not in frontier_set
+                        or target in claimed_targets
+                    )
+                )
+                if stale:
+                    self._record_event(
+                        runtime, EventType.STALE_TARGET_DISCARDED, target
+                    )
+                    runtime.active_frontier_target = None
+                    runtime.planned_path = ()
+                    current_targets[drone_id] = None
+                    self._local_replanning_by_drone[drone_id] = (
+                        self._local_replanning_by_drone.get(drone_id, 0) + 1
+                    )
+                    if (
+                        drone_id in self._pending_reconnect_targets
+                        or target in claimed_targets
+                    ):
+                        self.targets_discarded_after_reconnect += 1
+                elif target is not None:
+                    claimed_targets.add(target)
+
+            if not frontiers:
+                for drone_id in component:
+                    runtime = self.runtimes[drone_id]
+                    path = self._known_return_path(runtime)
+                    if path is None:
+                        path = self._known_return_path(
+                            runtime, avoid_other_drones=False
+                        )
+                    if path is None:
+                        self._fail_return_path(runtime)
+                    else:
+                        self._start_return(runtime, path)
+                continue
+
+            component_assignments = assign_frontiers(
+                {drone_id: explorers[drone_id] for drone_id in component},
+                frontiers,
+                component_map,
+                current_targets,
+            )
+            assignments.update(component_assignments)
+            for drone_id in component:
+                runtime = self.runtimes[drone_id]
+                old_target = runtime.active_frontier_target
+                assignment = component_assignments.get(drone_id)
+                new_target = assignment.target if assignment is not None else None
+                runtime.active_frontier_target = new_target
+                runtime.planned_path = (
+                    assignment.path if assignment is not None else ()
+                )
+                if new_target is not None and new_target != old_target:
+                    if old_target is not None:
+                        self._local_replanning_by_drone[drone_id] = (
+                            self._local_replanning_by_drone.get(drone_id, 0) + 1
+                        )
+                    runtime.frontier_assignments += 1
+                    changed_targets.add(drone_id)
+                    self._record_event(
+                        runtime,
+                        EventType.LOCAL_FRONTIER_SELECTED,
+                        new_target,
+                    )
+
+        if not peer_connected:
+            targets: dict[Position, list[str]] = {}
+            for drone_id, runtime in self.runtimes.items():
+                if runtime.active_frontier_target is not None:
+                    targets.setdefault(
+                        runtime.active_frontier_target, []
+                    ).append(drone_id)
+            for drone_ids in targets.values():
+                if len(drone_ids) > 1 and changed_targets.intersection(drone_ids):
+                    self.redundant_frontier_assignments += len(drone_ids) - 1
+
+        self._peer_connected_at_last_allocation = peer_connected
+        self._pending_reconnect_targets.clear()
+        if not any_frontiers:
+            self._exploration_complete = True
         return assignments
 
     def _plan_return_intention(self, runtime: DroneRuntime) -> Position:
@@ -586,7 +1029,11 @@ class MultiDroneSimulation:
             if current_return is None:
                 self._fail_return_path(runtime)
                 return runtime.drone.position
-            if runtime.drone.position == self.world.base and not self._objectives_complete():
+            if (
+                runtime.drone.position == self.world.base
+                and self.knowledge_mode != "local"
+                and not self._objectives_complete()
+            ):
                 self._fail_energy(runtime)
                 return runtime.drone.position
             self._start_return(runtime, current_return)
@@ -629,7 +1076,13 @@ class MultiDroneSimulation:
         }
         for drone_id in sorted(conflict_waiters):
             runtime = self.runtimes[drone_id]
-            self._record_event(runtime, EventType.MOVEMENT_CONFLICT)
+            if self.knowledge_mode == "local":
+                self.safety_shield_interventions += 1
+                self._record_event(
+                    runtime, EventType.SAFETY_SHIELD_INTERVENTION
+                )
+            else:
+                self._record_event(runtime, EventType.MOVEMENT_CONFLICT)
             if runtime.drone.status is DroneStatus.RETURN_HOME:
                 runtime.return_replan_required = True
 
@@ -641,7 +1094,7 @@ class MultiDroneSimulation:
             if destination == runtime.drone.position:
                 waiting.add(drone_id)
                 continue
-            if not self.occupancy_map.is_known_free(destination):
+            if not self._decision_map(runtime).is_known_free(destination):
                 self._fail_return_path(runtime)
                 continue
             if not self.world.is_free(destination):
@@ -748,6 +1201,8 @@ class MultiDroneSimulation:
         self._execute_intentions(intentions)
         if self.steps != previous_step:
             self._sample_communication()
+            self._sync_shadow_maps()
+            self._sync_survivor_knowledge()
         self._update_completion()
         return not self.completed
 
@@ -768,8 +1223,18 @@ class MultiDroneSimulation:
             if event.event_type is EventType.SURVIVOR_DETECTED
         ]
         survivors_total = len(self.world.survivors)
+        reported_detected = (
+            self._base_detected_survivors
+            if self.knowledge_mode == "local"
+            else self._detected_survivors
+        )
+        reported_confirmed = (
+            self._base_confirmed_survivors
+            if self.knowledge_mode == "local"
+            else self._confirmed_survivors
+        )
         survivor_recall = (
-            len(self._confirmed_survivors) / survivors_total
+            len(reported_confirmed) / survivors_total
             if survivors_total
             else 1.0
         )
@@ -793,22 +1258,34 @@ class MultiDroneSimulation:
             else 0.0
         )
         mission_success = (
-            len(self._confirmed_survivors) == survivors_total
+            len(reported_confirmed) == survivors_total
             and self.collisions == 0
             and self.drone_drone_collisions == 0
             and drones_returned == len(self.runtimes)
         )
+        shared_shadow_map = self.shadow_synchronizer.shared_shadow_map()
+        evaluation_known_cells = (
+            shared_shadow_map.known_cell_count
+            if self.knowledge_mode == "local"
+            else self.occupancy_map.known_cell_count
+        )
+        evaluation_explored_percent = (
+            shared_shadow_map.known_coverage
+            if self.knowledge_mode == "local"
+            else self.occupancy_map.explored_percent
+        )
         return MultiSimulationResult(
             seed=self.config.seed,
+            knowledge_mode=self.knowledge_mode,
             completed=self.completed,
             termination_reason=self.termination_reason,
             steps=self.steps,
-            known_cells=self.occupancy_map.known_cell_count,
-            explored_percent=self.occupancy_map.explored_percent,
+            known_cells=evaluation_known_cells,
+            explored_percent=evaluation_explored_percent,
             collisions=self.collisions,
             survivors_total=survivors_total,
-            survivors_detected=len(self._detected_survivors),
-            survivors_confirmed=len(self._confirmed_survivors),
+            survivors_detected=len(reported_detected),
+            survivors_confirmed=len(reported_confirmed),
             survivor_recall=survivor_recall,
             time_to_first_detection=min(detection_steps) if detection_steps else None,
             drones_total=len(self.runtimes),
@@ -878,6 +1355,75 @@ class MultiDroneSimulation:
                 drone_id: self._longest_outage_steps.get(drone_id, 0)
                 for drone_id in sorted(self.runtimes)
             },
+            local_known_coverage_by_drone={
+                drone_id: self.runtimes[drone_id].local_map.known_coverage
+                for drone_id in sorted(self.runtimes)
+            },
+            base_known_coverage=(
+                self.base_knowledge_map.known_coverage
+                if self.base_knowledge_map is not None
+                else 0.0
+            ),
+            shared_shadow_coverage=shared_shadow_map.known_coverage,
+            map_divergence_between_drones=(
+                self.shadow_synchronizer.divergence_ratio()
+            ),
+            peak_map_divergence_between_drones=self._peak_map_divergence,
+            stale_cells_by_drone={
+                drone_id: len(
+                    self.runtimes[drone_id].local_map.stale_against(
+                        shared_shadow_map
+                    )
+                )
+                for drone_id in sorted(self.runtimes)
+            },
+            cells_uploaded_by_drone={
+                drone_id: self._cells_uploaded_by_drone.get(drone_id, 0)
+                for drone_id in sorted(self.runtimes)
+            },
+            cells_received_by_drone={
+                drone_id: self._cells_received_by_drone.get(drone_id, 0)
+                for drone_id in sorted(self.runtimes)
+            },
+            map_sync_events=self._map_sync_events,
+            time_to_map_convergence=self._time_to_map_convergence,
+            survivor_recall_at_base=(
+                len(self._base_confirmed_survivors) / survivors_total
+                if self.knowledge_mode == "local" and survivors_total
+                else survivor_recall
+            ),
+            local_survivors_detected_by_drone={
+                drone_id: len(self.runtimes[drone_id].detected_survivors)
+                for drone_id in sorted(self.runtimes)
+            },
+            local_survivors_confirmed_by_drone={
+                drone_id: len(self.runtimes[drone_id].confirmed_survivors)
+                for drone_id in sorted(self.runtimes)
+            },
+            base_survivors_detected=(
+                len(self._base_detected_survivors)
+                if self.knowledge_mode == "local"
+                else len(self._detected_survivors)
+            ),
+            base_survivors_confirmed=(
+                len(self._base_confirmed_survivors)
+                if self.knowledge_mode == "local"
+                else len(self._confirmed_survivors)
+            ),
+            safety_shield_interventions=self.safety_shield_interventions,
+            redundant_frontier_assignments=(
+                self.redundant_frontier_assignments
+            ),
+            targets_discarded_after_reconnect=(
+                self.targets_discarded_after_reconnect
+            ),
+            local_replanning_by_drone=dict(
+                self._local_replanning_by_drone
+            ),
+            unique_cells_transferred=len(self._unique_cells_transferred),
+            semantic_cell_changes_transferred=(
+                self._semantic_cell_changes_transferred
+            ),
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )

@@ -20,6 +20,15 @@ class EventType(str, Enum):
     COMMUNICATION_RESTORED = "communication_restored"
     RELAY_LINK_ESTABLISHED = "relay_link_established"
     RELAY_LINK_LOST = "relay_link_lost"
+    MAP_SYNC_STARTED = "map_sync_started"
+    MAP_CELLS_UPLOADED = "map_cells_uploaded"
+    MAP_CELLS_RECEIVED = "map_cells_received"
+    MAP_CONVERGED = "map_converged"
+    KNOWLEDGE_MODE_ACTIVATED = "knowledge_mode_activated"
+    LOCAL_FRONTIER_SELECTED = "local_frontier_selected"
+    STALE_TARGET_DISCARDED = "stale_target_discarded"
+    SURVIVOR_KNOWLEDGE_SYNCHRONIZED = "survivor_knowledge_synchronized"
+    SAFETY_SHIELD_INTERVENTION = "safety_shield_intervention"
 
 
 @dataclass(frozen=True, slots=True)
@@ -29,9 +38,10 @@ class MissionEvent:
     drone_id: str
     event_type: EventType
     energy_remaining: float | None = None
+    cell_count: int | None = None
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "position": [self.position.x, self.position.y],
             "step": self.step,
             "drone_id": self.drone_id,
@@ -42,6 +52,9 @@ class MissionEvent:
                 else None
             ),
         }
+        if self.cell_count is not None:
+            payload["cell_count"] = self.cell_count
+        return payload
 
 
 class MissionLog:
@@ -60,7 +73,11 @@ class MissionLog:
             EventType.SURVIVOR_DETECTED,
             EventType.SURVIVOR_CONFIRMED,
         }:
-            key: tuple[object, ...] = (event.event_type, event.position)
+            key: tuple[object, ...] = (
+                event.event_type,
+                event.drone_id,
+                event.position,
+            )
         elif event.event_type in {
             EventType.RETURN_REPLANNED,
             EventType.FRONTIER_ASSIGNED,
@@ -71,6 +88,15 @@ class MissionLog:
             EventType.COMMUNICATION_RESTORED,
             EventType.RELAY_LINK_ESTABLISHED,
             EventType.RELAY_LINK_LOST,
+            EventType.MAP_SYNC_STARTED,
+            EventType.MAP_CELLS_UPLOADED,
+            EventType.MAP_CELLS_RECEIVED,
+            EventType.MAP_CONVERGED,
+            EventType.KNOWLEDGE_MODE_ACTIVATED,
+            EventType.LOCAL_FRONTIER_SELECTED,
+            EventType.STALE_TARGET_DISCARDED,
+            EventType.SURVIVOR_KNOWLEDGE_SYNCHRONIZED,
+            EventType.SAFETY_SHIELD_INTERVENTION,
         }:
             key = (event.event_type, event.drone_id, event.step, event.position)
         else:
