@@ -3,7 +3,10 @@ import json
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from echorescue.replay import REPLAY_SCHEMA_VERSION
+from echorescue.replay import (
+    CONSTRAINED_REPLAY_SCHEMA_VERSION,
+    REPLAY_SCHEMA_VERSION,
+)
 
 
 ASSET_DIRECTORY = Path(__file__).with_name("dashboard_assets")
@@ -12,7 +15,10 @@ ASSET_DIRECTORY = Path(__file__).with_name("dashboard_assets")
 def _validate_replay(path: Path) -> None:
     with path.open("r", encoding="utf-8") as replay_file:
         replay = json.load(replay_file)
-    if replay.get("schema_version") != REPLAY_SCHEMA_VERSION:
+    if replay.get("schema_version") not in {
+        REPLAY_SCHEMA_VERSION,
+        CONSTRAINED_REPLAY_SCHEMA_VERSION,
+    }:
         raise ValueError(
             f"unsupported replay schema: {replay.get('schema_version')!r}"
         )

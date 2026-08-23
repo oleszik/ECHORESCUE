@@ -34,6 +34,16 @@ class SimulationConfig:
     relay_max_deployments: int = 1
     relay_energy_margin: float = 5.0
     relay_min_benefit_ratio: float = 20.0
+    network_profile: str = "ideal"
+    network_latency_steps: int = 1
+    network_packet_loss_rate: float = 0.05
+    network_link_capacity_units: int = 36
+    network_max_fragment_units: int = 12
+    network_map_ttl: int = 256
+    network_survivor_ttl: int = 128
+    network_fairness_age_steps: int = 8
+    network_backlog_warning_threshold: int = 24
+    final_sync_max_steps: int = 128
     knowledge_mode: str = "shared"
     local_map_shadow_mode: bool | None = None
     base_knowledge_store_enabled: bool = True
@@ -104,6 +114,26 @@ class SimulationConfig:
             raise ValueError("relay_energy_margin must not be negative")
         if self.relay_min_benefit_ratio <= 0:
             raise ValueError("relay_min_benefit_ratio must be positive")
+        if self.network_profile not in {"ideal", "constrained"}:
+            raise ValueError("network_profile must be ideal or constrained")
+        if self.network_profile == "constrained" and self.effective_knowledge_mode != "local":
+            raise ValueError("constrained network requires knowledge_mode=local")
+        if self.network_latency_steps < 1:
+            raise ValueError("network_latency_steps must be positive")
+        if not 0.0 <= self.network_packet_loss_rate < 1.0:
+            raise ValueError("network_packet_loss_rate must be in [0, 1)")
+        if self.network_link_capacity_units < 1:
+            raise ValueError("network_link_capacity_units must be positive")
+        if not 1 <= self.network_max_fragment_units <= self.network_link_capacity_units:
+            raise ValueError("network_max_fragment_units must fit the link capacity")
+        if self.network_map_ttl < 1 or self.network_survivor_ttl < 1:
+            raise ValueError("network knowledge TTLs must be positive")
+        if self.network_fairness_age_steps < 1:
+            raise ValueError("network_fairness_age_steps must be positive")
+        if self.network_backlog_warning_threshold < 1:
+            raise ValueError("network_backlog_warning_threshold must be positive")
+        if self.final_sync_max_steps < 1:
+            raise ValueError("final_sync_max_steps must be positive")
         if self.knowledge_mode not in {"shared", "shadow", "local"}:
             raise ValueError("knowledge_mode must be shared, shadow, or local")
         if (

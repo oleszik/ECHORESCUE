@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0b1018">
+    <link rel="icon" href="data:,">
     <title>EchoRescue Mission Replay</title>
     <meta
       name="description"
@@ -23,6 +24,7 @@
         </div>
         <div class="header-meta">
           <div class="mode-chip"><span>Knowledge</span><strong id="knowledgeMode">—</strong></div>
+          <div class="mode-chip network-chip"><span>Network</span><strong id="networkProfile">—</strong></div>
           <div class="seed-chip"><span>Seed</span><strong id="seedValue">—</strong></div>
           <div class="status-pill loading" id="missionStatus">
             <span class="status-dot"></span><span>Loading replay</span>
@@ -101,6 +103,7 @@
             <div class="battery-track"><span id="droneBattery1"></span></div>
             <div class="drone-detail"><span>Current target</span><strong id="droneTarget1">—</strong></div>
             <div class="drone-detail"><span>Communication</span><strong id="droneCommunication1" class="communication-status">—</strong></div>
+            <div class="drone-detail"><span>Data transfer</span><strong id="droneDataLink1">—</strong></div>
             <div class="drone-detail"><span>Local coverage</span><strong id="droneCoverage1">—</strong></div>
             <div class="drone-detail"><span>Local survivors</span><strong id="droneSurvivors1">—</strong></div>
             <div class="drone-detail"><span>Data age</span><strong id="droneDataAge1">—</strong></div>
@@ -115,6 +118,7 @@
             <div class="battery-track"><span id="droneBattery2"></span></div>
             <div class="drone-detail"><span>Current target</span><strong id="droneTarget2">—</strong></div>
             <div class="drone-detail"><span>Communication</span><strong id="droneCommunication2" class="communication-status">—</strong></div>
+            <div class="drone-detail"><span>Data transfer</span><strong id="droneDataLink2">—</strong></div>
             <div class="drone-detail"><span>Local coverage</span><strong id="droneCoverage2">—</strong></div>
             <div class="drone-detail"><span>Local survivors</span><strong id="droneSurvivors2">—</strong></div>
             <div class="drone-detail"><span>Data age</span><strong id="droneDataAge2">—</strong></div>
@@ -150,6 +154,19 @@
               <div><span>Controlled delay</span><strong id="metricRelayDelay">—</strong></div>
               <div><span>Relay energy</span><strong id="metricRelayEnergy">—</strong></div>
               <div><span>Base coverage</span><strong id="metricBaseCoverage">—</strong></div>
+            </div>
+          </div>
+          <div class="network-summary" id="networkSummary">
+            <div class="relay-summary-head"><span>Network transport</span><strong id="networkSummaryState">NOT AVAILABLE</strong></div>
+            <div class="relay-metric-grid">
+              <div><span>Unique fragment delivery</span><strong id="metricNetworkDelivery">—</strong></div>
+              <div><span>Attempt delivery</span><strong id="metricNetworkAttemptDelivery">—</strong></div>
+              <div><span>Logical completion</span><strong id="metricNetworkMessageCompletion">—</strong></div>
+              <div><span>Mean / max latency</span><strong id="metricNetworkLatency">—</strong></div>
+              <div><span>Queue avg / max</span><strong id="metricNetworkQueue">—</strong></div>
+              <div><span>Lost / TTL / close</span><strong id="metricNetworkLoss">—</strong></div>
+              <div><span>Payload delivered</span><strong id="metricNetworkPayload">—</strong></div>
+              <div><span>Relay forwarding</span><strong id="metricNetworkRelay">—</strong></div>
             </div>
           </div>
         </article>

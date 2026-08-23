@@ -138,6 +138,7 @@ h2 {
 .mode-chip, .seed-chip { padding: 8px 12px; display: flex; gap: 8px; font-size: 12px; }
 .mode-chip span, .seed-chip span { color: var(--muted); }
 .mode-chip strong { color: var(--drone-1); letter-spacing: .06em; }
+.network-chip strong.constrained { color: var(--drone-2); }
 
 .map-purpose {
   margin: 4px 0 0;
@@ -303,6 +304,7 @@ input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border: 2px s
 .communication-status.direct { color: var(--radio-direct); }
 .communication-status.relay { color: var(--radio-relay); }
 .communication-status.offline { color: var(--danger); }
+.data-delivered { color: var(--success) !important; }
 .drone-card.yielding { border-color: color-mix(in srgb, var(--accent) 72%, var(--border)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 26%, transparent); }
 .drone-card.yielding .drone-identity strong { color: var(--accent); }
 .drone-card.relay-active { border-color: var(--radio-relay); box-shadow: inset 0 0 0 1px rgba(192, 132, 252, .28), 0 18px 45px rgba(0, 0, 0, .28); }
@@ -335,6 +337,9 @@ input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border: 2px s
 .relay-summary-head { display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--text-secondary); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 .relay-summary-head strong { color: var(--radio-relay); }
 .relay-summary.inactive .relay-summary-head strong { color: var(--text-muted); }
+.network-summary { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.network-summary .relay-summary-head strong { color: var(--drone-2); }
+.network-summary.inactive .relay-summary-head strong { color: var(--text-muted); }
 .relay-metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
 .relay-metric-grid > div { min-width: 0; padding: 8px 10px; border-radius: 8px; background: rgba(22, 34, 53, .72); }
 .relay-metric-grid span { display: block; margin-bottom: 3px; color: var(--text-muted); font-size: 8px; letter-spacing: .05em; text-transform: uppercase; }

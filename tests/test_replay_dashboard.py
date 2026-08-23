@@ -14,6 +14,7 @@ from echorescue.dashboard import ASSET_DIRECTORY, create_server
 from echorescue.environment import GridWorld
 from echorescue.multi_simulation import MultiDroneSimulation
 from echorescue.replay import (
+    CONSTRAINED_REPLAY_SCHEMA_VERSION,
     REPLAY_SCHEMA_VERSION,
     generate_replay,
     record_simulation,
@@ -196,6 +197,67 @@ class ReplayTests(unittest.TestCase):
 
 
 class DashboardAndBenchmarkTests(unittest.TestCase):
+    def test_constrained_replay_dashboard_handles_optional_network_data(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            directory = Path(temporary_directory)
+            replay_path = write_replay(
+                generate_replay(
+                    SimulationConfig(
+                        seed=3,
+                        drone_count=2,
+                        knowledge_mode="local",
+                        network_profile="constrained",
+                    )
+                ),
+                directory / "constrained.json",
+            )
+            benchmark = {
+                "schema_version": "1.0",
+                "profiles": {
+                    "ideal_relay_off": {"average_mission_steps": 75.3},
+                    "constrained_relay_off": {
+                        "average_mission_steps": 81.2,
+                        "average_delivery_ratio": 0.94,
+                        "average_network_latency": 2.3,
+                    },
+                    "constrained_adaptive_relay": {},
+                },
+            }
+            benchmark_path = directory / "benchmark.json"
+            benchmark_path.write_text(json.dumps(benchmark), encoding="utf-8")
+            server = create_server(replay_path, benchmark_path, port=0)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            try:
+                host, port = server.server_address[:2]
+                with urlopen(f"http://{host}:{port}/replay.json", timeout=5) as response:
+                    replay = json.load(response)
+                self.assertEqual(
+                    replay["schema_version"], CONSTRAINED_REPLAY_SCHEMA_VERSION
+                )
+                self.assertTrue(all("network" in frame for frame in replay["frames"]))
+                view = benchmark_view(benchmark)
+                self.assertEqual(view["status"], "ready")
+                self.assertEqual(view["format"], "network_transport")
+                self.assertEqual(view["baselineSteps"], 75.3)
+                self.assertEqual(view["candidateSteps"], 81.2)
+            finally:
+                server.shutdown()
+                server.server_close()
+                thread.join(timeout=5)
+
+    def test_old_replay_dashboard_marks_network_metrics_unavailable(self) -> None:
+        replay = json.loads(
+            (REPOSITORY_ROOT / "replays" / "seed_7.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertNotIn("network_profile", replay["mission"])
+        self.assertTrue(all("network" not in frame for frame in replay["frames"]))
+        javascript = APP_PATH.read_text(encoding="utf-8")
+        self.assertIn('configuration?.network_profile || "ideal"', javascript)
+        self.assertIn('"NOT AVAILABLE"', javascript)
+
     def test_dashboard_assets_and_versioned_artifacts_are_present(self) -> None:
         for name in ("index.html", "styles.css", "app.js"):
             self.assertTrue((ASSET_DIRECTORY / name).is_file())

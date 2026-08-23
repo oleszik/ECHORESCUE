@@ -27,6 +27,12 @@ from echorescue.knowledge import CellKnowledge, KnowledgeMap
 from echorescue.map_sync import ShadowMapSynchronizer
 from echorescue.mapping import OccupancyMap
 from echorescue.models import Drone, DroneStatus, Position
+from echorescue.network_transport import (
+    DeterministicNetworkTransport,
+    MessageType,
+    NetworkDelivery,
+    shortest_route,
+)
 from echorescue.planning import astar
 from echorescue.relay import RelayPlan, select_relay_plan
 from echorescue.sensors import DistanceSensor
@@ -86,6 +92,7 @@ class DroneRuntime:
     relay_outage_at_start: int = 0
     relay_cooldown_until_step: int = 0
     holding_for_relay: bool = False
+    yield_hold_until_step: int = 0
 
     @property
     def terminal(self) -> bool:
@@ -169,11 +176,48 @@ class MultiSimulationResult:
     time_to_all_base_survivor_confirmations: int | None
     relay_energy_consumed: float
     relay_mission_delay_steps: int
+    network_profile: str
+    network_messages_queued: int
+    network_messages_delivered: int
+    network_fragments_sent: int
+    network_fragments_delivered: int
+    network_fragments_lost: int
+    network_messages_expired: int
+    network_messages_dropped: int
+    network_delivery_ratio: float | None
+    network_transmission_attempts: int
+    network_successful_transmission_attempts: int
+    network_retransmission_attempts: int
+    network_fragments_created: int
+    network_fragment_attempt_delivery_ratio: float | None
+    network_unique_fragment_eventual_delivery_ratio: float | None
+    network_logical_message_completion_ratio: float | None
+    network_routes_replanned: int
+    network_mean_latency: float | None
+    network_max_latency: int | None
+    network_payload_units_delivered: int
+    network_average_queue_size: float | None
+    network_max_queue_size: int
+    network_max_backlog_duration: int
+    stale_motion_intents: int
+    map_sync_mean_latency: float | None
+    map_sync_max_latency: int | None
+    survivor_knowledge_mean_latency: float | None
+    relay_network_fragments: int
+    relay_network_mean_latency: float | None
+    proximity_avoidances_without_fresh_intent: int
+    final_sync_started: bool
+    final_sync_duration: int
+    final_sync_retransmissions: int
+    final_sync_survivor_confirmations_transferred: int
+    final_sync_timeout: bool
+    network_shield_cause_classification: dict[str, int]
+    network_shield_geometry_classification: dict[str, int]
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "seed": self.seed,
             "knowledge_mode": self.knowledge_mode,
             "completed": self.completed,
@@ -321,9 +365,114 @@ class MultiSimulationResult:
             ),
             "relay_energy_consumed": round(self.relay_energy_consumed, 6),
             "relay_mission_delay_steps": self.relay_mission_delay_steps,
+            "network_profile": self.network_profile,
+            "network_messages_queued": self.network_messages_queued,
+            "network_messages_delivered": self.network_messages_delivered,
+            "network_fragments_sent": self.network_fragments_sent,
+            "network_fragments_delivered": self.network_fragments_delivered,
+            "network_fragments_lost": self.network_fragments_lost,
+            "network_messages_expired": self.network_messages_expired,
+            "network_messages_dropped": self.network_messages_dropped,
+            "network_delivery_ratio": (
+                round(self.network_delivery_ratio, 6)
+                if self.network_delivery_ratio is not None
+                else None
+            ),
+            "network_transmission_attempts": self.network_transmission_attempts,
+            "network_successful_transmission_attempts": (
+                self.network_successful_transmission_attempts
+            ),
+            "network_retransmission_attempts": (
+                self.network_retransmission_attempts
+            ),
+            "network_fragments_created": self.network_fragments_created,
+            "network_fragment_attempt_delivery_ratio": (
+                round(self.network_fragment_attempt_delivery_ratio, 6)
+                if self.network_fragment_attempt_delivery_ratio is not None
+                else None
+            ),
+            "network_unique_fragment_eventual_delivery_ratio": (
+                round(self.network_unique_fragment_eventual_delivery_ratio, 6)
+                if self.network_unique_fragment_eventual_delivery_ratio is not None
+                else None
+            ),
+            "network_logical_message_completion_ratio": (
+                round(self.network_logical_message_completion_ratio, 6)
+                if self.network_logical_message_completion_ratio is not None
+                else None
+            ),
+            "network_routes_replanned": self.network_routes_replanned,
+            "network_mean_latency": (
+                round(self.network_mean_latency, 6)
+                if self.network_mean_latency is not None
+                else None
+            ),
+            "network_max_latency": self.network_max_latency,
+            "network_payload_units_delivered": (
+                self.network_payload_units_delivered
+            ),
+            "network_average_queue_size": (
+                round(self.network_average_queue_size, 6)
+                if self.network_average_queue_size is not None
+                else None
+            ),
+            "network_max_queue_size": self.network_max_queue_size,
+            "network_max_backlog_duration": self.network_max_backlog_duration,
+            "stale_motion_intents": self.stale_motion_intents,
+            "map_sync_mean_latency": (
+                round(self.map_sync_mean_latency, 6)
+                if self.map_sync_mean_latency is not None
+                else None
+            ),
+            "map_sync_max_latency": self.map_sync_max_latency,
+            "survivor_knowledge_mean_latency": (
+                round(self.survivor_knowledge_mean_latency, 6)
+                if self.survivor_knowledge_mean_latency is not None
+                else None
+            ),
+            "relay_network_fragments": self.relay_network_fragments,
+            "relay_network_mean_latency": (
+                round(self.relay_network_mean_latency, 6)
+                if self.relay_network_mean_latency is not None
+                else None
+            ),
+            "proximity_avoidances_without_fresh_intent": (
+                self.proximity_avoidances_without_fresh_intent
+            ),
+            "final_sync_started": self.final_sync_started,
+            "final_sync_duration": self.final_sync_duration,
+            "final_sync_retransmissions": self.final_sync_retransmissions,
+            "final_sync_survivor_confirmations_transferred": (
+                self.final_sync_survivor_confirmations_transferred
+            ),
+            "final_sync_timeout": self.final_sync_timeout,
+            "network_shield_cause_classification": dict(
+                self.network_shield_cause_classification
+            ),
+            "network_shield_geometry_classification": dict(
+                self.network_shield_geometry_classification
+            ),
             "mission_success": self.mission_success,
             "mission_events": [event.to_dict() for event in self.mission_events],
         }
+        if self.network_profile == "ideal":
+            for key in tuple(payload):
+                if key.startswith("network_") or key in {
+                    "stale_motion_intents",
+                    "map_sync_mean_latency",
+                    "map_sync_max_latency",
+                    "survivor_knowledge_mean_latency",
+                    "relay_network_fragments",
+                    "relay_network_mean_latency",
+                    "proximity_avoidances_without_fresh_intent",
+                    "final_sync_started",
+                    "final_sync_duration",
+                    "final_sync_retransmissions",
+                    "final_sync_survivor_confirmations_transferred",
+                    "final_sync_timeout",
+                }:
+                    payload.pop(key)
+        return payload
 
 
 FrameCallback = Callable[["MultiDroneSimulation"], None]
@@ -406,6 +555,44 @@ class MultiDroneSimulation:
         self._relay_energy_consumed = 0.0
         self._relay_mission_delay_steps = 0
         self._base_known_coverage_history: list[float] = []
+        self.network_transport = (
+            DeterministicNetworkTransport(
+                seed=config.seed,
+                profile=config.network_profile,
+                latency_steps=config.network_latency_steps,
+                packet_loss_rate=config.network_packet_loss_rate,
+                link_capacity_units=config.network_link_capacity_units,
+                max_fragment_units=config.network_max_fragment_units,
+                fairness_age_steps=config.network_fairness_age_steps,
+            )
+            if config.network_profile == "constrained"
+            else None
+        )
+        self._network_queued_records: dict[
+            tuple[str, str, Position], CellKnowledge
+        ] = {}
+        self._network_queued_survivors: dict[
+            tuple[str, str, str, Position], str
+        ] = {}
+        self._received_motion_intents: dict[
+            str, dict[str, MotionIntent]
+        ] = {"drone-1": {}, "drone-2": {}}
+        self._network_map_latencies: list[int] = []
+        self._network_survivor_latencies: list[int] = []
+        self._network_delivered_links_this_step: set[tuple[str, str]] = set()
+        self._network_delivered_units_this_step = 0
+        self._network_backlog_warning_active = False
+        self._network_finalized = False
+        self.proximity_avoidances_without_fresh_intent = 0
+        self._final_sync_active = False
+        self._final_sync_started_step: int | None = None
+        self._final_sync_retransmissions_at_start = 0
+        self._final_sync_base_survivors_at_start: set[Position] = set()
+        self._final_sync_duration = 0
+        self._final_sync_timeout = False
+        self._network_shield_cause_classification: dict[str, int] = {}
+        self._network_shield_geometry_classification: dict[str, int] = {}
+        self._legacy_network_proximity_precedence = False
 
         starts = self._resolve_start_positions()
         self.runtimes: dict[str, DroneRuntime] = {}
@@ -443,9 +630,13 @@ class MultiDroneSimulation:
             if not runtime.terminal:
                 self._refresh_return_estimate(runtime)
         self._sample_communication(record_events=False)
-        self._sync_shadow_maps()
-        self._sync_survivor_knowledge()
-        self._acknowledge_base_uploads()
+        if self.network_transport is None:
+            self._sync_shadow_maps()
+            self._sync_survivor_knowledge()
+            self._acknowledge_base_uploads()
+        else:
+            self._queue_network_knowledge()
+            self._record_network_events()
         self._record_base_coverage()
         if self.knowledge_mode == "local":
             self._record_base_event(EventType.KNOWLEDGE_MODE_ACTIVATED)
@@ -478,6 +669,10 @@ class MultiDroneSimulation:
             and self.config.relay_strategy == "adaptive"
         )
 
+    @property
+    def constrained_network_enabled(self) -> bool:
+        return self.network_transport is not None
+
     def _record_base_coverage(self) -> None:
         coverage = (
             self.base_knowledge_map.known_coverage
@@ -501,6 +696,502 @@ class MultiDroneSimulation:
             runtime.base_acknowledged_survivors = set(
                 runtime.confirmed_survivors
             )
+
+    def _network_stores(self) -> dict[str, KnowledgeMap]:
+        stores = {
+            drone_id: runtime.local_map
+            for drone_id, runtime in sorted(self.runtimes.items())
+        }
+        if self.base_knowledge_map is not None:
+            stores["base"] = self.base_knowledge_map
+        return stores
+
+    def _network_survivor_store(
+        self, node_id: str
+    ) -> tuple[set[Position], set[Position]]:
+        if node_id == "base":
+            return self._base_detected_survivors, self._base_confirmed_survivors
+        runtime = self.runtimes[node_id]
+        return runtime.detected_survivors, runtime.confirmed_survivors
+
+    def _queue_network_knowledge(self) -> None:
+        transport = self.network_transport
+        if transport is None:
+            return
+        stores = self._network_stores()
+        node_ids = tuple(sorted(stores))
+        for sender in node_ids:
+            for recipient in node_ids:
+                if sender == recipient:
+                    continue
+                if (
+                    sender in self.runtimes
+                    and recipient in self.runtimes
+                    and not self.communication_snapshot.has_link(sender, recipient)
+                ):
+                    continue
+                route = shortest_route(
+                    self.communication_snapshot, sender, recipient
+                )
+                if not route:
+                    continue
+                records = []
+                for position, record in stores[sender].records:
+                    key = (sender, recipient, position)
+                    if self._network_queued_records.get(key) == record:
+                        continue
+                    records.append((position, record))
+                if records:
+                    message_id = transport.enqueue(
+                        sender=sender,
+                        recipient=recipient,
+                        route=route,
+                        message_type=MessageType.MAP_UPDATE,
+                        payload=records,
+                        created_step=self.steps,
+                        ttl=self.config.network_map_ttl,
+                        message_key=f"map:{sender}:{recipient}",
+                    )
+                    if message_id is not None:
+                        for position, record in records:
+                            self._network_queued_records[
+                                (sender, recipient, position)
+                            ] = record
+
+                detected, confirmed = self._network_survivor_store(sender)
+                recipient_detected, recipient_confirmed = (
+                    self._network_survivor_store(recipient)
+                )
+                for kind, positions, message_type in (
+                    (
+                        "confirmed",
+                        confirmed,
+                        MessageType.SURVIVOR_CONFIRMATION,
+                    ),
+                    (
+                        "detected",
+                        detected,
+                        MessageType.SURVIVOR_DETECTION,
+                    ),
+                ):
+                    if self._legacy_network_proximity_precedence:
+                        pending = [
+                            position
+                            for position in sorted(positions)
+                            if (sender, recipient, kind, position)
+                            not in self._network_queued_survivors
+                        ]
+                    else:
+                        pending = [
+                            position
+                            for position in sorted(positions)
+                            if position not in (
+                                recipient_confirmed
+                                if kind == "confirmed"
+                                else recipient_detected
+                            )
+                            and not (
+                                (
+                                    message_id := self._network_queued_survivors.get(
+                                        (sender, recipient, kind, position)
+                                    )
+                                )
+                                and transport.message_is_active(message_id)
+                            )
+                        ]
+                    if not pending:
+                        continue
+                    message_id = transport.enqueue(
+                        sender=sender,
+                        recipient=recipient,
+                        route=route,
+                        message_type=message_type,
+                        payload=pending,
+                        created_step=self.steps,
+                        ttl=self.config.network_survivor_ttl,
+                        message_key=f"survivor:{kind}:{sender}:{recipient}",
+                    )
+                    if message_id is not None:
+                        for position in pending:
+                            self._network_queued_survivors[
+                                (sender, recipient, kind, position)
+                            ] = message_id
+
+    def _queue_motion_messages(self) -> None:
+        transport = self.network_transport
+        if transport is None:
+            return
+        for sender, intent in sorted(self.motion_intents.items()):
+            for recipient in sorted(self.runtimes):
+                if recipient == sender:
+                    continue
+                route = shortest_route(
+                    self.communication_snapshot, sender, recipient
+                )
+                if route:
+                    transport.enqueue(
+                        sender=sender,
+                        recipient=recipient,
+                        route=route,
+                        message_type=MessageType.MOTION_INTENT,
+                        payload=(intent,),
+                        created_step=self.steps,
+                        ttl=self.config.motion_intent_ttl,
+                        message_key=f"intent:{sender}:{recipient}:{self.steps}",
+                    )
+            route_to_base = shortest_route(
+                self.communication_snapshot, sender, "base"
+            )
+            if route_to_base:
+                transport.enqueue(
+                    sender=sender,
+                    recipient="base",
+                    route=route_to_base,
+                    message_type=MessageType.DRONE_STATE,
+                    payload=(
+                        {
+                            "position": intent.current_position,
+                            "status": intent.status,
+                            "energy_remaining": intent.energy_remaining,
+                            "returning": intent.status is DroneStatus.RETURN_HOME,
+                        },
+                    ),
+                    created_step=self.steps,
+                    ttl=self.config.motion_intent_ttl,
+                    message_key=f"state:{sender}:{self.steps}",
+                )
+
+    def _apply_network_delivery(self, delivery: NetworkDelivery) -> None:
+        self._network_delivered_links_this_step.update(
+            zip(delivery.route, delivery.route[1:])
+        )
+        if self.network_transport is not None:
+            self._network_delivered_units_this_step += len(delivery.payload)
+        if delivery.message_type is MessageType.MOTION_INTENT:
+            intent = delivery.payload[0]
+            if (
+                isinstance(intent, MotionIntent)
+                and intent.valid_until_step >= self.steps
+                and delivery.recipient in self.runtimes
+            ):
+                self._received_motion_intents[delivery.recipient][
+                    delivery.sender
+                ] = intent
+            elif self.network_transport is not None:
+                self.network_transport.stale_intents += 1
+            return
+        if delivery.message_type is MessageType.DRONE_STATE:
+            return
+        if delivery.message_type is MessageType.MAP_UPDATE:
+            target = self._network_stores().get(delivery.recipient)
+            if target is None:
+                return
+            records = tuple(delivery.payload)
+            changed = target.apply(records)
+            for position, record in records:
+                self._network_queued_records[
+                    (delivery.recipient, delivery.sender, position)
+                ] = record
+            if not changed:
+                return
+            self._network_map_latencies.append(delivery.latency)
+            self._unique_cells_transferred.update(changed)
+            semantic_changes = sum(
+                target.cell_at(position) is record.state
+                for position, record in records
+                if position in changed
+            )
+            self._semantic_cell_changes_transferred += semantic_changes
+            self._map_sync_events += 1
+            if delivery.sender in self.runtimes:
+                self._cells_uploaded_by_drone[delivery.sender] = (
+                    self._cells_uploaded_by_drone.get(delivery.sender, 0)
+                    + len(changed)
+                )
+            if delivery.recipient in self.runtimes:
+                self._cells_received_by_drone[delivery.recipient] = (
+                    self._cells_received_by_drone.get(delivery.recipient, 0)
+                    + len(changed)
+                )
+            if delivery.recipient == "base" and delivery.sender in self.runtimes:
+                runtime = self.runtimes[delivery.sender]
+                for position, record in records:
+                    current = runtime.base_acknowledged_records.get(position)
+                    if current is None or current.observed_step <= record.observed_step:
+                        runtime.base_acknowledged_records[position] = record
+            return
+        if delivery.message_type not in {
+            MessageType.SURVIVOR_DETECTION,
+            MessageType.SURVIVOR_CONFIRMATION,
+        }:
+            return
+        detected, confirmed = self._network_survivor_store(delivery.recipient)
+        positions = {item for item in delivery.payload if isinstance(item, Position)}
+        knowledge_kind = (
+            "confirmed"
+            if delivery.message_type is MessageType.SURVIVOR_CONFIRMATION
+            else "detected"
+        )
+        if self._legacy_network_proximity_precedence:
+            for position in positions:
+                self._network_queued_survivors[
+                    (
+                        delivery.recipient,
+                        delivery.sender,
+                        knowledge_kind,
+                        position,
+                    )
+                ] = delivery.message_id
+        new_confirmed: set[Position] = set()
+        if delivery.message_type is MessageType.SURVIVOR_CONFIRMATION:
+            new_confirmed = positions - confirmed
+            confirmed.update(positions)
+            detected.update(positions)
+        else:
+            detected.update(positions)
+        if positions:
+            self._network_survivor_latencies.append(delivery.latency)
+        if delivery.recipient == "base" and delivery.sender in self.runtimes:
+            self.runtimes[delivery.sender].base_acknowledged_survivors.update(
+                positions
+            )
+        for position in sorted(new_confirmed):
+            target_runtime = self.runtimes.get(delivery.recipient)
+            if target_runtime is not None:
+                self._record_event(
+                    target_runtime,
+                    EventType.SURVIVOR_KNOWLEDGE_SYNCHRONIZED,
+                    position,
+                )
+            else:
+                self.mission_log.record(
+                    MissionEvent(
+                        position=position,
+                        step=self.steps,
+                        drone_id="base",
+                        event_type=EventType.SURVIVOR_KNOWLEDGE_SYNCHRONIZED,
+                    )
+                )
+
+    def _record_network_events(self) -> None:
+        transport = self.network_transport
+        if transport is None:
+            return
+        mapping = {
+            "message_queued": EventType.MESSAGE_QUEUED,
+            "message_delivered": EventType.MESSAGE_DELIVERED,
+            "message_lost": EventType.MESSAGE_LOST,
+            "message_expired": EventType.MESSAGE_EXPIRED,
+            "message_dropped": EventType.MESSAGE_DROPPED,
+            "message_fragment_completed": EventType.MESSAGE_FRAGMENT_COMPLETED,
+            "relay_message_forwarded": EventType.RELAY_MESSAGE_FORWARDED,
+        }
+        aggregated: dict[tuple[object, ...], list[object]] = {}
+        for event in transport.drain_events():
+            if (
+                event.event_type in {"message_queued", "message_delivered"}
+                and event.message_type
+                in {MessageType.MAP_UPDATE, MessageType.DRONE_STATE}
+            ) or (
+                event.event_type == "message_expired"
+                and event.message_type is MessageType.DRONE_STATE
+            ):
+                continue
+            key = (
+                event.event_type,
+                event.sender,
+                event.recipient,
+                event.message_type,
+            )
+            item = aggregated.setdefault(key, [0, 0])
+            item[0] = int(item[0]) + event.fragment_count
+            item[1] = int(item[1]) + event.payload_units
+        for key, (count, units) in sorted(
+            aggregated.items(), key=lambda item: tuple(str(value) for value in item[0])
+        ):
+            event_name, sender, _recipient, message_type = key
+            runtime = self.runtimes.get(str(sender))
+            position = runtime.drone.position if runtime is not None else self.world.base
+            self.mission_log.record(
+                MissionEvent(
+                    position=position,
+                    step=self.steps,
+                    drone_id=str(sender),
+                    event_type=mapping[str(event_name)],
+                    energy_remaining=(
+                        runtime.battery.remaining if runtime is not None else None
+                    ),
+                    message_type=message_type.value,
+                    message_count=int(count),
+                    payload_units=int(units),
+                    queue_size=transport.queue_size,
+                )
+            )
+        overloaded = (
+            transport.queue_size
+            >= self.config.network_backlog_warning_threshold
+        )
+        if overloaded and not self._network_backlog_warning_active:
+            self.mission_log.record(
+                MissionEvent(
+                    position=self.world.base,
+                    step=self.steps,
+                    drone_id="base",
+                    event_type=EventType.NETWORK_BACKLOG_WARNING,
+                    queue_size=transport.queue_size,
+                )
+            )
+        self._network_backlog_warning_active = overloaded
+
+    def _deliver_network_transport(self) -> None:
+        transport = self.network_transport
+        if transport is None:
+            return
+        self._network_delivered_links_this_step = set()
+        self._network_delivered_units_this_step = 0
+        base_before = (
+            dict(self.base_knowledge_map.records)
+            if self.base_knowledge_map is not None
+            else {}
+        )
+        survivors_before = set(self._base_confirmed_survivors)
+        for delivery in transport.deliver(step=self.steps):
+            self._apply_network_delivery(delivery)
+        self._record_network_events()
+        self._update_relay_after_sync(base_before, survivors_before)
+        converged = self.shadow_synchronizer.maps_converged()
+        if (
+            not self._shadow_maps_converged
+            and converged
+            and self._time_to_map_convergence is None
+        ):
+            self._time_to_map_convergence = self.steps
+            self._record_base_event(EventType.MAP_CONVERGED)
+        self._shadow_maps_converged = converged
+        self._peak_map_divergence = max(
+            self._peak_map_divergence,
+            self.shadow_synchronizer.divergence_ratio(),
+        )
+
+    def _transmit_network_transport(self) -> None:
+        transport = self.network_transport
+        if transport is None:
+            return
+        transport.transmit(
+            step=self.steps,
+            snapshot=self.communication_snapshot,
+        )
+        self._record_network_events()
+
+    def _finalize_network_transport(self) -> None:
+        if self.network_transport is None or self._network_finalized:
+            return
+        self.network_transport.finalize(self.steps)
+        self._record_network_events()
+        self._network_finalized = True
+
+    def _pending_critical_survivors(self) -> set[Position]:
+        """Return confirmed local knowledge not yet delivered to the base.
+
+        The decision intentionally uses no world survivor positions.  Ground
+        truth remains confined to result evaluation.
+        """
+
+        locally_confirmed: set[Position] = set()
+        for runtime in self._ordered_runtimes():
+            locally_confirmed.update(runtime.confirmed_survivors)
+        return locally_confirmed - self._base_confirmed_survivors
+
+    def _start_final_sync(self) -> None:
+        transport = self.network_transport
+        assert transport is not None
+        self._final_sync_active = True
+        self._final_sync_started_step = self.steps
+        self._final_sync_retransmissions_at_start = (
+            transport.retransmission_attempts
+        )
+        self._final_sync_base_survivors_at_start = set(
+            self._base_confirmed_survivors
+        )
+        self.mission_log.record(
+            MissionEvent(
+                position=self.world.base,
+                step=self.steps,
+                drone_id="base",
+                event_type=EventType.FINAL_SYNC_STARTED,
+                survivor_count=len(self._pending_critical_survivors()),
+                queue_size=transport.queue_size,
+            )
+        )
+
+    def _finish_final_sync(self, *, timed_out: bool) -> None:
+        self._final_sync_active = False
+        self._final_sync_timeout = timed_out
+        started = self._final_sync_started_step
+        self._final_sync_duration = (
+            self.steps - started if started is not None else 0
+        )
+        self.mission_log.record(
+            MissionEvent(
+                position=self.world.base,
+                step=self.steps,
+                drone_id="base",
+                event_type=(
+                    EventType.FINAL_SYNC_TIMEOUT
+                    if timed_out
+                    else EventType.FINAL_SYNC_COMPLETED
+                ),
+                survivor_count=len(
+                    self._base_confirmed_survivors
+                    - self._final_sync_base_survivors_at_start
+                ),
+                queue_size=(
+                    self.network_transport.queue_size
+                    if self.network_transport is not None
+                    else 0
+                ),
+            )
+        )
+        self.completed = True
+        self.termination_reason = (
+            "final_sync_timeout"
+            if timed_out
+            else (
+                "exploration_complete"
+                if self._exploration_complete
+                else "returned_to_base"
+            )
+        )
+        self._finalize_network_transport()
+
+    def _step_final_sync(self) -> bool:
+        """Advance normal constrained transport while landed at powered base.
+
+        Flight batteries are not charged for this phase: landed vehicles are
+        modeled as using base-station power for electronics and radio.  Link
+        latency, capacity, loss, retries and TTL remain unchanged.
+        """
+
+        self._deliver_network_transport()
+        if not self._pending_critical_survivors():
+            self._finish_final_sync(timed_out=False)
+            return False
+        assert self._final_sync_started_step is not None
+        if (
+            self.steps - self._final_sync_started_step
+            >= self.config.final_sync_max_steps
+        ):
+            self._finish_final_sync(timed_out=True)
+            return False
+
+        self._queue_network_knowledge()
+        self._transmit_network_transport()
+        self.steps += 1
+        for runtime in self._ordered_runtimes():
+            runtime.position_trace.append(runtime.drone.position)
+        self._sample_communication()
+        self._record_base_coverage()
+        return True
 
     def _ordered_runtimes(self) -> tuple[DroneRuntime, ...]:
         return tuple(self.runtimes[key] for key in sorted(self.runtimes))
@@ -1571,6 +2262,8 @@ class MultiDroneSimulation:
                 destination = self._plan_return_intention(runtime)
             elif runtime.drone.status is DroneStatus.RELAY:
                 destination = self._plan_relay_intention(runtime)
+            elif runtime.yield_hold_until_step > self.steps:
+                destination = runtime.drone.position
             elif runtime.holding_for_relay:
                 self._relay_mission_delay_steps += 1
                 destination = runtime.drone.position
@@ -1632,6 +2325,17 @@ class MultiDroneSimulation:
         )
 
     def _peer_intents_communicated(self) -> bool:
+        if self.network_transport is not None:
+            for recipient, sender in (
+                ("drone-1", "drone-2"),
+                ("drone-2", "drone-1"),
+            ):
+                intent = self._received_motion_intents[recipient].get(sender)
+                if intent is None or intent.valid_until_step < self.steps:
+                    if intent is not None:
+                        self._received_motion_intents[recipient].pop(sender, None)
+                    return False
+            return True
         return "drone-2" in self._communication_component("drone-1")
 
     def _record_intent_sharing(self, communicated: bool) -> None:
@@ -1657,6 +2361,7 @@ class MultiDroneSimulation:
         runtime: DroneRuntime,
         raw_next: Position,
         forbidden: set[Position],
+        clearance_from: Position | None = None,
     ) -> Position | None:
         decision_map = runtime.local_map
         target = (
@@ -1694,8 +2399,24 @@ class MultiDroneSimulation:
                 decision_map.is_known_free(neighbor)
                 for neighbor in candidate.neighbors()
             )
+            clearance_penalty = 0
+            if clearance_from is not None:
+                peer_dx = clearance_from.x - runtime.drone.position.x
+                peer_dy = clearance_from.y - runtime.drone.position.y
+                move_dx = candidate.x - runtime.drone.position.x
+                move_dy = candidate.y - runtime.drone.position.y
+                clearance_penalty = int(
+                    peer_dx * move_dx + peer_dy * move_dy != 0
+                )
             candidates.append(
-                (-free_neighbors, path_length, candidate.y, candidate.x, candidate)
+                (
+                    clearance_penalty,
+                    -free_neighbors,
+                    path_length,
+                    candidate.y,
+                    candidate.x,
+                    candidate,
+                )
             )
         return min(candidates)[-1] if candidates else None
 
@@ -1748,36 +2469,67 @@ class MultiDroneSimulation:
         second = self.motion_intents[second_id]
         communicated = self._peer_intents_communicated()
         self._record_intent_sharing(communicated)
+        conflict_first = first
+        conflict_second = second
+        if communicated and self.network_transport is not None:
+            conflict_first = self._received_motion_intents[second_id][first_id]
+            conflict_second = self._received_motion_intents[first_id][second_id]
+        priority_intents = {
+            first_id: conflict_first,
+            second_id: conflict_second,
+        }
 
         conflict: IntentConflict | None = None
         source: str | None = None
         proximity_risks: dict[str, str] = {}
-        if communicated:
-            conflict = detect_intent_conflict(first, second, self.world.base)
+        # Proximity is a current, local observation and therefore takes
+        # precedence over delayed-but-still-valid network intent.
+        communicated_positions_current = (
+            communicated
+            and conflict_first.current_position == first.current_position
+            and conflict_second.current_position == second.current_position
+        )
+        visible = self.proximity_sensor.can_detect(
+            self.world,
+            first.current_position,
+            second.current_position,
+        )
+        if self._legacy_network_proximity_precedence and communicated:
+            visible = False
+        if visible:
+            for intent, other_position in (
+                (first, second.current_position),
+                (second, first.current_position),
+            ):
+                risk = proximity_risk(intent, other_position)
+                if risk is not None:
+                    proximity_risks[intent.drone_id] = risk
+        immediate_occupied_risk = any(
+            risk == "proximity_occupied"
+            for risk in proximity_risks.values()
+        )
+        if proximity_risks and (
+            immediate_occupied_risk or not communicated_positions_current
+        ):
+            source = "proximity"
+            priority_intents = {
+                first_id: first,
+                second_id: second,
+            }
+            if self.network_transport is not None and not communicated:
+                self.proximity_avoidances_without_fresh_intent += 1
+            kind = sorted(proximity_risks.values())[0]
+            position = min(
+                self.motion_intents[drone_id].next_position
+                for drone_id in proximity_risks
+            )
+            conflict = IntentConflict(kind, position, drone_ids)
+        elif communicated:
+            conflict = detect_intent_conflict(
+                conflict_first, conflict_second, self.world.base
+            )
             if conflict is not None:
                 source = "communication"
-        else:
-            visible = self.proximity_sensor.can_detect(
-                self.world,
-                first.current_position,
-                second.current_position,
-            )
-            if visible:
-                for intent, other_position in (
-                    (first, second.current_position),
-                    (second, first.current_position),
-                ):
-                    risk = proximity_risk(intent, other_position)
-                    if risk is not None:
-                        proximity_risks[intent.drone_id] = risk
-            if proximity_risks:
-                source = "proximity"
-                kind = sorted(proximity_risks.values())[0]
-                position = min(
-                    self.motion_intents[drone_id].next_position
-                    for drone_id in proximity_risks
-                )
-                conflict = IntentConflict(kind, position, drone_ids)
 
         if conflict is None or source is None:
             self._active_deconfliction_signature = None
@@ -1792,7 +2544,7 @@ class MultiDroneSimulation:
             and conflict.kind == "occupied_current_cell"
         ):
             self.communication_detected_conflicts += 1
-            if first.next_position == second.current_position:
+            if conflict_first.next_position == conflict_second.current_position:
                 loser_id, winner_id = first_id, second_id
             else:
                 loser_id, winner_id = second_id, first_id
@@ -1801,7 +2553,7 @@ class MultiDroneSimulation:
             winner_id = min(
                 drone_ids,
                 key=lambda drone_id: priority_key(
-                    self.motion_intents[drone_id],
+                    priority_intents[drone_id],
                     self.runtimes[drone_id].consecutive_yield_steps,
                 ),
             )
@@ -1820,7 +2572,7 @@ class MultiDroneSimulation:
                 winner_id = min(
                     drone_ids,
                     key=lambda drone_id: priority_key(
-                        self.motion_intents[drone_id],
+                        priority_intents[drone_id],
                         self.runtimes[drone_id].consecutive_yield_steps,
                     ),
                 )
@@ -1872,6 +2624,45 @@ class MultiDroneSimulation:
             yielding_now.add(winner_id)
             delayed_now.add(winner_id)
 
+        # When an urgent RTB drone has priority, a non-urgent nearby peer
+        # actively clears the reserved corridor instead of repeatedly waiting
+        # in the cell that forces the RTB planner to oscillate around it.
+        winner_intent = priority_intents[winner_id]
+        loser_intent = priority_intents[loser_id]
+        priority_clearance = (
+            source == "proximity"
+            and not self._legacy_network_proximity_precedence
+            and winner_intent.status is DroneStatus.RETURN_HOME
+            and loser_intent.status is not DroneStatus.RETURN_HOME
+            and not blocking_conflict
+        )
+        if priority_clearance:
+            forbidden = {
+                winner_intent.current_position,
+                winner_intent.next_position,
+                *winner_intent.reservation,
+            }
+            loser_runtime = self.runtimes[loser_id]
+            avoidance = self._avoidance_step(
+                loser_runtime,
+                self.motion_intents[loser_id].next_position,
+                forbidden,
+                clearance_from=winner_intent.current_position,
+            )
+            if avoidance is not None:
+                resolved[loser_id] = avoidance
+                delayed_now.discard(loser_id)
+                loser_runtime.yield_hold_until_step = max(
+                    loser_runtime.yield_hold_until_step,
+                    self.steps + self.config.intent_reservation_steps + 1,
+                )
+                self.local_replans_due_to_drones += 1
+                self._record_event(
+                    loser_runtime,
+                    EventType.DEADLOCK_REPLANNED,
+                    avoidance,
+                )
+
         if self._deconfliction_repeat_count >= self.config.deadlock_wait_threshold:
             if not self._deadlock_reported_for_signature:
                 self.corridor_deadlocks += 1
@@ -1881,7 +2672,7 @@ class MultiDroneSimulation:
                     EventType.CORRIDOR_DEADLOCK_DETECTED,
                     conflict.position,
                 )
-            other_intent = self.motion_intents[winner_id]
+            other_intent = priority_intents[winner_id]
             forbidden = {
                 other_intent.current_position,
                 other_intent.next_position,
@@ -1936,6 +2727,75 @@ class MultiDroneSimulation:
             if resolved[drone_id] == current[drone_id]
             and intentions[drone_id] != current[drone_id]
         }
+        if conflict_waiters and self.network_transport is not None:
+            current_events = tuple(
+                event
+                for event in self.mission_log.events
+                if event.step == self.steps
+            )
+            for drone_id in sorted(conflict_waiters):
+                conflict = next(
+                    item for item in conflicts if drone_id in item.drone_ids
+                )
+                geometry = {
+                    "vertex": "vertex_conflict",
+                    "edge_swap": "edge_swap",
+                    "occupied_current_cell": "corridor_encounter",
+                }.get(conflict.reason, conflict.reason)
+                self._network_shield_geometry_classification[geometry] = (
+                    self._network_shield_geometry_classification.get(geometry, 0)
+                    + 1
+                )
+                peer_id = next(
+                    candidate
+                    for candidate in sorted(intentions)
+                    if candidate != drone_id
+                )
+                received = self._received_motion_intents[drone_id].get(peer_id)
+                if any(
+                    event.event_type is EventType.MESSAGE_EXPIRED
+                    and event.message_type == MessageType.MOTION_INTENT.value
+                    for event in current_events
+                ):
+                    cause = "expired_intent"
+                elif any(
+                    event.event_type is EventType.MESSAGE_LOST
+                    and event.message_type == MessageType.MOTION_INTENT.value
+                    for event in current_events
+                ):
+                    cause = "lost_intent"
+                elif received is not None and (
+                    received.current_position
+                    != self.runtimes[peer_id].drone.position
+                    or received.valid_until_step - self.config.motion_intent_ttl
+                    < self.steps
+                ):
+                    cause = "delayed_intent"
+                elif any(
+                    fragment.message_type is MessageType.MOTION_INTENT
+                    and fragment.recipient == drone_id
+                    for fragment in (
+                        self.network_transport._queued
+                        + self.network_transport._in_flight
+                    )
+                ):
+                    cause = "queue_displacement"
+                elif (
+                    self.proximity_sensor.can_detect(
+                        self.world,
+                        self.runtimes[drone_id].drone.position,
+                        self.runtimes[peer_id].drone.position,
+                    )
+                    and not self.communication_snapshot.has_link(
+                        drone_id, peer_id
+                    )
+                ):
+                    cause = "contact_without_radio"
+                else:
+                    cause = "lost_intent"
+                self._network_shield_cause_classification[cause] = (
+                    self._network_shield_cause_classification.get(cause, 0) + 1
+                )
         for drone_id in sorted(conflict_waiters):
             runtime = self.runtimes[drone_id]
             if self.knowledge_mode == "local":
@@ -2031,11 +2891,20 @@ class MultiDroneSimulation:
     def _update_completion(self) -> None:
         if not all(runtime.terminal for runtime in self._ordered_runtimes()):
             return
-        self.completed = True
-        if all(
+        all_landed = all(
             runtime.drone.status is DroneStatus.LANDED
             for runtime in self._ordered_runtimes()
+        )
+        if (
+            all_landed
+            and self.network_transport is not None
+            and self._pending_critical_survivors()
         ):
+            if not self._final_sync_active:
+                self._start_final_sync()
+            return
+        self.completed = True
+        if all_landed:
             self.termination_reason = (
                 "exploration_complete"
                 if self._exploration_complete
@@ -2047,6 +2916,8 @@ class MultiDroneSimulation:
     def step(self) -> bool:
         if self.completed:
             return False
+        if self._final_sync_active:
+            return self._step_final_sync()
         if self.steps >= self.config.max_steps:
             for runtime in self._ordered_runtimes():
                 if not runtime.terminal:
@@ -2060,14 +2931,20 @@ class MultiDroneSimulation:
                     runtime.current_return_path = ()
             self.completed = True
             self.termination_reason = "max_steps"
+            self._finalize_network_transport()
             return False
 
+        if self.network_transport is not None:
+            self._deliver_network_transport()
         self._prepare_energy_states()
         self._maintain_adaptive_relay()
         assignments = self._allocate_frontiers()
         self._assign_adaptive_relay()
         intentions = self._plan_intentions(assignments)
         intentions = self._deconflict_intentions(intentions)
+        if self.network_transport is not None:
+            self._queue_motion_messages()
+            self._transmit_network_transport()
         previous_step = self.steps
         self._execute_intentions(intentions)
         if self.steps != previous_step:
@@ -2078,14 +2955,20 @@ class MultiDroneSimulation:
             )
             survivors_before = set(self._base_confirmed_survivors)
             self._sample_communication()
-            self._sync_shadow_maps()
-            self._sync_survivor_knowledge()
-            self._update_relay_after_sync(
-                base_before, survivors_before
-            )
-            self._acknowledge_base_uploads()
+            if self.network_transport is None:
+                self._sync_shadow_maps()
+                self._sync_survivor_knowledge()
+                self._update_relay_after_sync(
+                    base_before, survivors_before
+                )
+                self._acknowledge_base_uploads()
+            else:
+                self._queue_network_knowledge()
+                self._record_network_events()
             self._record_base_coverage()
         self._update_completion()
+        if self.completed:
+            self._finalize_network_transport()
         return not self.completed
 
     def run(self, on_frame: FrameCallback | None = None) -> MultiSimulationResult:
@@ -2099,6 +2982,8 @@ class MultiDroneSimulation:
         return self.result()
 
     def result(self) -> MultiSimulationResult:
+        self._finalize_network_transport()
+        transport = self.network_transport
         detection_steps = [
             event.step
             for event in self.mission_log.events
@@ -2364,6 +3249,141 @@ class MultiDroneSimulation:
             ),
             relay_energy_consumed=self._relay_energy_consumed,
             relay_mission_delay_steps=self._relay_mission_delay_steps,
+            network_profile=self.config.network_profile,
+            network_messages_queued=(
+                transport.queued_messages if transport is not None else 0
+            ),
+            network_messages_delivered=(
+                transport.delivered_messages if transport is not None else 0
+            ),
+            network_fragments_sent=(
+                transport.sent_fragments if transport is not None else 0
+            ),
+            network_fragments_delivered=(
+                transport.delivered_fragments if transport is not None else 0
+            ),
+            network_fragments_lost=(
+                transport.lost_fragments if transport is not None else 0
+            ),
+            network_messages_expired=(
+                transport.expired_fragments if transport is not None else 0
+            ),
+            network_messages_dropped=(
+                transport.dropped_fragments if transport is not None else 0
+            ),
+            network_delivery_ratio=(
+                transport.delivery_ratio if transport is not None else None
+            ),
+            network_transmission_attempts=(
+                transport.transmission_attempts if transport is not None else 0
+            ),
+            network_successful_transmission_attempts=(
+                transport.successful_transmission_attempts
+                if transport is not None
+                else 0
+            ),
+            network_retransmission_attempts=(
+                transport.retransmission_attempts
+                if transport is not None
+                else 0
+            ),
+            network_fragments_created=(
+                transport.created_fragments if transport is not None else 0
+            ),
+            network_fragment_attempt_delivery_ratio=(
+                transport.fragment_attempt_delivery_ratio
+                if transport is not None
+                else None
+            ),
+            network_unique_fragment_eventual_delivery_ratio=(
+                transport.unique_fragment_eventual_delivery_ratio
+                if transport is not None
+                else None
+            ),
+            network_logical_message_completion_ratio=(
+                transport.logical_message_completion_ratio
+                if transport is not None
+                else None
+            ),
+            network_routes_replanned=(
+                transport.routes_replanned if transport is not None else 0
+            ),
+            network_mean_latency=(
+                transport.mean_latency if transport is not None else None
+            ),
+            network_max_latency=(
+                transport.max_latency if transport is not None else None
+            ),
+            network_payload_units_delivered=(
+                transport.payload_units_delivered if transport is not None else 0
+            ),
+            network_average_queue_size=(
+                transport.average_queue_size if transport is not None else None
+            ),
+            network_max_queue_size=(
+                transport.maximum_queue_size if transport is not None else 0
+            ),
+            network_max_backlog_duration=(
+                transport.max_backlog_duration if transport is not None else 0
+            ),
+            stale_motion_intents=(
+                transport.stale_intents if transport is not None else 0
+            ),
+            map_sync_mean_latency=(
+                sum(self._network_map_latencies) / len(self._network_map_latencies)
+                if self._network_map_latencies
+                else None
+            ),
+            map_sync_max_latency=(
+                max(self._network_map_latencies)
+                if self._network_map_latencies
+                else None
+            ),
+            survivor_knowledge_mean_latency=(
+                sum(self._network_survivor_latencies)
+                / len(self._network_survivor_latencies)
+                if self._network_survivor_latencies
+                else None
+            ),
+            relay_network_fragments=(
+                transport.relay_fragments_forwarded
+                if transport is not None
+                else 0
+            ),
+            relay_network_mean_latency=(
+                sum(transport.relay_latencies) / len(transport.relay_latencies)
+                if transport is not None and transport.relay_latencies
+                else None
+            ),
+            proximity_avoidances_without_fresh_intent=(
+                self.proximity_avoidances_without_fresh_intent
+            ),
+            final_sync_started=(self._final_sync_started_step is not None),
+            final_sync_duration=self._final_sync_duration,
+            final_sync_retransmissions=(
+                (
+                    transport.retransmission_attempts
+                    - self._final_sync_retransmissions_at_start
+                )
+                if transport is not None
+                and self._final_sync_started_step is not None
+                else 0
+            ),
+            final_sync_survivor_confirmations_transferred=(
+                len(
+                    self._base_confirmed_survivors
+                    - self._final_sync_base_survivors_at_start
+                )
+                if self._final_sync_started_step is not None
+                else 0
+            ),
+            final_sync_timeout=self._final_sync_timeout,
+            network_shield_cause_classification=dict(
+                sorted(self._network_shield_cause_classification.items())
+            ),
+            network_shield_geometry_classification=dict(
+                sorted(self._network_shield_geometry_classification.items())
+            ),
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )

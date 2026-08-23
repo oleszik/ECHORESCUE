@@ -26,6 +26,7 @@ python -m pip install -e .
 python -m echorescue --drones 2 --seed 7 --replay-out replays/seed_7.json
 python -m echorescue --drones 2 --seed 7 --knowledge-mode local --replay-out replays/seed_7_local.json
 python -m echorescue --drones 2 --seed 7 --knowledge-mode local --relay-strategy adaptive --replay-out replays/seed_7_relay.json
+python -m echorescue --drones 2 --seed 7 --knowledge-mode local --network-profile constrained --replay-out replays/seed_7_constrained.json
 python -m echorescue.dashboard --replay replays/seed_7.json
 ```
 
@@ -45,6 +46,7 @@ python -m echorescue.shadow_benchmark --seeds 50 --output benchmarks/shadow_mode
 python -m echorescue.knowledge_benchmark --seeds 50 --output benchmarks/knowledge_modes_50_seeds.json
 python -m echorescue.deconfliction_benchmark --seeds 50 --output benchmarks/distributed_deconfliction_50_seeds.json
 python -m echorescue.relay_benchmark --seeds 50 --output benchmarks/adaptive_relay_50_seeds.json
+python -m echorescue.network_benchmark --seeds 50 --output benchmarks/constrained_network_50_seeds.json
 ```
 
 The server automatically loads that default benchmark file when it exists. A
@@ -200,6 +202,72 @@ Both variants retained 100% Survivor Recall, safe return in all 50 missions,
 zero collisions, zero timeouts, and zero central Safety-Shield interventions.
 This measurable communication gain passes the benchmark acceptance rule but is
 not sufficient reason to change the default strategy automatically.
+
+### Constrained network transport
+
+`--network-profile ideal` remains the default and preserves instantaneous
+knowledge exchange and all verified fingerprints. The opt-in `constrained`
+profile is available only with Active Local Knowledge. It separates physical
+radio reachability from successful data delivery through the standalone
+`network_transport` module. The documented moderate defaults are one-step
+link latency, 5% deterministic packet loss, 36 payload units per physical link
+and step, fragments of at most 12 units, and age-based queue fairness every 8
+steps. CLI flags expose latency, loss, capacity, fragment size, knowledge TTLs,
+fairness age, backlog warning threshold, and the bounded Final-Sync budget.
+
+Safety-critical motion intent and drone/RTB state precede Survivor confirmation,
+Survivor detection, map data, and decision-free telemetry. Loss is derived from
+the mission seed, profile, directed hop, stable fragment ID, retry attempt, and
+send step; it never consumes a mutable random stream. A Relay route is genuine
+store-and-forward transport: Scout-to-Relay delivery only queues the second
+Relay-to-Base hop. Replay schema 1.7 exposes physical links, successful transfer
+links, queue/backlog state, loss, expiry, and Relay forwarding without leaking
+ground truth. Older schema 1.5 and 1.6 replays remain supported.
+
+Transport quality is reported with three explicit denominators. Fragment-attempt
+delivery counts every link-hop attempt and every retry. Unique-fragment eventual
+delivery counts each created end fragment once. Logical-message completion counts
+only messages whose complete fragment set reached the recipient. Packet losses,
+TTL expiry, and fragments discarded at mission close are separate counters; no
+missing value is replaced by zero.
+
+When both drones have landed but locally confirmed Survivor knowledge is still
+missing at the base, the constrained profile enters a bounded `FINAL_SYNC` data
+drain. It uses the normal latency, capacity, deterministic loss, retransmission,
+TTL, and routing machinery—there is no queue flush and no Ground-Truth fallback.
+Landed radios are explicitly abstracted as base-powered, so flight-battery values
+do not change. Once all confirmed Survivor data has arrived, remaining map traffic
+may be discarded; if the configured `--final-sync-max-steps` budget expires first,
+the mission remains failed with `final_sync_timeout`.
+
+Queued messages whose next hop becomes invalid are reconsidered deterministically
+against the currently observed communication graph. This prevents a stale fixed
+route from indefinitely blocking safety or Survivor traffic. Predictive routing,
+route-quality optimization, and a complete dynamic-routing protocol remain future
+work.
+
+The reproducible 50-seed comparison is stored at
+[`benchmarks/constrained_network_50_seeds.json`](benchmarks/constrained_network_50_seeds.json).
+Every seed is executed twice. Ideal Relay-off retains fingerprint
+`db80668469f645f5133b2c5bc53bfbeeefe91108d9e0103dc8a6b8369761b5bb` and
+averages 75.30 steps with 100% base-known Survivor Recall. Hardened constrained
+Relay-off averages 152.64 steps; Adaptive Relay averages 160.26. Both now reach
+100% mission success and base Recall, return both drones in every mission, and
+have zero wall/drone collisions, timeouts, Final-Sync timeouts, and central
+Safety-Shield interventions. Three missions per constrained profile enter Final
+Sync. Relay-off averages 4.00 Final-Sync steps (maximum 7), while Adaptive Relay
+averages 17.33 (maximum 33).
+
+The aggregate Relay-off ratios are 95.03% successful fragment attempts, 64.01%
+eventual unique-fragment delivery, and 65.11% logical-message completion.
+Adaptive Relay reaches 95.01%, 62.94%, and 63.03%. The apparent gap is not
+unexplained packet loss: low-priority map snapshots are intentionally discarded
+after critical Survivor delivery and mission close, while stale traffic also
+expires by TTL. Exact loss, TTL, close-drop, retransmission, and before/after
+Shield classifications are versioned in the artifact. The old 46 Relay-off and
+51 Adaptive Shield interventions reproduce as delayed/lost Intent cases; the
+hardened variants reduce every category to zero. Adaptive Relay remains slower
+and has lower completion ratios, so it is still not accepted as an improvement.
 
 ## Verified benchmark
 

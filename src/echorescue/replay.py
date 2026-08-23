@@ -14,6 +14,7 @@ from echorescue.multi_simulation import (
 
 
 REPLAY_SCHEMA_VERSION = "1.5"
+CONSTRAINED_REPLAY_SCHEMA_VERSION = "1.7"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -301,6 +302,35 @@ class ReplayRecorder:
                 3,
             ),
         }
+        if simulation.network_transport is not None:
+            transport = simulation.network_transport
+            frame["network"] = {
+                "profile": "constrained",
+                "physical_links": communication_links,
+                "successful_transfer_links": [
+                    {"from": first, "to": second}
+                    for first, second in sorted(
+                        simulation._network_delivered_links_this_step
+                    )
+                ],
+                "delivered_payload_units": (
+                    simulation._network_delivered_units_this_step
+                ),
+                "queue_size": transport.queue_size,
+                "average_queue_size": round(
+                    transport.average_queue_size, 3
+                ),
+                "maximum_queue_size": transport.maximum_queue_size,
+                "lost_fragments": transport.lost_fragments,
+                "expired_fragments": transport.expired_fragments,
+                "relay_fragments_forwarded": (
+                    transport.relay_fragments_forwarded
+                ),
+                "relay_forwarding_active": any(
+                    len(fragment.route) > 2
+                    for fragment in transport._queued + transport._in_flight
+                ),
+            }
         if self._frames and self._frames[-1]["step"] == simulation.steps:
             self._frames[-1] = frame
         else:
@@ -320,13 +350,26 @@ class ReplayRecorder:
             frame["events"] = events_by_step.get(int(frame["step"]), [])
             frames.append(frame)
         configuration = asdict(simulation.config)
+        if simulation.network_transport is None:
+            for key in tuple(configuration):
+                if key.startswith("network_") or key == "final_sync_max_steps":
+                    configuration.pop(key)
+        mission = {
+            "seed": simulation.config.seed,
+            "knowledge_mode": simulation.knowledge_mode,
+            "relay_strategy": simulation.config.relay_strategy,
+            "configuration": configuration,
+        }
+        if simulation.network_transport is not None:
+            mission["network_profile"] = simulation.config.network_profile
         return {
-            "schema_version": REPLAY_SCHEMA_VERSION,
+            "schema_version": (
+                CONSTRAINED_REPLAY_SCHEMA_VERSION
+                if simulation.network_transport is not None
+                else REPLAY_SCHEMA_VERSION
+            ),
             "mission": {
-                "seed": simulation.config.seed,
-                "knowledge_mode": simulation.knowledge_mode,
-                "relay_strategy": simulation.config.relay_strategy,
-                "configuration": configuration,
+                **mission,
             },
             "map": {
                 "width": simulation.config.width,

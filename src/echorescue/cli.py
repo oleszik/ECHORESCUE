@@ -47,6 +47,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--relay-energy-margin", type=float, default=5.0)
     parser.add_argument("--relay-min-benefit-ratio", type=float, default=20.0)
     parser.add_argument(
+        "--network-profile", choices=("ideal", "constrained"), default="ideal"
+    )
+    parser.add_argument("--network-latency-steps", type=int, default=1)
+    parser.add_argument("--network-packet-loss", type=float, default=0.05)
+    parser.add_argument("--network-link-capacity", type=int, default=36)
+    parser.add_argument("--network-fragment-size", type=int, default=12)
+    parser.add_argument("--network-map-ttl", type=int, default=256)
+    parser.add_argument("--network-survivor-ttl", type=int, default=128)
+    parser.add_argument("--network-fairness-age", type=int, default=8)
+    parser.add_argument("--network-backlog-warning", type=int, default=24)
+    parser.add_argument("--final-sync-max-steps", type=int, default=128)
+    parser.add_argument(
         "--knowledge-mode",
         choices=("shared", "shadow", "local"),
         default="shared",
@@ -106,6 +118,16 @@ def main(argv: list[str] | None = None) -> None:
         relay_max_deployments=args.relay_max_deployments,
         relay_energy_margin=args.relay_energy_margin,
         relay_min_benefit_ratio=args.relay_min_benefit_ratio,
+        network_profile=args.network_profile,
+        network_latency_steps=args.network_latency_steps,
+        network_packet_loss_rate=args.network_packet_loss,
+        network_link_capacity_units=args.network_link_capacity,
+        network_max_fragment_units=args.network_fragment_size,
+        network_map_ttl=args.network_map_ttl,
+        network_survivor_ttl=args.network_survivor_ttl,
+        network_fairness_age_steps=args.network_fairness_age,
+        network_backlog_warning_threshold=args.network_backlog_warning,
+        final_sync_max_steps=args.final_sync_max_steps,
         knowledge_mode=args.knowledge_mode,
         base_knowledge_store_enabled=not args.disable_base_knowledge_store,
         max_steps=args.max_steps,

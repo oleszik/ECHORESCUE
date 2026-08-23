@@ -30,7 +30,7 @@ const elements = {};
 
 function cacheElements() {
   [
-    "seedValue", "knowledgeMode", "missionStatus", "restartButton", "previousButton", "playButton",
+    "seedValue", "knowledgeMode", "networkProfile", "missionStatus", "restartButton", "previousButton", "playButton",
     "playIcon", "playLabel", "nextButton", "timeline", "currentStep", "maxStep",
     "speedSelect", "mapViewSelect", "mapViewTitle", "mapViewPurpose", "missionCanvas", "coverageValue", "eventFeed", "eventCount",
     "resultBadge", "metricRecall", "metricReturned", "metricWalls", "metricDrones",
@@ -39,9 +39,11 @@ function cacheElements() {
     "relaySummary", "relaySummaryState", "metricRelayDeployments", "metricRelayCells",
     "metricRelaySurvivors", "metricRelayDelay", "metricRelayEnergy", "metricBaseCoverage",
     "benchmarkTitle", "benchmarkBadge", "baselineLabel", "candidateLabel", "improvementLabel",
+    "networkSummary", "networkSummaryState", "metricNetworkDelivery", "metricNetworkAttemptDelivery", "metricNetworkMessageCompletion", "metricNetworkLatency",
+    "metricNetworkQueue", "metricNetworkLoss", "metricNetworkPayload", "metricNetworkRelay",
   ].forEach((id) => { elements[id] = document.getElementById(id); });
   [1, 2].forEach((number) => {
-    ["State", "Position", "Energy", "Battery", "Target", "Communication", "Coverage", "Survivors", "DataAge"].forEach((field) => {
+    ["State", "Position", "Energy", "Battery", "Target", "Communication", "DataLink", "Coverage", "Survivors", "DataAge"].forEach((field) => {
       elements[`drone${field}${number}`] = document.getElementById(`drone${field}${number}`);
     });
   });
@@ -87,10 +89,13 @@ function initializeReplay(replay, benchmark) {
   state.mapView = knowledgeMode === "local" ? "base" : "operator";
   elements.mapViewSelect.value = state.mapView;
   const relayStrategy = replay.mission.relay_strategy || replay.mission.configuration?.relay_strategy || "off";
+  const networkProfile = replay.mission.network_profile || replay.mission.configuration?.network_profile || "ideal";
   elements.knowledgeMode.textContent = relayStrategy === "adaptive"
     ? `${knowledgeMode.toUpperCase()} · ADAPTIVE RELAY`
     : knowledgeMode.toUpperCase();
   elements.seedValue.textContent = replay.mission.seed;
+  elements.networkProfile.textContent = networkProfile.toUpperCase();
+  elements.networkProfile.classList.toggle("constrained", networkProfile === "constrained");
   elements.schemaVersion.textContent = replay.schema_version;
   elements.timeline.max = replay.frames.length - 1;
   elements.maxStep.textContent = replay.frames.at(-1).step;
@@ -107,15 +112,16 @@ function setFrame(index) {
   elements.timeline.value = state.frameIndex;
   elements.currentStep.textContent = frame.step;
   updateMapReadout(frame);
-  updateDroneCard(1, frame.drones["drone-1"]);
-  updateDroneCard(2, frame.drones["drone-2"]);
+  updateDroneCard(1, frame.drones["drone-1"], frame);
+  updateDroneCard(2, frame.drones["drone-2"], frame);
+  updateNetworkReadout(frame);
   updateStatus(frame);
   updateEventFeed();
   drawMission();
   if (state.frameIndex === state.replay.frames.length - 1 && state.playing) pause();
 }
 
-function updateDroneCard(number, drone) {
+function updateDroneCard(number, drone, frame) {
   const [x, y] = drone.position;
   const relayHold = drone.relay?.holding_for_relay ? "RELAY HOLD · " : "";
   elements[`droneState${number}`].textContent = `${drone.yielding ? "YIELDING · " : relayHold}${drone.state.replaceAll("_", " ")}`;
@@ -142,6 +148,29 @@ function updateDroneCard(number, drone) {
     status.textContent = "Disconnected";
     status.classList.add("offline");
   }
+  const dataStatus = elements[`droneDataLink${number}`];
+  const network = frame.network;
+  if (!network) {
+    dataStatus.textContent = "Instant (ideal)";
+  } else {
+    const droneId = `drone-${number}`;
+    const delivered = (network.successful_transfer_links || []).some(
+      (link) => link.from === droneId || link.to === droneId
+    );
+    dataStatus.textContent = delivered ? "Delivered this step" : (network.queue_size ? "Queued" : "Idle");
+    dataStatus.className = delivered ? "data-delivered" : "";
+  }
+}
+
+function updateNetworkReadout(frame) {
+  if (!elements.networkSummary) return;
+  const network = frame.network;
+  if (!network) {
+    elements.networkSummaryState.textContent = "NOT AVAILABLE";
+    return;
+  }
+  const relayState = network.relay_forwarding_active ? " · RELAY FORWARDING" : "";
+  elements.networkSummaryState.textContent = `QUEUE ${network.queue_size}${relayState}`;
 }
 
 function selectedKnowledgeMap(frame) {
@@ -173,6 +202,9 @@ function updateStatus(frame) {
 
 function eventColor(event) {
   if (event.event_type === "safety_shield_intervention") return "#fb7185";
+  if (event.event_type === "final_sync_timeout") return "#fb7185";
+  if (event.event_type === "final_sync_completed") return "#34d399";
+  if (event.event_type === "final_sync_started") return "#38bdf8";
   if (["relay_link_achieved", "relay_payload_forwarded"].includes(event.event_type)) return "#34d399";
   if (event.event_type.startsWith("relay_role_") || event.event_type === "relay_position_selected") return COLORS.radioRelay;
   if (["local_collision_avoided", "yield_started", "yield_ended", "deadlock_replanned"].includes(event.event_type)) return "#34d399";
@@ -230,7 +262,10 @@ function updateEventFeed() {
     const detail = document.createElement("span");
     const cells = event.cell_count == null ? "" : ` · ${event.cell_count} cells`;
     const survivors = event.survivor_count == null ? "" : ` · ${event.survivor_count} survivors`;
-    detail.textContent = `${event.drone_id} · [${event.position.join(", ")}]${cells}${survivors}`;
+    const messages = event.message_count == null ? "" : ` · ${event.message_count} msg`;
+    const messageType = event.message_type ? ` · ${event.message_type.replaceAll("_", " ")}` : "";
+    const units = event.payload_units == null ? "" : ` · ${event.payload_units} units`;
+    detail.textContent = `${event.drone_id} · [${event.position.join(", ")}]${cells}${survivors}${messages}${messageType}${units}`;
     copy.append(title, detail);
     item.append(step, node, copy);
     elements.eventFeed.append(item);
@@ -257,6 +292,24 @@ function populateMetrics() {
   elements.metricRelayDelay.textContent = formatOptionalNumber(metrics.relay_mission_delay_steps, 0, " steps");
   elements.metricRelayEnergy.textContent = formatOptionalNumber(metrics.relay_energy_consumed, 1, " units");
   elements.metricBaseCoverage.textContent = formatOptionalNumber(metrics.base_known_coverage, 1, "%");
+  const constrained = metrics.network_profile === "constrained";
+  elements.networkSummary.classList.toggle("inactive", !constrained);
+  elements.networkSummaryState.textContent = constrained ? "CONSTRAINED" : "NOT AVAILABLE";
+  const uniqueDelivery = metrics.network_unique_fragment_eventual_delivery_ratio ?? metrics.network_delivery_ratio;
+  elements.metricNetworkDelivery.textContent = Number.isFinite(uniqueDelivery)
+    ? `${(uniqueDelivery * 100).toFixed(1)}%` : "—";
+  elements.metricNetworkAttemptDelivery.textContent = Number.isFinite(metrics.network_fragment_attempt_delivery_ratio)
+    ? `${(metrics.network_fragment_attempt_delivery_ratio * 100).toFixed(1)}%` : "—";
+  elements.metricNetworkMessageCompletion.textContent = Number.isFinite(metrics.network_logical_message_completion_ratio)
+    ? `${(metrics.network_logical_message_completion_ratio * 100).toFixed(1)}%` : "—";
+  elements.metricNetworkLatency.textContent = Number.isFinite(metrics.network_mean_latency)
+    ? `${metrics.network_mean_latency.toFixed(1)} / ${formatOptionalNumber(metrics.network_max_latency, 0)}` : "—";
+  elements.metricNetworkQueue.textContent = Number.isFinite(metrics.network_average_queue_size)
+    ? `${metrics.network_average_queue_size.toFixed(1)} / ${formatOptionalNumber(metrics.network_max_queue_size, 0)}` : "—";
+  elements.metricNetworkLoss.textContent = Number.isFinite(metrics.network_fragments_lost)
+    ? `${metrics.network_fragments_lost} / ${metrics.network_messages_expired ?? "—"} / ${metrics.network_messages_dropped ?? "—"}` : "—";
+  elements.metricNetworkPayload.textContent = formatOptionalNumber(metrics.network_payload_units_delivered, 0, " units");
+  elements.metricNetworkRelay.textContent = formatOptionalNumber(metrics.relay_network_fragments, 0, " fragments");
 }
 
 function isRecord(value) {
@@ -413,6 +466,26 @@ function normalizeMissionTelemetryBenchmark(benchmark) {
   };
 }
 
+function normalizeNetworkBenchmark(benchmark) {
+  const profiles = requiredObject(benchmark, "profiles", "Network transport");
+  const ideal = requiredObject(profiles, "ideal_relay_off", "Network transport");
+  const constrained = requiredObject(profiles, "constrained_relay_off", "Network transport");
+  const idealSteps = optionalNumber(ideal, "average_mission_steps", "profiles.ideal_relay_off");
+  const constrainedSteps = optionalNumber(constrained, "average_mission_steps", "profiles.constrained_relay_off");
+  const delivery = optionalNumber(constrained, "average_delivery_ratio", "profiles.constrained_relay_off");
+  const latency = optionalNumber(constrained, "average_network_latency", "profiles.constrained_relay_off");
+  const parts = [];
+  if (Number.isFinite(delivery)) parts.push(`Constrained delivery ratio: ${(delivery * 100).toFixed(2)}%.`);
+  if (Number.isFinite(latency)) parts.push(`Mean end-to-end latency: ${latency.toFixed(2)} steps.`);
+  return {
+    status: "ready", format: "network_transport", title: "Constrained network trade-off",
+    baselineLabel: "Ideal network", candidateLabel: "Constrained",
+    baselineSteps: idealSteps, candidateSteps: constrainedSteps,
+    improvementValue: "—", improvementLabel: "transport cost",
+    note: joinBenchmarkNote(parts),
+  };
+}
+
 function normalizeBenchmark(benchmark) {
   if (!isRecord(benchmark)) throw new Error("Benchmark root must be a JSON object.");
   if (hasOwn(benchmark, "schema_version") && typeof benchmark.schema_version !== "string") {
@@ -425,6 +498,7 @@ function normalizeBenchmark(benchmark) {
     return normalizeParallelBenchmark(benchmark);
   }
   if (hasOwn(benchmark, "modes")) return normalizeKnowledgeModesBenchmark(benchmark);
+  if (hasOwn(benchmark, "profiles")) return normalizeNetworkBenchmark(benchmark);
   if (hasOwn(benchmark, "distributed_deconfliction") || hasOwn(benchmark, "legacy_safety_shield_baseline")) {
     return normalizeDeconflictionBenchmark(benchmark);
   }
@@ -531,6 +605,7 @@ function drawPolyline(context, points, geometry, color, width, dashed = false) {
 }
 
 function drawCommunicationLinks(context, frame, geometry) {
+  const constrained = frame.network?.profile === "constrained";
   const activeRelay = Object.entries(frame.drones).find(([, drone]) => drone.relay?.active);
   const relayId = activeRelay?.[0];
   const scoutId = activeRelay?.[1].relay?.scout_id;
@@ -548,13 +623,30 @@ function drawCommunicationLinks(context, frame, geometry) {
     context.strokeStyle = adaptiveChain ? COLORS.radioRelay : link.kind === "direct_base"
       ? COLORS.radioDirect
       : link.kind === "relay" ? COLORS.radioRelay : COLORS.radioPeer;
-    context.globalAlpha = adaptiveChain ? 1 : link.kind === "peer" ? 0.52 : 0.82;
+    context.globalAlpha = constrained ? 0.32 : (adaptiveChain ? 1 : link.kind === "peer" ? 0.52 : 0.82);
     context.lineWidth = (adaptiveChain ? 3.2 : link.kind === "relay" ? 2.2 : 1.7) * geometry.ratio;
-    if (adaptiveChain || link.kind === "relay") {
+    if (constrained || adaptiveChain || link.kind === "relay") {
       context.setLineDash([7 * geometry.ratio, 4 * geometry.ratio]);
     } else if (link.kind === "peer") {
       context.setLineDash([2 * geometry.ratio, 5 * geometry.ratio]);
     }
+    context.beginPath();
+    context.moveTo(firstX, firstY);
+    context.lineTo(secondX, secondY);
+    context.stroke();
+    context.restore();
+  }
+  for (const link of frame.network?.successful_transfer_links || []) {
+    const first = frame.communication.nodes[link.from];
+    const second = frame.communication.nodes[link.to];
+    if (!first || !second) continue;
+    const [firstX, firstY] = cellCenter(first, geometry);
+    const [secondX, secondY] = cellCenter(second, geometry);
+    context.save();
+    context.strokeStyle = COLORS.radioDirect;
+    context.shadowColor = COLORS.radioDirect;
+    context.shadowBlur = 7 * geometry.ratio;
+    context.lineWidth = 2.6 * geometry.ratio;
     context.beginPath();
     context.moveTo(firstX, firstY);
     context.lineTo(secondX, secondY);
