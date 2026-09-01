@@ -357,6 +357,38 @@ they demonstrate that the earlier constrained strategies do not fully
 generalize decentralized safety outside the original seeds. Both network-aware
 ablation cells record zero interventions and timeouts.
 
+### Deterministic failure recovery
+
+Phase 4 task redistribution is available through the repeatable
+`--inject-failure DRONE_ID:STEP` option. At the configured step the vehicle
+enters `FAILED`, its radio goes offline, and its last search responsibility is
+released. The remaining operational drone is assigned a reachable frontier
+from its current knowledge. A stale or newly observed former target is never
+forced merely because the failed drone once owned it. The failed airframe is
+treated as a static collision obstacle; safety, energy reserve, and Return to
+Base remain higher priority than recovery.
+
+```bash
+python -m echorescue --drones 2 --seed 7 --inject-failure drone-2:4 --replay-out replays/seed_7_failure.json
+python -m echorescue.failure_benchmark --seeds 50 --failure-drone drone-2 --failure-step 4 --output benchmarks/failure_reassignment_50_seeds.json
+python -m echorescue.dashboard --replay replays/seed_7_failure.json --benchmark benchmarks/failure_reassignment_50_seeds.json
+```
+
+Schema-1.9 replays expose the injected transition, released/reassigned task,
+offline radio state, and `failure_recovery` metrics. Mission success in this
+mode requires every still-operational drone to return, all reachable Survivors
+to be confirmed, no unexpected vehicle failure, and zero wall or drone
+collisions. The injected vehicle remains reported separately as failed; this is
+a degraded-success result, not a claim that the vehicle was recovered.
+
+The versioned 50-seed artifact at
+[`benchmarks/failure_reassignment_50_seeds.json`](benchmarks/failure_reassignment_50_seeds.json)
+fails `drone-2` at step 4 and repeats every recovery mission. All 50 failures
+triggered deterministically, all 50 released search responsibilities were
+reassigned, all operational drones returned, Reachable-Survivor Recall was
+100%, and wall/drone collisions remained zero. Mean duration increased from
+72.10 to 119.20 steps (+65.33%), making the redundancy cost explicit.
+
 ## Verified benchmark
 
 [`benchmarks/two_drone_50_seeds.json`](benchmarks/two_drone_50_seeds.json) is
@@ -444,7 +476,9 @@ and a local HTTP smoke test.
   defaults, not proof of global optimality or real radio performance
 - Active Local mode is opt-in and retains a central simulator Safety Shield as
   a final fail-safe; it does not claim real-world decentralized flight safety
-- no persistent role hierarchy, injected failures, dynamic obstacles, ROS 2,
-  hardware integration, or 3D visualization
+- failure injection is an abrupt deterministic fail-stop model; it does not
+  model probabilistic faults, diagnosis, repair, or a recoverable airframe
+- no persistent role hierarchy, dynamic obstacles, ROS 2, hardware integration,
+  or 3D visualization
 
 This is a software simulation and not evidence of real-world flight safety.

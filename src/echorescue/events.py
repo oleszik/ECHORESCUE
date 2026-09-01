@@ -60,6 +60,10 @@ class EventType(str, Enum):
     RELAY_ROUTE_REPLANNED = "relay_route_replanned"
     RELAY_PAYLOAD_COMPACTED = "relay_payload_compacted"
     CRITICAL_PAYLOAD_ACKNOWLEDGED = "critical_payload_acknowledged"
+    DRONE_FAILURE_INJECTED = "drone_failure_injected"
+    FAILURE_TASK_RELEASED = "failure_task_released"
+    FAILURE_TASK_REASSIGNED = "failure_task_reassigned"
+    FAILED_DRONE_COLLISION_AVOIDED = "failed_drone_collision_avoided"
 
 
 @dataclass(frozen=True, slots=True)
@@ -195,6 +199,10 @@ class MissionLog:
             EventType.RELAY_ROUTE_REPLANNED,
             EventType.RELAY_PAYLOAD_COMPACTED,
             EventType.CRITICAL_PAYLOAD_ACKNOWLEDGED,
+            EventType.DRONE_FAILURE_INJECTED,
+            EventType.FAILURE_TASK_RELEASED,
+            EventType.FAILURE_TASK_REASSIGNED,
+            EventType.FAILED_DRONE_COLLISION_AVOIDED,
         }:
             key = (event.event_type, event.drone_id, event.step, event.position)
         else:

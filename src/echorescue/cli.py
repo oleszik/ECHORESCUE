@@ -8,6 +8,21 @@ from echorescue.simulation import Simulation
 from echorescue.visualization import TerminalRenderer
 
 
+def failure_spec(value: str) -> tuple[str, int]:
+    try:
+        drone_id, raw_step = value.rsplit(":", 1)
+        step = int(raw_step)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(
+            "failure must use DRONE_ID:STEP, for example drone-2:20"
+        ) from error
+    if drone_id not in {"drone-1", "drone-2"} or step < 0:
+        raise argparse.ArgumentTypeError(
+            "failure must use drone-1 or drone-2 and a non-negative step"
+        )
+    return drone_id, step
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run the deterministic EchoRescue Phase 1 simulation."
@@ -73,6 +88,14 @@ def build_parser() -> argparse.ArgumentParser:
         default="shared",
     )
     parser.add_argument("--disable-base-knowledge-store", action="store_true")
+    parser.add_argument(
+        "--inject-failure",
+        action="append",
+        default=[],
+        type=failure_spec,
+        metavar="DRONE_ID:STEP",
+        help="deterministically fail a drone at a simulation step (repeatable)",
+    )
     parser.add_argument("--max-steps", type=int, default=1_000)
     parser.add_argument(
         "--obstacle-density", type=float, default=0.08, metavar="FRACTION"
@@ -146,6 +169,7 @@ def main(argv: list[str] | None = None) -> None:
         final_sync_max_steps=args.final_sync_max_steps,
         knowledge_mode=args.knowledge_mode,
         base_knowledge_store_enabled=not args.disable_base_knowledge_store,
+        failure_schedule=tuple(sorted(args.inject_failure, key=lambda item: item[1])),
         max_steps=args.max_steps,
     )
     simulation = (

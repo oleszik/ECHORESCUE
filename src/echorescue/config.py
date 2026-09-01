@@ -54,6 +54,7 @@ class SimulationConfig:
     knowledge_mode: str = "shared"
     local_map_shadow_mode: bool | None = None
     base_knowledge_store_enabled: bool = True
+    failure_schedule: tuple[tuple[str, int], ...] = ()
     max_steps: int = 1_000
 
     def __post_init__(self) -> None:
@@ -159,6 +160,17 @@ class SimulationConfig:
             raise ValueError("final_sync_max_steps must be positive")
         if self.knowledge_mode not in {"shared", "shadow", "local"}:
             raise ValueError("knowledge_mode must be shared, shadow, or local")
+        if self.failure_schedule and self.drone_count != 2:
+            raise ValueError("failure injection requires drone_count=2")
+        seen_failure_ids: set[str] = set()
+        for drone_id, step in self.failure_schedule:
+            if drone_id not in {"drone-1", "drone-2"}:
+                raise ValueError("failure drone ID must be drone-1 or drone-2")
+            if drone_id in seen_failure_ids:
+                raise ValueError("each drone may have only one injected failure")
+            if step < 0 or step >= self.max_steps:
+                raise ValueError("failure step must be within the mission step limit")
+            seen_failure_ids.add(drone_id)
         if (
             self.relay_strategy in {"adaptive", "network-aware"}
             and self.effective_knowledge_mode != "local"

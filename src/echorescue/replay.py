@@ -16,6 +16,7 @@ from echorescue.multi_simulation import (
 REPLAY_SCHEMA_VERSION = "1.5"
 CONSTRAINED_REPLAY_SCHEMA_VERSION = "1.7"
 NETWORK_AWARE_REPLAY_SCHEMA_VERSION = "1.8"
+FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION = "1.9"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -385,6 +386,8 @@ class ReplayRecorder:
             for key in tuple(configuration):
                 if key.startswith("network_relay_"):
                     configuration.pop(key)
+        if not simulation.config.failure_schedule:
+            configuration.pop("failure_schedule", None)
         mission = {
             "seed": simulation.config.seed,
             "knowledge_mode": simulation.knowledge_mode,
@@ -395,12 +398,16 @@ class ReplayRecorder:
             mission["network_profile"] = simulation.config.network_profile
         return {
             "schema_version": (
-                NETWORK_AWARE_REPLAY_SCHEMA_VERSION
-                if simulation.config.relay_strategy == "network-aware"
+                FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION
+                if simulation.config.failure_schedule
                 else (
-                    CONSTRAINED_REPLAY_SCHEMA_VERSION
-                    if simulation.network_transport is not None
-                    else REPLAY_SCHEMA_VERSION
+                    NETWORK_AWARE_REPLAY_SCHEMA_VERSION
+                    if simulation.config.relay_strategy == "network-aware"
+                    else (
+                        CONSTRAINED_REPLAY_SCHEMA_VERSION
+                        if simulation.network_transport is not None
+                        else REPLAY_SCHEMA_VERSION
+                    )
                 )
             ),
             "mission": {

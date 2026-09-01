@@ -226,6 +226,7 @@ class MultiSimulationResult:
     network_shield_cause_classification: dict[str, int]
     network_shield_geometry_classification: dict[str, int]
     network_aware_relay_metrics: dict[str, object] | None
+    failure_recovery_metrics: dict[str, object] | None
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
@@ -470,6 +471,8 @@ class MultiSimulationResult:
         }
         if self.network_aware_relay_metrics is not None:
             payload["network_aware_relay"] = self.network_aware_relay_metrics
+        if self.failure_recovery_metrics is not None:
+            payload["failure_recovery"] = self.failure_recovery_metrics
         if self.network_profile == "ideal":
             for key in tuple(payload):
                 if key.startswith("network_") or key in {
@@ -634,6 +637,12 @@ class MultiDroneSimulation:
         self._network_relay_scout_exploration_steps = 0
         self._network_relay_unnecessary_deployments = 0
         self._network_relay_backlog_samples: list[int] = []
+        self._injected_failure_ids: set[str] = set()
+        self._released_failure_tasks: dict[Position, str] = {}
+        self._claimed_failure_tasks: dict[Position, tuple[str, str]] = {}
+        self._failure_tasks_released = 0
+        self._failure_tasks_reassigned = 0
+        self._failed_drone_collision_avoidances = 0
         # Benchmark-only ablation seam.  Public strategy semantics stay intact:
         # normal network-aware runs always keep active Relay roles enabled.
         self._network_aware_relay_roles_enabled = True
@@ -1286,9 +1295,14 @@ class MultiDroneSimulation:
             "final_sync_timeout"
             if timed_out
             else (
-                "exploration_complete"
-                if self._exploration_complete
-                else "returned_to_base"
+                "failure_recovered"
+                if self._injected_failure_ids
+                and self._all_survivors_confirmed()
+                else (
+                    "exploration_complete"
+                    if self._exploration_complete
+                    else "returned_to_base"
+                )
             )
         )
         self._finalize_network_transport()
@@ -1325,6 +1339,190 @@ class MultiDroneSimulation:
     def _ordered_runtimes(self) -> tuple[DroneRuntime, ...]:
         return tuple(self.runtimes[key] for key in sorted(self.runtimes))
 
+    def _compute_communication_snapshot(self) -> CommunicationSnapshot:
+        active_positions = {
+            runtime.drone.identifier: runtime.drone.position
+            for runtime in self._ordered_runtimes()
+            if runtime.drone.status is not DroneStatus.FAILED
+        }
+        snapshot = self.communication_model.compute(
+            self.world,
+            self.world.base,
+            active_positions,
+        )
+        connections = dict(snapshot.connections)
+        for runtime in self._ordered_runtimes():
+            connections.setdefault(
+                runtime.drone.identifier,
+                DroneConnection(False, False),
+            )
+        return CommunicationSnapshot(
+            nodes=snapshot.nodes,
+            links=snapshot.links,
+            connections=connections,
+        )
+
+    def _observable_failed_positions(
+        self, runtime: DroneRuntime | None = None
+    ) -> frozenset[Position]:
+        failed = {
+            candidate.drone.position
+            for candidate in self._ordered_runtimes()
+            if candidate.drone.status is DroneStatus.FAILED
+            and candidate.drone.position != self.world.base
+        }
+        if self.knowledge_mode != "local" or runtime is None:
+            return frozenset(failed)
+        return frozenset(
+            position
+            for position in failed
+            if self.proximity_sensor.can_detect(
+                self.world, runtime.drone.position, position
+            )
+        )
+
+    def _inject_scheduled_failures(self) -> None:
+        due = tuple(
+            sorted(
+                drone_id
+                for drone_id, failure_step in self.config.failure_schedule
+                if failure_step == self.steps
+                and drone_id not in self._injected_failure_ids
+            )
+        )
+        if not due:
+            return
+        for drone_id in due:
+            runtime = self.runtimes[drone_id]
+            if runtime.terminal:
+                continue
+            released_target = runtime.active_frontier_target
+            if runtime.drone.status is DroneStatus.RELAY:
+                self._finish_relay_role(runtime, successful=False)
+            for relay in self._ordered_runtimes():
+                if (
+                    relay.drone.status is DroneStatus.RELAY
+                    and relay.relay_scout_id == drone_id
+                ):
+                    self._finish_relay_role(relay, successful=False)
+            runtime.drone.status = DroneStatus.FAILED
+            runtime.active_frontier_target = None
+            runtime.planned_path = ()
+            runtime.current_return_path = ()
+            runtime.holding_for_relay = False
+            self.motion_intents.pop(drone_id, None)
+            self._last_communicated_intents.pop(drone_id, None)
+            for received in self._received_motion_intents.values():
+                received.pop(drone_id, None)
+            self._injected_failure_ids.add(drone_id)
+            self._record_event(
+                runtime,
+                EventType.DRONE_FAILURE_INJECTED,
+                reason="scheduled_failure",
+            )
+            if released_target is not None:
+                self._released_failure_tasks[released_target] = drone_id
+                self._failure_tasks_released += 1
+                self._record_event(
+                    runtime,
+                    EventType.FAILURE_TASK_RELEASED,
+                    released_target,
+                    reason=drone_id,
+                )
+        self.communication_snapshot = self._compute_communication_snapshot()
+
+    def _prepare_failure_task_reassignments(self) -> None:
+        for target, failed_id in sorted(
+            self._released_failure_tasks.items(),
+            key=lambda item: (item[0].y, item[0].x, item[1]),
+        ):
+            candidates: list[tuple[int, str, tuple[Position, ...]]] = []
+            for runtime in self._ordered_runtimes():
+                if (
+                    runtime.drone.status is not DroneStatus.EXPLORE
+                    or runtime.holding_for_relay
+                ):
+                    continue
+                decision_map = self._decision_map(runtime)
+                if target not in decision_map.frontiers():
+                    continue
+                blocked = self._observable_failed_positions(runtime)
+                path = astar(
+                    runtime.drone.position,
+                    target,
+                    lambda position: decision_map.is_known_free(position)
+                    and (
+                        position == runtime.drone.position
+                        or position not in blocked
+                    ),
+                )
+                if path is not None:
+                    candidates.append(
+                        (len(path), runtime.drone.identifier, path)
+                    )
+            if not candidates:
+                continue
+            _, assignee_id, path = min(candidates)
+            assignee = self.runtimes[assignee_id]
+            assignee.active_frontier_target = target
+            assignee.planned_path = path
+            self._claimed_failure_tasks[target] = (failed_id, assignee_id)
+
+    def _confirm_failure_task_reassignments(
+        self, assignments: dict[str, FrontierAssignment]
+    ) -> None:
+        used_assignees: set[str] = set()
+        for target, (failed_id, assignee_id) in tuple(
+            self._claimed_failure_tasks.items()
+        ):
+            assignment = assignments.get(assignee_id)
+            if assignment is None or assignment.target != target:
+                continue
+            assignee = self.runtimes[assignee_id]
+            assignee.frontier_assignments += 1
+            self._failure_tasks_reassigned += 1
+            self._record_event(
+                assignee,
+                EventType.FAILURE_TASK_REASSIGNED,
+                target,
+                reason=failed_id,
+            )
+            used_assignees.add(assignee_id)
+            self._released_failure_tasks.pop(target, None)
+            self._claimed_failure_tasks.pop(target, None)
+        for released_target, failed_id in tuple(
+            sorted(
+                self._released_failure_tasks.items(),
+                key=lambda item: (item[0].y, item[0].x, item[1]),
+            )
+        ):
+            available = tuple(
+                (drone_id, assignment)
+                for drone_id, assignment in sorted(assignments.items())
+                if drone_id not in used_assignees
+            )
+            if not available:
+                continue
+            assignee_id, assignment = min(
+                available,
+                key=lambda item: (
+                    len(item[1].path),
+                    item[1].target.y,
+                    item[1].target.x,
+                    item[0],
+                ),
+            )
+            self._failure_tasks_reassigned += 1
+            self._record_event(
+                self.runtimes[assignee_id],
+                EventType.FAILURE_TASK_REASSIGNED,
+                assignment.target,
+                reason=failed_id,
+            )
+            used_assignees.add(assignee_id)
+            self._released_failure_tasks.pop(released_target, None)
+            self._claimed_failure_tasks.pop(released_target, None)
+
     def _resolve_start_positions(self) -> tuple[Position, Position]:
         if self.config.drone_start_positions is None:
             starts = (self.world.base, Position(self.world.base.x + 1, self.world.base.y))
@@ -1348,6 +1546,11 @@ class MultiDroneSimulation:
                 and (
                     visible_ids is None
                     or other.drone.identifier in visible_ids
+                    or (
+                        other.drone.status is DroneStatus.FAILED
+                        and other.drone.position
+                        in self._observable_failed_positions(runtime)
+                    )
                 )
                 and other.drone.status is not DroneStatus.LANDED
                 and other.drone.position != self.world.base
@@ -1467,14 +1670,7 @@ class MultiDroneSimulation:
         """Observe radio state without feeding it back into mission behavior."""
 
         previous = getattr(self, "communication_snapshot", None)
-        snapshot = self.communication_model.compute(
-            self.world,
-            self.world.base,
-            {
-                runtime.drone.identifier: runtime.drone.position
-                for runtime in self._ordered_runtimes()
-            },
-        )
+        snapshot = self._compute_communication_snapshot()
         self.communication_snapshot = snapshot
         self._communication_samples += 1
 
@@ -2394,6 +2590,14 @@ class MultiDroneSimulation:
             return False
         return len(self._confirmed_survivors) == len(self.world.survivors)
 
+    def _all_survivors_confirmed(self) -> bool:
+        confirmed = (
+            self._base_confirmed_survivors
+            if self.knowledge_mode == "local"
+            else self._confirmed_survivors
+        )
+        return len(confirmed) == len(self.world.survivors)
+
     def _fail_energy(self, runtime: DroneRuntime) -> None:
         if runtime.drone.status is DroneStatus.RELAY:
             self._record_event(
@@ -2472,6 +2676,7 @@ class MultiDroneSimulation:
                     self._start_return(runtime, return_path)
 
     def _allocate_frontiers(self) -> dict[str, FrontierAssignment]:
+        self._prepare_failure_task_reassignments()
         if self.knowledge_mode == "local":
             return self._allocate_local_frontiers()
         explorers = {
@@ -2506,7 +2711,11 @@ class MultiDroneSimulation:
             if runtime.drone.identifier in explorers
         }
         assignments = assign_frontiers(
-            explorers, frontiers, self.occupancy_map, old_targets
+            explorers,
+            frontiers,
+            self.occupancy_map,
+            old_targets,
+            blocked=self._observable_failed_positions(),
         )
         for runtime in self._ordered_runtimes():
             drone_id = runtime.drone.identifier
@@ -2526,6 +2735,7 @@ class MultiDroneSimulation:
                 )
                 runtime.frontier_assignments += 1
                 self._record_event(runtime, event_type, assignment.target)
+        self._confirm_failure_task_reassignments(assignments)
         return assignments
 
     def _allocate_local_frontiers(self) -> dict[str, FrontierAssignment]:
@@ -2615,6 +2825,13 @@ class MultiDroneSimulation:
                 frontiers,
                 component_map,
                 current_targets,
+                blocked=frozenset(
+                    position
+                    for drone_id in component
+                    for position in self._observable_failed_positions(
+                        self.runtimes[drone_id]
+                    )
+                ),
             )
             assignments.update(component_assignments)
             for drone_id in component:
@@ -2654,6 +2871,7 @@ class MultiDroneSimulation:
         self._pending_reconnect_targets.clear()
         if not any_frontiers:
             self._exploration_complete = True
+        self._confirm_failure_task_reassignments(assignments)
         return assignments
 
     def _plan_return_intention(self, runtime: DroneRuntime) -> Position:
@@ -3220,6 +3438,22 @@ class MultiDroneSimulation:
     def _execute_intentions(self, intentions: dict[str, Position]) -> None:
         if not intentions:
             return
+        failed_positions = self._observable_failed_positions()
+        for drone_id, destination in tuple(intentions.items()):
+            runtime = self.runtimes[drone_id]
+            if (
+                destination != runtime.drone.position
+                and destination in failed_positions
+            ):
+                intentions[drone_id] = runtime.drone.position
+                if runtime.drone.status is DroneStatus.RETURN_HOME:
+                    runtime.return_replan_required = True
+                self._failed_drone_collision_avoidances += 1
+                self._record_event(
+                    runtime,
+                    EventType.FAILED_DRONE_COLLISION_AVOIDED,
+                    destination,
+                )
         current = {
             drone_id: self.runtimes[drone_id].drone.position
             for drone_id in intentions
@@ -3400,8 +3634,13 @@ class MultiDroneSimulation:
             runtime.drone.status is DroneStatus.LANDED
             for runtime in self._ordered_runtimes()
         )
+        operational_landed = all(
+            runtime.drone.status is DroneStatus.LANDED
+            for runtime in self._ordered_runtimes()
+            if runtime.drone.identifier not in self._injected_failure_ids
+        )
         if (
-            all_landed
+            operational_landed
             and self.network_transport is not None
             and self._pending_critical_survivors()
         ):
@@ -3409,7 +3648,13 @@ class MultiDroneSimulation:
                 self._start_final_sync()
             return
         self.completed = True
-        if all_landed:
+        if self._injected_failure_ids and operational_landed:
+            self.termination_reason = (
+                "failure_recovered"
+                if self._all_survivors_confirmed()
+                else "mission_failed"
+            )
+        elif all_landed:
             self.termination_reason = (
                 "exploration_complete"
                 if self._exploration_complete
@@ -3439,6 +3684,7 @@ class MultiDroneSimulation:
             self._finalize_network_transport()
             return False
 
+        self._inject_scheduled_failures()
         if self.network_transport is not None:
             self._deliver_network_transport()
         self._prepare_energy_states()
@@ -3571,6 +3817,54 @@ class MultiDroneSimulation:
             "queue_backlog_by_type": transport.backlog_by_type(),
         }
 
+    def _failure_recovery_metrics(self) -> dict[str, object] | None:
+        if not self.config.failure_schedule:
+            return None
+        operational = tuple(
+            runtime
+            for runtime in self._ordered_runtimes()
+            if runtime.drone.identifier not in self._injected_failure_ids
+        )
+        operational_returned = sum(
+            runtime.drone.status is DroneStatus.LANDED
+            for runtime in operational
+        )
+        unexpected_failures = tuple(
+            runtime.drone.identifier
+            for runtime in operational
+            if runtime.drone.status in {
+                DroneStatus.ENERGY_EMERGENCY,
+                DroneStatus.RETURN_PATH_UNAVAILABLE,
+                DroneStatus.FAILED,
+            }
+        )
+        recovery_success = (
+            bool(self._injected_failure_ids)
+            and operational_returned == len(operational)
+            and not unexpected_failures
+            and self._all_survivors_confirmed()
+            and self.collisions == 0
+            and self.drone_drone_collisions == 0
+        )
+        return {
+            "scheduled": [
+                {"drone_id": drone_id, "step": step}
+                for drone_id, step in self.config.failure_schedule
+            ],
+            "injected_drone_ids": sorted(self._injected_failure_ids),
+            "failures_triggered": len(self._injected_failure_ids),
+            "tasks_released": self._failure_tasks_released,
+            "tasks_reassigned": self._failure_tasks_reassigned,
+            "tasks_pending": len(self._released_failure_tasks),
+            "failed_drone_collision_avoidances": (
+                self._failed_drone_collision_avoidances
+            ),
+            "operational_drones": len(operational),
+            "operational_drones_returned": operational_returned,
+            "unexpected_failure_ids": list(unexpected_failures),
+            "recovery_success": recovery_success,
+        }
+
     def result(self) -> MultiSimulationResult:
         self._finalize_network_transport()
         transport = self.network_transport
@@ -3623,11 +3917,17 @@ class MultiDroneSimulation:
             if unique_visited
             else 0.0
         )
+        failure_recovery_metrics = self._failure_recovery_metrics()
         mission_success = (
-            len(reported_confirmed) == survivors_total
-            and self.collisions == 0
-            and self.drone_drone_collisions == 0
-            and drones_returned == len(self.runtimes)
+            bool(failure_recovery_metrics["recovery_success"])
+            if self._injected_failure_ids
+            and failure_recovery_metrics is not None
+            else (
+                len(reported_confirmed) == survivors_total
+                and self.collisions == 0
+                and self.drone_drone_collisions == 0
+                and drones_returned == len(self.runtimes)
+            )
         )
         shared_shadow_map = self.shadow_synchronizer.shared_shadow_map()
         evaluation_known_cells = (
@@ -3975,6 +4275,7 @@ class MultiDroneSimulation:
                 sorted(self._network_shield_geometry_classification.items())
             ),
             network_aware_relay_metrics=self._network_aware_relay_metrics(),
+            failure_recovery_metrics=failure_recovery_metrics,
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )

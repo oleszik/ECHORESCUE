@@ -414,6 +414,25 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
         self.assertIsInstance(view["ablation"]["transportSteps"], (int, float))
         self.assertIsInstance(view["ablation"]["relayEffect"], (int, float))
 
+    def test_failure_reassignment_benchmark_schema_is_mapped_correctly(self) -> None:
+        payload = json.loads(
+            (
+                REPOSITORY_ROOT
+                / "benchmarks"
+                / "failure_reassignment_50_seeds.json"
+            ).read_text(encoding="utf-8")
+        )
+
+        view = benchmark_view(payload)
+
+        self.assertEqual(view["status"], "ready")
+        self.assertEqual(view["format"], "failure_reassignment")
+        self.assertEqual(view["baselineLabel"], "No failure")
+        self.assertEqual(view["candidateLabel"], "Drone failure")
+        self.assertEqual(view["baselineSteps"], 72.1)
+        self.assertEqual(view["candidateSteps"], 119.2)
+        self.assertEqual(view["improvementValue"], "+65.33%")
+
     def test_dashboard_server_accepts_network_aware_replay_schema(self) -> None:
         server = create_server(
             REPOSITORY_ROOT / "replays" / "seed_7_network_aware.json",

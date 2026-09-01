@@ -5,6 +5,7 @@ from pathlib import Path
 
 from echorescue.replay import (
     CONSTRAINED_REPLAY_SCHEMA_VERSION,
+    FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION,
     NETWORK_AWARE_REPLAY_SCHEMA_VERSION,
     REPLAY_SCHEMA_VERSION,
 )
@@ -20,6 +21,7 @@ def _validate_replay(path: Path) -> None:
         REPLAY_SCHEMA_VERSION,
         CONSTRAINED_REPLAY_SCHEMA_VERSION,
         NETWORK_AWARE_REPLAY_SCHEMA_VERSION,
+        FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION,
     }:
         raise ValueError(
             f"unsupported replay schema: {replay.get('schema_version')!r}"

@@ -24,8 +24,9 @@ def _path_avoiding_other_drones(
     target: Position,
     positions: dict[str, Position],
     occupancy_map: OccupancyMap,
+    blocked: frozenset[Position],
 ) -> tuple[Position, ...] | None:
-    blocked = {
+    blocked_positions = set(blocked) | {
         position
         for other_id, position in positions.items()
         if other_id != drone_id and position != start
@@ -33,7 +34,7 @@ def _path_avoiding_other_drones(
 
     def passable(position: Position) -> bool:
         return occupancy_map.is_known_free(position) and (
-            position == start or position not in blocked
+            position == start or position not in blocked_positions
         )
 
     return astar(start, target, passable)
@@ -44,6 +45,7 @@ def assign_frontiers(
     frontiers: tuple[Position, ...],
     occupancy_map: OccupancyMap,
     current_targets: dict[str, Position | None],
+    blocked: frozenset[Position] = frozenset(),
 ) -> dict[str, FrontierAssignment]:
     """Allocate distinct reachable frontiers with deterministic global ordering."""
 
@@ -57,7 +59,12 @@ def assign_frontiers(
         if target is None or target not in frontier_set or target in claimed:
             continue
         path = _path_avoiding_other_drones(
-            drone_id, positions[drone_id], target, positions, occupancy_map
+            drone_id,
+            positions[drone_id],
+            target,
+            positions,
+            occupancy_map,
+            blocked,
         )
         if path is not None:
             assignments[drone_id] = FrontierAssignment(target, path)
@@ -69,7 +76,12 @@ def assign_frontiers(
             continue
         for target in sorted(frontier_set - claimed):
             path = _path_avoiding_other_drones(
-                drone_id, positions[drone_id], target, positions, occupancy_map
+                drone_id,
+                positions[drone_id],
+                target,
+                positions,
+                occupancy_map,
+                blocked,
             )
             if path is not None:
                 candidates.append(

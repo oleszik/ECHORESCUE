@@ -580,10 +580,47 @@ function normalizeNetworkAwareRelayBenchmark(benchmark) {
   };
 }
 
+function normalizeFailureReassignmentBenchmark(benchmark) {
+  const baseline = requiredObject(benchmark, "baseline", "Failure reassignment");
+  const recovery = requiredObject(benchmark, "failure_recovery", "Failure reassignment");
+  const acceptance = hasOwn(benchmark, "acceptance")
+    ? requiredObject(benchmark, "acceptance", "Failure reassignment") : {};
+  const baselineSteps = optionalNumber(baseline, "average_mission_steps", "baseline");
+  const recoverySteps = optionalNumber(recovery, "average_mission_steps", "failure_recovery");
+  const tasks = optionalNumber(recovery, "tasks_reassigned", "failure_recovery");
+  const missions = optionalNumber(recovery, "missions", "failure_recovery");
+  const recall = optionalNumber(recovery, "average_survivor_recall", "failure_recovery");
+  const delta = Number.isFinite(baselineSteps) && Number.isFinite(recoverySteps)
+    ? 100 * (recoverySteps - baselineSteps) / baselineSteps : null;
+  const parts = [];
+  if (Number.isFinite(tasks) && Number.isFinite(missions)) {
+    parts.push(`${tasks.toFixed(0)} released search tasks were reassigned across ${missions.toFixed(0)} missions.`);
+  }
+  if (Number.isFinite(recall)) parts.push(`Reachable-Survivor Recall: ${(recall * 100).toFixed(2)}%.`);
+  if (typeof acceptance.collision_free === "boolean") {
+    parts.push(`Collision gate: ${acceptance.collision_free ? "passed" : "not passed"}.`);
+  }
+  return {
+    status: "ready",
+    format: "failure_reassignment",
+    title: "Injected-failure recovery",
+    baselineLabel: "No failure",
+    candidateLabel: "Drone failure",
+    baselineSteps,
+    candidateSteps: recoverySteps,
+    improvementValue: signedMetric(delta, "%"),
+    improvementLabel: "duration cost",
+    note: joinBenchmarkNote(parts),
+  };
+}
+
 function normalizeBenchmark(benchmark) {
   if (!isRecord(benchmark)) throw new Error("Benchmark root must be a JSON object.");
   if (hasOwn(benchmark, "schema_version") && typeof benchmark.schema_version !== "string") {
     throw new Error('Benchmark field "schema_version" must be a string.');
+  }
+  if (benchmark.benchmark_type === "failure_reassignment") {
+    return normalizeFailureReassignmentBenchmark(benchmark);
   }
   if (hasOwn(benchmark, "training") || hasOwn(benchmark, "holdout")) {
     return normalizeNetworkAwareRelayBenchmark(benchmark);
