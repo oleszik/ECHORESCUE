@@ -38,7 +38,11 @@ function cacheElements() {
     "improvementValue", "benchmarkNote", "benchmarkPanel", "fatalError", "droneCard1", "droneCard2",
     "relaySummary", "relaySummaryState", "metricRelayDeployments", "metricRelayCells",
     "metricRelaySurvivors", "metricRelayDelay", "metricRelayEnergy", "metricBaseCoverage",
+    "relaySummaryLabel", "metricRelayUtility", "metricRelayCritical", "metricRelayBackpressure",
+    "metricRelayProgress", "metricRelayDecision", "metricRelayRejected",
     "benchmarkTitle", "benchmarkBadge", "baselineLabel", "candidateLabel", "improvementLabel",
+    "ablationGrid", "ablationOff", "ablationAdaptive", "ablationTransport", "ablationFull",
+    "ablationTransportEffect", "ablationRelayEffect", "ablationInteraction", "ablationCoverage",
     "networkSummary", "networkSummaryState", "metricNetworkDelivery", "metricNetworkAttemptDelivery", "metricNetworkMessageCompletion", "metricNetworkLatency",
     "metricNetworkQueue", "metricNetworkLoss", "metricNetworkPayload", "metricNetworkRelay",
   ].forEach((id) => { elements[id] = document.getElementById(id); });
@@ -93,6 +97,9 @@ function initializeReplay(replay, benchmark) {
   elements.knowledgeMode.textContent = relayStrategy === "adaptive"
     ? `${knowledgeMode.toUpperCase()} · ADAPTIVE RELAY`
     : knowledgeMode.toUpperCase();
+  if (relayStrategy === "network-aware") {
+    elements.knowledgeMode.textContent = `${knowledgeMode.toUpperCase()} · NETWORK-AWARE RELAY`;
+  }
   elements.seedValue.textContent = replay.mission.seed;
   elements.networkProfile.textContent = networkProfile.toUpperCase();
   elements.networkProfile.classList.toggle("constrained", networkProfile === "constrained");
@@ -160,6 +167,12 @@ function updateDroneCard(number, drone, frame) {
     dataStatus.textContent = delivered ? "Delivered this step" : (network.queue_size ? "Queued" : "Idle");
     dataStatus.className = delivered ? "data-delivered" : "";
   }
+  if (drone.relay?.active && drone.relay.strategy === "network-aware") {
+    const utility = Number.isFinite(drone.relay.utility) ? drone.relay.utility.toFixed(1) : "—";
+    const progress = Number.isFinite(drone.relay.transfer_progress)
+      ? `${(drone.relay.transfer_progress * 100).toFixed(0)}%` : "—";
+    dataStatus.textContent = `${drone.relay.backpressure ? "Backpressure" : "Relay"} · U ${utility} · ${progress}`;
+  }
 }
 
 function updateNetworkReadout(frame) {
@@ -205,7 +218,8 @@ function eventColor(event) {
   if (event.event_type === "final_sync_timeout") return "#fb7185";
   if (event.event_type === "final_sync_completed") return "#34d399";
   if (event.event_type === "final_sync_started") return "#38bdf8";
-  if (["relay_link_achieved", "relay_payload_forwarded"].includes(event.event_type)) return "#34d399";
+  if (["relay_link_achieved", "relay_payload_forwarded", "network_relay_accepted", "critical_payload_acknowledged", "relay_backpressure_ended"].includes(event.event_type)) return "#34d399";
+  if (["network_relay_rejected", "relay_backpressure_started"].includes(event.event_type)) return "#f59e0b";
   if (event.event_type.startsWith("relay_role_") || event.event_type === "relay_position_selected") return COLORS.radioRelay;
   if (["local_collision_avoided", "yield_started", "yield_ended", "deadlock_replanned"].includes(event.event_type)) return "#34d399";
   if (event.event_type === "corridor_deadlock_detected") return "#f59e0b";
@@ -266,6 +280,10 @@ function updateEventFeed() {
     const messageType = event.message_type ? ` · ${event.message_type.replaceAll("_", " ")}` : "";
     const units = event.payload_units == null ? "" : ` · ${event.payload_units} units`;
     detail.textContent = `${event.drone_id} · [${event.position.join(", ")}]${cells}${survivors}${messages}${messageType}${units}`;
+    const utilityDetail = event.utility == null ? "" : ` · utility ${event.utility.toFixed(1)}`;
+    const reasonDetail = event.reason ? ` · ${event.reason.replaceAll("_", " ")}` : "";
+    const backlogDetail = event.critical_backlog == null ? "" : ` · critical ${event.critical_backlog}`;
+    detail.textContent += `${utilityDetail}${reasonDetail}${backlogDetail}`;
     copy.append(title, detail);
     item.append(step, node, copy);
     elements.eventFeed.append(item);
@@ -280,9 +298,11 @@ function populateMetrics() {
   elements.metricDrones.textContent = metrics.drone_drone_collisions;
   elements.metricSteps.textContent = metrics.steps;
   elements.metricDuplicate.textContent = `${(metrics.duplicate_exploration_ratio * 100).toFixed(2)}%`;
-  const adaptive = metrics.relay_strategy === "adaptive";
-  elements.relaySummary.classList.toggle("inactive", !adaptive);
-  elements.relaySummaryState.textContent = adaptive ? "ENABLED" : "OFF";
+  const relayEnabled = ["adaptive", "network-aware"].includes(metrics.relay_strategy);
+  const networkAware = metrics.relay_strategy === "network-aware";
+  elements.relaySummary.classList.toggle("inactive", !relayEnabled);
+  elements.relaySummaryState.textContent = relayEnabled ? metrics.relay_strategy.toUpperCase() : "OFF";
+  elements.relaySummaryLabel.textContent = networkAware ? "Network-aware relay impact" : "Adaptive relay impact";
   const successfulDeployments = metrics.successful_relay_deployments;
   const deployments = metrics.relay_deployments;
   elements.metricRelayDeployments.textContent = Number.isFinite(successfulDeployments) && Number.isFinite(deployments)
@@ -292,6 +312,19 @@ function populateMetrics() {
   elements.metricRelayDelay.textContent = formatOptionalNumber(metrics.relay_mission_delay_steps, 0, " steps");
   elements.metricRelayEnergy.textContent = formatOptionalNumber(metrics.relay_energy_consumed, 1, " units");
   elements.metricBaseCoverage.textContent = formatOptionalNumber(metrics.base_known_coverage, 1, "%");
+  const aware = metrics.network_aware_relay;
+  elements.metricRelayUtility.textContent = aware
+    ? formatOptionalNumber(aware.average_accepted_utility, 1) : "—";
+  elements.metricRelayCritical.textContent = aware
+    ? formatOptionalNumber(aware.critical_payloads_relayed, 0) : "—";
+  elements.metricRelayBackpressure.textContent = aware
+    ? formatOptionalNumber(aware.backpressure_steps, 0, " steps") : "—";
+  elements.metricRelayProgress.textContent = aware && Number.isFinite(aware.acceptance_ratio)
+    ? `${(aware.acceptance_ratio * 100).toFixed(1)}%` : "—";
+  elements.metricRelayDecision.textContent = aware
+    ? `${aware.accepted_decisions}/${aware.evaluations}` : "—";
+  elements.metricRelayRejected.textContent = aware
+    ? formatOptionalNumber(aware.rejected_decisions, 0) : "—";
   const constrained = metrics.network_profile === "constrained";
   elements.networkSummary.classList.toggle("inactive", !constrained);
   elements.networkSummaryState.textContent = constrained ? "CONSTRAINED" : "NOT AVAILABLE";
@@ -486,10 +519,74 @@ function normalizeNetworkBenchmark(benchmark) {
   };
 }
 
+function normalizeNetworkAwareRelayBenchmark(benchmark) {
+  const holdout = requiredObject(benchmark, "holdout", "Network-Aware Relay");
+  const profiles = requiredObject(holdout, "profiles", "Network-Aware Relay holdout");
+  const adaptive = requiredObject(profiles, "adaptive_relay", "Network-Aware Relay holdout");
+  const aware = requiredObject(profiles, "network_aware_relay", "Network-Aware Relay holdout");
+  const transportOnly = hasOwn(profiles, "network_aware_transport_only")
+    ? requiredObject(profiles, "network_aware_transport_only", "Network-Aware Relay holdout") : null;
+  const relayOff = hasOwn(profiles, "relay_off")
+    ? requiredObject(profiles, "relay_off", "Network-Aware Relay holdout") : null;
+  const acceptance = hasOwn(holdout, "acceptance")
+    ? requiredObject(holdout, "acceptance", "Network-Aware Relay holdout") : {};
+  const adaptiveSteps = optionalNumber(adaptive, "average_mission_steps", "holdout.profiles.adaptive_relay");
+  const awareSteps = optionalNumber(aware, "average_mission_steps", "holdout.profiles.network_aware_relay");
+  const offSteps = relayOff ? optionalNumber(relayOff, "average_mission_steps", "holdout.profiles.relay_off") : null;
+  const transportSteps = transportOnly
+    ? optionalNumber(transportOnly, "average_mission_steps", "holdout.profiles.network_aware_transport_only") : null;
+  const awareRelay = hasOwn(aware, "network_aware_transport")
+    ? requiredObject(aware, "network_aware_transport", "Network-Aware Relay profile")
+    : hasOwn(aware, "network_aware_relay")
+      ? requiredObject(aware, "network_aware_relay", "Network-Aware Relay profile") : {};
+  const acceptedKey = hasOwn(awareRelay, "accepted_relay_decisions") ? "accepted_relay_decisions" : "accepted_decisions";
+  const accepted = optionalNumber(awareRelay, acceptedKey, "holdout.profiles.network_aware_relay.network_aware_transport");
+  const critical = optionalNumber(awareRelay, "critical_payloads_relayed", "holdout.profiles.network_aware_relay.network_aware_relay");
+  const parts = [];
+  if (Number.isFinite(accepted)) parts.push(`${accepted.toFixed(0)} utility decisions were accepted.`);
+  if (Number.isFinite(critical)) parts.push(`${critical.toFixed(0)} critical payloads reached base through Relay.`);
+  if (typeof acceptance.accepted === "boolean") {
+    parts.push(`Holdout acceptance: ${acceptance.accepted ? "passed" : "not passed"}.`);
+  }
+  const delta = Number.isFinite(adaptiveSteps) && Number.isFinite(awareSteps)
+    ? 100 * (awareSteps - adaptiveSteps) / adaptiveSteps : null;
+  let ablation = null;
+  if (relayOff && transportOnly) {
+    const decomposition = hasOwn(holdout, "effect_decomposition")
+      ? requiredObject(holdout, "effect_decomposition", "Network-Aware Relay holdout") : {};
+    const duration = hasOwn(decomposition, "average_mission_steps")
+      ? requiredObject(decomposition, "average_mission_steps", "Network-Aware Relay duration decomposition") : {};
+    ablation = {
+      offSteps, adaptiveSteps, transportSteps, fullSteps: awareSteps,
+      transportEffect: optionalNumber(duration, "backpressure_and_compaction_without_relay", "holdout.effect_decomposition.average_mission_steps"),
+      relayEffect: optionalNumber(duration, "relay_on_network_aware_transport", "holdout.effect_decomposition.average_mission_steps"),
+      interaction: optionalNumber(duration, "interaction", "holdout.effect_decomposition.average_mission_steps"),
+      baseCoverage: optionalNumber(aware, "average_final_base_known_coverage", "holdout.profiles.network_aware_relay"),
+    };
+    parts.push("The four-cell ablation reports physical exploration separately from base-map transfer; positive effects mean improvement.");
+  }
+  return {
+    status: "ready",
+    format: "network_aware_relay",
+    title: "Network-aware Relay holdout",
+    baselineLabel: "Adaptive relay",
+    candidateLabel: "Network-aware",
+    baselineSteps: adaptiveSteps,
+    candidateSteps: awareSteps,
+    improvementValue: signedMetric(delta, "%"),
+    improvementLabel: "duration delta",
+    note: joinBenchmarkNote(parts),
+    ablation,
+  };
+}
+
 function normalizeBenchmark(benchmark) {
   if (!isRecord(benchmark)) throw new Error("Benchmark root must be a JSON object.");
   if (hasOwn(benchmark, "schema_version") && typeof benchmark.schema_version !== "string") {
     throw new Error('Benchmark field "schema_version" must be a string.');
+  }
+  if (hasOwn(benchmark, "training") || hasOwn(benchmark, "holdout")) {
+    return normalizeNetworkAwareRelayBenchmark(benchmark);
   }
   if (hasOwn(benchmark, "active_local_relay_off") || hasOwn(benchmark, "active_local_adaptive_relay")) {
     return normalizeAdaptiveRelayBenchmark(benchmark);
@@ -527,6 +624,7 @@ function populateBenchmark() {
   elements.singleSteps.textContent = "—";
   elements.multiSteps.textContent = "—";
   elements.improvementValue.textContent = "—";
+  elements.ablationGrid.hidden = true;
   if (view.status !== "ready") {
     elements.benchmarkPanel.classList.add(view.status);
     elements.benchmarkBadge.textContent = view.status === "invalid" ? "Invalid artifact" : "Unavailable";
@@ -542,6 +640,17 @@ function populateBenchmark() {
   elements.improvementValue.textContent = view.improvementValue;
   elements.improvementLabel.textContent = view.improvementLabel;
   elements.benchmarkNote.textContent = view.note;
+  if (view.ablation) {
+    elements.ablationGrid.hidden = false;
+    elements.ablationOff.textContent = formatOptionalNumber(view.ablation.offSteps, 2);
+    elements.ablationAdaptive.textContent = formatOptionalNumber(view.ablation.adaptiveSteps, 2);
+    elements.ablationTransport.textContent = formatOptionalNumber(view.ablation.transportSteps, 2);
+    elements.ablationFull.textContent = formatOptionalNumber(view.ablation.fullSteps, 2);
+    elements.ablationTransportEffect.textContent = signedMetric(view.ablation.transportEffect, " steps");
+    elements.ablationRelayEffect.textContent = signedMetric(view.ablation.relayEffect, " steps");
+    elements.ablationInteraction.textContent = signedMetric(view.ablation.interaction, " steps");
+    elements.ablationCoverage.textContent = formatOptionalNumber(view.ablation.baseCoverage, 2, "%");
+  }
 }
 
 function canvasGeometry() {

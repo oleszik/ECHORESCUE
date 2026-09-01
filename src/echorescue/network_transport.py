@@ -221,13 +221,78 @@ class DeterministicNetworkTransport:
         self.stale_intents = 0
         self.delivery_latencies: list[int] = []
         self.relay_latencies: list[int] = []
+        self.critical_first_hop_latencies: list[int] = []
+        self.critical_second_hop_latencies: list[int] = []
+        self.critical_end_to_end_latencies: list[int] = []
+        self._first_hop_completed_step: dict[str, int] = {}
         self.max_backlog_duration = 0
         self.routes_replanned = 0
         self.rerouting_enabled = True
+        self.maximum_route_hops: int | None = None
+        self.compacted_map_items = 0
+        self.compacted_map_messages = 0
+        self.expired_payload_units_by_type: dict[str, int] = defaultdict(int)
+        self.dropped_payload_units_by_type: dict[str, int] = defaultdict(int)
 
     @property
     def queue_size(self) -> int:
         return len(self._queued) + len(self._in_flight)
+
+    @property
+    def queued_payload_units(self) -> int:
+        return sum(
+            fragment.payload_units for fragment in self._queued + self._in_flight
+        )
+
+    def backlog_by_type(self) -> dict[str, int]:
+        backlog: dict[str, int] = {}
+        for fragment in self._queued + self._in_flight:
+            key = fragment.message_type.value
+            backlog[key] = backlog.get(key, 0) + fragment.payload_units
+        return dict(sorted(backlog.items()))
+
+    def compact_unsent_map_messages(
+        self, *, sender: str, recipient: str
+    ) -> tuple[object, ...]:
+        """Remove wholly unsent map messages so a fresh delta can supersede them."""
+
+        message_ids = {
+            fragment.message_id
+            for fragment in self._queued
+            if fragment.sender == sender
+            and fragment.recipient == recipient
+            and fragment.message_type is MessageType.MAP_UPDATE
+            and fragment.current_hop == 0
+            and fragment.attempt == 0
+        }
+        removable = {
+            message_id
+            for message_id in message_ids
+            if all(
+                fragment in self._queued
+                for fragment in self._queued + self._in_flight
+                if fragment.message_id == message_id
+            )
+        }
+        if not removable:
+            return ()
+        payload: list[object] = []
+        retained: list[NetworkFragment] = []
+        for fragment in self._queued:
+            if fragment.message_id not in removable:
+                retained.append(fragment)
+                continue
+            payload.extend(fragment.payload)
+            self._created_fragment_ids.discard(fragment.fragment_id)
+            self._backlog_started.pop(fragment.fragment_id, None)
+        self._queued = retained
+        for message_id in removable:
+            self._active_message_ids.discard(message_id)
+            self._message_fragment_counts.pop(message_id, None)
+        self.queued_messages -= len(removable)
+        self.compacted_map_items += len(payload)
+        self.compacted_map_messages += len(removable)
+        return tuple(payload)
 
     @property
     def average_queue_size(self) -> float:
@@ -426,6 +491,9 @@ class DeterministicNetworkTransport:
                     continue
                 fragment.status = TransmissionStatus.EXPIRED
                 self.expired_fragments += 1
+                self.expired_payload_units_by_type[
+                    fragment.message_type.value
+                ] += fragment.payload_units
                 expired_message_ids.add(fragment.message_id)
                 if fragment.message_type is MessageType.MOTION_INTENT:
                     self.stale_intents += 1
@@ -478,6 +546,10 @@ class DeterministicNetworkTransport:
                 fragment.earliest_delivery_step = None
                 self._queued.append(fragment)
                 self.relay_fragments_forwarded += 1
+                if fragment.message_type is MessageType.SURVIVOR_CONFIRMATION:
+                    first_hop_latency = step - fragment.created_step
+                    self.critical_first_hop_latencies.append(first_hop_latency)
+                    self._first_hop_completed_step[fragment.fragment_id] = step
                 self._events.append(
                     NetworkTransportEvent(
                         event_type="relay_message_forwarded",
@@ -499,6 +571,14 @@ class DeterministicNetworkTransport:
             self.delivery_latencies.append(latency)
             if len(fragment.route) > 2:
                 self.relay_latencies.append(latency)
+                if fragment.message_type is MessageType.SURVIVOR_CONFIRMATION:
+                    first_hop_step = self._first_hop_completed_step.pop(
+                        fragment.fragment_id, fragment.created_step
+                    )
+                    self.critical_second_hop_latencies.append(
+                        step - first_hop_step
+                    )
+                    self.critical_end_to_end_latencies.append(latency)
             self.max_backlog_duration = max(
                 self.max_backlog_duration,
                 step - self._backlog_started.pop(fragment.fragment_id, step),
@@ -662,9 +742,13 @@ class DeterministicNetworkTransport:
             )
             if not replacement:
                 continue
-            fragment.route = (
-                fragment.route[: fragment.current_hop] + replacement
-            )
+            candidate = fragment.route[: fragment.current_hop] + replacement
+            if (
+                self.maximum_route_hops is not None
+                and len(candidate) - 1 > self.maximum_route_hops
+            ):
+                continue
+            fragment.route = candidate
             self.routes_replanned += 1
 
     def finalize(self, step: int) -> None:
@@ -676,6 +760,9 @@ class DeterministicNetworkTransport:
         ):
             fragment.status = TransmissionStatus.DROPPED
             self.dropped_fragments += 1
+            self.dropped_payload_units_by_type[
+                fragment.message_type.value
+            ] += fragment.payload_units
             self.max_backlog_duration = max(
                 self.max_backlog_duration,
                 step - self._backlog_started.pop(fragment.fragment_id, step),

@@ -15,6 +15,7 @@ from echorescue.multi_simulation import (
 
 REPLAY_SCHEMA_VERSION = "1.5"
 CONSTRAINED_REPLAY_SCHEMA_VERSION = "1.7"
+NETWORK_AWARE_REPLAY_SCHEMA_VERSION = "1.8"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -116,6 +117,32 @@ class ReplayRecorder:
                     "link_achieved": runtime.relay_link_achieved,
                     "role_steps": runtime.relay_role_steps,
                     "holding_for_relay": runtime.holding_for_relay,
+                    **(
+                        {
+                            "utility": runtime.network_relay_utility,
+                            "decision_reason": runtime.network_relay_reason,
+                            "critical_backlog": (
+                                runtime.network_relay_critical_backlog
+                            ),
+                            "backpressure": (
+                                runtime.network_relay_backpressure
+                            ),
+                            "expected_payload_units": (
+                                runtime.network_relay_expected_units
+                            ),
+                            "forwarded_payload_units": (
+                                runtime.network_relay_forwarded_units
+                            ),
+                            "transfer_progress": round(
+                                runtime.network_relay_forwarded_units
+                                / max(1, runtime.network_relay_expected_units),
+                                6,
+                            ),
+                        }
+                        if simulation.config.relay_strategy
+                        == "network-aware"
+                        else {}
+                    ),
                 },
                 "yielding": runtime.yielding,
                 "motion_intent": (
@@ -354,6 +381,10 @@ class ReplayRecorder:
             for key in tuple(configuration):
                 if key.startswith("network_") or key == "final_sync_max_steps":
                     configuration.pop(key)
+        if simulation.config.relay_strategy != "network-aware":
+            for key in tuple(configuration):
+                if key.startswith("network_relay_"):
+                    configuration.pop(key)
         mission = {
             "seed": simulation.config.seed,
             "knowledge_mode": simulation.knowledge_mode,
@@ -364,9 +395,13 @@ class ReplayRecorder:
             mission["network_profile"] = simulation.config.network_profile
         return {
             "schema_version": (
-                CONSTRAINED_REPLAY_SCHEMA_VERSION
-                if simulation.network_transport is not None
-                else REPLAY_SCHEMA_VERSION
+                NETWORK_AWARE_REPLAY_SCHEMA_VERSION
+                if simulation.config.relay_strategy == "network-aware"
+                else (
+                    CONSTRAINED_REPLAY_SCHEMA_VERSION
+                    if simulation.network_transport is not None
+                    else REPLAY_SCHEMA_VERSION
+                )
             ),
             "mission": {
                 **mission,

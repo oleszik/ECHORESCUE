@@ -52,6 +52,14 @@ class EventType(str, Enum):
     FINAL_SYNC_STARTED = "final_sync_started"
     FINAL_SYNC_COMPLETED = "final_sync_completed"
     FINAL_SYNC_TIMEOUT = "final_sync_timeout"
+    NETWORK_RELAY_EVALUATED = "network_relay_evaluated"
+    NETWORK_RELAY_ACCEPTED = "network_relay_accepted"
+    NETWORK_RELAY_REJECTED = "network_relay_rejected"
+    RELAY_BACKPRESSURE_STARTED = "relay_backpressure_started"
+    RELAY_BACKPRESSURE_ENDED = "relay_backpressure_ended"
+    RELAY_ROUTE_REPLANNED = "relay_route_replanned"
+    RELAY_PAYLOAD_COMPACTED = "relay_payload_compacted"
+    CRITICAL_PAYLOAD_ACKNOWLEDGED = "critical_payload_acknowledged"
 
 
 @dataclass(frozen=True, slots=True)
@@ -68,6 +76,12 @@ class MissionEvent:
     payload_units: int | None = None
     queue_size: int | None = None
     latency: int | None = None
+    utility: float | None = None
+    reason: str | None = None
+    critical_backlog: int | None = None
+    backpressure: bool | None = None
+    route_hops: int | None = None
+    transfer_progress: float | None = None
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -95,6 +109,18 @@ class MissionEvent:
             payload["queue_size"] = self.queue_size
         if self.latency is not None:
             payload["latency"] = self.latency
+        if self.utility is not None:
+            payload["utility"] = round(self.utility, 6)
+        if self.reason is not None:
+            payload["reason"] = self.reason
+        if self.critical_backlog is not None:
+            payload["critical_backlog"] = self.critical_backlog
+        if self.backpressure is not None:
+            payload["backpressure"] = self.backpressure
+        if self.route_hops is not None:
+            payload["route_hops"] = self.route_hops
+        if self.transfer_progress is not None:
+            payload["transfer_progress"] = round(self.transfer_progress, 6)
         return payload
 
 
@@ -161,6 +187,14 @@ class MissionLog:
             EventType.FINAL_SYNC_STARTED,
             EventType.FINAL_SYNC_COMPLETED,
             EventType.FINAL_SYNC_TIMEOUT,
+            EventType.NETWORK_RELAY_EVALUATED,
+            EventType.NETWORK_RELAY_ACCEPTED,
+            EventType.NETWORK_RELAY_REJECTED,
+            EventType.RELAY_BACKPRESSURE_STARTED,
+            EventType.RELAY_BACKPRESSURE_ENDED,
+            EventType.RELAY_ROUTE_REPLANNED,
+            EventType.RELAY_PAYLOAD_COMPACTED,
+            EventType.CRITICAL_PAYLOAD_ACKNOWLEDGED,
         }:
             key = (event.event_type, event.drone_id, event.step, event.position)
         else:

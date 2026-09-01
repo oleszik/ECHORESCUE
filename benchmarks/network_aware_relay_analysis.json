@@ -1,0 +1,193 @@
+{
+  "baseline_safety_generalization": "Relay-off records five and Adaptive Relay four Safety-Shield interventions on seeds 50-99. These are not a Network-Aware regression; they show that the earlier constrained strategies do not generalize to fully decentralized safety outside seeds 0-49.",
+  "holdout": {
+    "average_communication_uptime": {
+      "backpressure_and_compaction_without_relay": 0.049773,
+      "interaction": -0.019176,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -0.003519,
+      "relay_with_legacy_transport": 0.015657
+    },
+    "average_energy_consumed": {
+      "backpressure_and_compaction_without_relay": 40.734,
+      "interaction": -7.46,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -9.312,
+      "relay_with_legacy_transport": -1.852
+    },
+    "average_final_base_known_coverage": {
+      "backpressure_and_compaction_without_relay": -27.047619,
+      "interaction": 4.615385,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 6.18315,
+      "relay_with_legacy_transport": 1.567765
+    },
+    "average_final_sync_duration": {
+      "backpressure_and_compaction_without_relay": 3.0,
+      "interaction": 4.5,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -0.0,
+      "relay_with_legacy_transport": -4.5
+    },
+    "average_mission_steps": {
+      "backpressure_and_compaction_without_relay": 40.2,
+      "interaction": -2.54,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -6.04,
+      "relay_with_legacy_transport": -3.5
+    },
+    "average_physically_explored_free_ratio": {
+      "backpressure_and_compaction_without_relay": -0.027047,
+      "interaction": 0.007047,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 0.011503,
+      "relay_with_legacy_transport": 0.004456
+    },
+    "average_queue_size": {
+      "backpressure_and_compaction_without_relay": 126.983689,
+      "interaction": 10.496833,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -0.108603,
+      "relay_with_legacy_transport": -10.605436
+    },
+    "average_time_to_all_base_survivor_confirmations": {
+      "backpressure_and_compaction_without_relay": 32.64,
+      "interaction": 1.06,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 2.92,
+      "relay_with_legacy_transport": 1.86
+    },
+    "average_time_to_first_base_survivor_confirmation": {
+      "backpressure_and_compaction_without_relay": 7.3,
+      "interaction": 6.4,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 5.8,
+      "relay_with_legacy_transport": -0.6
+    },
+    "average_total_path_length": {
+      "backpressure_and_compaction_without_relay": 34.72,
+      "interaction": -7.16,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -8.48,
+      "relay_with_legacy_transport": -1.32
+    },
+    "average_unique_semantic_cells_at_base": {
+      "backpressure_and_compaction_without_relay": -73.84,
+      "interaction": 12.6,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 16.88,
+      "relay_with_legacy_transport": 4.28
+    },
+    "network_fragments_expired": {
+      "backpressure_and_compaction_without_relay": 5225.0,
+      "interaction": 308.0,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -31.0,
+      "relay_with_legacy_transport": -339.0
+    }
+  },
+  "interpretation": {
+    "backpressure_and_compaction": "Compare network_aware_transport_only against relay_off.",
+    "coverage_trade_off": "Base-map coverage and physically explored free area are reported independently from duration; lower transfer volume is never classified as mission improvement by itself.",
+    "interaction": "Relay effect on network-aware transport minus Adaptive Relay effect on legacy constrained transport.",
+    "relay_activation": "Compare network_aware_relay against network_aware_transport_only."
+  },
+  "measured_findings": {
+    "backpressure_root_cause": "Network-aware compaction removes obsolete wholly-unsent map messages before fresh deltas are queued. On holdout this cuts mean queue size from 140.52 to 13.53 and TTL expirations from 5358 to 133.",
+    "coverage_trade_off_root_cause": "The mission objective does not require a complete base map. Aggressive replacement plus mission-close drops therefore prioritize current semantic deltas and Survivor payloads but reduce holdout base coverage from 87.72% to 60.67%.",
+    "holdout_all_reachable_survivors_actively_confirmed": true,
+    "legacy_relay_result": "Adaptive Relay increases holdout base coverage from 87.72% to 89.29% but remains slower and retains four Shield interventions.",
+    "relay_increment": "On network-aware transport, Relay raises holdout base coverage to 66.86% and improves first Survivor knowledge latency from 31.44 to 25.64 steps, while adding 6.04 mission steps.",
+    "safety_generalization": "The five Relay-off and four Adaptive Relay holdout Shield interventions are baseline limitations, not regressions caused by Network-Aware transport or Relay.",
+    "training_all_reachable_survivors_actively_confirmed": true
+  },
+  "schema_version": "1.1",
+  "scope": "causal interpretation of the four-variant ablation",
+  "source_benchmark": "network_aware_relay_100_seeds.json",
+  "training": {
+    "average_communication_uptime": {
+      "backpressure_and_compaction_without_relay": 0.016086,
+      "interaction": 0.01447,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 0.005694,
+      "relay_with_legacy_transport": -0.008776
+    },
+    "average_energy_consumed": {
+      "backpressure_and_compaction_without_relay": 30.54,
+      "interaction": 2.814,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 0.432,
+      "relay_with_legacy_transport": -2.382
+    },
+    "average_final_base_known_coverage": {
+      "backpressure_and_compaction_without_relay": -26.622711,
+      "interaction": 1.216117,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 1.377289,
+      "relay_with_legacy_transport": 0.161172
+    },
+    "average_final_sync_duration": {
+      "backpressure_and_compaction_without_relay": 4.0,
+      "interaction": 13.333333,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -0.0,
+      "relay_with_legacy_transport": -13.333333
+    },
+    "average_mission_steps": {
+      "backpressure_and_compaction_without_relay": 28.78,
+      "interaction": 2.86,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -4.76,
+      "relay_with_legacy_transport": -7.62
+    },
+    "average_physically_explored_free_ratio": {
+      "backpressure_and_compaction_without_relay": -0.023627,
+      "interaction": -0.013782,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -0.005907,
+      "relay_with_legacy_transport": 0.007875
+    },
+    "average_queue_size": {
+      "backpressure_and_compaction_without_relay": 121.103204,
+      "interaction": 11.972686,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -0.458359,
+      "relay_with_legacy_transport": -12.431045
+    },
+    "average_time_to_all_base_survivor_confirmations": {
+      "backpressure_and_compaction_without_relay": 19.84,
+      "interaction": 2.0,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -5.96,
+      "relay_with_legacy_transport": -7.96
+    },
+    "average_time_to_first_base_survivor_confirmation": {
+      "backpressure_and_compaction_without_relay": 2.98,
+      "interaction": 1.96,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 1.06,
+      "relay_with_legacy_transport": -0.9
+    },
+    "average_total_path_length": {
+      "backpressure_and_compaction_without_relay": 26.2,
+      "interaction": 2.64,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 1.68,
+      "relay_with_legacy_transport": -0.96
+    },
+    "average_unique_semantic_cells_at_base": {
+      "backpressure_and_compaction_without_relay": -72.68,
+      "interaction": 3.32,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": 3.76,
+      "relay_with_legacy_transport": 0.44
+    },
+    "network_fragments_expired": {
+      "backpressure_and_compaction_without_relay": 4113.0,
+      "interaction": 884.0,
+      "positive_means_improvement": true,
+      "relay_on_network_aware_transport": -24.0,
+      "relay_with_legacy_transport": -908.0
+    }
+  }
+}

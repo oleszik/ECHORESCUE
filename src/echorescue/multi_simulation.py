@@ -33,6 +33,12 @@ from echorescue.network_transport import (
     NetworkDelivery,
     shortest_route,
 )
+from echorescue.network_aware_relay import (
+    RelayUtilityDecision,
+    RelayUtilityInput,
+    RelayUtilityWeights,
+    evaluate_relay_utility,
+)
 from echorescue.planning import astar
 from echorescue.relay import RelayPlan, select_relay_plan
 from echorescue.sensors import DistanceSensor
@@ -93,6 +99,12 @@ class DroneRuntime:
     relay_cooldown_until_step: int = 0
     holding_for_relay: bool = False
     yield_hold_until_step: int = 0
+    network_relay_utility: float | None = None
+    network_relay_reason: str | None = None
+    network_relay_critical_backlog: int = 0
+    network_relay_expected_units: int = 0
+    network_relay_forwarded_units: int = 0
+    network_relay_backpressure: bool = False
 
     @property
     def terminal(self) -> bool:
@@ -213,6 +225,7 @@ class MultiSimulationResult:
     final_sync_timeout: bool
     network_shield_cause_classification: dict[str, int]
     network_shield_geometry_classification: dict[str, int]
+    network_aware_relay_metrics: dict[str, object] | None
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
@@ -455,6 +468,8 @@ class MultiSimulationResult:
             "mission_success": self.mission_success,
             "mission_events": [event.to_dict() for event in self.mission_events],
         }
+        if self.network_aware_relay_metrics is not None:
+            payload["network_aware_relay"] = self.network_aware_relay_metrics
         if self.network_profile == "ideal":
             for key in tuple(payload):
                 if key.startswith("network_") or key in {
@@ -568,6 +583,13 @@ class MultiDroneSimulation:
             if config.network_profile == "constrained"
             else None
         )
+        if (
+            self.network_transport is not None
+            and config.relay_strategy == "network-aware"
+        ):
+            self.network_transport.maximum_route_hops = (
+                config.network_relay_max_hops
+            )
         self._network_queued_records: dict[
             tuple[str, str, Position], CellKnowledge
         ] = {}
@@ -593,6 +615,28 @@ class MultiDroneSimulation:
         self._network_shield_cause_classification: dict[str, int] = {}
         self._network_shield_geometry_classification: dict[str, int] = {}
         self._legacy_network_proximity_precedence = False
+        self._network_relay_weights = RelayUtilityWeights()
+        self._network_relay_evaluations = 0
+        self._network_relay_accepted = 0
+        self._network_relay_rejected = 0
+        self._network_relay_utility_sum = 0.0
+        self._network_relay_accepted_utility_sum = 0.0
+        self._network_relay_rejection_reasons: dict[str, int] = {}
+        self._network_relay_last_signature: tuple[object, ...] | None = None
+        self._network_relay_backpressure_steps = 0
+        self._network_relay_backpressure_active = False
+        self._network_relay_compacted_items = 0
+        self._network_relay_route_replans = 0
+        self._network_relay_critical_acknowledged = 0
+        self._network_relay_first_hop_latencies: list[int] = []
+        self._network_relay_end_to_end_latencies: list[int] = []
+        self._network_relay_scout_wait_steps = 0
+        self._network_relay_scout_exploration_steps = 0
+        self._network_relay_unnecessary_deployments = 0
+        self._network_relay_backlog_samples: list[int] = []
+        # Benchmark-only ablation seam.  Public strategy semantics stay intact:
+        # normal network-aware runs always keep active Relay roles enabled.
+        self._network_aware_relay_roles_enabled = True
 
         starts = self._resolve_start_positions()
         self.runtimes: dict[str, DroneRuntime] = {}
@@ -670,6 +714,21 @@ class MultiDroneSimulation:
         )
 
     @property
+    def network_aware_relay_enabled(self) -> bool:
+        return (
+            self.network_aware_transport_enabled
+            and self._network_aware_relay_roles_enabled
+        )
+
+    @property
+    def network_aware_transport_enabled(self) -> bool:
+        return (
+            self.knowledge_mode == "local"
+            and self.config.relay_strategy == "network-aware"
+            and self.network_transport is not None
+        )
+
+    @property
     def constrained_network_enabled(self) -> bool:
         return self.network_transport is not None
 
@@ -735,12 +794,59 @@ class MultiDroneSimulation:
                 )
                 if not route:
                     continue
+                if (
+                    self.network_aware_transport_enabled
+                    and len(route) - 1 > self.config.network_relay_max_hops
+                ):
+                    continue
+                if (
+                    self.network_aware_transport_enabled
+                    and transport.queued_payload_units
+                    > self.config.network_relay_max_backlog_units
+                ):
+                    compacted = transport.compact_unsent_map_messages(
+                        sender=sender, recipient=recipient
+                    )
+                    compacted_positions = {
+                        item[0]
+                        for item in compacted
+                        if isinstance(item, tuple)
+                        and len(item) == 2
+                        and isinstance(item[0], Position)
+                    }
+                    for position in compacted_positions:
+                        self._network_queued_records.pop(
+                            (sender, recipient, position), None
+                        )
+                    if compacted_positions:
+                        self._network_relay_compacted_items += len(
+                            compacted_positions
+                        )
+                        runtime = self.runtimes.get(sender)
+                        if runtime is not None:
+                            self._record_event(
+                                runtime,
+                                EventType.RELAY_PAYLOAD_COMPACTED,
+                                cell_count=len(compacted_positions),
+                                backpressure=True,
+                            )
                 records = []
                 for position, record in stores[sender].records:
                     key = (sender, recipient, position)
                     if self._network_queued_records.get(key) == record:
                         continue
                     records.append((position, record))
+                if self.network_aware_transport_enabled and records:
+                    records.sort(
+                        key=lambda item: (
+                            -item[1].observed_step,
+                            item[0].x,
+                            item[0].y,
+                        )
+                    )
+                    records = records[
+                        : self.config.network_relay_map_delta_limit
+                    ]
                 if records:
                     message_id = transport.enqueue(
                         sender=sender,
@@ -1077,6 +1183,29 @@ class MultiDroneSimulation:
         transport = self.network_transport
         if transport is None:
             return
+        if self.network_aware_transport_enabled:
+            backlog = transport.queued_payload_units
+            self._network_relay_backlog_samples.append(backlog)
+            active = backlog > self.config.network_relay_max_backlog_units
+            if active:
+                self._network_relay_backpressure_steps += 1
+            if active != self._network_relay_backpressure_active:
+                self.mission_log.record(
+                    MissionEvent(
+                        position=self.world.base,
+                        step=self.steps,
+                        drone_id="base",
+                        event_type=(
+                            EventType.RELAY_BACKPRESSURE_STARTED
+                            if active
+                            else EventType.RELAY_BACKPRESSURE_ENDED
+                        ),
+                        queue_size=transport.queue_size,
+                        payload_units=backlog,
+                        backpressure=active,
+                    )
+                )
+            self._network_relay_backpressure_active = active
         transport.transmit(
             step=self.steps,
             snapshot=self.communication_snapshot,
@@ -1294,6 +1423,12 @@ class MultiDroneSimulation:
         position: Position | None = None,
         cell_count: int | None = None,
         survivor_count: int | None = None,
+        utility: float | None = None,
+        reason: str | None = None,
+        critical_backlog: int | None = None,
+        backpressure: bool | None = None,
+        route_hops: int | None = None,
+        transfer_progress: float | None = None,
     ) -> None:
         self.mission_log.record(
             MissionEvent(
@@ -1304,6 +1439,12 @@ class MultiDroneSimulation:
                 energy_remaining=runtime.battery.remaining,
                 cell_count=cell_count,
                 survivor_count=survivor_count,
+                utility=utility,
+                reason=reason,
+                critical_backlog=critical_backlog,
+                backpressure=backpressure,
+                route_hops=route_hops,
+                transfer_progress=transfer_progress,
             )
         )
 
@@ -1657,6 +1798,12 @@ class MultiDroneSimulation:
         runtime.relay_payload_positions.clear()
         runtime.relay_payload_survivors.clear()
         runtime.relay_energy_at_start = None
+        runtime.network_relay_utility = None
+        runtime.network_relay_reason = None
+        runtime.network_relay_critical_backlog = 0
+        runtime.network_relay_expected_units = 0
+        runtime.network_relay_forwarded_units = 0
+        runtime.network_relay_backpressure = False
         runtime.relay_cooldown_until_step = (
             self.steps + self.config.relay_cooldown_steps
         )
@@ -1776,6 +1923,212 @@ class MultiDroneSimulation:
         self._record_event(relay, EventType.RELAY_ROLE_ASSIGNED)
         self._set_relay_plan(relay, plan)
 
+    def _network_relay_decision(
+        self,
+        relay: DroneRuntime,
+        scout: DroneRuntime,
+        plan: RelayPlan,
+        cells: set[Position],
+        survivors: set[Position],
+    ) -> RelayUtilityDecision:
+        records = dict(scout.local_map.records)
+        recent_cutoff = self.steps - self.config.network_relay_recent_map_age_steps
+        recent = sum(
+            1
+            for position in cells
+            if records[position].observed_step >= recent_cutoff
+        )
+        general = max(0, len(cells) - recent)
+        transport = self.network_transport
+        assert transport is not None
+        return_path = plan.return_path
+        return_energy = relay.battery.estimate_path(len(return_path))
+        energy_headroom = (
+            relay.battery.remaining
+            - return_energy
+            - self.config.energy_safety_reserve
+            - self.config.relay_energy_margin
+            - relay.battery.estimate_path(len(plan.path))
+        )
+        distance = abs(scout.drone.position.x - self.world.base.x) + abs(
+            scout.drone.position.y - self.world.base.y
+        )
+        expected_reconnect = max(1, distance - self.config.communication_range)
+        critical_status = int(
+            scout.drone.status is DroneStatus.RETURN_HOME
+            or scout.energy_emergency
+        )
+        return evaluate_relay_utility(
+            RelayUtilityInput(
+                confirmed_survivors=len(survivors),
+                critical_status_units=critical_status,
+                recent_map_cells=recent,
+                general_map_cells=general,
+                queue_units=transport.queued_payload_units,
+                route_hops=2,
+                link_capacity_units=self.config.network_link_capacity_units,
+                observed_delivery_ratio=(
+                    transport.fragment_attempt_delivery_ratio
+                ),
+                ttl_remaining_steps=(
+                    self.config.network_survivor_ttl
+                    if survivors
+                    else self.config.network_map_ttl
+                ),
+                relay_travel_steps=plan.movement_cost,
+                energy_headroom=energy_headroom,
+                expected_direct_reconnect_steps=expected_reconnect,
+                maximum_hops=self.config.network_relay_max_hops,
+                utility_threshold=self.config.network_relay_utility_threshold,
+                maximum_low_priority_backlog_units=(
+                    self.config.network_relay_max_backlog_units
+                ),
+            ),
+            self._network_relay_weights,
+        )
+
+    def _record_network_relay_decision(
+        self,
+        runtime: DroneRuntime,
+        decision: RelayUtilityDecision,
+        scout_id: str,
+    ) -> None:
+        self._network_relay_evaluations += 1
+        self._network_relay_utility_sum += decision.utility
+        if decision.accepted:
+            self._network_relay_accepted += 1
+            self._network_relay_accepted_utility_sum += decision.utility
+        else:
+            self._network_relay_rejected += 1
+            self._network_relay_rejection_reasons[decision.reason] = (
+                self._network_relay_rejection_reasons.get(decision.reason, 0)
+                + 1
+            )
+        signature = (
+            runtime.drone.identifier,
+            scout_id,
+            decision.accepted,
+            decision.reason,
+            decision.backpressure_required,
+        )
+        if signature == self._network_relay_last_signature:
+            return
+        self._network_relay_last_signature = signature
+        values = {
+            "utility": decision.utility,
+            "reason": decision.reason,
+            "critical_backlog": decision.critical_payload_units,
+            "backpressure": decision.backpressure_required,
+            "route_hops": 2,
+        }
+        self._record_event(
+            runtime, EventType.NETWORK_RELAY_EVALUATED, **values
+        )
+        self._record_event(
+            runtime,
+            (
+                EventType.NETWORK_RELAY_ACCEPTED
+                if decision.accepted
+                else EventType.NETWORK_RELAY_REJECTED
+            ),
+            **values,
+        )
+
+    def _assign_network_aware_relay(self) -> None:
+        if not self.network_aware_relay_enabled or self._exploration_complete:
+            return
+        if self.relay_deployments >= self.config.relay_max_deployments:
+            return
+        if any(
+            runtime.drone.status is DroneStatus.RELAY
+            for runtime in self._ordered_runtimes()
+        ):
+            return
+        if not self.communication_snapshot.has_link("drone-1", "drone-2"):
+            return
+        if any(
+            connection.connected_to_base
+            for connection in self.communication_snapshot.connections.values()
+        ):
+            return
+
+        candidates: list[tuple[object, ...]] = []
+        for relay_id in sorted(self.runtimes):
+            scout_id = "drone-2" if relay_id == "drone-1" else "drone-1"
+            relay = self.runtimes[relay_id]
+            scout = self.runtimes[scout_id]
+            if (
+                relay.drone.status is not DroneStatus.EXPLORE
+                or scout.drone.status is not DroneStatus.EXPLORE
+                or self.steps < relay.relay_cooldown_until_step
+                or self._current_outage_steps.get(scout_id, 0)
+                < self.config.network_relay_min_outage_steps
+            ):
+                continue
+            cells, survivors = self._relay_payload(scout)
+            plan = self._relay_plan_for(relay, scout.drone.position)
+            if plan is None:
+                continue
+            decision = self._network_relay_decision(
+                relay, scout, plan, cells, survivors
+            )
+            self._record_network_relay_decision(relay, decision, scout_id)
+            if not decision.accepted:
+                continue
+            candidates.append(
+                (
+                    -decision.critical_payload_units,
+                    -decision.utility,
+                    plan.movement_cost,
+                    relay_id,
+                    scout_id,
+                    plan,
+                    cells,
+                    survivors,
+                    decision,
+                )
+            )
+        if not candidates:
+            return
+        (
+            _, _, _, relay_id, scout_id, plan, cells, survivors, decision
+        ) = min(candidates)
+        relay = self.runtimes[str(relay_id)]
+        scout = self.runtimes[str(scout_id)]
+        records = dict(scout.local_map.records)
+        selected_cells = sorted(
+            cells,
+            key=lambda position: (
+                -records[position].observed_step,
+                position.x,
+                position.y,
+            ),
+        )[: self.config.network_relay_map_delta_limit]
+        relay.drone.status = DroneStatus.RELAY
+        relay.active_frontier_target = None
+        relay.relay_scout_id = str(scout_id)
+        relay.relay_scout_position = scout.drone.position
+        relay.relay_started_step = self.steps
+        relay.relay_payload_positions = set(selected_cells)
+        relay.relay_payload_survivors = set(survivors)
+        relay.relay_energy_at_start = relay.battery.remaining
+        relay.relay_path_length_at_start = relay.drone.path_length
+        relay.relay_outage_at_start = self._current_outage_steps.get(
+            str(scout_id), 0
+        )
+        relay.network_relay_utility = decision.utility
+        relay.network_relay_reason = decision.reason
+        relay.network_relay_critical_backlog = decision.critical_payload_units
+        relay.network_relay_expected_units = (
+            len(selected_cells) + len(survivors)
+        )
+        relay.network_relay_forwarded_units = 0
+        relay.network_relay_backpressure = decision.backpressure_required
+        scout.holding_for_relay = True
+        self.relay_deployments += 1
+        self._record_event(relay, EventType.RELAY_ROLE_ASSIGNED)
+        self._set_relay_plan(relay, plan)
+
     def _maintain_adaptive_relay(self) -> None:
         if not self.adaptive_relay_enabled:
             return
@@ -1835,6 +2188,72 @@ class MultiDroneSimulation:
                 continue
             self._set_relay_plan(relay, plan)
 
+    def _maintain_network_aware_relay(self) -> None:
+        if not self.network_aware_relay_enabled:
+            return
+        for relay in self._ordered_runtimes():
+            if relay.drone.status is not DroneStatus.RELAY:
+                continue
+            scout_id = relay.relay_scout_id
+            if scout_id is None:
+                self._finish_relay_role(relay, successful=False)
+                continue
+            scout = self.runtimes[scout_id]
+            if scout.terminal or scout.drone.status is DroneStatus.RETURN_HOME:
+                self._finish_relay_role(relay, successful=False)
+                continue
+            if self.communication_snapshot.has_link(
+                relay.drone.identifier, scout_id
+            ):
+                relay.relay_scout_position = scout.drone.position
+            if self.communication_snapshot.connections[scout_id].direct_to_base:
+                if not relay.relay_payload_forwarded:
+                    self._network_relay_unnecessary_deployments += 1
+                self._finish_relay_role(relay, successful=False)
+                continue
+            role_steps = (
+                self.steps - relay.relay_started_step
+                if relay.relay_started_step is not None
+                else 0
+            )
+            if role_steps >= self.config.relay_max_role_steps:
+                self._finish_relay_role(relay, successful=False)
+                continue
+            return_path = self._known_return_path(
+                relay, avoid_other_drones=False
+            )
+            required = (
+                relay.battery.estimate_path(len(return_path))
+                if return_path is not None
+                else float("inf")
+            )
+            if relay.battery.remaining + 1e-9 < (
+                required
+                + self.config.energy_safety_reserve
+                + self.config.relay_energy_margin
+            ):
+                self._abort_relay_for_energy(relay)
+                continue
+            scout_position = relay.relay_scout_position
+            if scout_position is None:
+                self._finish_relay_role(relay, successful=False)
+                continue
+            plan = self._relay_plan_for(relay, scout_position)
+            if plan is None:
+                self._finish_relay_role(relay, successful=False)
+                continue
+            previous_target = relay.relay_target
+            self._set_relay_plan(relay, plan)
+            if previous_target is not None and previous_target != plan.position:
+                self._network_relay_route_replans += 1
+                self._record_event(
+                    relay,
+                    EventType.RELAY_ROUTE_REPLANNED,
+                    plan.position,
+                    reason="communication_geometry_changed",
+                    route_hops=2,
+                )
+
     def _plan_relay_intention(self, runtime: DroneRuntime) -> Position:
         runtime.relay_role_steps += 1
         plan = runtime.relay_plan
@@ -1858,7 +2277,9 @@ class MultiDroneSimulation:
         base_before: dict[Position, CellKnowledge],
         survivors_before: set[Position],
     ) -> None:
-        if not self.adaptive_relay_enabled:
+        if not (
+            self.adaptive_relay_enabled or self.network_aware_relay_enabled
+        ):
             return
         base_after = (
             dict(self.base_knowledge_map.records)
@@ -1891,6 +2312,12 @@ class MultiDroneSimulation:
                 relay.relay_link_achieved = True
                 self.relay_outages_shortened += 1
                 self._record_event(relay, EventType.RELAY_LINK_ACHIEVED)
+                if self.network_aware_relay_enabled:
+                    started = relay.relay_started_step or self.steps
+                    self._network_relay_first_hop_latencies.append(
+                        self.steps - started
+                    )
+                    self.runtimes[scout_id].holding_for_relay = False
             if not chain_active:
                 continue
             forwarded_cells = (
@@ -1905,13 +2332,62 @@ class MultiDroneSimulation:
                     forwarded_survivors
                 )
                 relay.relay_payload_forwarded = True
+                relay.network_relay_forwarded_units += (
+                    len(forwarded_cells) + len(forwarded_survivors)
+                )
                 self._record_event(
                     relay,
                     EventType.RELAY_PAYLOAD_FORWARDED,
                     cell_count=len(forwarded_cells),
                     survivor_count=len(forwarded_survivors),
+                    transfer_progress=(
+                        relay.network_relay_forwarded_units
+                        / max(1, relay.network_relay_expected_units)
+                        if self.network_aware_relay_enabled
+                        else None
+                    ),
                 )
-                self._finish_relay_role(relay, successful=True)
+                if self.network_aware_relay_enabled:
+                    if forwarded_survivors:
+                        self._network_relay_critical_acknowledged += len(
+                            forwarded_survivors
+                        )
+                        self._record_event(
+                            relay,
+                            EventType.CRITICAL_PAYLOAD_ACKNOWLEDGED,
+                            survivor_count=len(forwarded_survivors),
+                            critical_backlog=max(
+                                0,
+                                len(relay.relay_payload_survivors)
+                                - len(
+                                    self._base_confirmed_survivors
+                                    & relay.relay_payload_survivors
+                                ),
+                            ),
+                        )
+                    cells_complete = all(
+                        base_after.get(position)
+                        == dict(
+                            self.runtimes[scout_id].local_map.records
+                        ).get(position)
+                        for position in relay.relay_payload_positions
+                    )
+                    survivors_complete = relay.relay_payload_survivors <= (
+                        self._base_confirmed_survivors
+                    )
+                    transfer_complete = (
+                        survivors_complete
+                        if relay.relay_payload_survivors
+                        else cells_complete
+                    )
+                    if transfer_complete:
+                        started = relay.relay_started_step or self.steps
+                        self._network_relay_end_to_end_latencies.append(
+                            self.steps - started
+                        )
+                        self._finish_relay_role(relay, successful=True)
+                else:
+                    self._finish_relay_role(relay, successful=True)
 
     def _objectives_complete(self) -> bool:
         if self.knowledge_mode == "local":
@@ -2266,8 +2742,16 @@ class MultiDroneSimulation:
                 destination = runtime.drone.position
             elif runtime.holding_for_relay:
                 self._relay_mission_delay_steps += 1
+                if self.network_aware_relay_enabled:
+                    self._network_relay_scout_wait_steps += 1
                 destination = runtime.drone.position
             else:
+                if self.network_aware_relay_enabled and any(
+                    relay.drone.status is DroneStatus.RELAY
+                    and relay.relay_scout_id == runtime.drone.identifier
+                    for relay in self._ordered_runtimes()
+                ):
+                    self._network_relay_scout_exploration_steps += 1
                 destination = self._plan_explore_intention(
                     runtime, assignments.get(runtime.drone.identifier)
                 )
@@ -2489,6 +2973,11 @@ class MultiDroneSimulation:
             and conflict_first.current_position == first.current_position
             and conflict_second.current_position == second.current_position
         )
+        communicated_intents_current = (
+            communicated_positions_current
+            and conflict_first.next_position == first.next_position
+            and conflict_second.next_position == second.next_position
+        )
         visible = self.proximity_sensor.can_detect(
             self.world,
             first.current_position,
@@ -2524,6 +3013,22 @@ class MultiDroneSimulation:
                 for drone_id in proximity_risks
             )
             conflict = IntentConflict(kind, position, drone_ids)
+        elif (
+            self.network_aware_transport_enabled
+            and visible
+            and communicated
+            and not communicated_intents_current
+        ):
+            # A close peer plus stale network intent is treated as an
+            # uncertain local reservation.  The deterministic yield happens
+            # before the central fail-safe and consumes no global map data.
+            source = "proximity"
+            priority_intents = {first_id: first, second_id: second}
+            conflict = IntentConflict(
+                "proximity_uncertain",
+                min(first.next_position, second.next_position),
+                drone_ids,
+            )
         elif communicated:
             conflict = detect_intent_conflict(
                 conflict_first, conflict_second, self.world.base
@@ -2937,9 +3442,15 @@ class MultiDroneSimulation:
         if self.network_transport is not None:
             self._deliver_network_transport()
         self._prepare_energy_states()
-        self._maintain_adaptive_relay()
+        if self.network_aware_relay_enabled:
+            self._maintain_network_aware_relay()
+        else:
+            self._maintain_adaptive_relay()
         assignments = self._allocate_frontiers()
-        self._assign_adaptive_relay()
+        if self.network_aware_relay_enabled:
+            self._assign_network_aware_relay()
+        else:
+            self._assign_adaptive_relay()
         intentions = self._plan_intentions(assignments)
         intentions = self._deconflict_intentions(intentions)
         if self.network_transport is not None:
@@ -2980,6 +3491,85 @@ class MultiDroneSimulation:
         if on_frame is not None:
             on_frame(self)
         return self.result()
+
+    def _network_aware_relay_metrics(self) -> dict[str, object] | None:
+        if not self.network_aware_transport_enabled:
+            return None
+        transport = self.network_transport
+        assert transport is not None
+
+        def mean(values: list[int]) -> float | None:
+            return sum(values) / len(values) if values else None
+
+        accepted = self._network_relay_accepted
+        evaluations = self._network_relay_evaluations
+        return {
+            "utility_model_version": "1.0",
+            "utility_weights": self._network_relay_weights.to_dict(),
+            "utility_threshold": self.config.network_relay_utility_threshold,
+            "maximum_route_hops": self.config.network_relay_max_hops,
+            "maximum_low_priority_backlog_units": (
+                self.config.network_relay_max_backlog_units
+            ),
+            "evaluations": evaluations,
+            "accepted_decisions": accepted,
+            "rejected_decisions": self._network_relay_rejected,
+            "acceptance_ratio": accepted / evaluations if evaluations else None,
+            "average_utility": (
+                self._network_relay_utility_sum / evaluations
+                if evaluations
+                else None
+            ),
+            "average_accepted_utility": (
+                self._network_relay_accepted_utility_sum / accepted
+                if accepted
+                else None
+            ),
+            "rejection_reasons": dict(
+                sorted(self._network_relay_rejection_reasons.items())
+            ),
+            "critical_payloads_relayed": (
+                self._network_relay_critical_acknowledged
+            ),
+            "compacted_or_superseded_map_items": (
+                self._network_relay_compacted_items
+            ),
+            "backpressure_steps": self._network_relay_backpressure_steps,
+            "average_relay_backlog_units": (
+                sum(self._network_relay_backlog_samples)
+                / len(self._network_relay_backlog_samples)
+                if self._network_relay_backlog_samples
+                else 0.0
+            ),
+            "maximum_relay_backlog_units": max(
+                self._network_relay_backlog_samples, default=0
+            ),
+            "first_hop_mean_latency": mean(
+                transport.critical_first_hop_latencies
+            ),
+            "critical_first_hop_establishment_mean_latency": mean(
+                transport.critical_first_hop_latencies
+            ),
+            "second_hop_mean_latency": mean(
+                transport.critical_second_hop_latencies
+            ),
+            "critical_second_hop_transport_mean_latency": mean(
+                transport.critical_second_hop_latencies
+            ),
+            "end_to_end_critical_mean_latency": mean(
+                transport.critical_end_to_end_latencies
+            ),
+            "route_replans": self._network_relay_route_replans,
+            "unnecessary_deployments": (
+                self._network_relay_unnecessary_deployments
+            ),
+            "scout_wait_steps": self._network_relay_scout_wait_steps,
+            "scout_exploration_steps_during_relay": (
+                self._network_relay_scout_exploration_steps
+            ),
+            "ttl_losses": transport.expired_fragments,
+            "queue_backlog_by_type": transport.backlog_by_type(),
+        }
 
     def result(self) -> MultiSimulationResult:
         self._finalize_network_transport()
@@ -3384,6 +3974,7 @@ class MultiDroneSimulation:
             network_shield_geometry_classification=dict(
                 sorted(self._network_shield_geometry_classification.items())
             ),
+            network_aware_relay_metrics=self._network_aware_relay_metrics(),
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )

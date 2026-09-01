@@ -269,6 +269,94 @@ Shield classifications are versioned in the artifact. The old 46 Relay-off and
 hardened variants reduce every category to zero. Adaptive Relay remains slower
 and has lower completion ratios, so it is still not accepted as an improvement.
 
+### Network-aware Relay experiment
+
+`--relay-strategy network-aware` is an opt-in strategy for Active Local
+Knowledge with `--network-profile constrained`. It leaves `off` as the default
+and does not alter the existing `adaptive` policy. A Relay candidate is scored
+from current queue units, critical Survivor and RTB/status backlog, recent and
+general map deltas, route hops, observed attempt-delivery ratio, TTL reserve,
+link capacity, locally planned travel cost, energy headroom, and a conservative
+direct-reconnect estimate. Ground truth and future link state are never inputs.
+The default weights and threshold are emitted in every schema-1.8 replay and in
+the final JSON metrics so a decision can be audited.
+
+Critical Survivor confirmations and vehicle state keep transport priority over
+map traffic. Low-value map deltas are capped, and wholly unsent obsolete map
+messages can be compacted under backpressure; in-flight data is never silently
+rewritten. Routes are loop-free shortest paths over the currently observed
+communication graph and are limited to two hops. After the Relay link is
+established, the Scout resumes safe exploration while the transport completes
+the handoff. Energy/RTB safety and distributed deconfliction remain higher
+priority than the Relay role.
+
+```bash
+python -m echorescue --drones 2 --knowledge-mode local --network-profile constrained --relay-strategy network-aware --seed 7 --replay-out replays/seed_7_network_aware.json
+python -m echorescue.network_aware_benchmark --train-seeds 50 --holdout-seeds 50 --base-coverage-quality-target 60 --output benchmarks/network_aware_relay_100_seeds.json --analysis-output benchmarks/network_aware_relay_analysis.json
+python -m echorescue.dashboard --replay replays/seed_7_network_aware.json --benchmark benchmarks/network_aware_relay_100_seeds.json
+```
+
+The measured cause analysis is versioned in
+[`benchmarks/network_aware_relay_analysis.json`](benchmarks/network_aware_relay_analysis.json).
+The 100-seed artifact reports training seeds 0–49 and untouched holdout seeds
+50–99 independently, with every strategy executed twice. The fourth,
+benchmark-only `network_aware_transport_only` cell enables Backpressure, map
+compaction, the hop limit, and transport safety handling but never assigns an
+active Relay role. It is intentionally not a public CLI strategy.
+
+The reporting-only base-map quality target is configurable and fixed at 60% in
+this artifact. It does not change mission completion or any planning decision.
+All four variants achieved 100% mission success, Survivor Recall, safe return,
+and zero wall/drone collisions on both splits. Every one of the 150 reachable
+Survivors per split and variant produced a local confirmation event, so the
+result is not based on accidental base knowledge or a seed-specific shortcut.
+
+| Training 0–49 | Relay off | Adaptive | Transport only | Full network-aware |
+| --- | ---: | ---: | ---: | ---: |
+| Mission steps | 152.64 | 160.26 | 123.86 | 128.62 |
+| Fleet path length | 226.48 | 227.44 | 200.28 | 198.60 |
+| Energy consumed | 244.91 | 247.29 | 214.37 | 213.94 |
+| First / all Survivor knowledge at base | 31.80 / 90.70 | 32.70 / 98.66 | 28.82 / 70.86 | 27.76 / 76.82 |
+| Mean / maximum queue | 134.37 / 626 | 146.80 / 516 | 13.26 / 28 | 13.72 / 29 |
+| TTL expirations / Final Sync missions / mean steps | 4,262 / 3 / 4.00 | 5,170 / 3 / 17.33 | 149 / 0 / 0 | 173 / 0 / 0 |
+| Base coverage / 60%-target missions | 88.66% / 49 | 88.82% / 49 | 62.04% / 15 | 63.41% / 25 |
+| Physically explored free area | 68.95% | 69.74% | 66.59% | 66.00% |
+| Local coverage drone-1 / drone-2 | 96.92% / 96.64% | 96.94% / 96.70% | 96.95% / 96.80% | 96.95% / 96.46% |
+| Unique semantic cells at base | 242.04 | 242.48 | 169.36 | 173.12 |
+| Map units TTL-expired / close-discarded | 0 / 147,172 | 0 / 155,167 | 0 / 10,405 | 0 / 10,303 |
+| Compacted items / replaced messages | 0 / 0 | 0 / 0 | 116,458 / 5,172 | 128,459 / 5,761 |
+
+| Holdout 50–99 | Relay off | Adaptive | Transport only | Full network-aware |
+| --- | ---: | ---: | ---: | ---: |
+| Mission steps | 164.50 | 168.00 | 124.30 | 130.34 |
+| Fleet path length | 233.36 | 234.68 | 198.64 | 207.12 |
+| Energy consumed | 253.71 | 255.56 | 212.98 | 222.29 |
+| First / all Survivor knowledge at base | 38.74 / 111.76 | 39.34 / 109.90 | 31.44 / 79.12 | 25.64 / 76.20 |
+| Mean / maximum queue | 140.52 / 606 | 151.12 / 701 | 13.53 / 29 | 13.64 / 28 |
+| TTL expirations / Final Sync missions / mean steps | 5,358 / 7 / 3.00 | 5,697 / 2 / 7.50 | 133 / 0 / 0 | 164 / 0 / 0 |
+| Base coverage / 60%-target missions | 87.72% / 46 | 89.29% / 48 | 60.67% / 17 | 66.86% / 26 |
+| Physically explored free area | 68.97% | 69.42% | 66.27% | 67.42% |
+| Local coverage drone-1 / drone-2 | 96.86% / 96.56% | 96.84% / 96.52% | 96.92% / 96.71% | 96.92% / 96.84% |
+| Unique semantic cells at base | 239.48 | 243.76 | 165.64 | 182.52 |
+| Map units TTL-expired / close-discarded | 0 / 146,903 | 0 / 154,780 | 0 / 10,404 | 0 / 10,742 |
+| Compacted items / replaced messages | 0 / 0 | 0 / 0 | 123,346 / 5,519 | 129,929 / 5,799 |
+
+The causal split is not a blanket win. On holdout, Backpressure/compaction
+without Relay improves duration by 40.20 steps and cuts mean queue size by
+126.98, but loses 27.05 percentage points of base coverage versus Relay off.
+Adding Relay recovers 6.18 coverage points and improves first/all Survivor
+knowledge by 5.80/2.92 steps, while costing 6.04 mission steps, 8.48 path cells,
+and 9.31 energy units versus Transport only. The duration interaction is -2.54
+steps: Relay is not synergistic on duration, though its coverage interaction is
++4.62 points. Less transferred map data is therefore reported as a coverage
+trade-off, never as mission improvement by itself.
+
+Holdout Relay-off records **five** and Adaptive Relay **four** central
+Safety-Shield interventions. These are not a regression of `network-aware`;
+they demonstrate that the earlier constrained strategies do not fully
+generalize decentralized safety outside the original seeds. Both network-aware
+ablation cells record zero interventions and timeouts.
+
 ## Verified benchmark
 
 [`benchmarks/two_drone_50_seeds.json`](benchmarks/two_drone_50_seeds.json) is
@@ -344,11 +432,16 @@ and a local HTTP smoke test.
   production hosting
 - the dashboard is desktop-first; it remains usable at narrow widths but has no
   touch-specific gestures beyond the native range control
-- communication and map synchronization are instantaneous and lossless; there
-  is no delay, bandwidth limit, packet loss, or multi-hop role negotiation
+- the default ideal profile is instantaneous and lossless; the constrained
+  profile models deterministic delay, capacity, loss, TTL and two-hop routing,
+  but not cryptography, stochastic interference, link-rate adaptation, or more
+  than the two drones plus base station
 - Adaptive Relay uses only two drones, freezes the designated Scout briefly,
   and optimizes a deterministic local benefit heuristic rather than a learned
   or globally optimal policy
+- Network-aware Relay is an experimental, fixed-weight utility policy; its
+  training/holdout benchmark is evidence for these map sizes and network
+  defaults, not proof of global optimality or real radio performance
 - Active Local mode is opt-in and retains a central simulator Safety Shield as
   a final fail-safe; it does not claim real-world decentralized flight safety
 - no persistent role hierarchy, injected failures, dynamic obstacles, ROS 2,

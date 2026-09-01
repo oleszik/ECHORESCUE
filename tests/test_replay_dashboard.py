@@ -393,6 +393,40 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
         self.assertEqual(view["candidateSteps"], 77.92)
         self.assertEqual(view["improvementValue"], "+1.40 pp")
 
+    def test_network_aware_relay_benchmark_schema_is_mapped_correctly(self) -> None:
+        payload = json.loads(
+            (
+                REPOSITORY_ROOT
+                / "benchmarks"
+                / "network_aware_relay_100_seeds.json"
+            ).read_text(encoding="utf-8")
+        )
+
+        view = benchmark_view(payload)
+
+        self.assertEqual(view["status"], "ready")
+        self.assertEqual(view["format"], "network_aware_relay")
+        self.assertEqual(view["baselineLabel"], "Adaptive relay")
+        self.assertEqual(view["candidateLabel"], "Network-aware")
+        self.assertIsInstance(view["baselineSteps"], (int, float))
+        self.assertIsInstance(view["candidateSteps"], (int, float))
+        self.assertIsNotNone(view.get("ablation"))
+        self.assertIsInstance(view["ablation"]["transportSteps"], (int, float))
+        self.assertIsInstance(view["ablation"]["relayEffect"], (int, float))
+
+    def test_dashboard_server_accepts_network_aware_replay_schema(self) -> None:
+        server = create_server(
+            REPOSITORY_ROOT / "replays" / "seed_7_network_aware.json",
+            REPOSITORY_ROOT
+            / "benchmarks"
+            / "network_aware_relay_100_seeds.json",
+            port=0,
+        )
+        try:
+            self.assertGreater(server.server_address[1], 0)
+        finally:
+            server.server_close()
+
     def test_older_versioned_benchmark_formats_remain_supported(self) -> None:
         expected = {
             "two_drone_50_seeds.json": "parallel_exploration",

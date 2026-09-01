@@ -37,7 +37,9 @@ def build_parser() -> argparse.ArgumentParser:
         "--disable-distributed-deconfliction", action="store_true"
     )
     parser.add_argument(
-        "--relay-strategy", choices=("off", "adaptive"), default="off"
+        "--relay-strategy",
+        choices=("off", "adaptive", "network-aware"),
+        default="off",
     )
     parser.add_argument("--relay-min-outage-steps", type=int, default=40)
     parser.add_argument("--relay-min-unsynced-cells", type=int, default=240)
@@ -46,6 +48,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--relay-max-deployments", type=int, default=1)
     parser.add_argument("--relay-energy-margin", type=float, default=5.0)
     parser.add_argument("--relay-min-benefit-ratio", type=float, default=20.0)
+    parser.add_argument("--network-relay-utility-threshold", type=float, default=25.0)
+    parser.add_argument("--network-relay-max-backlog", type=int, default=144)
+    parser.add_argument("--network-relay-max-hops", type=int, default=2)
+    parser.add_argument("--network-relay-hysteresis", type=int, default=3)
+    parser.add_argument("--network-relay-recent-map-age", type=int, default=8)
+    parser.add_argument("--network-relay-map-delta-limit", type=int, default=24)
+    parser.add_argument("--network-relay-min-outage", type=int, default=8)
     parser.add_argument(
         "--network-profile", choices=("ideal", "constrained"), default="ideal"
     )
@@ -118,6 +127,13 @@ def main(argv: list[str] | None = None) -> None:
         relay_max_deployments=args.relay_max_deployments,
         relay_energy_margin=args.relay_energy_margin,
         relay_min_benefit_ratio=args.relay_min_benefit_ratio,
+        network_relay_utility_threshold=args.network_relay_utility_threshold,
+        network_relay_max_backlog_units=args.network_relay_max_backlog,
+        network_relay_max_hops=args.network_relay_max_hops,
+        network_relay_hysteresis_steps=args.network_relay_hysteresis,
+        network_relay_recent_map_age_steps=args.network_relay_recent_map_age,
+        network_relay_map_delta_limit=args.network_relay_map_delta_limit,
+        network_relay_min_outage_steps=args.network_relay_min_outage,
         network_profile=args.network_profile,
         network_latency_steps=args.network_latency_steps,
         network_packet_loss_rate=args.network_packet_loss,

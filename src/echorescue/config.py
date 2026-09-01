@@ -34,6 +34,13 @@ class SimulationConfig:
     relay_max_deployments: int = 1
     relay_energy_margin: float = 5.0
     relay_min_benefit_ratio: float = 20.0
+    network_relay_utility_threshold: float = 25.0
+    network_relay_max_backlog_units: int = 144
+    network_relay_max_hops: int = 2
+    network_relay_hysteresis_steps: int = 3
+    network_relay_recent_map_age_steps: int = 8
+    network_relay_map_delta_limit: int = 24
+    network_relay_min_outage_steps: int = 8
     network_profile: str = "ideal"
     network_latency_steps: int = 1
     network_packet_loss_rate: float = 0.05
@@ -98,8 +105,10 @@ class SimulationConfig:
             raise ValueError("motion_intent_ttl must be positive")
         if self.deadlock_wait_threshold < 2:
             raise ValueError("deadlock_wait_threshold must be at least 2")
-        if self.relay_strategy not in {"off", "adaptive"}:
-            raise ValueError("relay_strategy must be off or adaptive")
+        if self.relay_strategy not in {"off", "adaptive", "network-aware"}:
+            raise ValueError(
+                "relay_strategy must be off, adaptive, or network-aware"
+            )
         if self.relay_min_outage_steps < 1:
             raise ValueError("relay_min_outage_steps must be positive")
         if self.relay_min_unsynced_cells < 1:
@@ -114,6 +123,20 @@ class SimulationConfig:
             raise ValueError("relay_energy_margin must not be negative")
         if self.relay_min_benefit_ratio <= 0:
             raise ValueError("relay_min_benefit_ratio must be positive")
+        if self.network_relay_utility_threshold < 0:
+            raise ValueError("network_relay_utility_threshold must not be negative")
+        if self.network_relay_max_backlog_units < 1:
+            raise ValueError("network_relay_max_backlog_units must be positive")
+        if self.network_relay_max_hops < 1:
+            raise ValueError("network_relay_max_hops must be positive")
+        if self.network_relay_hysteresis_steps < 1:
+            raise ValueError("network_relay_hysteresis_steps must be positive")
+        if self.network_relay_recent_map_age_steps < 1:
+            raise ValueError("network_relay_recent_map_age_steps must be positive")
+        if self.network_relay_map_delta_limit < 1:
+            raise ValueError("network_relay_map_delta_limit must be positive")
+        if self.network_relay_min_outage_steps < 1:
+            raise ValueError("network_relay_min_outage_steps must be positive")
         if self.network_profile not in {"ideal", "constrained"}:
             raise ValueError("network_profile must be ideal or constrained")
         if self.network_profile == "constrained" and self.effective_knowledge_mode != "local":
@@ -137,10 +160,17 @@ class SimulationConfig:
         if self.knowledge_mode not in {"shared", "shadow", "local"}:
             raise ValueError("knowledge_mode must be shared, shadow, or local")
         if (
-            self.relay_strategy == "adaptive"
+            self.relay_strategy in {"adaptive", "network-aware"}
             and self.effective_knowledge_mode != "local"
         ):
-            raise ValueError("adaptive relay requires knowledge_mode=local")
+            raise ValueError("Relay strategies require knowledge_mode=local")
+        if (
+            self.relay_strategy == "network-aware"
+            and self.network_profile != "constrained"
+        ):
+            raise ValueError(
+                "network-aware relay requires network_profile=constrained"
+            )
         if self.max_steps < 1:
             raise ValueError("max_steps must be positive")
 
