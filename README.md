@@ -29,6 +29,7 @@ python -m echorescue --drones 2 --seed 7 --knowledge-mode local --relay-strategy
 python -m echorescue --drones 2 --seed 7 --knowledge-mode local --network-profile constrained --replay-out replays/seed_7_constrained.json
 python -m echorescue --drones 2 --seed 7 --knowledge-mode local --network-profile constrained --relay-strategy network-aware --replay-out replays/seed_7_network_aware.json
 python -m echorescue --drones 2 --seed 7 --inject-failure drone-2:4 --replay-out replays/seed_7_failure.json
+python -m echorescue --drones 2 --seed 1 --smoke-profile moderate --replay-out replays/seed_1_smoke.json --replay-debug-smoke
 python -m echorescue.dashboard --replay replays/seed_7.json
 ```
 
@@ -38,6 +39,9 @@ planned paths, battery and state telemetry, confirmed survivors, event history,
 coverage, direct and relay radio links, communication state, final metrics, and
 the verified single-/two-drone comparison. The map selector switches between
 the shared operator map, both local drone maps, and the base knowledge store.
+Smoke replays expose the ground-truth density layer only when generated with
+the explicit `--replay-debug-smoke` flag; ordinary operator maps never contain
+that layer.
 
 To reproduce the benchmark artifact:
 
@@ -51,6 +55,7 @@ python -m echorescue.relay_benchmark --seeds 50 --output benchmarks/adaptive_rel
 python -m echorescue.network_benchmark --seeds 50 --output benchmarks/constrained_network_50_seeds.json
 python -m echorescue.network_aware_benchmark --train-seeds 50 --holdout-seeds 50 --base-coverage-quality-target 60 --output benchmarks/network_aware_relay_100_seeds.json --analysis-output benchmarks/network_aware_relay_analysis.json
 python -m echorescue.failure_benchmark --seeds 50 --failure-drone drone-2 --failure-step 4 --output benchmarks/failure_reassignment_50_seeds.json
+python -m echorescue.smoke_benchmark --seeds 50 --output benchmarks/smoke_perception_50_seeds.json
 ```
 
 The server automatically loads that default benchmark file when it exists. A
@@ -411,6 +416,46 @@ modeled state: radio disconnection does not imply physical loss. The complete
 Phase-4 audit, schema/event inventory, demo assessment, and residual risks are
 documented in [`docs/phase-4-closeout.md`](docs/phase-4-closeout.md).
 
+### Smoke-degraded Survivor perception
+
+The first Phase-5 slice is deliberately narrow and opt-in. `--smoke-profile
+moderate` creates three deterministic, Manhattan-radius smoke zones at density
+0.65. Smoke is environmental Ground Truth: it does not change free/occupied
+cells, DistanceSensor mapping, planning, collision checks, or motion. It only
+reduces the effective range and deterministic detection probability of the
+existing Survivor sensor. `off` remains the default and reproduces the prior
+result and replay bytes.
+
+Events record smoke entry/exit and aggregate degraded Survivor observations at
+the observing drone's position. They never reveal an undetected Survivor's
+position. Schema-2.0 frames report only the density currently experienced by
+each drone. The full density grid is absent from standard replays and is added
+only by `--replay-debug-smoke`, where the dashboard labels it as a debug-only
+Ground-Truth view.
+
+```bash
+python -m echorescue --drones 2 --seed 1 --smoke-profile moderate --replay-out replays/seed_1_smoke.json --replay-debug-smoke
+python -m echorescue.dashboard --replay replays/seed_1_smoke.json --benchmark benchmarks/smoke_perception_50_seeds.json
+python -m echorescue.smoke_benchmark --seeds 50 --output benchmarks/smoke_perception_50_seeds.json
+```
+
+The versioned seeds-0–49 comparison at
+[`benchmarks/smoke_perception_50_seeds.json`](benchmarks/smoke_perception_50_seeds.json)
+holds every non-smoke parameter fixed and repeats each moderate run. Moderate
+smoke reduced average Survivor Recall from 100% to **79.33%** and mission
+success from 100% to **50%**. Mean time to first detection rose from 7.16 to
+10.74 steps (+3.58). Across the 50 missions, 623 of 1,897 eligible Survivor
+detection attempts were degraded, aggregated into 556 telemetry events.
+
+This is a perception baseline, not a mitigation result. Both profiles still
+returned 2.0 drones per mission, averaged the same 72.10 steps and 96.95%
+explored area, and recorded zero wall or drone collisions. Those unchanged
+motion metrics are expected: the current strategy completes occupancy
+exploration independently of Survivor detections. The measured 20.67-point
+Recall loss isolates the missing capability that a later complementary sensor
+should address. Full design and metric semantics are documented in
+[`docs/phase-5-smoke-baseline.md`](docs/phase-5-smoke-baseline.md).
+
 ## Verified benchmark
 
 [`benchmarks/two_drone_50_seeds.json`](benchmarks/two_drone_50_seeds.json) is
@@ -457,7 +502,8 @@ For a headless JSON summary without a replay:
 python -m echorescue --seed 7 --drones 2
 ```
 
-The deterministic model exposes sensor, survivor, battery, reserve, wait-cost,
+The deterministic model exposes sensor, Survivor, smoke profile, battery,
+reserve, wait-cost,
 radio-range, knowledge mode, base-store, map-size, obstacle-density and
 maximum-step options through `--help`. Use
 `--drones 1` for the preserved single-drone regression mode and `--start-mode
@@ -479,7 +525,8 @@ and a local HTTP smoke test.
 ## Current limitations
 
 - one static 2D floor and at most two drones
-- cardinal, noise-free sensing and abstract deterministic energy units
+- cardinal, noise-free occupancy sensing; Survivor perception is abstract and
+  deterministically degraded only by the opt-in smoke profile
 - replay schema compatibility is version-checked but has no migration layer
 - full occupancy snapshots favor transparency over file-size efficiency
 - the local server is intended for development and portfolio demos, not public
@@ -500,7 +547,10 @@ and a local HTTP smoke test.
   a final fail-safe; it does not claim real-world decentralized flight safety
 - failure injection is an abrupt deterministic fail-stop model; it does not
   model probabilistic faults, diagnosis, repair, or a recoverable airframe
-- no persistent role hierarchy, dynamic obstacles, ROS 2, hardware integration,
-  or 3D visualization
+- smoke uses static constant-density zones, not fluid dynamics, diffusion,
+  changing ventilation, or real camera response; it currently affects only
+  Survivor detection and provides no countermeasure
+- no thermal, acoustic, ultrasonic, or fused sensing; no persistent role
+  hierarchy, dynamic obstacles, ROS 2, hardware integration, or 3D visualization
 
 This is a software simulation and not evidence of real-world flight safety.
