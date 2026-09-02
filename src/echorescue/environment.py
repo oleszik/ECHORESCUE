@@ -4,6 +4,7 @@ from random import Random
 
 from echorescue.config import SimulationConfig
 from echorescue.models import CellState, Position
+from echorescue.smoke import SmokeField
 
 
 @dataclass(frozen=True, slots=True)
@@ -15,6 +16,7 @@ class GridWorld:
     base: Position
     walls: frozenset[Position]
     survivors: frozenset[Position] = frozenset()
+    smoke: SmokeField = SmokeField()
 
     @classmethod
     def generate(cls, config: SimulationConfig) -> "GridWorld":
@@ -57,12 +59,22 @@ class GridWorld:
         survivor_rng.shuffle(survivor_candidates)
         survivors = frozenset(survivor_candidates[: config.survivor_count])
 
+        smoke = SmokeField.generate(
+            profile=config.smoke_profile,
+            seed=config.seed,
+            width=config.width,
+            height=config.height,
+            walls=walls,
+            base=base,
+        )
+
         return cls(
             config.width,
             config.height,
             base,
             frozenset(walls),
             survivors,
+            smoke,
         )
 
     @staticmethod

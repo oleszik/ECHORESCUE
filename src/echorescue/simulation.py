@@ -36,12 +36,13 @@ class SimulationResult:
     returned_to_base: bool
     return_path_length: int
     energy_emergency: bool
+    smoke_metrics: dict[str, object] | None
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
     position_trace: tuple[Position, ...]
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "seed": self.seed,
             "completed": self.completed,
             "termination_reason": self.termination_reason,
@@ -68,6 +69,9 @@ class SimulationResult:
             "mission_events": [event.to_dict() for event in self.mission_events],
             "position_trace": [[position.x, position.y] for position in self.position_trace],
         }
+        if self.smoke_metrics is not None:
+            payload["smoke"] = self.smoke_metrics
+        return payload
 
 
 FrameCallback = Callable[["Simulation"], None]
@@ -93,6 +97,14 @@ class Simulation:
         self._confirmed_survivors: set[Position] = set()
         self._survivor_observations: dict[Position, int] = {}
         self._last_survivor_observation_step: dict[Position, int] = {}
+        self._in_smoke = False
+        self._smoke_exposure_samples = 0
+        self._smoke_entries = 0
+        self._survivor_detection_attempts = 0
+        self._survivor_detection_successes = 0
+        self._smoke_degraded_detection_attempts = 0
+        self._smoke_successful_detection_attempts = 0
+        self._smoke_degraded_detection_events = 0
         self.steps = 0
         self.collisions = 0
         self.completed = False
@@ -163,9 +175,18 @@ class Simulation:
             return
         observations = self.sensor.observe(self.world, self.drone.position)
         self.occupancy_map.update(observations)
+        self._observe_smoke_state()
         self._observe_survivors()
 
-    def _record_event(self, event_type: EventType) -> None:
+    def _record_event(
+        self,
+        event_type: EventType,
+        *,
+        smoke_density: float | None = None,
+        detection_attempts: int | None = None,
+        detection_successes: int | None = None,
+        reason: str | None = None,
+    ) -> None:
         self.mission_log.record(
             MissionEvent(
                 position=self.drone.position,
@@ -173,6 +194,10 @@ class Simulation:
                 drone_id=self.drone.identifier,
                 event_type=event_type,
                 energy_remaining=self.battery.remaining,
+                smoke_density=smoke_density,
+                detection_attempts=detection_attempts,
+                detection_successes=detection_successes,
+                reason=reason,
             )
         )
 
@@ -189,11 +214,49 @@ class Simulation:
             )
         )
 
+    def _observe_smoke_state(self) -> None:
+        if self.config.smoke_profile == "off":
+            return
+        density = self.world.smoke.density_at(self.drone.position)
+        currently_in_smoke = density > 0.0
+        if currently_in_smoke:
+            self._smoke_exposure_samples += 1
+        if currently_in_smoke == self._in_smoke:
+            return
+        self._in_smoke = currently_in_smoke
+        if currently_in_smoke:
+            self._smoke_entries += 1
+            self._record_event(
+                EventType.SMOKE_ENTERED, smoke_density=density
+            )
+        else:
+            self._record_event(EventType.SMOKE_EXITED, smoke_density=0.0)
+
     def _observe_survivors(self) -> None:
-        visible_survivors = self.survivor_sensor.observe(
-            self.world, self.drone.position
+        report = self.survivor_sensor.observe_report(
+            self.world,
+            self.drone.position,
+            smoke_profile=self.config.smoke_profile,
+            seed=self.config.seed,
+            step=self.steps,
+            observer_id=self.drone.identifier,
         )
-        for position in visible_survivors:
+        self._survivor_detection_attempts += report.attempts
+        self._survivor_detection_successes += report.successful_observations
+        self._smoke_degraded_detection_attempts += report.degraded_attempts
+        self._smoke_successful_detection_attempts += (
+            report.successful_smoke_observations
+        )
+        if self.config.smoke_profile != "off" and report.degraded_attempts:
+            self._smoke_degraded_detection_events += 1
+            self._record_event(
+                EventType.SURVIVOR_DETECTION_DEGRADED,
+                smoke_density=report.maximum_smoke_exposure,
+                detection_attempts=report.attempts,
+                detection_successes=report.successful_observations,
+                reason="smoke_visibility",
+            )
+        for position in report.visible_survivors:
             if self._last_survivor_observation_step.get(position) == self.steps:
                 continue
             self._last_survivor_observation_step[position] = self.steps
@@ -395,6 +458,36 @@ class Simulation:
             and self.collisions == 0
             and self.returned_to_base
         )
+        smoke_metrics = (
+            {
+                "profile": self.config.smoke_profile,
+                "smoke_cells": len(self.world.smoke.cells),
+                "maximum_density": round(
+                    self.world.smoke.maximum_density, 6
+                ),
+                "exposure_samples_by_drone": {
+                    self.drone.identifier: self._smoke_exposure_samples
+                },
+                "entries_by_drone": {
+                    self.drone.identifier: self._smoke_entries
+                },
+                "detection_attempts": self._survivor_detection_attempts,
+                "successful_observations": (
+                    self._survivor_detection_successes
+                ),
+                "degraded_detection_attempts": (
+                    self._smoke_degraded_detection_attempts
+                ),
+                "degraded_detection_events": (
+                    self._smoke_degraded_detection_events
+                ),
+                "successful_smoke_observations": (
+                    self._smoke_successful_detection_attempts
+                ),
+            }
+            if self.config.smoke_profile != "off"
+            else None
+        )
         return SimulationResult(
             seed=self.config.seed,
             completed=self.completed,
@@ -418,6 +511,7 @@ class Simulation:
             returned_to_base=self.returned_to_base,
             return_path_length=self.return_path_length,
             energy_emergency=self.energy_emergency,
+            smoke_metrics=smoke_metrics,
             mission_success=mission_success,
             mission_events=self.mission_log.events,
             position_trace=tuple(self.position_trace),

@@ -105,6 +105,7 @@ class DroneRuntime:
     network_relay_expected_units: int = 0
     network_relay_forwarded_units: int = 0
     network_relay_backpressure: bool = False
+    in_smoke: bool = False
 
     @property
     def terminal(self) -> bool:
@@ -227,6 +228,7 @@ class MultiSimulationResult:
     network_shield_geometry_classification: dict[str, int]
     network_aware_relay_metrics: dict[str, object] | None
     failure_recovery_metrics: dict[str, object] | None
+    smoke_metrics: dict[str, object] | None
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
@@ -473,6 +475,8 @@ class MultiSimulationResult:
             payload["network_aware_relay"] = self.network_aware_relay_metrics
         if self.failure_recovery_metrics is not None:
             payload["failure_recovery"] = self.failure_recovery_metrics
+        if self.smoke_metrics is not None:
+            payload["smoke"] = self.smoke_metrics
         if self.network_profile == "ideal":
             for key in tuple(payload):
                 if key.startswith("network_") or key in {
@@ -643,6 +647,13 @@ class MultiDroneSimulation:
         self._failure_tasks_released = 0
         self._failure_tasks_reassigned = 0
         self._failed_drone_collision_avoidances = 0
+        self._smoke_exposure_samples_by_drone: dict[str, int] = {}
+        self._smoke_entries_by_drone: dict[str, int] = {}
+        self._survivor_detection_attempts = 0
+        self._survivor_detection_successes = 0
+        self._smoke_degraded_detection_attempts = 0
+        self._smoke_successful_detection_attempts = 0
+        self._smoke_degraded_detection_events = 0
         # Benchmark-only ablation seam.  Public strategy semantics stay intact:
         # normal network-aware runs always keep active Relay roles enabled.
         self._network_aware_relay_roles_enabled = True
@@ -1633,6 +1644,9 @@ class MultiDroneSimulation:
         backpressure: bool | None = None,
         route_hops: int | None = None,
         transfer_progress: float | None = None,
+        smoke_density: float | None = None,
+        detection_attempts: int | None = None,
+        detection_successes: int | None = None,
     ) -> None:
         self.mission_log.record(
             MissionEvent(
@@ -1649,6 +1663,9 @@ class MultiDroneSimulation:
                 backpressure=backpressure,
                 route_hops=route_hops,
                 transfer_progress=transfer_progress,
+                smoke_density=smoke_density,
+                detection_attempts=detection_attempts,
+                detection_successes=detection_successes,
             )
         )
 
@@ -1867,10 +1884,68 @@ class MultiDroneSimulation:
             )
         if self.knowledge_mode != "local":
             self.occupancy_map.update(observations)
+        self._observe_smoke_state(runtime)
         self._observe_survivors(runtime)
 
+    def _observe_smoke_state(self, runtime: DroneRuntime) -> None:
+        if self.config.smoke_profile == "off":
+            return
+        density = self.world.smoke.density_at(runtime.drone.position)
+        currently_in_smoke = density > 0.0
+        if currently_in_smoke:
+            drone_id = runtime.drone.identifier
+            self._smoke_exposure_samples_by_drone[drone_id] = (
+                self._smoke_exposure_samples_by_drone.get(drone_id, 0) + 1
+            )
+        if currently_in_smoke == runtime.in_smoke:
+            return
+        runtime.in_smoke = currently_in_smoke
+        if currently_in_smoke:
+            drone_id = runtime.drone.identifier
+            self._smoke_entries_by_drone[drone_id] = (
+                self._smoke_entries_by_drone.get(drone_id, 0) + 1
+            )
+            self._record_event(
+                runtime,
+                EventType.SMOKE_ENTERED,
+                smoke_density=density,
+            )
+        else:
+            self._record_event(
+                runtime,
+                EventType.SMOKE_EXITED,
+                smoke_density=0.0,
+            )
+
     def _observe_survivors(self, runtime: DroneRuntime) -> None:
-        visible = self.survivor_sensor.observe(self.world, runtime.drone.position)
+        report = self.survivor_sensor.observe_report(
+            self.world,
+            runtime.drone.position,
+            smoke_profile=self.config.smoke_profile,
+            seed=self.config.seed,
+            step=self.steps,
+            observer_id=runtime.drone.identifier,
+        )
+        self._survivor_detection_attempts += report.attempts
+        self._survivor_detection_successes += report.successful_observations
+        self._smoke_degraded_detection_attempts += report.degraded_attempts
+        self._smoke_successful_detection_attempts += (
+            report.successful_smoke_observations
+        )
+        if (
+            self.config.smoke_profile != "off"
+            and report.degraded_attempts
+        ):
+            self._smoke_degraded_detection_events += 1
+            self._record_event(
+                runtime,
+                EventType.SURVIVOR_DETECTION_DEGRADED,
+                smoke_density=report.maximum_smoke_exposure,
+                detection_attempts=report.attempts,
+                detection_successes=report.successful_observations,
+                reason="smoke_visibility",
+            )
+        visible = report.visible_survivors
         for position in visible:
             if runtime.last_survivor_observation_step.get(position) == self.steps:
                 continue
@@ -3818,6 +3893,40 @@ class MultiDroneSimulation:
             "queue_backlog_by_type": transport.backlog_by_type(),
         }
 
+    def smoke_detection_metrics(self) -> dict[str, object]:
+        """Return aggregate perception telemetry without target locations."""
+
+        drone_ids = sorted(self.runtimes)
+        return {
+            "profile": self.config.smoke_profile,
+            "smoke_cells": len(self.world.smoke.cells),
+            "maximum_density": round(self.world.smoke.maximum_density, 6),
+            "exposure_samples_by_drone": {
+                drone_id: self._smoke_exposure_samples_by_drone.get(
+                    drone_id, 0
+                )
+                for drone_id in drone_ids
+            },
+            "entries_by_drone": {
+                drone_id: self._smoke_entries_by_drone.get(drone_id, 0)
+                for drone_id in drone_ids
+            },
+            "detection_attempts": self._survivor_detection_attempts,
+            "successful_observations": self._survivor_detection_successes,
+            "degraded_detection_attempts": (
+                self._smoke_degraded_detection_attempts
+            ),
+            "degraded_detection_events": self._smoke_degraded_detection_events,
+            "successful_smoke_observations": (
+                self._smoke_successful_detection_attempts
+            ),
+        }
+
+    def _smoke_metrics(self) -> dict[str, object] | None:
+        if self.config.smoke_profile == "off":
+            return None
+        return self.smoke_detection_metrics()
+
     def _failure_recovery_metrics(self) -> dict[str, object] | None:
         if not self.config.failure_schedule:
             return None
@@ -4277,6 +4386,7 @@ class MultiDroneSimulation:
             ),
             network_aware_relay_metrics=self._network_aware_relay_metrics(),
             failure_recovery_metrics=failure_recovery_metrics,
+            smoke_metrics=self._smoke_metrics(),
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )

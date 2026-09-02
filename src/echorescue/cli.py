@@ -96,6 +96,12 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="DRONE_ID:STEP",
         help="deterministically fail a drone at a simulation step (repeatable)",
     )
+    parser.add_argument(
+        "--smoke-profile",
+        choices=("off", "moderate"),
+        default="off",
+        help="opt in to deterministic smoke-degraded survivor perception",
+    )
     parser.add_argument("--max-steps", type=int, default=1_000)
     parser.add_argument(
         "--obstacle-density", type=float, default=0.08, metavar="FRACTION"
@@ -103,6 +109,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--visualize", action="store_true")
     parser.add_argument("--delay", type=float, default=0.03)
     parser.add_argument("--replay-out")
+    parser.add_argument(
+        "--replay-debug-smoke",
+        action="store_true",
+        help="include a debug-only ground-truth smoke layer in replay output",
+    )
     parser.add_argument(
         "--show-ground-truth",
         action="store_true",
@@ -115,6 +126,12 @@ def main(argv: list[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
     if args.delay < 0:
         raise SystemExit("--delay must not be negative")
+    if args.replay_debug_smoke and not args.replay_out:
+        raise SystemExit("--replay-debug-smoke requires --replay-out")
+    if args.replay_debug_smoke and args.smoke_profile == "off":
+        raise SystemExit(
+            "--replay-debug-smoke requires an active --smoke-profile"
+        )
     start_positions = None
     if args.drones == 2 and args.start_mode == "shared-base":
         start_positions = ((1, 1), (1, 1))
@@ -170,6 +187,7 @@ def main(argv: list[str] | None = None) -> None:
         knowledge_mode=args.knowledge_mode,
         base_knowledge_store_enabled=not args.disable_base_knowledge_store,
         failure_schedule=tuple(sorted(args.inject_failure, key=lambda item: item[1])),
+        smoke_profile=args.smoke_profile,
         max_steps=args.max_steps,
     )
     simulation = (
@@ -181,7 +199,11 @@ def main(argv: list[str] | None = None) -> None:
     if args.replay_out:
         if not isinstance(simulation, MultiDroneSimulation):
             raise SystemExit("--replay-out currently requires --drones 2")
-        replay, result = record_simulation(simulation, renderer)
+        replay, result = record_simulation(
+            simulation,
+            renderer,
+            include_debug_smoke=args.replay_debug_smoke,
+        )
         write_replay(replay, args.replay_out)
     else:
         result = simulation.run(renderer)

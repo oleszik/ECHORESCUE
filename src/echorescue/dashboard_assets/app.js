@@ -14,6 +14,7 @@ const COLORS = {
   radioPeer: "#94a3b8",
   knowledgeGap: "#fb7185",
   failed: "#fb7185",
+  smoke: "#f59e0b",
   textDark: "#071116",
 };
 
@@ -33,7 +34,7 @@ function cacheElements() {
   [
     "seedValue", "knowledgeMode", "networkProfile", "missionStatus", "restartButton", "previousButton", "playButton",
     "playIcon", "playLabel", "nextButton", "timeline", "currentStep", "maxStep",
-    "speedSelect", "mapViewSelect", "mapViewTitle", "mapViewPurpose", "missionCanvas", "coverageValue", "eventFeed", "eventCount",
+    "speedSelect", "mapViewSelect", "mapViewTitle", "mapViewPurpose", "missionCanvas", "coverageValue", "eventFeed", "eventCount", "smokeDebugOption", "smokeDebugLegend",
     "resultBadge", "metricRecall", "metricReturned", "metricWalls", "metricDrones",
     "metricSteps", "metricDuplicate", "schemaVersion", "singleSteps", "multiSteps",
     "improvementValue", "benchmarkNote", "benchmarkPanel", "fatalError", "droneCard1", "droneCard2",
@@ -92,6 +93,9 @@ function initializeReplay(replay, benchmark) {
   state.benchmark = benchmark;
   const knowledgeMode = replay.mission.knowledge_mode || replay.mission.configuration?.knowledge_mode || "shared";
   state.mapView = knowledgeMode === "local" ? "base" : "operator";
+  const hasSmokeDebug = Boolean(replay.map.smoke_debug?.debug_only);
+  elements.smokeDebugOption.hidden = !hasSmokeDebug;
+  elements.smokeDebugLegend.hidden = true;
   elements.mapViewSelect.value = state.mapView;
   const relayStrategy = replay.mission.relay_strategy || replay.mission.configuration?.relay_strategy || "off";
   const networkProfile = replay.mission.network_profile || replay.mission.configuration?.network_profile || "ideal";
@@ -132,7 +136,9 @@ function setFrame(index) {
 function updateDroneCard(number, drone, frame) {
   const [x, y] = drone.position;
   const relayHold = drone.relay?.holding_for_relay ? "RELAY HOLD · " : "";
-  elements[`droneState${number}`].textContent = `${drone.yielding ? "YIELDING · " : relayHold}${drone.state.replaceAll("_", " ")}`;
+  const smokeState = drone.smoke?.in_smoke
+    ? `SMOKE ${(drone.smoke.density * 100).toFixed(0)}% · ` : "";
+  elements[`droneState${number}`].textContent = `${smokeState}${drone.yielding ? "YIELDING · " : relayHold}${drone.state.replaceAll("_", " ")}`;
   elements[`droneCard${number}`].classList.toggle("yielding", Boolean(drone.yielding));
   elements[`droneCard${number}`].classList.toggle("relay-active", Boolean(drone.relay?.active));
   elements[`droneCard${number}`].classList.toggle("failed", drone.state === "FAILED");
@@ -192,17 +198,20 @@ function updateNetworkReadout(frame) {
 }
 
 function selectedKnowledgeMap(frame) {
+  if (state.mapView === "smoke-debug") return frame.knowledge_maps.operator;
   return frame.knowledge_maps[state.mapView] || frame.knowledge_maps.operator;
 }
 
 function updateMapReadout(frame) {
   const knowledgeMap = selectedKnowledgeMap(frame);
+  elements.smokeDebugLegend.hidden = state.mapView !== "smoke-debug";
   elements.coverageValue.textContent = `${knowledgeMap.known_coverage.toFixed(1)}%`;
   const labels = {
     operator: ["Global operator map", "Evaluation aggregate · never used for local decisions"],
     "drone-1": ["Local map · drone-1", "Decision knowledge held by drone-1"],
     "drone-2": ["Local map · drone-2", "Decision knowledge held by drone-2"],
     base: ["Base knowledge", "Operational knowledge received over radio"],
+    "smoke-debug": ["Smoke debug", "Ground-truth smoke overlay · debug only · never used by agents"],
   };
   const [title, purpose] = labels[state.mapView] || labels.operator;
   elements.mapViewTitle.textContent = title;
@@ -219,6 +228,8 @@ function updateStatus(frame) {
 }
 
 function eventColor(event) {
+  if (["smoke_entered", "smoke_exited"].includes(event.event_type)) return COLORS.smoke;
+  if (event.event_type === "survivor_detection_degraded") return "#fb7185";
   if (event.event_type === "drone_failure_injected") return COLORS.failed;
   if (event.event_type === "failure_task_released") return "#f59e0b";
   if (["failure_task_reassigned", "failed_drone_collision_avoided"].includes(event.event_type)) return "#34d399";
@@ -625,6 +636,35 @@ function normalizeFailureReassignmentBenchmark(benchmark) {
   };
 }
 
+function normalizeSmokePerceptionBenchmark(benchmark) {
+  const off = requiredObject(benchmark, "smoke_off", "Smoke perception");
+  const moderate = requiredObject(benchmark, "smoke_moderate", "Smoke perception");
+  const offSteps = optionalNumber(off, "average_mission_steps", "smoke_off");
+  const moderateSteps = optionalNumber(moderate, "average_mission_steps", "smoke_moderate");
+  const offRecall = optionalNumber(off, "average_survivor_recall", "smoke_off");
+  const moderateRecall = optionalNumber(moderate, "average_survivor_recall", "smoke_moderate");
+  const degraded = optionalNumber(moderate, "degraded_detection_attempts", "smoke_moderate");
+  const recallDelta = Number.isFinite(offRecall) && Number.isFinite(moderateRecall)
+    ? (moderateRecall - offRecall) * 100 : null;
+  const parts = [];
+  if (Number.isFinite(offRecall) && Number.isFinite(moderateRecall)) {
+    parts.push(`Survivor Recall: ${(offRecall * 100).toFixed(2)}% off versus ${(moderateRecall * 100).toFixed(2)}% moderate smoke.`);
+  }
+  if (Number.isFinite(degraded)) parts.push(`${degraded.toFixed(0)} detection attempts were degraded by smoke.`);
+  return {
+    status: "ready",
+    format: "smoke_perception",
+    title: "Smoke perception baseline",
+    baselineLabel: "Smoke off",
+    candidateLabel: "Moderate smoke",
+    baselineSteps: offSteps,
+    candidateSteps: moderateSteps,
+    improvementValue: signedMetric(recallDelta, " pp"),
+    improvementLabel: "recall delta",
+    note: joinBenchmarkNote(parts),
+  };
+}
+
 function normalizeBenchmark(benchmark) {
   if (!isRecord(benchmark)) throw new Error("Benchmark root must be a JSON object.");
   if (hasOwn(benchmark, "schema_version") && typeof benchmark.schema_version !== "string") {
@@ -632,6 +672,9 @@ function normalizeBenchmark(benchmark) {
   }
   if (benchmark.benchmark_type === "failure_reassignment") {
     return normalizeFailureReassignmentBenchmark(benchmark);
+  }
+  if (benchmark.benchmark_type === "smoke_perception") {
+    return normalizeSmokePerceptionBenchmark(benchmark);
   }
   if (hasOwn(benchmark, "training") || hasOwn(benchmark, "holdout")) {
     return normalizeNetworkAwareRelayBenchmark(benchmark);
@@ -861,6 +904,19 @@ function drawMission() {
       }
     });
   });
+
+  if (state.mapView === "smoke-debug" && state.replay.map.smoke_debug?.debug_only) {
+    state.replay.map.smoke_debug.density.forEach((row, y) => {
+      row.forEach((density, x) => {
+        if (density <= 0) return;
+        context.save();
+        context.fillStyle = COLORS.smoke;
+        context.globalAlpha = Math.min(0.82, 0.18 + density * 0.72);
+        context.fillRect(offsetX + x * cell, offsetY + y * cell, cell, cell);
+        context.restore();
+      });
+    });
+  }
 
   drawCommunicationLinks(context, frame, geometry);
 

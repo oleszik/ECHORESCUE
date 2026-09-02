@@ -8,6 +8,7 @@ from echorescue.replay import (
     FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION,
     NETWORK_AWARE_REPLAY_SCHEMA_VERSION,
     REPLAY_SCHEMA_VERSION,
+    SMOKE_REPLAY_SCHEMA_VERSION,
 )
 
 
@@ -22,6 +23,7 @@ def _validate_replay(path: Path) -> None:
         CONSTRAINED_REPLAY_SCHEMA_VERSION,
         NETWORK_AWARE_REPLAY_SCHEMA_VERSION,
         FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION,
+        SMOKE_REPLAY_SCHEMA_VERSION,
     }:
         raise ValueError(
             f"unsupported replay schema: {replay.get('schema_version')!r}"

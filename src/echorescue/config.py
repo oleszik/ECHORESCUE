@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from echorescue.smoke import SMOKE_PROFILES
+
 
 @dataclass(frozen=True, slots=True)
 class SimulationConfig:
@@ -55,6 +57,7 @@ class SimulationConfig:
     local_map_shadow_mode: bool | None = None
     base_knowledge_store_enabled: bool = True
     failure_schedule: tuple[tuple[str, int], ...] = ()
+    smoke_profile: str = "off"
     max_steps: int = 1_000
 
     def __post_init__(self) -> None:
@@ -171,6 +174,11 @@ class SimulationConfig:
             if step < 0 or step >= self.max_steps:
                 raise ValueError("failure step must be within the mission step limit")
             seen_failure_ids.add(drone_id)
+        if self.smoke_profile not in SMOKE_PROFILES:
+            raise ValueError(
+                "smoke_profile must be one of "
+                + ", ".join(sorted(SMOKE_PROFILES))
+            )
         if (
             self.relay_strategy in {"adaptive", "network-aware"}
             and self.effective_knowledge_mode != "local"

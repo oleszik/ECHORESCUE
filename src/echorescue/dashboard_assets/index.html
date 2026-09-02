@@ -74,6 +74,7 @@
                   <option value="drone-1">Local map · drone-1</option>
                   <option value="drone-2">Local map · drone-2</option>
                   <option value="base">Base knowledge</option>
+                  <option id="smokeDebugOption" value="smoke-debug" hidden>Smoke debug (ground truth)</option>
                 </select>
               </label>
               <div class="coverage-readout"><span id="coverageValue">0.0%</span><small>known</small></div>
@@ -89,6 +90,7 @@
               <span><i class="swatch direct-link"></i>Direct radio</span>
               <span><i class="swatch relay-link"></i>Relay radio</span>
               <span><i class="swatch knowledge-gap"></i>Knowledge difference</span>
+              <span id="smokeDebugLegend" hidden><i class="swatch smoke"></i>Smoke density (debug)</span>
             </div>
           </div>
         </article>

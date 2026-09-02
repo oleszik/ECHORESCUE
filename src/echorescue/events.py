@@ -64,6 +64,9 @@ class EventType(str, Enum):
     FAILURE_TASK_RELEASED = "failure_task_released"
     FAILURE_TASK_REASSIGNED = "failure_task_reassigned"
     FAILED_DRONE_COLLISION_AVOIDED = "failed_drone_collision_avoided"
+    SMOKE_ENTERED = "smoke_entered"
+    SMOKE_EXITED = "smoke_exited"
+    SURVIVOR_DETECTION_DEGRADED = "survivor_detection_degraded"
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,6 +89,9 @@ class MissionEvent:
     backpressure: bool | None = None
     route_hops: int | None = None
     transfer_progress: float | None = None
+    smoke_density: float | None = None
+    detection_attempts: int | None = None
+    detection_successes: int | None = None
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -125,6 +131,12 @@ class MissionEvent:
             payload["route_hops"] = self.route_hops
         if self.transfer_progress is not None:
             payload["transfer_progress"] = round(self.transfer_progress, 6)
+        if self.smoke_density is not None:
+            payload["smoke_density"] = round(self.smoke_density, 6)
+        if self.detection_attempts is not None:
+            payload["detection_attempts"] = self.detection_attempts
+        if self.detection_successes is not None:
+            payload["detection_successes"] = self.detection_successes
         return payload
 
 
@@ -203,6 +215,9 @@ class MissionLog:
             EventType.FAILURE_TASK_RELEASED,
             EventType.FAILURE_TASK_REASSIGNED,
             EventType.FAILED_DRONE_COLLISION_AVOIDED,
+            EventType.SMOKE_ENTERED,
+            EventType.SMOKE_EXITED,
+            EventType.SURVIVOR_DETECTION_DEGRADED,
         }:
             key = (event.event_type, event.drone_id, event.step, event.position)
         else:

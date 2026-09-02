@@ -17,6 +17,7 @@ REPLAY_SCHEMA_VERSION = "1.5"
 CONSTRAINED_REPLAY_SCHEMA_VERSION = "1.7"
 NETWORK_AWARE_REPLAY_SCHEMA_VERSION = "1.8"
 FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION = "1.9"
+SMOKE_REPLAY_SCHEMA_VERSION = "2.0"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -69,8 +70,9 @@ def _remaining_path(runtime: object) -> tuple[Position, ...]:
 class ReplayRecorder:
     """Read-only observer that snapshots public multi-drone simulation state."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, include_debug_smoke: bool = False) -> None:
         self._frames: list[dict[str, object]] = []
+        self._include_debug_smoke = include_debug_smoke
 
     def capture(self, simulation: MultiDroneSimulation) -> None:
         shared_shadow_map = simulation.shadow_synchronizer.shared_shadow_map()
@@ -88,7 +90,7 @@ class ReplayRecorder:
                 if simulation.knowledge_mode == "local"
                 else None
             )
-            drones[drone_id] = {
+            drone_payload: dict[str, object] = {
                 "position": _position(runtime.drone.position),
                 "state": runtime.drone.status.value,
                 "energy_remaining": round(runtime.battery.remaining, 6),
@@ -196,6 +198,15 @@ class ReplayRecorder:
                     ),
                 },
             }
+            if simulation.config.smoke_profile != "off":
+                density = simulation.world.smoke.density_at(
+                    runtime.drone.position
+                )
+                drone_payload["smoke"] = {
+                    "density": round(density, 6),
+                    "in_smoke": density > 0.0,
+                }
+            drones[drone_id] = drone_payload
         relay_edges = {
             CommunicationLink.between(first, second)
             for connection in (
@@ -388,6 +399,8 @@ class ReplayRecorder:
                     configuration.pop(key)
         if not simulation.config.failure_schedule:
             configuration.pop("failure_schedule", None)
+        if simulation.config.smoke_profile == "off":
+            configuration.pop("smoke_profile", None)
         mission = {
             "seed": simulation.config.seed,
             "knowledge_mode": simulation.knowledge_mode,
@@ -396,36 +409,52 @@ class ReplayRecorder:
         }
         if simulation.network_transport is not None:
             mission["network_profile"] = simulation.config.network_profile
+        map_payload: dict[str, object] = {
+            "width": simulation.config.width,
+            "height": simulation.config.height,
+            "base": _position(simulation.world.base),
+            "cell_encoding": {
+                "?": "unknown",
+                ".": "free",
+                "#": "occupied",
+            },
+            "initial_known_occupancy": (
+                frames[0]["occupancy"] if frames else []
+            ),
+        }
+        if (
+            self._include_debug_smoke
+            and simulation.config.smoke_profile != "off"
+        ):
+            map_payload["smoke_debug"] = {
+                "debug_only": True,
+                "profile": simulation.config.smoke_profile,
+                "density": simulation.world.smoke.to_debug_rows(
+                    simulation.config.width, simulation.config.height
+                ),
+            }
         return {
             "schema_version": (
-                FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION
-                if simulation.config.failure_schedule
+                SMOKE_REPLAY_SCHEMA_VERSION
+                if simulation.config.smoke_profile != "off"
                 else (
-                    NETWORK_AWARE_REPLAY_SCHEMA_VERSION
-                    if simulation.config.relay_strategy == "network-aware"
+                    FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION
+                    if simulation.config.failure_schedule
                     else (
-                        CONSTRAINED_REPLAY_SCHEMA_VERSION
-                        if simulation.network_transport is not None
-                        else REPLAY_SCHEMA_VERSION
+                        NETWORK_AWARE_REPLAY_SCHEMA_VERSION
+                        if simulation.config.relay_strategy == "network-aware"
+                        else (
+                            CONSTRAINED_REPLAY_SCHEMA_VERSION
+                            if simulation.network_transport is not None
+                            else REPLAY_SCHEMA_VERSION
+                        )
                     )
                 )
             ),
             "mission": {
                 **mission,
             },
-            "map": {
-                "width": simulation.config.width,
-                "height": simulation.config.height,
-                "base": _position(simulation.world.base),
-                "cell_encoding": {
-                    "?": "unknown",
-                    ".": "free",
-                    "#": "occupied",
-                },
-                "initial_known_occupancy": (
-                    frames[0]["occupancy"] if frames else []
-                ),
-            },
+            "map": map_payload,
             "frames": frames,
             "metrics": result.to_dict(),
         }
@@ -437,8 +466,10 @@ FrameObserver = Callable[[MultiDroneSimulation], None]
 def record_simulation(
     simulation: MultiDroneSimulation,
     observer: FrameObserver | None = None,
+    *,
+    include_debug_smoke: bool = False,
 ) -> tuple[dict[str, object], MultiSimulationResult]:
-    recorder = ReplayRecorder()
+    recorder = ReplayRecorder(include_debug_smoke=include_debug_smoke)
 
     def capture(simulation_state: MultiDroneSimulation) -> None:
         recorder.capture(simulation_state)
@@ -449,10 +480,15 @@ def record_simulation(
     return recorder.build(simulation, result), result
 
 
-def generate_replay(config: SimulationConfig) -> dict[str, object]:
+def generate_replay(
+    config: SimulationConfig, *, include_debug_smoke: bool = False
+) -> dict[str, object]:
     if config.drone_count != 2:
         raise ValueError("portfolio replay generation requires drone_count=2")
-    replay, _ = record_simulation(MultiDroneSimulation(config))
+    replay, _ = record_simulation(
+        MultiDroneSimulation(config),
+        include_debug_smoke=include_debug_smoke,
+    )
     return replay
 
 

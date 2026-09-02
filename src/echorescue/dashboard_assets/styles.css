@@ -283,6 +283,7 @@ input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border: 2px s
 .swatch.direct-link { color: var(--radio-direct); }
 .swatch.relay-link { color: var(--radio-relay); border-top: 1px dashed var(--radio-relay); background: transparent; }
 .swatch.knowledge-gap { color: transparent; border: 2px solid var(--knowledge-gap); background: transparent; }
+.swatch.smoke { background: rgba(245, 158, 11, 0.72); }
 
 .telemetry-column { display: grid; grid-template-rows: auto auto minmax(280px, 1fr); gap: 12px; min-width: 0; }
 .drone-card { position: relative; overflow: hidden; padding: 15px; }
