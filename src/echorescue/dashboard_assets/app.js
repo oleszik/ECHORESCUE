@@ -13,6 +13,7 @@ const COLORS = {
   radioRelay: "#c084fc",
   radioPeer: "#94a3b8",
   knowledgeGap: "#fb7185",
+  failed: "#fb7185",
   textDark: "#071116",
 };
 
@@ -134,6 +135,7 @@ function updateDroneCard(number, drone, frame) {
   elements[`droneState${number}`].textContent = `${drone.yielding ? "YIELDING · " : relayHold}${drone.state.replaceAll("_", " ")}`;
   elements[`droneCard${number}`].classList.toggle("yielding", Boolean(drone.yielding));
   elements[`droneCard${number}`].classList.toggle("relay-active", Boolean(drone.relay?.active));
+  elements[`droneCard${number}`].classList.toggle("failed", drone.state === "FAILED");
   elements[`dronePosition${number}`].textContent = `${x}, ${y}`;
   elements[`droneEnergy${number}`].textContent = `${drone.energy_remaining.toFixed(1)} units`;
   elements[`droneBattery${number}`].style.width = `${Math.max(0, Math.min(100, drone.energy_remaining_percent))}%`;
@@ -144,7 +146,10 @@ function updateDroneCard(number, drone, frame) {
   const communication = drone.communication;
   const status = elements[`droneCommunication${number}`];
   status.className = "communication-status";
-  if (communication.direct_to_base) {
+  if (drone.state === "FAILED") {
+    status.textContent = "Offline · failed";
+    status.classList.add("offline");
+  } else if (communication.direct_to_base) {
     status.textContent = "Direct to base";
     status.classList.add("direct");
   } else if (communication.via_relay) {
@@ -214,6 +219,9 @@ function updateStatus(frame) {
 }
 
 function eventColor(event) {
+  if (event.event_type === "drone_failure_injected") return COLORS.failed;
+  if (event.event_type === "failure_task_released") return "#f59e0b";
+  if (["failure_task_reassigned", "failed_drone_collision_avoided"].includes(event.event_type)) return "#34d399";
   if (event.event_type === "safety_shield_intervention") return "#fb7185";
   if (event.event_type === "final_sync_timeout") return "#fb7185";
   if (event.event_type === "final_sync_completed") return "#34d399";
@@ -293,7 +301,10 @@ function updateEventFeed() {
 function populateMetrics() {
   const metrics = state.replay.metrics;
   elements.metricRecall.textContent = `${(metrics.survivor_recall * 100).toFixed(0)}%`;
-  elements.metricReturned.textContent = `${metrics.drones_returned}/${metrics.drones_total}`;
+  const recovery = metrics.failure_recovery;
+  elements.metricReturned.textContent = recovery
+    ? `${recovery.operational_drones_returned}/${recovery.operational_drones} operational`
+    : `${metrics.drones_returned}/${metrics.drones_total}`;
   elements.metricWalls.textContent = metrics.collisions;
   elements.metricDrones.textContent = metrics.drone_drone_collisions;
   elements.metricSteps.textContent = metrics.steps;
@@ -911,15 +922,21 @@ function drawMission() {
     const x = cellX + dockX;
     const y = cellY + dockY;
     const radius = Math.max(7 * ratio, cell * 0.31);
+    const failed = drone.state === "FAILED";
     context.beginPath();
-    context.fillStyle = color;
+    context.fillStyle = failed ? COLORS.failed : color;
     context.arc(x, y, radius, 0, Math.PI * 2);
     context.fill();
     context.fillStyle = COLORS.textDark;
     context.font = `800 ${Math.max(9 * ratio, radius)}px Inter, system-ui, sans-serif`;
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillText(String(droneIndex + 1), x, y + ratio * 0.3);
+    context.fillText(failed ? "×" : String(droneIndex + 1), x, y + ratio * 0.3);
+    if (failed) {
+      context.strokeStyle = "#ffe4e6";
+      context.lineWidth = 2 * ratio;
+      context.stroke();
+    }
   });
 }
 

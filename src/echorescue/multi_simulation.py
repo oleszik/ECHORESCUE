@@ -682,6 +682,7 @@ class MultiDroneSimulation:
             self._sense(runtime)
             if not runtime.terminal:
                 self._refresh_return_estimate(runtime)
+        self._inject_scheduled_failures()
         self._sample_communication(record_events=False)
         if self.network_transport is None:
             self._sync_shadow_maps()
@@ -3684,7 +3685,6 @@ class MultiDroneSimulation:
             self._finalize_network_transport()
             return False
 
-        self._inject_scheduled_failures()
         if self.network_transport is not None:
             self._deliver_network_transport()
         self._prepare_energy_states()
@@ -3705,6 +3705,7 @@ class MultiDroneSimulation:
         previous_step = self.steps
         self._execute_intentions(intentions)
         if self.steps != previous_step:
+            self._inject_scheduled_failures()
             base_before = (
                 dict(self.base_knowledge_map.records)
                 if self.base_knowledge_map is not None

@@ -27,6 +27,8 @@ python -m echorescue --drones 2 --seed 7 --replay-out replays/seed_7.json
 python -m echorescue --drones 2 --seed 7 --knowledge-mode local --replay-out replays/seed_7_local.json
 python -m echorescue --drones 2 --seed 7 --knowledge-mode local --relay-strategy adaptive --replay-out replays/seed_7_relay.json
 python -m echorescue --drones 2 --seed 7 --knowledge-mode local --network-profile constrained --replay-out replays/seed_7_constrained.json
+python -m echorescue --drones 2 --seed 7 --knowledge-mode local --network-profile constrained --relay-strategy network-aware --replay-out replays/seed_7_network_aware.json
+python -m echorescue --drones 2 --seed 7 --inject-failure drone-2:4 --replay-out replays/seed_7_failure.json
 python -m echorescue.dashboard --replay replays/seed_7.json
 ```
 
@@ -47,6 +49,8 @@ python -m echorescue.knowledge_benchmark --seeds 50 --output benchmarks/knowledg
 python -m echorescue.deconfliction_benchmark --seeds 50 --output benchmarks/distributed_deconfliction_50_seeds.json
 python -m echorescue.relay_benchmark --seeds 50 --output benchmarks/adaptive_relay_50_seeds.json
 python -m echorescue.network_benchmark --seeds 50 --output benchmarks/constrained_network_50_seeds.json
+python -m echorescue.network_aware_benchmark --train-seeds 50 --holdout-seeds 50 --base-coverage-quality-target 60 --output benchmarks/network_aware_relay_100_seeds.json --analysis-output benchmarks/network_aware_relay_analysis.json
+python -m echorescue.failure_benchmark --seeds 50 --failure-drone drone-2 --failure-step 4 --output benchmarks/failure_reassignment_50_seeds.json
 ```
 
 The server automatically loads that default benchmark file when it exists. A
@@ -388,6 +392,24 @@ triggered deterministically, all 50 released search responsibilities were
 reassigned, all operational drones returned, Reachable-Survivor Recall was
 100%, and wall/drone collisions remained zero. Mean duration increased from
 72.10 to 119.20 steps (+65.33%), making the redundancy cost explicit.
+
+Phase-4 defaults and constraints are deliberately conservative:
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `--knowledge-mode` | `shared` | Existing shared-map behavior; `local` enables communication-constrained decisions. |
+| `--communication-range` | `8` | Abstract Euclidean radio range; walls can block line of sight. |
+| `--network-profile` | `ideal` | Constrained delay/loss/capacity/TTL transport is opt-in. |
+| `--relay-strategy` | `off` | `adaptive` and `network-aware` are opt-in; network-aware also requires `local` + `constrained`. |
+| `--inject-failure` | not set | Repeatable `DRONE_ID:STEP` fail-stop injection; it requires two drones. |
+
+`FAILED` is terminal and distinct from `LANDED`: the vehicle is offline, owns
+no active target, remains a static obstacle, contributes to `drones_failed`,
+and never contributes to `drones_returned`. “Operational” means a drone not
+removed by a triggered injected failure. `LOST` is intentionally **not** a
+modeled state: radio disconnection does not imply physical loss. The complete
+Phase-4 audit, schema/event inventory, demo assessment, and residual risks are
+documented in [`docs/phase-4-closeout.md`](docs/phase-4-closeout.md).
 
 ## Verified benchmark
 

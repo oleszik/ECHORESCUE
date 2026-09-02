@@ -25,7 +25,7 @@ def failure_spec(value: str) -> tuple[str, int]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run the deterministic EchoRescue Phase 1 simulation."
+        description="Run the deterministic EchoRescue search-and-rescue simulation."
     )
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--drones", type=int, choices=(1, 2), default=2)

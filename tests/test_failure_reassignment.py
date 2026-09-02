@@ -1,3 +1,4 @@
+import json
 import unittest
 from pathlib import Path
 
@@ -48,8 +49,6 @@ class FailureReassignmentTests(unittest.TestCase):
         simulation = MultiDroneSimulation(self.config())
         while simulation.steps < 4:
             simulation.step()
-
-        simulation.step()
 
         failed = simulation.runtimes["drone-2"]
         self.assertIs(failed.drone.status, DroneStatus.FAILED)
@@ -178,6 +177,77 @@ class FailureReassignmentTests(unittest.TestCase):
             self.assertGreater(server.server_address[1], 0)
         finally:
             server.server_close()
+
+    def test_demo_replay_shows_one_failure_and_one_reassignment(self) -> None:
+        replay = json.loads(
+            (REPOSITORY_ROOT / "replays" / "seed_7_failure.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        events = [
+            event
+            for frame in replay["frames"]
+            for event in frame["events"]
+        ]
+        failures = [
+            event
+            for event in events
+            if event["event_type"] == "drone_failure_injected"
+        ]
+        reassignments = [
+            event
+            for event in events
+            if event["event_type"] == "failure_task_reassigned"
+        ]
+
+        self.assertEqual(len(failures), 1)
+        self.assertEqual(len(reassignments), 1)
+        self.assertEqual(reassignments[0]["drone_id"], "drone-1")
+        failure_step = failures[0]["step"]
+        failed_position = failures[0]["position"]
+        post_failure = [
+            frame for frame in replay["frames"] if frame["step"] >= failure_step
+        ]
+        self.assertGreater(failure_step, 0)
+        self.assertTrue(
+            all(
+                frame["drones"]["drone-2"]["state"] == "FAILED"
+                and frame["drones"]["drone-2"]["position"] == failed_position
+                and frame["drones"]["drone-2"]["target"] is None
+                for frame in post_failure
+            )
+        )
+        self.assertTrue(
+            all(
+                frame["drones"]["drone-1"]["position"] != failed_position
+                for frame in post_failure
+            )
+        )
+        self.assertEqual(replay["frames"][-1]["drones"]["drone-1"]["state"], "LANDED")
+        self.assertEqual(replay["metrics"]["drones_returned"], 1)
+        self.assertEqual(replay["metrics"]["drones_failed"], 1)
+        self.assertTrue(replay["metrics"]["failure_recovery"]["recovery_success"])
+
+    def test_dashboard_visually_distinguishes_failed_and_operational_drones(self) -> None:
+        javascript = (
+            REPOSITORY_ROOT
+            / "src"
+            / "echorescue"
+            / "dashboard_assets"
+            / "app.js"
+        ).read_text(encoding="utf-8")
+        stylesheet = (
+            REPOSITORY_ROOT
+            / "src"
+            / "echorescue"
+            / "dashboard_assets"
+            / "styles.css"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn('drone.state === "FAILED"', javascript)
+        self.assertIn('"Offline · failed"', javascript)
+        self.assertIn("operational_drones_returned", javascript)
+        self.assertIn(".drone-card.failed", stylesheet)
 
 
 if __name__ == "__main__":

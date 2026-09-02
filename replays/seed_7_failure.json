@@ -1103,16 +1103,6 @@
             "from": "base",
             "kind": "direct_base",
             "to": "drone-1"
-          },
-          {
-            "from": "base",
-            "kind": "direct_base",
-            "to": "drone-2"
-          },
-          {
-            "from": "drone-1",
-            "kind": "peer",
-            "to": "drone-2"
           }
         ],
         "nodes": {
@@ -1123,10 +1113,6 @@
           "drone-1": [
             2,
             4
-          ],
-          "drone-2": [
-            5,
-            2
           ]
         }
       },
@@ -1188,8 +1174,8 @@
         },
         "drone-2": {
           "communication": {
-            "connected_to_base": true,
-            "direct_to_base": true,
+            "connected_to_base": false,
+            "direct_to_base": false,
             "relay_path": [],
             "via_relay": false
           },
@@ -1205,16 +1191,7 @@
           },
           "motion_intent": null,
           "path_kind": "frontier",
-          "planned_path": [
-            [
-              5,
-              2
-            ],
-            [
-              6,
-              2
-            ]
-          ],
+          "planned_path": [],
           "position": [
             5,
             2
@@ -1228,11 +1205,8 @@
             "scout_id": null,
             "strategy": "off"
           },
-          "state": "EXPLORE",
-          "target": [
-            6,
-            2
-          ],
+          "state": "FAILED",
+          "target": null,
           "yielding": false
         }
       },
@@ -33695,7 +33669,7 @@
     },
     "communication_uptime_by_drone": {
       "drone-1": 0.206612,
-      "drone-2": 0.041322
+      "drone-2": 0.033058
     },
     "completed": true,
     "corridor_deadlocks": 0,
@@ -33703,7 +33677,7 @@
     "deconfliction_delay_steps": 0,
     "direct_base_uptime_by_drone": {
       "drone-1": 0.206612,
-      "drone-2": 0.041322
+      "drone-2": 0.033058
     },
     "drone_drone_collisions": 0,
     "drone_status_by_drone": {
@@ -33763,7 +33737,7 @@
     },
     "longest_outage_by_drone": {
       "drone-1": 83,
-      "drone-2": 116
+      "drone-2": 117
     },
     "map_divergence_between_drones": 0.0,
     "map_sync_events": 0,

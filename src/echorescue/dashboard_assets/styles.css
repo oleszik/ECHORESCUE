@@ -309,6 +309,8 @@ input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border: 2px s
 .drone-card.yielding .drone-identity strong { color: var(--accent); }
 .drone-card.relay-active { border-color: var(--radio-relay); box-shadow: inset 0 0 0 1px rgba(192, 132, 252, .28), 0 18px 45px rgba(0, 0, 0, .28); }
 .drone-card.relay-active .drone-identity strong { color: var(--radio-relay); }
+.drone-card.failed { border-color: var(--danger); box-shadow: inset 0 0 0 1px rgba(251, 113, 133, .28); }
+.drone-card.failed .drone-identity strong { color: var(--danger); }
 
 .event-panel { min-height: 0; padding: 15px; overflow: hidden; }
 .event-panel .panel-heading > span { display: grid; place-items: center; min-width: 28px; height: 24px; border-radius: 7px; background: var(--surface-3); color: var(--muted); font-size: 10px; }
