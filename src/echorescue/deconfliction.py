@@ -69,7 +69,8 @@ def detect_intent_conflict(
     second: MotionIntent,
     base: Position,
 ) -> IntentConflict | None:
-    drone_ids = tuple(sorted((first.drone_id, second.drone_id)))
+    first_id, second_id = sorted((first.drone_id, second.drone_id))
+    drone_ids = (first_id, second_id)
     if (
         first.next_position == second.next_position
         and first.next_position != base

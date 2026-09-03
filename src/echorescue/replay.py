@@ -8,6 +8,7 @@ from echorescue.config import SimulationConfig
 from echorescue.knowledge import KnowledgeMap
 from echorescue.models import CellState, DroneStatus, Position
 from echorescue.multi_simulation import (
+    DroneRuntime,
     MultiDroneSimulation,
     MultiSimulationResult,
 )
@@ -55,7 +56,7 @@ def _knowledge_rows(knowledge_map: KnowledgeMap) -> list[str]:
     ]
 
 
-def _remaining_path(runtime: object) -> tuple[Position, ...]:
+def _remaining_path(runtime: DroneRuntime) -> tuple[Position, ...]:
     drone = runtime.drone
     path = (
         runtime.current_return_path
@@ -386,7 +387,10 @@ class ReplayRecorder:
         frames = []
         for captured in self._frames:
             frame = dict(captured)
-            frame["events"] = events_by_step.get(int(frame["step"]), [])
+            step = frame["step"]
+            if not isinstance(step, int):
+                raise TypeError("captured replay step must be an integer")
+            frame["events"] = events_by_step.get(step, [])
             frames.append(frame)
         configuration = asdict(simulation.config)
         if simulation.network_transport is None:

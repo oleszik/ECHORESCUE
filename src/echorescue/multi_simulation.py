@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from typing import cast
 
 from echorescue.config import SimulationConfig
 from echorescue.communication import (
@@ -25,7 +26,7 @@ from echorescue.environment import GridWorld
 from echorescue.events import EventType, MissionEvent, MissionLog
 from echorescue.knowledge import CellKnowledge, KnowledgeMap
 from echorescue.map_sync import ShadowMapSynchronizer
-from echorescue.mapping import OccupancyMap
+from echorescue.mapping import KnownMap, OccupancyMap
 from echorescue.models import Drone, DroneStatus, Position
 from echorescue.network_transport import (
     DeterministicNetworkTransport,
@@ -535,7 +536,7 @@ class MultiDroneSimulation:
         self.collisions = 0
         self.drone_drone_collisions = 0
         self.movement_conflicts = 0
-        self.completed = False
+        self.completed: bool = False
         self.termination_reason = "running"
         self._exploration_complete = False
         self._detected_survivors: set[Position] = set()
@@ -1026,7 +1027,10 @@ class MultiDroneSimulation:
             target = self._network_stores().get(delivery.recipient)
             if target is None:
                 return
-            records = tuple(delivery.payload)
+            records = cast(
+                tuple[tuple[Position, CellKnowledge], ...],
+                delivery.payload,
+            )
             changed = target.apply(records)
             for position, record in records:
                 self._network_queued_records[
@@ -1117,7 +1121,7 @@ class MultiDroneSimulation:
         transport = self.network_transport
         if transport is None:
             return
-        mapping = {
+        mapping: dict[str, EventType] = {
             "message_queued": EventType.MESSAGE_QUEUED,
             "message_delivered": EventType.MESSAGE_DELIVERED,
             "message_lost": EventType.MESSAGE_LOST,
@@ -1126,7 +1130,9 @@ class MultiDroneSimulation:
             "message_fragment_completed": EventType.MESSAGE_FRAGMENT_COMPLETED,
             "relay_message_forwarded": EventType.RELAY_MESSAGE_FORWARDED,
         }
-        aggregated: dict[tuple[object, ...], list[object]] = {}
+        aggregated: dict[
+            tuple[str, str, str, MessageType], list[int]
+        ] = {}
         for event in transport.drain_events():
             if (
                 event.event_type in {"message_queued", "message_delivered"}
@@ -1144,8 +1150,8 @@ class MultiDroneSimulation:
                 event.message_type,
             )
             item = aggregated.setdefault(key, [0, 0])
-            item[0] = int(item[0]) + event.fragment_count
-            item[1] = int(item[1]) + event.payload_units
+            item[0] += event.fragment_count
+            item[1] += event.payload_units
         for key, (count, units) in sorted(
             aggregated.items(), key=lambda item: tuple(str(value) for value in item[0])
         ):
@@ -1162,8 +1168,8 @@ class MultiDroneSimulation:
                         runtime.battery.remaining if runtime is not None else None
                     ),
                     message_type=message_type.value,
-                    message_count=int(count),
-                    payload_units=int(units),
+                    message_count=count,
+                    payload_units=units,
                     queue_size=transport.queue_size,
                 )
             )
@@ -1549,6 +1555,7 @@ class MultiDroneSimulation:
             self._claimed_failure_tasks.pop(released_target, None)
 
     def _resolve_start_positions(self) -> tuple[Position, Position]:
+        starts: tuple[Position, ...]
         if self.config.drone_start_positions is None:
             starts = (self.world.base, Position(self.world.base.x + 1, self.world.base.y))
         else:
@@ -1582,7 +1589,7 @@ class MultiDroneSimulation:
             )
         }
 
-    def _decision_map(self, runtime: DroneRuntime) -> object:
+    def _decision_map(self, runtime: DroneRuntime) -> KnownMap:
         if self.knowledge_mode == "local":
             return runtime.local_map
         return self.occupancy_map
@@ -2350,15 +2357,14 @@ class MultiDroneSimulation:
         if signature == self._network_relay_last_signature:
             return
         self._network_relay_last_signature = signature
-        values = {
-            "utility": decision.utility,
-            "reason": decision.reason,
-            "critical_backlog": decision.critical_payload_units,
-            "backpressure": decision.backpressure_required,
-            "route_hops": 2,
-        }
         self._record_event(
-            runtime, EventType.NETWORK_RELAY_EVALUATED, **values
+            runtime,
+            EventType.NETWORK_RELAY_EVALUATED,
+            utility=decision.utility,
+            reason=decision.reason,
+            critical_backlog=decision.critical_payload_units,
+            backpressure=decision.backpressure_required,
+            route_hops=2,
         )
         self._record_event(
             runtime,
@@ -2367,7 +2373,11 @@ class MultiDroneSimulation:
                 if decision.accepted
                 else EventType.NETWORK_RELAY_REJECTED
             ),
-            **values,
+            utility=decision.utility,
+            reason=decision.reason,
+            critical_backlog=decision.critical_payload_units,
+            backpressure=decision.backpressure_required,
+            route_hops=2,
         )
 
     def _assign_network_aware_relay(self) -> None:
@@ -2388,7 +2398,19 @@ class MultiDroneSimulation:
         ):
             return
 
-        candidates: list[tuple[object, ...]] = []
+        candidates: list[
+            tuple[
+                int,
+                float,
+                int,
+                str,
+                str,
+                RelayPlan,
+                set[Position],
+                set[Position],
+                RelayUtilityDecision,
+            ]
+        ] = []
         for relay_id in sorted(self.runtimes):
             scout_id = "drone-2" if relay_id == "drone-1" else "drone-1"
             relay = self.runtimes[relay_id]
@@ -2429,8 +2451,8 @@ class MultiDroneSimulation:
         (
             _, _, _, relay_id, scout_id, plan, cells, survivors, decision
         ) = min(candidates)
-        relay = self.runtimes[str(relay_id)]
-        scout = self.runtimes[str(scout_id)]
+        relay = self.runtimes[relay_id]
+        scout = self.runtimes[scout_id]
         records = dict(scout.local_map.records)
         selected_cells = sorted(
             cells,
@@ -2442,7 +2464,7 @@ class MultiDroneSimulation:
         )[: self.config.network_relay_map_delta_limit]
         relay.drone.status = DroneStatus.RELAY
         relay.active_frontier_target = None
-        relay.relay_scout_id = str(scout_id)
+        relay.relay_scout_id = scout_id
         relay.relay_scout_position = scout.drone.position
         relay.relay_started_step = self.steps
         relay.relay_payload_positions = set(selected_cells)
@@ -2450,7 +2472,7 @@ class MultiDroneSimulation:
         relay.relay_energy_at_start = relay.battery.remaining
         relay.relay_path_length_at_start = relay.drone.path_length
         relay.relay_outage_at_start = self._current_outage_steps.get(
-            str(scout_id), 0
+            scout_id, 0
         )
         relay.network_relay_utility = decision.utility
         relay.network_relay_reason = decision.reason
@@ -3305,8 +3327,8 @@ class MultiDroneSimulation:
             )
             for drone_id, destination in sorted(intentions.items())
         }
-        drone_ids = tuple(sorted(self.motion_intents))
-        first_id, second_id = drone_ids
+        first_id, second_id = sorted(self.motion_intents)
+        drone_ids = (first_id, second_id)
         first = self.motion_intents[first_id]
         second = self.motion_intents[second_id]
         communicated = self._peer_intents_communicated()
@@ -3803,8 +3825,13 @@ class MultiDroneSimulation:
         else:
             self.termination_reason = "mission_failed"
 
+    def _is_completed(self) -> bool:
+        """Return completion without retaining a stale type narrowing."""
+
+        return self.completed
+
     def step(self) -> bool:
-        if self.completed:
+        if self._is_completed():
             return False
         if self._final_sync_active:
             return self._step_final_sync()
@@ -3864,9 +3891,9 @@ class MultiDroneSimulation:
                 self._record_network_events()
             self._record_base_coverage()
         self._update_completion()
-        if self.completed:
+        if self._is_completed():
             self._finalize_network_transport()
-        return not self.completed
+        return not self._is_completed()
 
     def run(self, on_frame: FrameCallback | None = None) -> MultiSimulationResult:
         if on_frame is not None:

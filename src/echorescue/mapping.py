@@ -1,4 +1,14 @@
+from typing import Protocol
+
 from echorescue.models import CellState, Position
+
+
+class KnownMap(Protocol):
+    """Minimum discovered-map interface consumed by planning."""
+
+    def is_known_free(self, position: Position) -> bool: ...
+
+    def frontiers(self) -> tuple[Position, ...]: ...
 
 
 class OccupancyMap:
@@ -50,4 +60,3 @@ class OccupancyMap:
     @property
     def explored_percent(self) -> float:
         return 100.0 * self.known_cell_count / len(self._cells)
-

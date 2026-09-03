@@ -2,6 +2,8 @@ import argparse
 import json
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from socket import socket
+from socketserver import BaseServer
 
 from echorescue.replay import (
     CONSTRAINED_REPLAY_SCHEMA_VERSION,
@@ -45,8 +47,18 @@ def create_server(
         raise FileNotFoundError(f"benchmark not found: {benchmark}")
 
     class DashboardHandler(SimpleHTTPRequestHandler):
-        def __init__(self, *args: object, **kwargs: object) -> None:
-            super().__init__(*args, directory=str(ASSET_DIRECTORY), **kwargs)
+        def __init__(
+            self,
+            request: socket | tuple[bytes, socket],
+            client_address: tuple[str, int],
+            server: BaseServer,
+        ) -> None:
+            super().__init__(
+                request,
+                client_address,
+                server,
+                directory=str(ASSET_DIRECTORY),
+            )
 
         def _send_json_file(self, path: Path) -> None:
             body = path.read_bytes()
@@ -94,8 +106,10 @@ def main(argv: list[str] | None = None) -> None:
     if benchmark is None and default_benchmark.is_file():
         benchmark = default_benchmark
     server = create_server(args.replay, benchmark, args.host, args.port)
-    address, port = server.server_address[:2]
-    print(f"EchoRescue dashboard: http://{address}:{port}", flush=True)
+    print(
+        f"EchoRescue dashboard: http://{args.host}:{server.server_port}",
+        flush=True,
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:

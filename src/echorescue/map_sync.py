@@ -31,11 +31,13 @@ class ShadowMapSynchronizer:
     def connected_components(
         snapshot: CommunicationSnapshot,
     ) -> tuple[tuple[str, ...], ...]:
-        adjacency = {node_id: set() for node_id in snapshot.nodes}
+        adjacency: dict[str, set[str]] = {
+            node_id: set() for node_id in snapshot.nodes
+        }
         for link in snapshot.links:
             adjacency[link.first].add(link.second)
             adjacency[link.second].add(link.first)
-        components = []
+        components: list[tuple[str, ...]] = []
         remaining = set(adjacency)
         while remaining:
             start = min(remaining)
@@ -55,8 +57,12 @@ class ShadowMapSynchronizer:
         stores = dict(self.local_maps)
         if self.base_map is not None:
             stores[BASE_NODE_ID] = self.base_map
-        uploaded = {drone_id: set() for drone_id in self.local_maps}
-        received = {drone_id: set() for drone_id in self.local_maps}
+        uploaded: dict[str, set[Position]] = {
+            drone_id: set() for drone_id in self.local_maps
+        }
+        received: dict[str, set[Position]] = {
+            drone_id: set() for drone_id in self.local_maps
+        }
         base_received: set[Position] = set()
         transferred_positions: set[Position] = set()
         semantic_cell_changes = 0

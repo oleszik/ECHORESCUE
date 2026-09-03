@@ -122,13 +122,17 @@ def shortest_route(
 
     if sender == recipient:
         return (sender,)
-    adjacency = {node_id: [] for node_id in snapshot.nodes}
+    adjacency: dict[str, list[str]] = {
+        node_id: [] for node_id in snapshot.nodes
+    }
     for link in snapshot.links:
         adjacency[link.first].append(link.second)
         adjacency[link.second].append(link.first)
     if sender not in adjacency or recipient not in adjacency:
         return ()
-    queue = deque([(sender, (sender,))])
+    queue: deque[tuple[str, tuple[str, ...]]] = deque(
+        [(sender, (sender,))]
+    )
     visited = {sender}
     while queue:
         node, route = queue.popleft()

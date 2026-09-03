@@ -2,9 +2,12 @@ import argparse
 import json
 
 from echorescue.config import SimulationConfig
-from echorescue.multi_simulation import MultiDroneSimulation
+from echorescue.multi_simulation import (
+    MultiDroneSimulation,
+    MultiSimulationResult,
+)
 from echorescue.replay import record_simulation, write_replay
-from echorescue.simulation import Simulation
+from echorescue.simulation import Simulation, SimulationResult
 from echorescue.visualization import TerminalRenderer
 
 
@@ -209,6 +212,7 @@ def main(argv: list[str] | None = None) -> None:
     renderer = None
     if args.visualize:
         renderer = TerminalRenderer(args.delay, args.show_ground_truth)
+    result: MultiSimulationResult | SimulationResult
     if args.replay_out:
         if not isinstance(simulation, MultiDroneSimulation):
             raise SystemExit("--replay-out currently requires --drones 2")

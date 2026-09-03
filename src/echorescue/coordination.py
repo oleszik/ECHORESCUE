@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from echorescue.mapping import OccupancyMap
+from echorescue.mapping import KnownMap
 from echorescue.models import Position
 from echorescue.planning import astar
 
@@ -23,7 +23,7 @@ def _path_avoiding_other_drones(
     start: Position,
     target: Position,
     positions: dict[str, Position],
-    occupancy_map: OccupancyMap,
+    occupancy_map: KnownMap,
     blocked: frozenset[Position],
 ) -> tuple[Position, ...] | None:
     blocked_positions = set(blocked) | {
@@ -43,7 +43,7 @@ def _path_avoiding_other_drones(
 def assign_frontiers(
     positions: dict[str, Position],
     frontiers: tuple[Position, ...],
-    occupancy_map: OccupancyMap,
+    occupancy_map: KnownMap,
     current_targets: dict[str, Position | None],
     blocked: frozenset[Position] = frozenset(),
 ) -> dict[str, FrontierAssignment]:

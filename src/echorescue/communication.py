@@ -99,7 +99,9 @@ class CommunicationModel:
         drone_id: str,
         adjacency: dict[str, tuple[str, ...]],
     ) -> tuple[str, ...]:
-        queue = deque([(BASE_NODE_ID, (BASE_NODE_ID,))])
+        queue: deque[tuple[str, tuple[str, ...]]] = deque(
+            [(BASE_NODE_ID, (BASE_NODE_ID,))]
+        )
         visited = {BASE_NODE_ID}
         while queue:
             node, path = queue.popleft()
@@ -119,8 +121,10 @@ class CommunicationModel:
     ) -> CommunicationSnapshot:
         nodes = {BASE_NODE_ID: base, **dict(sorted(drone_positions.items()))}
         node_ids = sorted(nodes)
-        links = []
-        adjacency_lists = {node_id: [] for node_id in node_ids}
+        links: list[CommunicationLink] = []
+        adjacency_lists: dict[str, list[str]] = {
+            node_id: [] for node_id in node_ids
+        }
         for index, first_id in enumerate(node_ids):
             for second_id in node_ids[index + 1 :]:
                 if self._can_link(world, nodes[first_id], nodes[second_id]):
@@ -132,7 +136,7 @@ class CommunicationModel:
             node_id: tuple(sorted(neighbors))
             for node_id, neighbors in adjacency_lists.items()
         }
-        connections = {}
+        connections: dict[str, DroneConnection] = {}
         for drone_id in sorted(drone_positions):
             path = self._path_to_base(drone_id, adjacency)
             direct = CommunicationLink.between(BASE_NODE_ID, drone_id) in links
