@@ -19,6 +19,7 @@ CONSTRAINED_REPLAY_SCHEMA_VERSION = "1.7"
 NETWORK_AWARE_REPLAY_SCHEMA_VERSION = "1.8"
 FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION = "1.9"
 SMOKE_REPLAY_SCHEMA_VERSION = "2.0"
+NOISY_PERCEPTION_REPLAY_SCHEMA_VERSION = "2.1"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -371,6 +372,13 @@ class ReplayRecorder:
                     for fragment in transport._queued + transport._in_flight
                 ),
             }
+        if simulation.config.perception_noise != "off":
+            frame["survivor_hypotheses"] = [
+                hypothesis.to_dict()
+                for _, hypothesis in sorted(
+                    simulation.hypothesis_tracker.hypotheses.items()
+                )
+            ]
         if self._frames and self._frames[-1]["step"] == simulation.steps:
             self._frames[-1] = frame
         else:
@@ -405,6 +413,14 @@ class ReplayRecorder:
             configuration.pop("failure_schedule", None)
         if simulation.config.smoke_profile == "off":
             configuration.pop("smoke_profile", None)
+        if simulation.config.perception_noise == "off":
+            for key in (
+                "perception_noise",
+                "survivor_confirmation_evidence_threshold",
+                "survivor_rejection_evidence_threshold",
+                "survivor_negative_evidence_weight",
+            ):
+                configuration.pop(key, None)
         if simulation.config.survivor_sensor == "visual":
             for key in (
                 "survivor_sensor",
@@ -419,6 +435,8 @@ class ReplayRecorder:
             "relay_strategy": simulation.config.relay_strategy,
             "configuration": configuration,
         }
+        if simulation.config.perception_noise != "off":
+            mission["perception_noise"] = simulation.config.perception_noise
         if simulation.network_transport is not None:
             mission["network_profile"] = simulation.config.network_profile
         if simulation.config.survivor_sensor != "visual":
@@ -449,7 +467,9 @@ class ReplayRecorder:
             }
         return {
             "schema_version": (
-                SMOKE_REPLAY_SCHEMA_VERSION
+                NOISY_PERCEPTION_REPLAY_SCHEMA_VERSION
+                if simulation.config.perception_noise != "off"
+                else SMOKE_REPLAY_SCHEMA_VERSION
                 if (
                     simulation.config.smoke_profile != "off"
                     or simulation.config.survivor_sensor != "visual"

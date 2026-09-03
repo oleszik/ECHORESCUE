@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from echorescue.perception import PERCEPTION_NOISE_PROFILES
 from echorescue.smoke import SMOKE_PROFILES
 
 MIN_DRONE_COUNT = 1
@@ -22,6 +23,10 @@ class SimulationConfig:
     thermal_detection_probability: float = 0.6
     thermal_smoke_attenuation: float = 0.15
     survivor_confirmation_observations: int = 2
+    perception_noise: str = "off"
+    survivor_confirmation_evidence_threshold: float = 0.65
+    survivor_rejection_evidence_threshold: float = 0.12
+    survivor_negative_evidence_weight: float = 0.55
     battery_capacity: float = 220.0
     movement_energy_cost: float = 1.0
     sensor_energy_cost: float = 0.05
@@ -91,6 +96,17 @@ class SimulationConfig:
             raise ValueError("thermal_smoke_attenuation must be in [0, 1]")
         if self.survivor_confirmation_observations < 2:
             raise ValueError("survivor confirmation requires at least two observations")
+        if self.perception_noise not in PERCEPTION_NOISE_PROFILES:
+            raise ValueError(
+                "perception_noise must be one of "
+                + ", ".join(sorted(PERCEPTION_NOISE_PROFILES))
+            )
+        if not 0.0 < self.survivor_confirmation_evidence_threshold <= 1.0:
+            raise ValueError("survivor confirmation evidence must be in (0, 1]")
+        if not 0.0 <= self.survivor_rejection_evidence_threshold < 1.0:
+            raise ValueError("survivor rejection evidence must be in [0, 1)")
+        if not 0.0 < self.survivor_negative_evidence_weight <= 1.0:
+            raise ValueError("survivor negative evidence weight must be in (0, 1]")
         if self.battery_capacity <= 0:
             raise ValueError("battery_capacity must be positive")
         if self.movement_energy_cost <= 0:

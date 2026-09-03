@@ -8,8 +8,9 @@ from echorescue.events import EventType, MissionEvent, MissionLog
 from echorescue.mapping import OccupancyMap
 from echorescue.models import Drone, DroneStatus, Position
 from echorescue.planning import astar, path_to_nearest_frontier
+from echorescue.perception import HypothesisStatus, SurvivorHypothesisTracker
 from echorescue.sensors import DistanceSensor
-from echorescue.survivors import SurvivorSensor
+from echorescue.survivors import SurvivorObservationReport, SurvivorSensor
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,6 +38,7 @@ class SimulationResult:
     return_path_length: int
     energy_emergency: bool
     smoke_metrics: dict[str, object] | None
+    perception_metrics: dict[str, object] | None
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
     position_trace: tuple[Position, ...]
@@ -76,6 +78,8 @@ class SimulationResult:
                 else "smoke"
             )
             payload[metric_key] = self.smoke_metrics
+        if self.perception_metrics is not None:
+            payload["noisy_perception"] = self.perception_metrics
         return payload
 
 
@@ -118,6 +122,20 @@ class Simulation:
         self._smoke_degraded_detection_attempts = 0
         self._smoke_successful_detection_attempts = 0
         self._smoke_degraded_detection_events = 0
+        self.hypothesis_tracker = SurvivorHypothesisTracker(
+            minimum_positive_observations=(
+                config.survivor_confirmation_observations
+            ),
+            confirmation_threshold=(
+                config.survivor_confirmation_evidence_threshold
+            ),
+            rejection_threshold=config.survivor_rejection_evidence_threshold,
+            negative_evidence_weight=config.survivor_negative_evidence_weight,
+        )
+        self._perception_tp = 0
+        self._perception_fp = 0
+        self._perception_tn = 0
+        self._perception_fn = 0
         self.steps = 0
         self.collisions = 0
         self.completed = False
@@ -269,6 +287,7 @@ class Simulation:
             seed=self.config.seed,
             step=self.steps,
             observer_id=self.drone.identifier,
+            perception_noise=self.config.perception_noise,
         )
         self._survivor_detection_attempts += report.attempts
         self._survivor_detection_successes += report.successful_observations
@@ -277,6 +296,13 @@ class Simulation:
         self._smoke_successful_detection_attempts += (
             report.successful_smoke_observations
         )
+        if self.config.perception_noise != "off":
+            self._perception_tp += report.true_positives
+            self._perception_fp += report.false_positives
+            self._perception_tn += report.true_negatives
+            self._perception_fn += report.false_negatives
+            self._apply_noisy_survivor_evidence(report)
+            return
         detailed_observations = (
             report.sensor_channel == "thermal"
             or self.config.smoke_profile != "off"
@@ -326,6 +352,76 @@ class Simulation:
                 self._confirmed_survivors.add(position)
                 self._record_survivor_event(
                     position, EventType.SURVIVOR_CONFIRMED, event_channel
+                )
+
+    def _apply_noisy_survivor_evidence(
+        self, report: SurvivorObservationReport
+    ) -> None:
+        observed_positions = {
+            observation.position
+            for observation in report.observations
+            if observation.success
+        }
+        for observation in report.observations:
+            if not observation.success:
+                continue
+            update = self.hypothesis_tracker.positive(
+                observation.position,
+                confidence=observation.confidence,
+                channel=report.sensor_channel,
+                agent_id=self.drone.identifier,
+                step=self.steps,
+            )
+            self._detected_survivors.add(observation.position)
+            if update.created:
+                self._record_survivor_event(
+                    observation.position,
+                    EventType.SURVIVOR_HYPOTHESIS_CREATED,
+                    report.sensor_channel,
+                )
+                self._record_survivor_event(
+                    observation.position,
+                    EventType.SURVIVOR_DETECTED,
+                    report.sensor_channel,
+                )
+            if update.confirmed:
+                self._confirmed_survivors.add(observation.position)
+                self._record_survivor_event(
+                    observation.position,
+                    EventType.SURVIVOR_HYPOTHESIS_CONFIRMED,
+                    report.sensor_channel,
+                )
+                self._record_survivor_event(
+                    observation.position,
+                    EventType.SURVIVOR_CONFIRMED,
+                    report.sensor_channel,
+                )
+        for position, hypothesis in sorted(
+            self.hypothesis_tracker.hypotheses.items()
+        ):
+            if (
+                hypothesis.status is not HypothesisStatus.UNCONFIRMED
+                or position in observed_positions
+                or not self.survivor_sensor.can_observe(
+                    self.world, self.drone.position, position
+                )
+            ):
+                continue
+            negative_confidence = 0.25 * (
+                self.survivor_sensor.base_detection_probability
+            )
+            negative_update = self.hypothesis_tracker.negative(
+                position,
+                confidence=negative_confidence,
+                channel=report.sensor_channel,
+                agent_id=self.drone.identifier,
+                step=self.steps,
+            )
+            if negative_update is not None and negative_update.rejected:
+                self._record_survivor_event(
+                    position,
+                    EventType.SURVIVOR_HYPOTHESIS_REJECTED,
+                    report.sensor_channel,
                 )
 
     def _fail_energy_emergency(self) -> None:
@@ -503,13 +599,18 @@ class Simulation:
             if event.event_type is EventType.SURVIVOR_DETECTED
         ]
         survivors_total = len(self.world.survivors)
+        true_confirmed = self._confirmed_survivors & self.world.survivors
         survivor_recall = (
-            len(self._confirmed_survivors) / survivors_total
+            len(true_confirmed) / survivors_total
             if survivors_total
             else 1.0
         )
         mission_success = (
-            len(self._confirmed_survivors) == survivors_total
+            (
+                self._confirmed_survivors == set(self.world.survivors)
+                if self.config.perception_noise != "off"
+                else len(self._confirmed_survivors) == survivors_total
+            )
             and self.collisions == 0
             and self.returned_to_base
         )
@@ -565,6 +666,76 @@ class Simulation:
             )
             else None
         )
+        hypotheses = tuple(self.hypothesis_tracker.hypotheses.values())
+        confirmed_hypotheses = tuple(
+            item for item in hypotheses if item.status is HypothesisStatus.CONFIRMED
+        )
+        confirmation_confidences = [
+            item.confirmation_confidence
+            for item in confirmed_hypotheses
+            if item.confirmation_confidence is not None
+        ]
+        positive_denominator = self._perception_tp + self._perception_fn
+        negative_denominator = self._perception_fp + self._perception_tn
+        perception_metrics = (
+            {
+                "profile": self.config.perception_noise,
+                "perception_attempts": self._perception_tp
+                + self._perception_fp
+                + self._perception_tn
+                + self._perception_fn,
+                "true_positive_observations": self._perception_tp,
+                "false_positive_observations": self._perception_fp,
+                "true_negative_observations": self._perception_tn,
+                "false_negative_observations": self._perception_fn,
+                "false_positive_rate": (
+                    round(self._perception_fp / negative_denominator, 6)
+                    if negative_denominator
+                    else 0.0
+                ),
+                "false_negative_rate": (
+                    round(self._perception_fn / positive_denominator, 6)
+                    if positive_denominator
+                    else 0.0
+                ),
+                "hypotheses_created": len(hypotheses),
+                "hypotheses_confirmed": len(confirmed_hypotheses),
+                "hypotheses_rejected": sum(
+                    item.status is HypothesisStatus.REJECTED for item in hypotheses
+                ),
+                "false_survivor_confirmations": sum(
+                    item.location not in self.world.survivors
+                    for item in confirmed_hypotheses
+                ),
+                "true_survivor_confirmations": sum(
+                    item.location in self.world.survivors
+                    for item in confirmed_hypotheses
+                ),
+                "mean_confirmation_confidence": (
+                    round(
+                        sum(confirmation_confidences)
+                        / len(confirmation_confidences),
+                        6,
+                    )
+                    if confirmation_confidences
+                    else None
+                ),
+                "mean_observations_per_confirmation": (
+                    round(
+                        sum(
+                            item.observation_count
+                            for item in confirmed_hypotheses
+                        )
+                        / len(confirmed_hypotheses),
+                        6,
+                    )
+                    if confirmed_hypotheses
+                    else None
+                ),
+            }
+            if self.config.perception_noise != "off"
+            else None
+        )
         return SimulationResult(
             seed=self.config.seed,
             completed=self.completed,
@@ -589,6 +760,7 @@ class Simulation:
             return_path_length=self.return_path_length,
             energy_emergency=self.energy_emergency,
             smoke_metrics=smoke_metrics,
+            perception_metrics=perception_metrics,
             mission_success=mission_success,
             mission_events=self.mission_log.events,
             position_trace=tuple(self.position_trace),

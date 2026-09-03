@@ -4,6 +4,7 @@ from math import sqrt
 
 from echorescue.environment import GridWorld
 from echorescue.models import Position
+from echorescue.perception import PERCEPTION_NOISE_PROFILES, deterministic_unit
 
 
 def _line_cells(start: Position, end: Position) -> tuple[Position, ...]:
@@ -70,6 +71,17 @@ class SurvivorSensor:
             observer_id="sensor",
         ).visible_survivors
 
+    def can_observe(self, world: GridWorld, origin: Position, target: Position) -> bool:
+        distance_squared = (target.x - origin.x) ** 2 + (target.y - origin.y) ** 2
+        return (
+            world.is_free(target)
+            and distance_squared <= self.max_range**2
+            and not any(
+                not world.is_free(cell)
+                for cell in _line_cells(origin, target)[1:-1]
+            )
+        )
+
     def observe_report(
         self,
         world: GridWorld,
@@ -79,11 +91,14 @@ class SurvivorSensor:
         seed: int,
         step: int,
         observer_id: str,
+        perception_noise: str = "off",
     ) -> "SurvivorObservationReport":
         if not world.is_free(origin):
             raise ValueError("survivor sensor origin must be a free cell")
 
-        observations = []
+        if perception_noise not in PERCEPTION_NOISE_PROFILES:
+            raise ValueError("unknown perception noise profile")
+        observations: list[SurvivorObservation] = []
         attempts = 0
         degraded_attempts = 0
         successful_smoke_attempts = 0
@@ -163,6 +178,39 @@ class SurvivorSensor:
                     degraded_attempts += 1
             elif exposure > 0.0:
                 successful_smoke_attempts += 1
+            raw_success = success
+            noise_score: float | None = None
+            if raw_success and perception_noise != "off":
+                noise_score = deterministic_unit(
+                    "false-negative",
+                    seed,
+                    perception_noise,
+                    self.channel,
+                    observer_id,
+                    step,
+                    origin.x,
+                    origin.y,
+                    survivor.x,
+                    survivor.y,
+                )
+                success = noise_score >= PERCEPTION_NOISE_PROFILES[
+                    perception_noise
+                ].false_negative_rate(self.channel)
+                if not success:
+                    failure_reason = "perception_false_negative"
+                else:
+                    distance = sqrt(distance_squared)
+                    distance_factor = 0.75 + 0.25 * (
+                        1.0 - min(1.0, distance / self.max_range)
+                    )
+                    confidence = (
+                        confidence / self.base_detection_probability
+                    ) * distance_factor * (
+                        1.0
+                        - PERCEPTION_NOISE_PROFILES[
+                            perception_noise
+                        ].false_negative_rate(self.channel)
+                    )
             observations.append(
                 SurvivorObservation(
                     position=survivor,
@@ -173,23 +221,122 @@ class SurvivorSensor:
                     success=success,
                     smoke_degraded=smoke_degraded,
                     failure_reason=failure_reason,
+                    raw_success=raw_success,
+                    is_false_positive=False,
+                    noise_score=noise_score,
                 )
             )
+        true_positives = sum(
+            observation.success and not observation.is_false_positive
+            for observation in observations
+        )
+        false_negatives = sum(
+            observation.raw_success
+            and not observation.success
+            and not observation.is_false_positive
+            for observation in observations
+        )
+        true_negatives = 0
+        false_positives = 0
+        if perception_noise != "off":
+            candidates = []
+            for y in range(world.height):
+                for x in range(world.width):
+                    candidate = Position(x, y)
+                    distance_squared = (x - origin.x) ** 2 + (y - origin.y) ** 2
+                    if (
+                        candidate in world.survivors
+                        or not world.is_free(candidate)
+                        or distance_squared > self.max_range**2
+                        or any(
+                            not world.is_free(cell)
+                            for cell in _line_cells(origin, candidate)[1:-1]
+                        )
+                    ):
+                        continue
+                    candidates.append(candidate)
+            if candidates:
+                candidate = min(
+                    candidates,
+                    key=lambda position: deterministic_unit(
+                        "background-cell",
+                        seed,
+                        perception_noise,
+                        self.channel,
+                        observer_id,
+                        step,
+                        origin.x,
+                        origin.y,
+                        position.x,
+                        position.y,
+                    ),
+                )
+                score = deterministic_unit(
+                    "false-positive",
+                    seed,
+                    perception_noise,
+                    self.channel,
+                    observer_id,
+                    step,
+                    origin.x,
+                    origin.y,
+                )
+                profile = PERCEPTION_NOISE_PROFILES[perception_noise]
+                if score < profile.false_positive_rate(self.channel):
+                    confidence_unit = deterministic_unit(
+                        "false-positive-confidence",
+                        seed,
+                        self.channel,
+                        observer_id,
+                        step,
+                        candidate.x,
+                        candidate.y,
+                    )
+                    confidence = profile.false_positive_confidence_min + (
+                        profile.false_positive_confidence_max
+                        - profile.false_positive_confidence_min
+                    ) * confidence_unit
+                    observations.append(
+                        SurvivorObservation(
+                            position=candidate,
+                            distance=sqrt(
+                                (candidate.x - origin.x) ** 2
+                                + (candidate.y - origin.y) ** 2
+                            ),
+                            smoke_exposure=0.0,
+                            confidence=confidence,
+                            decision_score=score,
+                            success=True,
+                            smoke_degraded=False,
+                            failure_reason=None,
+                            raw_success=False,
+                            is_false_positive=True,
+                            noise_score=score,
+                        )
+                    )
+                    false_positives = 1
+                else:
+                    true_negatives = 1
         visible = tuple(
             observation.position
             for observation in observations
             if observation.success
         )
+        total_attempts = attempts + true_negatives + false_positives
         return SurvivorObservationReport(
             visible_survivors=visible,
             observations=tuple(observations),
             sensor_channel=self.channel,
-            attempts=attempts,
+            attempts=total_attempts,
             successful_observations=len(visible),
-            failed_observations=attempts - len(visible),
+            failed_observations=total_attempts - len(visible),
             degraded_attempts=degraded_attempts,
             successful_smoke_observations=successful_smoke_attempts,
             maximum_smoke_exposure=maximum_exposure,
+            true_positives=true_positives,
+            false_positives=false_positives,
+            true_negatives=true_negatives,
+            false_negatives=false_negatives,
         )
 
 
@@ -204,6 +351,10 @@ class SurvivorObservationReport:
     degraded_attempts: int
     successful_smoke_observations: int
     maximum_smoke_exposure: float
+    true_positives: int = 0
+    false_positives: int = 0
+    true_negatives: int = 0
+    false_negatives: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -216,3 +367,6 @@ class SurvivorObservation:
     success: bool
     smoke_degraded: bool
     failure_reason: str | None
+    raw_success: bool = True
+    is_false_positive: bool = False
+    noise_score: float | None = None

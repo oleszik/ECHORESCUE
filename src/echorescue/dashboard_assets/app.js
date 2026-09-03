@@ -10,6 +10,8 @@ const COLORS = {
     "#fb7185", "#22d3ee", "#f97316", "#c4b5fd",
   ],
   survivor: "#fde047",
+  hypothesis: "#22d3ee",
+  rejectedHypothesis: "#fb7185",
   base: "#f1f5f9",
   radioDirect: "#34d399",
   radioRelay: "#c084fc",
@@ -149,6 +151,7 @@ function initializeReplay(replay, benchmark) {
   const relayStrategy = replay.mission.relay_strategy || replay.mission.configuration?.relay_strategy || "off";
   const networkProfile = replay.mission.network_profile || replay.mission.configuration?.network_profile || "ideal";
   const survivorSensor = replay.mission.survivor_sensor || replay.mission.configuration?.survivor_sensor || "visual";
+  const perceptionNoise = replay.mission.perception_noise || replay.mission.configuration?.perception_noise || "off";
   elements.knowledgeMode.textContent = relayStrategy === "adaptive"
     ? `${knowledgeMode.toUpperCase()} · ADAPTIVE RELAY`
     : knowledgeMode.toUpperCase();
@@ -157,7 +160,7 @@ function initializeReplay(replay, benchmark) {
   }
   elements.seedValue.textContent = replay.mission.seed;
   elements.networkProfile.textContent = networkProfile.toUpperCase();
-  elements.survivorSensor.textContent = survivorSensor.toUpperCase();
+  elements.survivorSensor.textContent = `${survivorSensor.toUpperCase()} · NOISE ${perceptionNoise.toUpperCase()}`;
   elements.networkProfile.classList.toggle("constrained", networkProfile === "constrained");
   elements.schemaVersion.textContent = replay.schema_version;
   elements.timeline.max = replay.frames.length - 1;
@@ -360,7 +363,9 @@ function updateEventFeed() {
     const distanceDetail = event.survivor_distance == null ? "" : ` · range ${event.survivor_distance.toFixed(2)}`;
     const smokeDetail = event.smoke_density == null ? "" : ` · smoke ${event.smoke_density.toFixed(2)}`;
     const confidenceDetail = event.detection_confidence == null ? "" : ` · confidence ${(event.detection_confidence * 100).toFixed(0)}%`;
-    detail.textContent += `${utilityDetail}${reasonDetail}${backlogDetail}${channelDetail}${outcomeDetail}${distanceDetail}${smokeDetail}${confidenceDetail}`;
+    const evidenceDetail = event.evidence_after == null ? "" : ` · evidence ${event.evidence_after.toFixed(2)}`;
+    const hypothesisDetail = event.hypothesis_status ? ` · ${event.hypothesis_status}` : "";
+    detail.textContent += `${utilityDetail}${reasonDetail}${backlogDetail}${channelDetail}${outcomeDetail}${distanceDetail}${smokeDetail}${confidenceDetail}${evidenceDetail}${hypothesisDetail}`;
     copy.append(title, detail);
     item.append(step, node, copy);
     elements.eventFeed.append(item);
@@ -1066,6 +1071,30 @@ function drawMission() {
   context.textBaseline = "middle";
   context.fillText("B", baseX, baseY);
   context.restore();
+
+  (frame.survivor_hypotheses || []).forEach((hypothesis) => {
+    if (hypothesis.status === "confirmed") return;
+    const [x, y] = cellCenter(hypothesis.location, geometry);
+    const radius = Math.max(4 * ratio, cell * 0.2);
+    context.save();
+    context.strokeStyle = hypothesis.status === "rejected"
+      ? COLORS.rejectedHypothesis : COLORS.hypothesis;
+    context.lineWidth = 1.5 * ratio;
+    if (hypothesis.status === "rejected") {
+      context.beginPath();
+      context.moveTo(x - radius, y - radius);
+      context.lineTo(x + radius, y + radius);
+      context.moveTo(x + radius, y - radius);
+      context.lineTo(x - radius, y + radius);
+      context.stroke();
+    } else {
+      context.setLineDash([3 * ratio, 2 * ratio]);
+      context.beginPath();
+      context.arc(x, y, radius, 0, Math.PI * 2);
+      context.stroke();
+    }
+    context.restore();
+  });
 
   (knowledgeMap.confirmed_survivors || frame.confirmed_survivors).forEach((position) => {
     const [x, y] = cellCenter(position, geometry);

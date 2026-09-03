@@ -68,6 +68,10 @@ class EventType(str, Enum):
     SMOKE_EXITED = "smoke_exited"
     SURVIVOR_DETECTION_DEGRADED = "survivor_detection_degraded"
     SURVIVOR_SENSOR_OBSERVATION = "survivor_sensor_observation"
+    SURVIVOR_HYPOTHESIS_CREATED = "survivor_hypothesis_created"
+    SURVIVOR_EVIDENCE_UPDATED = "survivor_evidence_updated"
+    SURVIVOR_HYPOTHESIS_CONFIRMED = "survivor_hypothesis_confirmed"
+    SURVIVOR_HYPOTHESIS_REJECTED = "survivor_hypothesis_rejected"
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,6 +103,15 @@ class MissionEvent:
     detection_success: bool | None = None
     detection_confidence: float | None = None
     decision_score: float | None = None
+    noise_profile: str | None = None
+    raw_detection_success: bool | None = None
+    noisy_detection_success: bool | None = None
+    evidence_before: float | None = None
+    evidence_after: float | None = None
+    hypothesis_observations: int | None = None
+    hypothesis_status: str | None = None
+    hypothesis_confirmed: bool | None = None
+    hypothesis_rejected: bool | None = None
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -158,6 +171,24 @@ class MissionEvent:
             )
         if self.decision_score is not None:
             payload["decision_score"] = round(self.decision_score, 6)
+        if self.noise_profile is not None:
+            payload["noise_profile"] = self.noise_profile
+        if self.raw_detection_success is not None:
+            payload["raw_detection_success"] = self.raw_detection_success
+        if self.noisy_detection_success is not None:
+            payload["noisy_detection_success"] = self.noisy_detection_success
+        if self.evidence_before is not None:
+            payload["evidence_before"] = round(self.evidence_before, 6)
+        if self.evidence_after is not None:
+            payload["evidence_after"] = round(self.evidence_after, 6)
+        if self.hypothesis_observations is not None:
+            payload["hypothesis_observations"] = self.hypothesis_observations
+        if self.hypothesis_status is not None:
+            payload["hypothesis_status"] = self.hypothesis_status
+        if self.hypothesis_confirmed is not None:
+            payload["hypothesis_confirmed"] = self.hypothesis_confirmed
+        if self.hypothesis_rejected is not None:
+            payload["hypothesis_rejected"] = self.hypothesis_rejected
         return payload
 
 
@@ -248,6 +279,19 @@ class MissionLog:
                 event.step,
                 event.position,
                 event.observation_index,
+            )
+        elif event.event_type in {
+            EventType.SURVIVOR_HYPOTHESIS_CREATED,
+            EventType.SURVIVOR_EVIDENCE_UPDATED,
+            EventType.SURVIVOR_HYPOTHESIS_CONFIRMED,
+            EventType.SURVIVOR_HYPOTHESIS_REJECTED,
+        }:
+            key = (
+                event.event_type,
+                event.drone_id,
+                event.step,
+                event.position,
+                event.hypothesis_observations,
             )
         else:
             key = (event.event_type, event.drone_id)

@@ -41,9 +41,13 @@ from echorescue.network_aware_relay import (
     evaluate_relay_utility,
 )
 from echorescue.planning import astar
+from echorescue.perception import (
+    HypothesisStatus,
+    SurvivorHypothesisTracker,
+)
 from echorescue.relay import RelayPlan, select_relay_plan
 from echorescue.sensors import DistanceSensor
-from echorescue.survivors import SurvivorSensor
+from echorescue.survivors import SurvivorObservationReport, SurvivorSensor
 
 
 TERMINAL_STATUSES = {
@@ -230,6 +234,7 @@ class MultiSimulationResult:
     network_aware_relay_metrics: dict[str, object] | None
     failure_recovery_metrics: dict[str, object] | None
     smoke_metrics: dict[str, object] | None
+    perception_metrics: dict[str, object] | None
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
@@ -483,6 +488,8 @@ class MultiSimulationResult:
                 else "smoke"
             )
             payload[metric_key] = self.smoke_metrics
+        if self.perception_metrics is not None:
+            payload["noisy_perception"] = self.perception_metrics
         if self.network_profile == "ideal":
             for key in tuple(payload):
                 if key.startswith("network_") or key in {
@@ -669,6 +676,21 @@ class MultiDroneSimulation:
         self._smoke_degraded_detection_attempts = 0
         self._smoke_successful_detection_attempts = 0
         self._smoke_degraded_detection_events = 0
+        self.hypothesis_tracker = SurvivorHypothesisTracker(
+            minimum_positive_observations=(
+                config.survivor_confirmation_observations
+            ),
+            confirmation_threshold=(
+                config.survivor_confirmation_evidence_threshold
+            ),
+            rejection_threshold=config.survivor_rejection_evidence_threshold,
+            negative_evidence_weight=config.survivor_negative_evidence_weight,
+        )
+        self._perception_tp = 0
+        self._perception_fp = 0
+        self._perception_tn = 0
+        self._perception_fn = 0
+        self._perception_calibration: list[tuple[float, bool]] = []
         # Benchmark-only ablation seam.  Public strategy semantics stay intact:
         # normal network-aware runs always keep active Relay roles enabled.
         self._network_aware_relay_roles_enabled = True
@@ -1694,6 +1716,15 @@ class MultiDroneSimulation:
         detection_success: bool | None = None,
         detection_confidence: float | None = None,
         decision_score: float | None = None,
+        noise_profile: str | None = None,
+        raw_detection_success: bool | None = None,
+        noisy_detection_success: bool | None = None,
+        evidence_before: float | None = None,
+        evidence_after: float | None = None,
+        hypothesis_observations: int | None = None,
+        hypothesis_status: str | None = None,
+        hypothesis_confirmed: bool | None = None,
+        hypothesis_rejected: bool | None = None,
     ) -> None:
         self.mission_log.record(
             MissionEvent(
@@ -1719,6 +1750,15 @@ class MultiDroneSimulation:
                 detection_success=detection_success,
                 detection_confidence=detection_confidence,
                 decision_score=decision_score,
+                noise_profile=noise_profile,
+                raw_detection_success=raw_detection_success,
+                noisy_detection_success=noisy_detection_success,
+                evidence_before=evidence_before,
+                evidence_after=evidence_after,
+                hypothesis_observations=hypothesis_observations,
+                hypothesis_status=hypothesis_status,
+                hypothesis_confirmed=hypothesis_confirmed,
+                hypothesis_rejected=hypothesis_rejected,
             )
         )
 
@@ -1985,6 +2025,7 @@ class MultiDroneSimulation:
             seed=self.config.seed,
             step=self.steps,
             observer_id=runtime.drone.identifier,
+            perception_noise=self.config.perception_noise,
         )
         self._survivor_detection_attempts += report.attempts
         self._survivor_detection_successes += report.successful_observations
@@ -1993,6 +2034,13 @@ class MultiDroneSimulation:
         self._smoke_successful_detection_attempts += (
             report.successful_smoke_observations
         )
+        if self.config.perception_noise != "off":
+            self._perception_tp += report.true_positives
+            self._perception_fp += report.false_positives
+            self._perception_tn += report.true_negatives
+            self._perception_fn += report.false_negatives
+            self._apply_noisy_survivor_evidence(runtime, report)
+            return
         detailed_observations = (
             report.sensor_channel == "thermal"
             or self.config.smoke_profile != "off"
@@ -2078,6 +2126,154 @@ class MultiDroneSimulation:
                     sensor_channel=event_channel,
                 )
 
+    def _apply_noisy_survivor_evidence(
+        self, runtime: DroneRuntime, report: SurvivorObservationReport
+    ) -> None:
+        observed_positions: set[Position] = set()
+        for index, observation in enumerate(report.observations, start=1):
+            if not observation.success:
+                continue
+            observed_positions.add(observation.position)
+            self._perception_calibration.append(
+                (
+                    observation.confidence,
+                    observation.position in self.world.survivors,
+                )
+            )
+            update = self.hypothesis_tracker.positive(
+                observation.position,
+                confidence=observation.confidence,
+                channel=report.sensor_channel,
+                agent_id=runtime.drone.identifier,
+                step=self.steps,
+            )
+            runtime.detected_survivors.add(observation.position)
+            self._detected_survivors.add(observation.position)
+            self._record_event(
+                runtime,
+                EventType.SURVIVOR_SENSOR_OBSERVATION,
+                observation.position,
+                reason="evidence_reported",
+                smoke_density=observation.smoke_exposure,
+                sensor_channel=report.sensor_channel,
+                observation_index=index,
+                survivor_distance=observation.distance,
+                detection_success=True,
+                detection_confidence=observation.confidence,
+                decision_score=observation.noise_score,
+                noise_profile=self.config.perception_noise,
+                raw_detection_success=True,
+                noisy_detection_success=True,
+                evidence_before=update.evidence_before,
+                evidence_after=update.evidence_after,
+                hypothesis_observations=update.observation_count,
+                hypothesis_status=update.status_after.value,
+                hypothesis_confirmed=update.confirmed,
+                hypothesis_rejected=False,
+            )
+            if update.created:
+                self._record_event(
+                    runtime,
+                    EventType.SURVIVOR_HYPOTHESIS_CREATED,
+                    observation.position,
+                    sensor_channel=report.sensor_channel,
+                    detection_confidence=observation.confidence,
+                    noise_profile=self.config.perception_noise,
+                    evidence_before=update.evidence_before,
+                    evidence_after=update.evidence_after,
+                    hypothesis_observations=update.observation_count,
+                    hypothesis_status=update.status_after.value,
+                    hypothesis_confirmed=False,
+                    hypothesis_rejected=False,
+                )
+                self._record_event(
+                    runtime,
+                    EventType.SURVIVOR_DETECTED,
+                    observation.position,
+                    sensor_channel=report.sensor_channel,
+                )
+            self._record_event(
+                runtime,
+                EventType.SURVIVOR_EVIDENCE_UPDATED,
+                observation.position,
+                sensor_channel=report.sensor_channel,
+                detection_confidence=observation.confidence,
+                noise_profile=self.config.perception_noise,
+                evidence_before=update.evidence_before,
+                evidence_after=update.evidence_after,
+                hypothesis_observations=update.observation_count,
+                hypothesis_status=update.status_after.value,
+                hypothesis_confirmed=update.confirmed,
+                hypothesis_rejected=False,
+            )
+            if update.confirmed:
+                runtime.confirmed_survivors.add(observation.position)
+                self._confirmed_survivors.add(observation.position)
+                self._record_event(
+                    runtime,
+                    EventType.SURVIVOR_HYPOTHESIS_CONFIRMED,
+                    observation.position,
+                    sensor_channel=report.sensor_channel,
+                    detection_confidence=observation.confidence,
+                    noise_profile=self.config.perception_noise,
+                    evidence_before=update.evidence_before,
+                    evidence_after=update.evidence_after,
+                    hypothesis_observations=update.observation_count,
+                    hypothesis_status=update.status_after.value,
+                    hypothesis_confirmed=True,
+                    hypothesis_rejected=False,
+                )
+                self._record_event(
+                    runtime,
+                    EventType.SURVIVOR_CONFIRMED,
+                    observation.position,
+                    sensor_channel=report.sensor_channel,
+                )
+
+        for position, hypothesis in sorted(
+            self.hypothesis_tracker.hypotheses.items()
+        ):
+            if (
+                hypothesis.status is not HypothesisStatus.UNCONFIRMED
+                or position in observed_positions
+                or not self.survivor_sensor.can_observe(
+                    self.world, runtime.drone.position, position
+                )
+            ):
+                continue
+            negative_confidence = 0.25 * (
+                self.survivor_sensor.base_detection_probability
+            )
+            negative_update = self.hypothesis_tracker.negative(
+                position,
+                confidence=negative_confidence,
+                channel=report.sensor_channel,
+                agent_id=runtime.drone.identifier,
+                step=self.steps,
+            )
+            if negative_update is None:
+                continue
+            self._record_event(
+                runtime,
+                (
+                    EventType.SURVIVOR_HYPOTHESIS_REJECTED
+                    if negative_update.rejected
+                    else EventType.SURVIVOR_EVIDENCE_UPDATED
+                ),
+                position,
+                reason="negative_observation",
+                sensor_channel=report.sensor_channel,
+                detection_confidence=negative_confidence,
+                noise_profile=self.config.perception_noise,
+                raw_detection_success=False,
+                noisy_detection_success=False,
+                evidence_before=negative_update.evidence_before,
+                evidence_after=negative_update.evidence_after,
+                hypothesis_observations=negative_update.observation_count,
+                hypothesis_status=negative_update.status_after.value,
+                hypothesis_confirmed=False,
+                hypothesis_rejected=negative_update.rejected,
+            )
     @staticmethod
     def _relay_payload(
         runtime: DroneRuntime,
@@ -2786,6 +2982,8 @@ class MultiDroneSimulation:
             if self.knowledge_mode == "local"
             else self._confirmed_survivors
         )
+        if self.config.perception_noise != "off":
+            return confirmed == set(self.world.survivors)
         return len(confirmed) == len(self.world.survivors)
 
     def _fail_energy(self, runtime: DroneRuntime) -> None:
@@ -2884,6 +3082,7 @@ class MultiDroneSimulation:
             not frontiers
             and self.config.survivor_sensor == "visual"
             and self.config.smoke_profile == "off"
+            and self.config.perception_noise == "off"
         ):
             # A first sighting is not yet a confirmed rescue observation.
             # Revisit detected positions before declaring exploration done.
@@ -4144,6 +4343,96 @@ class MultiDroneSimulation:
             return None
         return self.smoke_detection_metrics()
 
+    def _perception_metrics(self) -> dict[str, object] | None:
+        if self.config.perception_noise == "off":
+            return None
+        hypotheses = tuple(self.hypothesis_tracker.hypotheses.values())
+        confirmed = tuple(
+            item for item in hypotheses if item.status is HypothesisStatus.CONFIRMED
+        )
+        rejected = tuple(
+            item for item in hypotheses if item.status is HypothesisStatus.REJECTED
+        )
+        true_confirmed = sum(
+            item.location in self.world.survivors for item in confirmed
+        )
+        false_confirmed = len(confirmed) - true_confirmed
+        confidence_values = [
+            item.confirmation_confidence
+            for item in confirmed
+            if item.confirmation_confidence is not None
+        ]
+        bucket_edges = tuple(index / 5 for index in range(6))
+        calibration = []
+        for lower, upper in zip(bucket_edges, bucket_edges[1:]):
+            samples = [
+                (confidence, correct)
+                for confidence, correct in self._perception_calibration
+                if lower <= confidence < upper
+                or (upper == 1.0 and confidence == 1.0)
+            ]
+            calibration.append(
+                {
+                    "range": [lower, upper],
+                    "count": len(samples),
+                    "mean_confidence": (
+                        round(sum(value for value, _ in samples) / len(samples), 6)
+                        if samples
+                        else None
+                    ),
+                    "empirical_true_positive_rate": (
+                        round(sum(correct for _, correct in samples) / len(samples), 6)
+                        if samples
+                        else None
+                    ),
+                }
+            )
+        first_true_steps = [
+            event.step
+            for event in self.mission_log.events
+            if event.event_type is EventType.SURVIVOR_HYPOTHESIS_CONFIRMED
+            and event.position in self.world.survivors
+        ]
+        positive_denominator = self._perception_tp + self._perception_fn
+        negative_denominator = self._perception_fp + self._perception_tn
+        return {
+            "profile": self.config.perception_noise,
+            "perception_attempts": positive_denominator + negative_denominator,
+            "true_positive_observations": self._perception_tp,
+            "false_positive_observations": self._perception_fp,
+            "true_negative_observations": self._perception_tn,
+            "false_negative_observations": self._perception_fn,
+            "false_positive_rate": round(
+                self._perception_fp / negative_denominator, 6
+            ) if negative_denominator else 0.0,
+            "false_negative_rate": round(
+                self._perception_fn / positive_denominator, 6
+            ) if positive_denominator else 0.0,
+            "hypotheses_created": len(hypotheses),
+            "hypotheses_confirmed": len(confirmed),
+            "hypotheses_rejected": len(rejected),
+            "false_survivor_confirmations": false_confirmed,
+            "true_survivor_confirmations": true_confirmed,
+            "mean_confirmation_confidence": (
+                round(sum(confidence_values) / len(confidence_values), 6)
+                if confidence_values
+                else None
+            ),
+            "mean_observations_per_confirmation": (
+                round(
+                    sum(item.observation_count for item in confirmed)
+                    / len(confirmed),
+                    6,
+                )
+                if confirmed
+                else None
+            ),
+            "time_to_first_true_survivor": (
+                min(first_true_steps) if first_true_steps else None
+            ),
+            "calibration": calibration,
+        }
+
     def _failure_recovery_metrics(self) -> dict[str, object] | None:
         if not self.config.failure_schedule:
             return None
@@ -4220,8 +4509,9 @@ class MultiDroneSimulation:
             if self.knowledge_mode == "local"
             else self._confirmed_survivors
         )
+        true_reported_confirmed = reported_confirmed & self.world.survivors
         survivor_recall = (
-            len(reported_confirmed) / survivors_total
+            len(true_reported_confirmed) / survivors_total
             if survivors_total
             else 1.0
         )
@@ -4250,7 +4540,11 @@ class MultiDroneSimulation:
             if self._injected_failure_ids
             and failure_recovery_metrics is not None
             else (
-                len(reported_confirmed) == survivors_total
+                (
+                    reported_confirmed == set(self.world.survivors)
+                    if self.config.perception_noise != "off"
+                    else len(reported_confirmed) == survivors_total
+                )
                 and self.collisions == 0
                 and self.drone_drone_collisions == 0
                 and drones_returned == len(self.runtimes)
@@ -4604,6 +4898,7 @@ class MultiDroneSimulation:
             network_aware_relay_metrics=self._network_aware_relay_metrics(),
             failure_recovery_metrics=failure_recovery_metrics,
             smoke_metrics=self._smoke_metrics(),
+            perception_metrics=self._perception_metrics(),
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )
