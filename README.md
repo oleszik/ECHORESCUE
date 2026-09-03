@@ -22,6 +22,7 @@ with the documented benchmark commands.
 
 | Experiment | Stored result over 50 seeds |
 | --- | --- |
+| Noisy Survivor perception | Visual/moderate: 96.67% Recall, 90% mission success, 7.98% FPR, 18.22% FNR; 100/100 agents returned and zero collisions |
 | N-agent scaling | 1/2/4/8-agent fleets: 200/200 successful and collision-free missions; mean duration 121.52/72.10/65.36/62.04 steps |
 | Two-agent search | 50/50 successful missions, 100% Survivor Recall, both drones returned, zero wall/drone collisions; 40.67% shorter mean duration than one drone |
 | Failure reassignment | 50/50 injected failures recovered, 50/50 released tasks reassigned, 100% Recall, zero collisions |
@@ -36,6 +37,9 @@ are available in [`benchmarks/`](benchmarks/). Experiment-specific analysis is
 documented in [`docs/`](docs/).
 The N-agent results, variance, efficiency, and per-seed regressions are analyzed
 in [`docs/v0.6-n-agent-scaling.md`](docs/v0.6-n-agent-scaling.md).
+The confidence model, holdout results, reliability analysis, and failure seeds
+are in
+[`docs/v0.7-noisy-perception-confidence.md`](docs/v0.7-noisy-perception-confidence.md).
 
 ## Architecture
 
@@ -95,6 +99,7 @@ For a headless result only:
 
 ```bash
 python -m echorescue --drones 8 --seed 7
+python -m echorescue --drones 2 --seed 50 --survivor-sensor visual --perception-noise moderate
 ```
 
 The public Python entry points are also importable:
@@ -146,6 +151,7 @@ python -m echorescue.failure_benchmark --seeds 50 --failure-drone drone-2 --fail
 python -m echorescue.network_benchmark --seeds 50 --output benchmarks/constrained_network_50_seeds.json
 python -m echorescue.smoke_benchmark --seeds 50 --output benchmarks/smoke_perception_50_seeds.json
 python -m echorescue.thermal_benchmark --seeds 50 --output benchmarks/thermal_perception_50_seeds.json
+python -m echorescue.noisy_perception_benchmark --output benchmarks/noisy_perception_50_holdout_seeds.json
 ```
 
 Benchmark modules use identical seed ranges and deterministic repeat checks

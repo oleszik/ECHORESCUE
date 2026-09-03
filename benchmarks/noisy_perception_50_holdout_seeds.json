@@ -1,0 +1,1150 @@
+{
+  "acceptance": {
+    "all_agents_returned": true,
+    "collision_free": true,
+    "deterministic_repeats": true
+  },
+  "benchmark_type": "noisy_perception_holdout",
+  "configuration": {
+    "development_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "drone_count": 2,
+    "holdout_seeds": [
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99
+    ],
+    "knowledge_mode": "shared",
+    "profiles": {
+      "A_visual_noise_off": {
+        "survivor_sensor": "visual"
+      },
+      "B_visual_moderate_noise": {
+        "perception_noise": "moderate",
+        "survivor_sensor": "visual"
+      },
+      "C_visual_smoke_and_noise": {
+        "perception_noise": "moderate",
+        "smoke_profile": "moderate",
+        "survivor_sensor": "visual"
+      },
+      "D_thermal_moderate_noise": {
+        "perception_noise": "moderate",
+        "survivor_sensor": "thermal"
+      },
+      "E_thermal_smoke_and_noise": {
+        "perception_noise": "moderate",
+        "smoke_profile": "moderate",
+        "survivor_sensor": "thermal"
+      }
+    }
+  },
+  "failure_analysis": {
+    "A_visual_noise_off": {
+      "false_confirmation_seeds": [],
+      "false_positive_seeds": [],
+      "long_confirmation_delay_seeds": [],
+      "many_hypotheses_seeds": [],
+      "safe_but_incomplete_seeds": [],
+      "survivor_miss_seeds": []
+    },
+    "B_visual_moderate_noise": {
+      "false_confirmation_seeds": [],
+      "false_positive_seeds": [
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99
+      ],
+      "long_confirmation_delay_seeds": [
+        60
+      ],
+      "many_hypotheses_seeds": [
+        57,
+        65
+      ],
+      "safe_but_incomplete_seeds": [
+        63,
+        67,
+        69,
+        73,
+        89
+      ],
+      "survivor_miss_seeds": [
+        63,
+        67,
+        69,
+        73,
+        89
+      ]
+    },
+    "C_visual_smoke_and_noise": {
+      "false_confirmation_seeds": [],
+      "false_positive_seeds": [
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99
+      ],
+      "long_confirmation_delay_seeds": [
+        60,
+        90,
+        95,
+        97
+      ],
+      "many_hypotheses_seeds": [
+        57,
+        65
+      ],
+      "safe_but_incomplete_seeds": [
+        50,
+        51,
+        52,
+        53,
+        54,
+        56,
+        57,
+        58,
+        59,
+        61,
+        62,
+        63,
+        67,
+        69,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        79,
+        81,
+        82,
+        83,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        99
+      ],
+      "survivor_miss_seeds": [
+        50,
+        51,
+        52,
+        53,
+        54,
+        56,
+        57,
+        58,
+        59,
+        61,
+        62,
+        63,
+        67,
+        69,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        79,
+        81,
+        82,
+        83,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        99
+      ]
+    },
+    "D_thermal_moderate_noise": {
+      "false_confirmation_seeds": [],
+      "false_positive_seeds": [
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99
+      ],
+      "long_confirmation_delay_seeds": [
+        60,
+        81,
+        99
+      ],
+      "many_hypotheses_seeds": [],
+      "safe_but_incomplete_seeds": [
+        50,
+        51,
+        59,
+        60,
+        61,
+        63,
+        66,
+        67,
+        72,
+        73,
+        75,
+        76,
+        80,
+        81,
+        83,
+        84,
+        89,
+        93,
+        97,
+        99
+      ],
+      "survivor_miss_seeds": [
+        50,
+        51,
+        59,
+        60,
+        61,
+        63,
+        66,
+        67,
+        72,
+        73,
+        75,
+        76,
+        80,
+        81,
+        83,
+        84,
+        89,
+        93,
+        97,
+        99
+      ]
+    },
+    "E_thermal_smoke_and_noise": {
+      "false_confirmation_seeds": [],
+      "false_positive_seeds": [
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99
+      ],
+      "long_confirmation_delay_seeds": [
+        60,
+        81,
+        97,
+        99
+      ],
+      "many_hypotheses_seeds": [],
+      "safe_but_incomplete_seeds": [
+        50,
+        51,
+        52,
+        58,
+        59,
+        60,
+        61,
+        63,
+        65,
+        66,
+        67,
+        72,
+        73,
+        74,
+        75,
+        76,
+        80,
+        81,
+        83,
+        84,
+        89,
+        93,
+        97,
+        99
+      ],
+      "survivor_miss_seeds": [
+        50,
+        51,
+        52,
+        58,
+        59,
+        60,
+        61,
+        63,
+        65,
+        66,
+        67,
+        72,
+        73,
+        74,
+        75,
+        76,
+        80,
+        81,
+        83,
+        84,
+        89,
+        93,
+        97,
+        99
+      ]
+    }
+  },
+  "frozen_parameters": {
+    "confirmation_threshold": 0.65,
+    "false_positive_confidence_range": [
+      0.32,
+      0.52
+    ],
+    "minimum_positive_observations": 2,
+    "negative_evidence_weight": 0.55,
+    "negative_observation_confidence_factor": 0.25,
+    "positive_evidence_weight": 0.5,
+    "rejection_threshold": 0.12,
+    "thermal_false_negative_rate": 0.12,
+    "thermal_false_positive_rate": 0.05,
+    "visual_false_negative_rate": 0.18,
+    "visual_false_positive_rate": 0.08,
+    "true_report_confidence": "smoke_factor * distance_factor * (1 - false_negative_rate)"
+  },
+  "profiles": {
+    "A_visual_noise_off": {
+      "calibration": [
+        {
+          "count": 0,
+          "empirical_true_positive_rate": null,
+          "mean_confidence": null,
+          "range": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "count": 0,
+          "empirical_true_positive_rate": null,
+          "mean_confidence": null,
+          "range": [
+            0.2,
+            0.4
+          ]
+        },
+        {
+          "count": 0,
+          "empirical_true_positive_rate": null,
+          "mean_confidence": null,
+          "range": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "count": 0,
+          "empirical_true_positive_rate": null,
+          "mean_confidence": null,
+          "range": [
+            0.6,
+            0.8
+          ]
+        },
+        {
+          "count": 0,
+          "empirical_true_positive_rate": null,
+          "mean_confidence": null,
+          "range": [
+            0.8,
+            1.0
+          ]
+        }
+      ],
+      "configured_agents": 100,
+      "confirmation_confidence": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "min": null,
+        "standard_deviation": null
+      },
+      "drone_collisions": 0,
+      "false_negative_observations": {
+        "count": 50,
+        "max": 0,
+        "mean": 0,
+        "median": 0.0,
+        "min": 0,
+        "standard_deviation": 0.0
+      },
+      "false_negative_rate": 0.0,
+      "false_positive_observations": {
+        "count": 50,
+        "max": 0,
+        "mean": 0,
+        "median": 0.0,
+        "min": 0,
+        "standard_deviation": 0.0
+      },
+      "false_positive_rate": 0.0,
+      "mission_duration": {
+        "count": 50,
+        "max": 88,
+        "mean": 70.14,
+        "median": 69.0,
+        "min": 60,
+        "standard_deviation": 5.730654
+      },
+      "mission_success": {
+        "count": 50,
+        "percentage": 100.0
+      },
+      "missions": 50,
+      "observations_per_confirmation": {
+        "count": 50,
+        "max": 2.0,
+        "mean": 2.0,
+        "median": 2.0,
+        "min": 2.0,
+        "standard_deviation": 0.0
+      },
+      "returned_agents": 100,
+      "survivor_recall": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 1.0,
+        "median": 1.0,
+        "min": 1.0,
+        "standard_deviation": 0.0
+      },
+      "time_to_first_true_survivor": {
+        "count": 50,
+        "max": 26,
+        "mean": 6.78,
+        "median": 6.0,
+        "min": 0,
+        "standard_deviation": 5.950765
+      },
+      "wall_collisions": 0
+    },
+    "B_visual_moderate_noise": {
+      "calibration": [
+        {
+          "count": 0,
+          "empirical_true_positive_rate": null,
+          "mean_confidence": null,
+          "range": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "count": 224,
+          "empirical_true_positive_rate": 0.0,
+          "mean_confidence": 0.360256,
+          "range": [
+            0.2,
+            0.4
+          ]
+        },
+        {
+          "count": 321,
+          "empirical_true_positive_rate": 0.0,
+          "mean_confidence": 0.461067,
+          "range": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "count": 1373,
+          "empirical_true_positive_rate": 1.0,
+          "mean_confidence": 0.68047,
+          "range": [
+            0.6,
+            0.8
+          ]
+        },
+        {
+          "count": 77,
+          "empirical_true_positive_rate": 1.0,
+          "mean_confidence": 0.82,
+          "range": [
+            0.8,
+            1.0
+          ]
+        }
+      ],
+      "configured_agents": 100,
+      "confirmation_confidence": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 0.860237,
+        "median": 0.873419,
+        "min": 0.685922,
+        "standard_deviation": 0.084879
+      },
+      "drone_collisions": 0,
+      "false_negative_observations": {
+        "count": 50,
+        "max": 14,
+        "mean": 6.46,
+        "median": 7.0,
+        "min": 2,
+        "standard_deviation": 3.213783
+      },
+      "false_negative_rate": 0.182177,
+      "false_positive_observations": {
+        "count": 50,
+        "max": 23,
+        "mean": 10.9,
+        "median": 11.0,
+        "min": 2,
+        "standard_deviation": 3.683748
+      },
+      "false_positive_rate": 0.079772,
+      "mission_duration": {
+        "count": 50,
+        "max": 87,
+        "mean": 69.86,
+        "median": 69.0,
+        "min": 60,
+        "standard_deviation": 5.165307
+      },
+      "mission_success": {
+        "count": 45,
+        "percentage": 90.0
+      },
+      "missions": 50,
+      "observations_per_confirmation": {
+        "count": 50,
+        "max": 5.5,
+        "mean": 3.026667,
+        "median": 3.0,
+        "min": 2.0,
+        "standard_deviation": 0.630132
+      },
+      "returned_agents": 100,
+      "survivor_recall": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 0.966667,
+        "median": 1.0,
+        "min": 0.6666666666666666,
+        "standard_deviation": 0.1
+      },
+      "time_to_first_true_survivor": {
+        "count": 50,
+        "max": 46,
+        "mean": 10.26,
+        "median": 9.0,
+        "min": 0,
+        "standard_deviation": 8.406688
+      },
+      "wall_collisions": 0
+    },
+    "C_visual_smoke_and_noise": {
+      "calibration": [
+        {
+          "count": 0,
+          "empirical_true_positive_rate": null,
+          "mean_confidence": null,
+          "range": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "count": 250,
+          "empirical_true_positive_rate": 0.104,
+          "mean_confidence": 0.350437,
+          "range": [
+            0.2,
+            0.4
+          ]
+        },
+        {
+          "count": 367,
+          "empirical_true_positive_rate": 0.125341,
+          "mean_confidence": 0.468464,
+          "range": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "count": 781,
+          "empirical_true_positive_rate": 1.0,
+          "mean_confidence": 0.68287,
+          "range": [
+            0.6,
+            0.8
+          ]
+        },
+        {
+          "count": 55,
+          "empirical_true_positive_rate": 1.0,
+          "mean_confidence": 0.82,
+          "range": [
+            0.8,
+            1.0
+          ]
+        }
+      ],
+      "configured_agents": 100,
+      "confirmation_confidence": {
+        "count": 48,
+        "max": 1.0,
+        "mean": 0.831097,
+        "median": 0.841956,
+        "min": 0.675268,
+        "standard_deviation": 0.097333
+      },
+      "drone_collisions": 0,
+      "false_negative_observations": {
+        "count": 50,
+        "max": 14,
+        "mean": 4.34,
+        "median": 3.0,
+        "min": 1,
+        "standard_deviation": 3.115189
+      },
+      "false_negative_rate": 0.192889,
+      "false_positive_observations": {
+        "count": 50,
+        "max": 23,
+        "mean": 10.9,
+        "median": 11.0,
+        "min": 2,
+        "standard_deviation": 3.683748
+      },
+      "false_positive_rate": 0.079772,
+      "mission_duration": {
+        "count": 50,
+        "max": 87,
+        "mean": 69.86,
+        "median": 69.0,
+        "min": 60,
+        "standard_deviation": 5.165307
+      },
+      "mission_success": {
+        "count": 12,
+        "percentage": 24.0
+      },
+      "missions": 50,
+      "observations_per_confirmation": {
+        "count": 48,
+        "max": 5.5,
+        "mean": 3.076389,
+        "median": 3.0,
+        "min": 2.0,
+        "standard_deviation": 0.931048
+      },
+      "returned_agents": 100,
+      "survivor_recall": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 0.606667,
+        "median": 0.666667,
+        "min": 0.0,
+        "standard_deviation": 0.280397
+      },
+      "time_to_first_true_survivor": {
+        "count": 48,
+        "max": 50,
+        "mean": 14.208333,
+        "median": 12.0,
+        "min": 0,
+        "standard_deviation": 11.232316
+      },
+      "wall_collisions": 0
+    },
+    "D_thermal_moderate_noise": {
+      "calibration": [
+        {
+          "count": 0,
+          "empirical_true_positive_rate": null,
+          "mean_confidence": null,
+          "range": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "count": 136,
+          "empirical_true_positive_rate": 0.0,
+          "mean_confidence": 0.358808,
+          "range": [
+            0.2,
+            0.4
+          ]
+        },
+        {
+          "count": 211,
+          "empirical_true_positive_rate": 0.0,
+          "mean_confidence": 0.462638,
+          "range": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "count": 726,
+          "empirical_true_positive_rate": 1.0,
+          "mean_confidence": 0.714402,
+          "range": [
+            0.6,
+            0.8
+          ]
+        },
+        {
+          "count": 214,
+          "empirical_true_positive_rate": 1.0,
+          "mean_confidence": 0.822773,
+          "range": [
+            0.8,
+            1.0
+          ]
+        }
+      ],
+      "configured_agents": 100,
+      "confirmation_confidence": {
+        "count": 48,
+        "max": 0.884893,
+        "mean": 0.764569,
+        "median": 0.747383,
+        "min": 0.664839,
+        "standard_deviation": 0.061006
+      },
+      "drone_collisions": 0,
+      "false_negative_observations": {
+        "count": 50,
+        "max": 8,
+        "mean": 2.54,
+        "median": 2.0,
+        "min": 0,
+        "standard_deviation": 2.012064
+      },
+      "false_negative_rate": 0.119025,
+      "false_positive_observations": {
+        "count": 50,
+        "max": 13,
+        "mean": 6.94,
+        "median": 7.0,
+        "min": 2,
+        "standard_deviation": 2.509263
+      },
+      "false_positive_rate": 0.05079,
+      "mission_duration": {
+        "count": 50,
+        "max": 87,
+        "mean": 69.86,
+        "median": 69.0,
+        "min": 60,
+        "standard_deviation": 5.165307
+      },
+      "mission_success": {
+        "count": 30,
+        "percentage": 60.0
+      },
+      "missions": 50,
+      "observations_per_confirmation": {
+        "count": 48,
+        "max": 5.5,
+        "mean": 2.951389,
+        "median": 3.0,
+        "min": 2.0,
+        "standard_deviation": 0.872654
+      },
+      "returned_agents": 100,
+      "survivor_recall": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 0.826667,
+        "median": 1.0,
+        "min": 0.0,
+        "standard_deviation": 0.251573
+      },
+      "time_to_first_true_survivor": {
+        "count": 48,
+        "max": 46,
+        "mean": 12.145833,
+        "median": 11.0,
+        "min": 0,
+        "standard_deviation": 9.710367
+      },
+      "wall_collisions": 0
+    },
+    "E_thermal_smoke_and_noise": {
+      "calibration": [
+        {
+          "count": 0,
+          "empirical_true_positive_rate": null,
+          "mean_confidence": null,
+          "range": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "count": 136,
+          "empirical_true_positive_rate": 0.0,
+          "mean_confidence": 0.358808,
+          "range": [
+            0.2,
+            0.4
+          ]
+        },
+        {
+          "count": 227,
+          "empirical_true_positive_rate": 0.070485,
+          "mean_confidence": 0.472013,
+          "range": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "count": 741,
+          "empirical_true_positive_rate": 1.0,
+          "mean_confidence": 0.701619,
+          "range": [
+            0.6,
+            0.8
+          ]
+        },
+        {
+          "count": 147,
+          "empirical_true_positive_rate": 1.0,
+          "mean_confidence": 0.825624,
+          "range": [
+            0.8,
+            1.0
+          ]
+        }
+      ],
+      "configured_agents": 100,
+      "confirmation_confidence": {
+        "count": 48,
+        "max": 0.953456,
+        "mean": 0.766156,
+        "median": 0.747966,
+        "min": 0.662797,
+        "standard_deviation": 0.060922
+      },
+      "drone_collisions": 0,
+      "false_negative_observations": {
+        "count": 50,
+        "max": 7,
+        "mean": 2.42,
+        "median": 2.0,
+        "min": 0,
+        "standard_deviation": 1.919271
+      },
+      "false_negative_rate": 0.118049,
+      "false_positive_observations": {
+        "count": 50,
+        "max": 13,
+        "mean": 6.94,
+        "median": 7.0,
+        "min": 2,
+        "standard_deviation": 2.509263
+      },
+      "false_positive_rate": 0.05079,
+      "mission_duration": {
+        "count": 50,
+        "max": 87,
+        "mean": 69.86,
+        "median": 69.0,
+        "min": 60,
+        "standard_deviation": 5.165307
+      },
+      "mission_success": {
+        "count": 26,
+        "percentage": 52.0
+      },
+      "missions": 50,
+      "observations_per_confirmation": {
+        "count": 48,
+        "max": 5.5,
+        "mean": 3.048611,
+        "median": 3.0,
+        "min": 2.0,
+        "standard_deviation": 0.894271
+      },
+      "returned_agents": 100,
+      "survivor_recall": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 0.793333,
+        "median": 1.0,
+        "min": 0.0,
+        "standard_deviation": 0.25725
+      },
+      "time_to_first_true_survivor": {
+        "count": 48,
+        "max": 51,
+        "mean": 13.979167,
+        "median": 11.5,
+        "min": 0,
+        "standard_deviation": 11.732238
+      },
+      "wall_collisions": 0
+    }
+  },
+  "representative_demo_seed": 50,
+  "schema_version": "1.0"
+}
