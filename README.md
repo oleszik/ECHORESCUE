@@ -22,6 +22,7 @@ with the documented benchmark commands.
 
 | Experiment | Stored result over 50 seeds |
 | --- | --- |
+| N-agent scaling | 1/2/4/8-agent fleets: 200/200 successful and collision-free missions; mean duration 121.52/72.10/65.36/62.04 steps |
 | Two-agent search | 50/50 successful missions, 100% Survivor Recall, both drones returned, zero wall/drone collisions; 40.67% shorter mean duration than one drone |
 | Failure reassignment | 50/50 injected failures recovered, 50/50 released tasks reassigned, 100% Recall, zero collisions |
 | Constrained communication | 100% base-known Recall and mission success for Relay-off and Adaptive Relay, zero collisions and Final-Sync timeouts |
@@ -33,6 +34,8 @@ The headline mission comparison is stored in
 Failure, network, Smoke, Thermal, knowledge, deconfliction, and Relay artifacts
 are available in [`benchmarks/`](benchmarks/). Experiment-specific analysis is
 documented in [`docs/`](docs/).
+The N-agent results, variance, efficiency, and per-seed regressions are analyzed
+in [`docs/v0.6-n-agent-scaling.md`](docs/v0.6-n-agent-scaling.md).
 
 ## Architecture
 
@@ -80,8 +83,8 @@ Python 3.10 or newer is required. Runtime code has no third-party dependencies.
 
 ```bash
 python -m pip install -e .
-python -m echorescue --drones 2 --seed 7 --replay-out replays/seed_7.json
-python -m echorescue.dashboard --replay replays/seed_7.json
+python -m echorescue --drones 4 --seed 44 --replay-out replays/seed_44_4_agents.json
+python -m echorescue.dashboard --replay replays/seed_44_4_agents.json
 ```
 
 Open <http://127.0.0.1:8000>. The dashboard provides timeline playback,
@@ -91,7 +94,7 @@ links, events, confirmed Survivors, and final mission metrics.
 For a headless result only:
 
 ```bash
-python -m echorescue --drones 2 --seed 7
+python -m echorescue --drones 8 --seed 7
 ```
 
 The public Python entry points are also importable:
@@ -100,7 +103,7 @@ The public Python entry points are also importable:
 from echorescue import MultiDroneSimulation, SimulationConfig
 
 result = MultiDroneSimulation(
-    SimulationConfig(seed=7, drone_count=2)
+    SimulationConfig(seed=7, drone_count=4)
 ).run()
 print(result.to_dict())
 ```
@@ -126,6 +129,11 @@ resource limits, and production-grade HTTP serving as appropriate. No
 provider-specific deployment manifest or account credential is required by the
 repository.
 
+For a compact fleet-scaling demo, use `replays/seed_44_4_agents.json` with
+`benchmarks/n_agent_scaling_50_seeds.json`; it shows four concurrent agents,
+distinct targets, Survivor confirmation, movement interventions, and safe
+return.
+
 ## Reproducible benchmarks
 
 The main baseline and selected resilience/perception experiments can be rebuilt
@@ -133,6 +141,7 @@ with:
 
 ```bash
 python -m echorescue.benchmark --seeds 50 --output benchmarks/two_drone_50_seeds.json
+python -m echorescue.scaling_benchmark --seeds 50 --output benchmarks/n_agent_scaling_50_seeds.json
 python -m echorescue.failure_benchmark --seeds 50 --failure-drone drone-2 --failure-step 4 --output benchmarks/failure_reassignment_50_seeds.json
 python -m echorescue.network_benchmark --seeds 50 --output benchmarks/constrained_network_50_seeds.json
 python -m echorescue.smoke_benchmark --seeds 50 --output benchmarks/smoke_perception_50_seeds.json
@@ -171,8 +180,8 @@ benchmark JSON aggregation modules are a documented incremental exception; see
   camera, and there is no Visual/Thermal fusion, acoustic sensing, ML, or CV.
 - The radio model uses grid LOS and deterministic transport abstractions, not
   measured RF propagation, interference, or a complete routing protocol.
-- The current mission runtime is specialized for one or two agents; arbitrary
-  fleet sizes are not yet validated.
+- The mission runtime is validated for 1–8 agents. Adaptive and Network-aware
+  Relay roles remain intentionally limited to two-agent experiments.
 - Failure injection is deterministic fail-stop behavior without diagnosis,
   repair, or probabilistic component reliability.
 - There is no ROS 2, hardware-in-the-loop, real sensor dataset, or hardware
@@ -189,8 +198,8 @@ were added.
 
 - **v0.5.x — Portfolio Hardening:** landing page, ADRs, typing, CI, and demo
   readiness.
-- **v0.6 — N-Agent Generalization:** remove two-agent assumptions and validate
-  arbitrary fleet sizes.
+- **v0.6 — N-Agent Generalization:** one deterministic core validated for
+  1/2/4/8 agents, with scaling statistics and fleet-safe replay/dashboard data.
 - **v0.7 — Noisy Perception & Confidence:** generalized uncertain observations
   and confidence semantics.
 - **v0.8 — Dynamic Obstacles / Dynamic Replanning:** changing traversability and
@@ -201,7 +210,8 @@ were added.
   and multi-hop Relay coordination.
 - **v0.11 — Multi-floor / 2.5D:** connected floor plans and vertical transitions.
 
-Development stops at v0.5.x in this slice. v0.6 begins only as a separate task.
+Development stops at completed v0.6 in this slice. v0.7 begins only as a
+separate task.
 
 ## License
 

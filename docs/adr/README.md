@@ -11,3 +11,4 @@ rather than silently rewriting its decision.
 | [0003](0003-ground-truth-and-agent-knowledge.md) | Accepted | Separation of Ground Truth from agent/operator knowledge |
 | [0004](0004-headless-core-and-replay-dashboard.md) | Accepted | Headless simulation with read-only visualization |
 | [0005](0005-versioned-replay-interface.md) | Accepted | Replay JSON as a versioned compatibility boundary |
+| [0006](0006-generic-n-agent-coordination.md) | Accepted | One deterministic collection-oriented core for 1–8 agents |
