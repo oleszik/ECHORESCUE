@@ -8,7 +8,7 @@
     <title>EchoRescue Mission Replay</title>
     <meta
       name="description"
-      content="Deterministic two-drone search-and-rescue mission replay dashboard."
+      content="Deterministic multi-agent search-and-rescue mission replay dashboard."
     >
     <link rel="stylesheet" href="/styles.css">
   </head>
@@ -72,8 +72,6 @@
               <label>Map view
                 <select id="mapViewSelect" aria-label="Map knowledge view">
                   <option value="operator">Shared operator map</option>
-                  <option value="drone-1">Local map · drone-1</option>
-                  <option value="drone-2">Local map · drone-2</option>
                   <option value="base">Base knowledge</option>
                   <option id="smokeDebugOption" value="smoke-debug" hidden>Smoke debug (ground truth)</option>
                 </select>
@@ -97,35 +95,7 @@
         </article>
 
         <aside class="telemetry-column">
-          <section class="drone-card panel drone-one" id="droneCard1">
-            <div class="drone-card-head">
-              <div class="drone-identity"><span class="drone-number">1</span><div><p>drone-1</p><strong id="droneState1">—</strong></div></div>
-              <span class="coordinate" id="dronePosition1">—, —</span>
-            </div>
-            <div class="battery-label"><span>Energy reserve</span><strong id="droneEnergy1">—</strong></div>
-            <div class="battery-track"><span id="droneBattery1"></span></div>
-            <div class="drone-detail"><span>Current target</span><strong id="droneTarget1">—</strong></div>
-            <div class="drone-detail"><span>Communication</span><strong id="droneCommunication1" class="communication-status">—</strong></div>
-            <div class="drone-detail"><span>Data transfer</span><strong id="droneDataLink1">—</strong></div>
-            <div class="drone-detail"><span>Local coverage</span><strong id="droneCoverage1">—</strong></div>
-            <div class="drone-detail"><span>Local survivors</span><strong id="droneSurvivors1">—</strong></div>
-            <div class="drone-detail"><span>Data age</span><strong id="droneDataAge1">—</strong></div>
-          </section>
-
-          <section class="drone-card panel drone-two" id="droneCard2">
-            <div class="drone-card-head">
-              <div class="drone-identity"><span class="drone-number">2</span><div><p>drone-2</p><strong id="droneState2">—</strong></div></div>
-              <span class="coordinate" id="dronePosition2">—, —</span>
-            </div>
-            <div class="battery-label"><span>Energy reserve</span><strong id="droneEnergy2">—</strong></div>
-            <div class="battery-track"><span id="droneBattery2"></span></div>
-            <div class="drone-detail"><span>Current target</span><strong id="droneTarget2">—</strong></div>
-            <div class="drone-detail"><span>Communication</span><strong id="droneCommunication2" class="communication-status">—</strong></div>
-            <div class="drone-detail"><span>Data transfer</span><strong id="droneDataLink2">—</strong></div>
-            <div class="drone-detail"><span>Local coverage</span><strong id="droneCoverage2">—</strong></div>
-            <div class="drone-detail"><span>Local survivors</span><strong id="droneSurvivors2">—</strong></div>
-            <div class="drone-detail"><span>Data age</span><strong id="droneDataAge2">—</strong></div>
-          </section>
+          <div class="drone-cards" id="droneCards"></div>
 
           <section class="event-panel panel">
             <div class="panel-heading compact"><div><p class="eyebrow">Telemetry</p><h2>Mission events</h2></div><span id="eventCount">0</span></div>

@@ -285,11 +285,10 @@ input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border: 2px s
 .swatch.knowledge-gap { color: transparent; border: 2px solid var(--knowledge-gap); background: transparent; }
 .swatch.smoke { background: rgba(245, 158, 11, 0.72); }
 
-.telemetry-column { display: grid; grid-template-rows: auto auto minmax(280px, 1fr); gap: 12px; min-width: 0; }
+.telemetry-column { display: grid; grid-template-rows: auto minmax(280px, 1fr); gap: 12px; min-width: 0; }
+.drone-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .drone-card { position: relative; overflow: hidden; padding: 15px; }
 .drone-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--accent); }
-.drone-one { --accent: var(--drone-1); --accent-soft: var(--drone-1-soft); }
-.drone-two { --accent: var(--drone-2); --accent-soft: var(--drone-2-soft); }
 .drone-card-head, .battery-label, .drone-detail { justify-content: space-between; gap: 12px; }
 .drone-identity { gap: 10px; }
 .drone-number { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--accent); border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 850; }

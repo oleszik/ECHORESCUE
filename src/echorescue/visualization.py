@@ -60,19 +60,25 @@ def _render_single(simulation: Simulation) -> str:
 
 def _render_multi(simulation: MultiDroneSimulation) -> str:
     grid = _base_grid(simulation)
-    path_symbols = {"drone-1": "r", "drone-2": "q"}
-    target_symbols = {"drone-1": "a", "drone-2": "b"}
-    drone_symbols = {"drone-1": "1", "drone-2": "2"}
+    drone_ids = sorted(simulation.runtimes)
+    path_symbols = {
+        drone_id: chr(ord("a") + index)
+        for index, drone_id in enumerate(drone_ids)
+    }
+    drone_symbols = {
+        drone_id: str((index + 1) % 10)
+        for index, drone_id in enumerate(drone_ids)
+    }
 
     for drone_id, runtime in sorted(simulation.runtimes.items()):
         for position in runtime.current_return_path[1:]:
             current = grid[position.y][position.x]
             symbol = path_symbols[drone_id]
-            grid[position.y][position.x] = "+" if current in {"r", "q"} else symbol
+            grid[position.y][position.x] = "+" if current in path_symbols.values() else symbol
     for drone_id, runtime in sorted(simulation.runtimes.items()):
         target = runtime.active_frontier_target
         if target is not None:
-            grid[target.y][target.x] = target_symbols[drone_id]
+            grid[target.y][target.x] = path_symbols[drone_id].upper()
     for position in simulation.confirmed_survivors:
         grid[position.y][position.x] = "S"
 
@@ -104,8 +110,8 @@ def _render_multi(simulation: MultiDroneSimulation) -> str:
         )
     rows.append(f"mission_status={simulation.termination_reason}")
     rows.append(
-        "legend: 1/2=drones B=shared dock a/b=frontier targets "
-        "r/q=return paths +=shared return cell S=confirmed survivor "
+        "legend: 1..8=drones B=shared dock A..H=frontier targets "
+        "a..h=return paths +=shared return cell S=confirmed survivor "
         "#=wall .=free ?=unknown"
     )
     return "\n".join(rows)

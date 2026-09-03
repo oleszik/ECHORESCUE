@@ -507,11 +507,9 @@ FrameCallback = Callable[["MultiDroneSimulation"], None]
 
 
 class MultiDroneSimulation:
-    """Synchronous deterministic two-drone simulation over shared knowledge."""
+    """Synchronous deterministic fleet simulation over shared knowledge."""
 
     def __init__(self, config: SimulationConfig) -> None:
-        if config.drone_count != 2:
-            raise ValueError("MultiDroneSimulation requires drone_count=2")
         self.config = config
         self.knowledge_mode = config.effective_knowledge_mode
         self.world = GridWorld.generate(config)
@@ -618,7 +616,10 @@ class MultiDroneSimulation:
         ] = {}
         self._received_motion_intents: dict[
             str, dict[str, MotionIntent]
-        ] = {"drone-1": {}, "drone-2": {}}
+        ] = {
+            f"drone-{index}": {}
+            for index in range(1, config.drone_count + 1)
+        }
         self._network_map_latencies: list[int] = []
         self._network_survivor_latencies: list[int] = []
         self._network_delivered_links_this_step: set[tuple[str, str]] = set()
@@ -1554,17 +1555,37 @@ class MultiDroneSimulation:
             self._released_failure_tasks.pop(released_target, None)
             self._claimed_failure_tasks.pop(released_target, None)
 
-    def _resolve_start_positions(self) -> tuple[Position, Position]:
+    def _resolve_start_positions(self) -> tuple[Position, ...]:
         starts: tuple[Position, ...]
         if self.config.drone_start_positions is None:
-            starts = (self.world.base, Position(self.world.base.x + 1, self.world.base.y))
+            candidates = sorted(
+                (
+                    Position(x, y)
+                    for y in range(1, self.config.height - 1)
+                    for x in range(1, self.config.width - 1)
+                    if self.world.is_free(Position(x, y))
+                ),
+                key=lambda position: (
+                    abs(position.x - self.world.base.x)
+                    + abs(position.y - self.world.base.y),
+                    position.y,
+                    position.x,
+                ),
+            )
+            starts = tuple(candidates[: self.config.drone_count])
         else:
             starts = tuple(Position(x, y) for x, y in self.config.drone_start_positions)
-        if len(starts) != 2 or any(not self.world.is_free(position) for position in starts):
-            raise ValueError("both drone start positions must be free cells")
-        if starts[0] == starts[1] and starts[0] != self.world.base:
+        if (
+            len(starts) != self.config.drone_count
+            or any(not self.world.is_free(position) for position in starts)
+        ):
+            raise ValueError("every drone start position must be a free cell")
+        non_base_starts = [
+            position for position in starts if position != self.world.base
+        ]
+        if len(non_base_starts) != len(set(non_base_starts)):
             raise ValueError("only the shared docking base may have matching starts")
-        return starts[0], starts[1]
+        return starts
 
     def _other_blockers(self, runtime: DroneRuntime) -> set[Position]:
         visible_ids = None
@@ -1725,19 +1746,26 @@ class MultiDroneSimulation:
         self._communication_samples += 1
 
         if self.knowledge_mode == "local" and previous is not None:
-            def peers_share_component(candidate: CommunicationSnapshot) -> bool:
-                return any(
-                    {"drone-1", "drone-2"}.issubset(component)
-                    for component in self.shadow_synchronizer.connected_components(
-                        candidate
+            def peer_pairs(
+                candidate: CommunicationSnapshot,
+            ) -> set[tuple[str, str]]:
+                pairs: set[tuple[str, str]] = set()
+                for component in self.shadow_synchronizer.connected_components(
+                    candidate
+                ):
+                    members = sorted(
+                        node_id for node_id in component if node_id in self.runtimes
                     )
-                )
+                    for index, first in enumerate(members):
+                        pairs.update((first, second) for second in members[index + 1 :])
+                return pairs
 
-            if (
-                not peers_share_component(previous)
-                and peers_share_component(snapshot)
-            ):
+            newly_connected = peer_pairs(snapshot) - peer_pairs(previous)
+            if newly_connected:
+                reconnected_ids = {item for pair in newly_connected for item in pair}
                 for runtime in self._ordered_runtimes():
+                    if runtime.drone.identifier not in reconnected_ids:
+                        continue
                     target = runtime.active_frontier_target
                     if (
                         target is not None
@@ -2852,6 +2880,16 @@ class MultiDroneSimulation:
         if not explorers:
             return {}
         frontiers = self.occupancy_map.frontiers()
+        if (
+            not frontiers
+            and self.config.survivor_sensor == "visual"
+            and self.config.smoke_profile == "off"
+        ):
+            # A first sighting is not yet a confirmed rescue observation.
+            # Revisit detected positions before declaring exploration done.
+            frontiers = tuple(
+                sorted(self._detected_survivors - self._confirmed_survivors)
+            )
         if not frontiers:
             self._exploration_complete = True
             for runtime in self._ordered_runtimes():
@@ -2921,7 +2959,7 @@ class MultiDroneSimulation:
             )
             if members:
                 components.append(members)
-        peer_connected = any(len(component) == 2 for component in components)
+        peer_connected = any(len(component) > 1 for component in components)
         assignments: dict[str, FrontierAssignment] = {}
         changed_targets: set[str] = set()
         any_frontiers = False
@@ -2932,6 +2970,22 @@ class MultiDroneSimulation:
             # map, never the global evaluation map or an implicit merged view.
             component_map = self.runtimes[min(component)].local_map
             frontiers = component_map.frontiers()
+            if (
+                not frontiers
+                and self.config.survivor_sensor == "visual"
+                and self.config.smoke_profile == "off"
+            ):
+                detected = {
+                    position
+                    for drone_id in component
+                    for position in self.runtimes[drone_id].detected_survivors
+                }
+                confirmed = {
+                    position
+                    for drone_id in component
+                    for position in self.runtimes[drone_id].confirmed_survivors
+                }
+                frontiers = tuple(sorted(detected - confirmed))
             any_frontiers = any_frontiers or bool(frontiers)
             frontier_set = set(frontiers)
             current_targets = {
@@ -3077,6 +3131,15 @@ class MultiDroneSimulation:
         next_position = assignment.path[1]
         projected_return = self._known_return_path(runtime, origin=next_position)
         if projected_return is None:
+            # Other agents are transient blockers. The static-map fallback
+            # prevents a dense launch formation from deadlocking while the
+            # central safety shield still protects the next physical move.
+            projected_return = self._known_return_path(
+                runtime,
+                origin=next_position,
+                avoid_other_drones=False,
+            )
+        if projected_return is None:
             return runtime.drone.position
         projected_remaining = (
             runtime.battery.remaining - runtime.battery.movement_cycle_cost
@@ -3189,18 +3252,61 @@ class MultiDroneSimulation:
         )
 
     def _peer_intents_communicated(self) -> bool:
+        drone_ids = sorted(self.motion_intents)
         if self.network_transport is not None:
-            for recipient, sender in (
-                ("drone-1", "drone-2"),
-                ("drone-2", "drone-1"),
-            ):
-                intent = self._received_motion_intents[recipient].get(sender)
-                if intent is None or intent.valid_until_step < self.steps:
-                    if intent is not None:
-                        self._received_motion_intents[recipient].pop(sender, None)
-                    return False
+            for recipient in drone_ids:
+                for sender in drone_ids:
+                    if recipient == sender:
+                        continue
+                    intent = self._received_motion_intents[recipient].get(sender)
+                    if intent is None or intent.valid_until_step < self.steps:
+                        if intent is not None:
+                            self._received_motion_intents[recipient].pop(sender, None)
+                        return False
             return True
-        return "drone-2" in self._communication_component("drone-1")
+        return not drone_ids or set(drone_ids).issubset(
+            self._communication_component(drone_ids[0])
+        )
+
+    def _deconflict_fleet_intentions(
+        self,
+        intentions: dict[str, Position],
+    ) -> dict[str, Position]:
+        """Resolve local N-agent conflicts with stable fleet-wide priority."""
+
+        current = {
+            drone_id: self.runtimes[drone_id].drone.position
+            for drone_id in intentions
+        }
+        resolved, conflicts = resolve_movements(current, intentions, self.world.base)
+        communicated = self._peer_intents_communicated()
+        self._record_intent_sharing(communicated)
+        if not conflicts:
+            self._finish_yield_states(set(), set())
+            return resolved
+
+        waiters = {
+            drone_id
+            for drone_id in intentions
+            if intentions[drone_id] != current[drone_id]
+            and resolved[drone_id] == current[drone_id]
+        }
+        self.local_motion_conflicts += len(conflicts)
+        if communicated:
+            self.communication_detected_conflicts += len(conflicts)
+        else:
+            self.proximity_detected_conflicts += len(conflicts)
+        if waiters:
+            self.deconfliction_delay_steps += 1
+        for conflict in conflicts:
+            for drone_id in sorted(set(conflict.drone_ids).intersection(waiters)):
+                self._record_event(
+                    self.runtimes[drone_id],
+                    EventType.LOCAL_COLLISION_AVOIDED,
+                    conflict.position,
+                )
+        self._finish_yield_states(waiters, waiters)
+        return resolved
 
     def _record_intent_sharing(self, communicated: bool) -> None:
         for drone_id, intent in sorted(self.motion_intents.items()):
@@ -3327,6 +3433,8 @@ class MultiDroneSimulation:
             )
             for drone_id, destination in sorted(intentions.items())
         }
+        if len(self.motion_intents) != 2:
+            return self._deconflict_fleet_intentions(intentions)
         first_id, second_id = sorted(self.motion_intents)
         drone_ids = (first_id, second_id)
         first = self.motion_intents[first_id]
@@ -3649,7 +3757,7 @@ class MultiDroneSimulation:
                 )
                 peer_id = next(
                     candidate
-                    for candidate in sorted(intentions)
+                    for candidate in conflict.drone_ids
                     if candidate != drone_id
                 )
                 received = self._received_motion_intents[drone_id].get(peer_id)

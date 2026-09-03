@@ -5,8 +5,10 @@ const COLORS = {
   free: "#344760",
   occupied: "#94a3b8",
   grid: "rgba(203, 213, 225, 0.20)",
-  drone1: "#38bdf8",
-  drone2: "#f59e0b",
+  dronePalette: [
+    "#38bdf8", "#f59e0b", "#a78bfa", "#34d399",
+    "#fb7185", "#22d3ee", "#f97316", "#c4b5fd",
+  ],
   survivor: "#fde047",
   base: "#f1f5f9",
   radioDirect: "#34d399",
@@ -37,7 +39,7 @@ function cacheElements() {
     "speedSelect", "mapViewSelect", "mapViewTitle", "mapViewPurpose", "missionCanvas", "coverageValue", "eventFeed", "eventCount", "smokeDebugOption", "smokeDebugLegend",
     "resultBadge", "metricRecall", "metricReturned", "metricWalls", "metricDrones",
     "metricSteps", "metricDuplicate", "schemaVersion", "singleSteps", "multiSteps",
-    "improvementValue", "benchmarkNote", "benchmarkPanel", "fatalError", "droneCard1", "droneCard2",
+    "improvementValue", "benchmarkNote", "benchmarkPanel", "fatalError", "droneCards",
     "relaySummary", "relaySummaryState", "metricRelayDeployments", "metricRelayCells",
     "metricRelaySurvivors", "metricRelayDelay", "metricRelayEnergy", "metricBaseCoverage",
     "relaySummaryLabel", "metricRelayUtility", "metricRelayCritical", "metricRelayBackpressure",
@@ -48,10 +50,49 @@ function cacheElements() {
     "networkSummary", "networkSummaryState", "metricNetworkDelivery", "metricNetworkAttemptDelivery", "metricNetworkMessageCompletion", "metricNetworkLatency",
     "metricNetworkQueue", "metricNetworkLoss", "metricNetworkPayload", "metricNetworkRelay",
   ].forEach((id) => { elements[id] = document.getElementById(id); });
-  [1, 2].forEach((number) => {
+}
+
+function fleetIds() {
+  return Object.keys(state.replay.frames[0].drones).sort((first, second) => (
+    Number(first.split("-").at(-1)) - Number(second.split("-").at(-1))
+  ));
+}
+
+function droneColor(droneId) {
+  const index = Math.max(0, fleetIds().indexOf(droneId));
+  return COLORS.dronePalette[index % COLORS.dronePalette.length];
+}
+
+function initializeFleetViews() {
+  const ids = fleetIds();
+  elements.droneCards.replaceChildren();
+  elements.mapViewSelect.querySelectorAll("option[data-drone-view]").forEach((option) => option.remove());
+  const baseOption = elements.mapViewSelect.querySelector('option[value="base"]');
+  ids.forEach((droneId, index) => {
+    const option = document.createElement("option");
+    option.value = droneId;
+    option.dataset.droneView = "true";
+    option.textContent = `Local map · ${droneId}`;
+    elements.mapViewSelect.insertBefore(option, baseOption);
+
+    const number = index + 1;
+    const card = document.createElement("section");
+    card.className = "drone-card panel";
+    card.id = `droneCard${number}`;
+    const color = droneColor(droneId);
+    card.style.setProperty("--accent", color);
+    card.style.setProperty("--accent-soft", `${color}24`);
+    card.innerHTML = `
+      <div class="drone-card-head"><div class="drone-identity"><span class="drone-number">${number}</span><div><p>${droneId}</p><strong id="droneState${number}">—</strong></div></div><span class="coordinate" id="dronePosition${number}">—, —</span></div>
+      <div class="battery-label"><span>Energy reserve</span><strong id="droneEnergy${number}">—</strong></div><div class="battery-track"><span id="droneBattery${number}"></span></div>
+      <div class="drone-detail"><span>Current target</span><strong id="droneTarget${number}">—</strong></div><div class="drone-detail"><span>Communication</span><strong id="droneCommunication${number}" class="communication-status">—</strong></div>
+      <div class="drone-detail"><span>Data transfer</span><strong id="droneDataLink${number}">—</strong></div><div class="drone-detail"><span>Local coverage</span><strong id="droneCoverage${number}">—</strong></div>
+      <div class="drone-detail"><span>Local survivors</span><strong id="droneSurvivors${number}">—</strong></div><div class="drone-detail"><span>Data age</span><strong id="droneDataAge${number}">—</strong></div>`;
+    elements.droneCards.append(card);
     ["State", "Position", "Energy", "Battery", "Target", "Communication", "DataLink", "Coverage", "Survivors", "DataAge"].forEach((field) => {
       elements[`drone${field}${number}`] = document.getElementById(`drone${field}${number}`);
     });
+    elements[`droneCard${number}`] = card;
   });
 }
 
@@ -80,9 +121,16 @@ function validateReplay(replay) {
   if (!replay || !replay.schema_version || !Array.isArray(replay.frames) || !replay.frames.length) {
     throw new Error("Replay is missing its schema version or mission frames.");
   }
+  let expectedIds = null;
   for (const frame of replay.frames) {
-    if (!frame.drones?.["drone-1"] || !frame.drones?.["drone-2"]) {
-      throw new Error(`Replay frame ${frame.step} does not contain both drones.`);
+    const droneIds = Object.keys(frame.drones || {});
+    if (!droneIds.length || droneIds.some((id) => !/^drone-[1-9][0-9]*$/.test(id))) {
+      throw new Error(`Replay frame ${frame.step} does not contain a valid agent collection.`);
+    }
+    const signature = [...droneIds].sort().join("|");
+    expectedIds ??= signature;
+    if (signature !== expectedIds) {
+      throw new Error(`Replay frame ${frame.step} changes the agent collection.`);
     }
   }
 }
@@ -91,6 +139,7 @@ function initializeReplay(replay, benchmark) {
   validateReplay(replay);
   state.replay = replay;
   state.benchmark = benchmark;
+  initializeFleetViews();
   const knowledgeMode = replay.mission.knowledge_mode || replay.mission.configuration?.knowledge_mode || "shared";
   state.mapView = knowledgeMode === "local" ? "base" : "operator";
   const hasSmokeDebug = Boolean(replay.map.smoke_debug?.debug_only);
@@ -126,8 +175,7 @@ function setFrame(index) {
   elements.timeline.value = state.frameIndex;
   elements.currentStep.textContent = frame.step;
   updateMapReadout(frame);
-  updateDroneCard(1, frame.drones["drone-1"], frame);
-  updateDroneCard(2, frame.drones["drone-2"], frame);
+  fleetIds().forEach((droneId, index) => updateDroneCard(index + 1, frame.drones[droneId], frame));
   updateNetworkReadout(frame);
   updateStatus(frame);
   updateEventFeed();
@@ -210,11 +258,12 @@ function updateMapReadout(frame) {
   elements.coverageValue.textContent = `${knowledgeMap.known_coverage.toFixed(1)}%`;
   const labels = {
     operator: ["Global operator map", "Evaluation aggregate · never used for local decisions"],
-    "drone-1": ["Local map · drone-1", "Decision knowledge held by drone-1"],
-    "drone-2": ["Local map · drone-2", "Decision knowledge held by drone-2"],
     base: ["Base knowledge", "Operational knowledge received over radio"],
     "smoke-debug": ["Smoke debug", "Ground-truth smoke overlay · debug only · never used by agents"],
   };
+  fleetIds().forEach((droneId) => {
+    labels[droneId] = [`Local map · ${droneId}`, `Decision knowledge held by ${droneId}`];
+  });
   const [title, purpose] = labels[state.mapView] || labels.operator;
   elements.mapViewTitle.textContent = title;
   elements.mapViewPurpose.textContent = purpose;
@@ -247,8 +296,7 @@ function eventColor(event) {
   if (event.event_type.startsWith("relay_role_") || event.event_type === "relay_position_selected") return COLORS.radioRelay;
   if (["local_collision_avoided", "yield_started", "yield_ended", "deadlock_replanned"].includes(event.event_type)) return "#34d399";
   if (event.event_type === "corridor_deadlock_detected") return "#f59e0b";
-  if (event.drone_id === "drone-1") return COLORS.drone1;
-  if (event.drone_id === "drone-2") return COLORS.drone2;
+  if (fleetIds().includes(event.drone_id)) return droneColor(event.drone_id);
   return "#8d9cb0";
 }
 
@@ -551,6 +599,35 @@ function normalizeNetworkBenchmark(benchmark) {
   };
 }
 
+function normalizeScalingBenchmark(benchmark) {
+  const aggregates = requiredObject(benchmark, "aggregates", "N-agent scaling");
+  const single = requiredObject(aggregates, "1", "N-agent scaling");
+  const eight = requiredObject(aggregates, "8", "N-agent scaling");
+  const scaling = requiredObject(benchmark, "scaling", "N-agent scaling");
+  const eightScaling = requiredObject(scaling, "8", "N-agent scaling");
+  const singleStats = requiredObject(single, "statistics", "N-agent scaling");
+  const eightStats = requiredObject(eight, "statistics", "N-agent scaling");
+  const singleDuration = requiredObject(singleStats, "mission_duration", "N-agent scaling");
+  const eightDuration = requiredObject(eightStats, "mission_duration", "N-agent scaling");
+  const speedup = optionalNumber(eightScaling, "speedup", "scaling.8");
+  const efficiency = optionalNumber(eightScaling, "parallel_efficiency", "scaling.8");
+  const regressions = requiredObject(benchmark, "per_seed_regressions", "N-agent scaling");
+  const fourToEight = requiredObject(regressions, "4_to_8", "N-agent scaling");
+  const regressionCount = optionalNumber(fourToEight, "count", "per_seed_regressions.4_to_8");
+  return {
+    status: "ready",
+    format: "n_agent_scaling",
+    title: "N-agent scaling",
+    baselineLabel: "One drone",
+    candidateLabel: "Eight drones",
+    baselineSteps: optionalNumber(singleDuration, "mean", "aggregates.1.statistics.mission_duration"),
+    candidateSteps: optionalNumber(eightDuration, "mean", "aggregates.8.statistics.mission_duration"),
+    improvementValue: Number.isFinite(speedup) ? `${speedup.toFixed(2)}×` : "—",
+    improvementLabel: "speedup",
+    note: `Parallel efficiency ${Number.isFinite(efficiency) ? (efficiency * 100).toFixed(1) : "—"}%; ${Number.isFinite(regressionCount) ? regressionCount.toFixed(0) : "—"} seeds had 8 drones slower than 4.`,
+  };
+}
+
 function normalizeNetworkAwareRelayBenchmark(benchmark) {
   const holdout = requiredObject(benchmark, "holdout", "Network-Aware Relay");
   const profiles = requiredObject(holdout, "profiles", "Network-Aware Relay holdout");
@@ -721,6 +798,9 @@ function normalizeBenchmark(benchmark) {
   }
   if (benchmark.benchmark_type === "thermal_perception") {
     return normalizeThermalPerceptionBenchmark(benchmark);
+  }
+  if (benchmark.benchmark_type === "n_agent_scaling") {
+    return normalizeScalingBenchmark(benchmark);
   }
   if (hasOwn(benchmark, "training") || hasOwn(benchmark, "holdout")) {
     return normalizeNetworkAwareRelayBenchmark(benchmark);
@@ -966,8 +1046,8 @@ function drawMission() {
 
   drawCommunicationLinks(context, frame, geometry);
 
-  ["drone-1", "drone-2"].forEach((droneId, droneIndex) => {
-    const color = droneIndex === 0 ? COLORS.drone1 : COLORS.drone2;
+  fleetIds().forEach((droneId) => {
+    const color = droneColor(droneId);
     const trail = state.replay.frames.slice(0, state.frameIndex + 1).map((item) => item.drones[droneId].position);
     drawPolyline(context, trail, geometry, `${color}88`, 1.5);
     drawPolyline(context, frame.drones[droneId].planned_path, geometry, color, 1.5, true);
@@ -998,9 +1078,9 @@ function drawMission() {
     context.stroke();
   });
 
-  ["drone-1", "drone-2"].forEach((droneId, droneIndex) => {
+  fleetIds().forEach((droneId, droneIndex) => {
     const drone = frame.drones[droneId];
-    const color = droneIndex === 0 ? COLORS.drone1 : COLORS.drone2;
+    const color = droneColor(droneId);
     if (drone.target) {
       const [x, y] = cellCenter(drone.target, geometry);
       const size = Math.max(4 * ratio, cell * 0.2);
@@ -1118,7 +1198,7 @@ async function main() {
 }
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { normalizeBenchmark, safeBenchmarkView };
+  module.exports = { normalizeBenchmark, safeBenchmarkView, validateReplay };
 }
 
 if (typeof document !== "undefined") {

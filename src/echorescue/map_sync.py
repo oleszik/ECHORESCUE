@@ -126,10 +126,19 @@ class ShadowMapSynchronizer:
 
     def maps_converged(self) -> bool:
         maps = tuple(self.local_maps.values())
-        return not maps[0].differs_from(maps[1])
+        if len(maps) < 2:
+            return True
+        reference = maps[0]
+        return all(not reference.differs_from(candidate) for candidate in maps[1:])
 
     def divergence_ratio(self) -> float:
         maps = tuple(self.local_maps.values())
-        return len(maps[0].differs_from(maps[1])) / (
-            maps[0].width * maps[0].height
-        )
+        if len(maps) < 2:
+            return 0.0
+        divergent_positions = {
+            position
+            for index, first in enumerate(maps)
+            for second in maps[index + 1 :]
+            for position in first.differs_from(second)
+        }
+        return len(divergent_positions) / (maps[0].width * maps[0].height)

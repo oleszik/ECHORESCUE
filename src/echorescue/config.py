@@ -2,6 +2,9 @@ from dataclasses import dataclass
 
 from echorescue.smoke import SMOKE_PROFILES
 
+MIN_DRONE_COUNT = 1
+MAX_DRONE_COUNT = 8
+
 
 @dataclass(frozen=True, slots=True)
 class SimulationConfig:
@@ -96,8 +99,11 @@ class SimulationConfig:
             raise ValueError("sensor_energy_cost must not be negative")
         if not 0 <= self.energy_safety_reserve < self.battery_capacity:
             raise ValueError("energy_safety_reserve must be below battery_capacity")
-        if self.drone_count not in (1, 2):
-            raise ValueError("drone_count must be 1 or 2")
+        if not MIN_DRONE_COUNT <= self.drone_count <= MAX_DRONE_COUNT:
+            raise ValueError(
+                f"drone_count must be between {MIN_DRONE_COUNT} and "
+                f"{MAX_DRONE_COUNT}"
+            )
         if self.drone_start_positions is not None:
             if len(self.drone_start_positions) != self.drone_count:
                 raise ValueError("one start position is required per drone")
@@ -106,11 +112,6 @@ class SimulationConfig:
                 for x, y in self.drone_start_positions
             ):
                 raise ValueError("drone start positions must be interior cells")
-            if self.drone_count == 2:
-                first, second = self.drone_start_positions
-                separation = abs(first[0] - second[0]) + abs(first[1] - second[1])
-                if separation not in (0, 1):
-                    raise ValueError("two start positions must match or be adjacent")
         if self.wait_energy_cost < 0:
             raise ValueError("wait_energy_cost must not be negative")
         if self.communication_range < 1:
@@ -177,12 +178,13 @@ class SimulationConfig:
             raise ValueError("final_sync_max_steps must be positive")
         if self.knowledge_mode not in {"shared", "shadow", "local"}:
             raise ValueError("knowledge_mode must be shared, shadow, or local")
-        if self.failure_schedule and self.drone_count != 2:
-            raise ValueError("failure injection requires drone_count=2")
+        valid_drone_ids = {
+            f"drone-{index}" for index in range(1, self.drone_count + 1)
+        }
         seen_failure_ids: set[str] = set()
         for drone_id, step in self.failure_schedule:
-            if drone_id not in {"drone-1", "drone-2"}:
-                raise ValueError("failure drone ID must be drone-1 or drone-2")
+            if drone_id not in valid_drone_ids:
+                raise ValueError("failure drone ID must belong to the configured fleet")
             if drone_id in seen_failure_ids:
                 raise ValueError("each drone may have only one injected failure")
             if step < 0 or step >= self.max_steps:
@@ -198,6 +200,10 @@ class SimulationConfig:
             and self.effective_knowledge_mode != "local"
         ):
             raise ValueError("Relay strategies require knowledge_mode=local")
+        if self.relay_strategy != "off" and self.drone_count != 2:
+            raise ValueError(
+                "adaptive relay strategies currently require exactly two drones"
+            )
         if (
             self.relay_strategy == "network-aware"
             and self.network_profile != "constrained"

@@ -21,9 +21,8 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 class FailureConfigurationTests(unittest.TestCase):
     def test_failure_schedule_is_validated(self) -> None:
-        with self.assertRaisesRegex(ValueError, "requires drone_count=2"):
-            SimulationConfig(failure_schedule=(("drone-1", 4),))
-        with self.assertRaisesRegex(ValueError, "drone-1 or drone-2"):
+        SimulationConfig(failure_schedule=(("drone-1", 4),))
+        with self.assertRaisesRegex(ValueError, "configured fleet"):
             SimulationConfig(
                 drone_count=2,
                 failure_schedule=(("drone-3", 4),),

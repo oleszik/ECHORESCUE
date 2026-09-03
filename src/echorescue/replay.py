@@ -500,8 +500,6 @@ def record_simulation(
 def generate_replay(
     config: SimulationConfig, *, include_debug_smoke: bool = False
 ) -> dict[str, object]:
-    if config.drone_count != 2:
-        raise ValueError("portfolio replay generation requires drone_count=2")
     replay, _ = record_simulation(
         MultiDroneSimulation(config),
         include_debug_smoke=include_debug_smoke,

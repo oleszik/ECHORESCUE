@@ -1,13 +1,12 @@
 import argparse
 import json
 
-from echorescue.config import SimulationConfig
+from echorescue.config import MAX_DRONE_COUNT, SimulationConfig
 from echorescue.multi_simulation import (
     MultiDroneSimulation,
     MultiSimulationResult,
 )
 from echorescue.replay import record_simulation, write_replay
-from echorescue.simulation import Simulation, SimulationResult
 from echorescue.visualization import TerminalRenderer
 
 
@@ -19,9 +18,14 @@ def failure_spec(value: str) -> tuple[str, int]:
         raise argparse.ArgumentTypeError(
             "failure must use DRONE_ID:STEP, for example drone-2:20"
         ) from error
-    if drone_id not in {"drone-1", "drone-2"} or step < 0:
+    if (
+        not drone_id.startswith("drone-")
+        or not drone_id.removeprefix("drone-").isdigit()
+        or int(drone_id.removeprefix("drone-")) < 1
+        or step < 0
+    ):
         raise argparse.ArgumentTypeError(
-            "failure must use drone-1 or drone-2 and a non-negative step"
+            "failure must use a positive drone-N ID and a non-negative step"
         )
     return drone_id, step
 
@@ -31,7 +35,9 @@ def build_parser() -> argparse.ArgumentParser:
         description="Run the deterministic EchoRescue search-and-rescue simulation."
     )
     parser.add_argument("--seed", type=int, default=7)
-    parser.add_argument("--drones", type=int, choices=(1, 2), default=2)
+    parser.add_argument(
+        "--drones", type=int, choices=range(1, MAX_DRONE_COUNT + 1), default=2
+    )
     parser.add_argument(
         "--start-mode", choices=("adjacent", "shared-base"), default="adjacent"
     )
@@ -145,8 +151,8 @@ def main(argv: list[str] | None = None) -> None:
             "--replay-debug-smoke requires an active --smoke-profile"
         )
     start_positions = None
-    if args.drones == 2 and args.start_mode == "shared-base":
-        start_positions = ((1, 1), (1, 1))
+    if args.start_mode == "shared-base":
+        start_positions = tuple((1, 1) for _ in range(args.drones))
     config = SimulationConfig(
         width=args.width,
         height=args.height,
@@ -206,16 +212,12 @@ def main(argv: list[str] | None = None) -> None:
         smoke_profile=args.smoke_profile,
         max_steps=args.max_steps,
     )
-    simulation = (
-        MultiDroneSimulation(config) if args.drones == 2 else Simulation(config)
-    )
+    simulation = MultiDroneSimulation(config)
     renderer = None
     if args.visualize:
         renderer = TerminalRenderer(args.delay, args.show_ground_truth)
-    result: MultiSimulationResult | SimulationResult
+    result: MultiSimulationResult
     if args.replay_out:
-        if not isinstance(simulation, MultiDroneSimulation):
-            raise SystemExit("--replay-out currently requires --drones 2")
         replay, result = record_simulation(
             simulation,
             renderer,
