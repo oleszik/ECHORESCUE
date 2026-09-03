@@ -30,6 +30,7 @@ python -m echorescue --drones 2 --seed 7 --knowledge-mode local --network-profil
 python -m echorescue --drones 2 --seed 7 --knowledge-mode local --network-profile constrained --relay-strategy network-aware --replay-out replays/seed_7_network_aware.json
 python -m echorescue --drones 2 --seed 7 --inject-failure drone-2:4 --replay-out replays/seed_7_failure.json
 python -m echorescue --drones 2 --seed 1 --smoke-profile moderate --replay-out replays/seed_1_smoke.json --replay-debug-smoke
+python -m echorescue --drones 2 --seed 3 --survivor-sensor thermal --smoke-profile moderate --replay-out replays/seed_3_thermal_smoke.json --replay-debug-smoke
 python -m echorescue.dashboard --replay replays/seed_7.json
 ```
 
@@ -42,6 +43,8 @@ the shared operator map, both local drone maps, and the base knowledge store.
 Smoke replays expose the ground-truth density layer only when generated with
 the explicit `--replay-debug-smoke` flag; ordinary operator maps never contain
 that layer.
+Thermal replays label the active Survivor sensor and show channel, outcome,
+range, smoke exposure, and confidence for compact perception events.
 
 To reproduce the benchmark artifact:
 
@@ -56,6 +59,7 @@ python -m echorescue.network_benchmark --seeds 50 --output benchmarks/constraine
 python -m echorescue.network_aware_benchmark --train-seeds 50 --holdout-seeds 50 --base-coverage-quality-target 60 --output benchmarks/network_aware_relay_100_seeds.json --analysis-output benchmarks/network_aware_relay_analysis.json
 python -m echorescue.failure_benchmark --seeds 50 --failure-drone drone-2 --failure-step 4 --output benchmarks/failure_reassignment_50_seeds.json
 python -m echorescue.smoke_benchmark --seeds 50 --output benchmarks/smoke_perception_50_seeds.json
+python -m echorescue.thermal_benchmark --seeds 50 --output benchmarks/thermal_perception_50_seeds.json
 ```
 
 The server automatically loads that default benchmark file when it exists. A
@@ -456,6 +460,39 @@ Recall loss isolates the missing capability that a later complementary sensor
 should address. Full design and metric semantics are documented in
 [`docs/phase-5-smoke-baseline.md`](docs/phase-5-smoke-baseline.md).
 
+### Abstracted Thermal Survivor sensing
+
+`--survivor-sensor thermal` selects a separate, isolated Survivor channel; it
+does not combine evidence with Visual. Both channels use the same range-three
+limit, wall occlusion, deterministic decisions, and two-observation
+confirmation rule. Thermal deliberately trades a lower clear-air base
+probability of 0.60 for much weaker Smoke attenuation of 0.15, compared with
+1.00 for Visual. It cannot see through walls and is not a simulated camera.
+
+The four-profile 50-seed artifact at
+[`benchmarks/thermal_perception_50_seeds.json`](benchmarks/thermal_perception_50_seeds.json)
+compares Visual/Thermal with Smoke off/moderate and repeats every mission.
+Visual loses 20.67 Recall points under Smoke, falling to 79.33%; Thermal has
+zero Recall-point Smoke penalty and reaches 96.67% under both profiles. Thermal
+recovers **22 of the 25** incomplete Visual-Smoke seeds, but remains imperfect:
+five Thermal-Smoke seeds are incomplete, including two clear examples of its
+lower base-probability trade-off.
+
+All four profiles retain 72.10 mean mission steps, 2.00 returned drones,
+96.95% explored area, and zero wall/drone collisions. Seed 3 is the paired
+visual demo: Visual confirms 2/3 Survivors, while Thermal confirms 3/3 with the
+same 60-step route and no collisions.
+
+```bash
+python -m echorescue --drones 2 --seed 3 --survivor-sensor visual --smoke-profile moderate --replay-debug-smoke --replay-out replays/seed_3_visual_smoke.json
+python -m echorescue --drones 2 --seed 3 --survivor-sensor thermal --smoke-profile moderate --replay-debug-smoke --replay-out replays/seed_3_thermal_smoke.json
+python -m echorescue.dashboard --replay replays/seed_3_thermal_smoke.json --benchmark benchmarks/thermal_perception_50_seeds.json
+```
+
+The abstraction, telemetry fields, complete comparison, Failure-seed analysis,
+and limitations are documented in
+[`docs/phase-5-thermal-baseline.md`](docs/phase-5-thermal-baseline.md).
+
 ## Verified benchmark
 
 [`benchmarks/two_drone_50_seeds.json`](benchmarks/two_drone_50_seeds.json) is
@@ -502,8 +539,8 @@ For a headless JSON summary without a replay:
 python -m echorescue --seed 7 --drones 2
 ```
 
-The deterministic model exposes sensor, Survivor, smoke profile, battery,
-reserve, wait-cost,
+The deterministic model exposes occupancy sensor, isolated Visual/Thermal
+Survivor channel, smoke profile, battery, reserve, wait-cost,
 radio-range, knowledge mode, base-store, map-size, obstacle-density and
 maximum-step options through `--help`. Use
 `--drones 1` for the preserved single-drone regression mode and `--start-mode
@@ -549,8 +586,10 @@ and a local HTTP smoke test.
   model probabilistic faults, diagnosis, repair, or a recoverable airframe
 - smoke uses static constant-density zones, not fluid dynamics, diffusion,
   changing ventilation, or real camera response; it currently affects only
-  Survivor detection and provides no countermeasure
-- no thermal, acoustic, ultrasonic, or fused sensing; no persistent role
+  Survivor detection and the environment itself provides no mitigation
+- Thermal is a range/LOS/probability abstraction without images, calibrated IR
+  physics, false-positive heat sources, or hardware evidence
+- no Visual/Thermal fusion, acoustic or ultrasonic sensing; no persistent role
   hierarchy, dynamic obstacles, ROS 2, hardware integration, or 3D visualization
 
 This is a software simulation and not evidence of real-world flight safety.
