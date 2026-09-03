@@ -401,6 +401,14 @@ class ReplayRecorder:
             configuration.pop("failure_schedule", None)
         if simulation.config.smoke_profile == "off":
             configuration.pop("smoke_profile", None)
+        if simulation.config.survivor_sensor == "visual":
+            for key in (
+                "survivor_sensor",
+                "thermal_survivor_sensor_range",
+                "thermal_detection_probability",
+                "thermal_smoke_attenuation",
+            ):
+                configuration.pop(key, None)
         mission = {
             "seed": simulation.config.seed,
             "knowledge_mode": simulation.knowledge_mode,
@@ -409,6 +417,8 @@ class ReplayRecorder:
         }
         if simulation.network_transport is not None:
             mission["network_profile"] = simulation.config.network_profile
+        if simulation.config.survivor_sensor != "visual":
+            mission["survivor_sensor"] = simulation.config.survivor_sensor
         map_payload: dict[str, object] = {
             "width": simulation.config.width,
             "height": simulation.config.height,
@@ -436,7 +446,10 @@ class ReplayRecorder:
         return {
             "schema_version": (
                 SMOKE_REPLAY_SCHEMA_VERSION
-                if simulation.config.smoke_profile != "off"
+                if (
+                    simulation.config.smoke_profile != "off"
+                    or simulation.config.survivor_sensor != "visual"
+                )
                 else (
                     FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION
                     if simulation.config.failure_schedule

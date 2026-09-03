@@ -327,7 +327,9 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
                 self.assertIn("droneCommunication1", html)
                 self.assertIn("mapViewSelect", html)
                 self.assertIn("knowledgeMode", html)
+                self.assertIn("survivorSensor", html)
                 self.assertIn("selectedKnowledgeMap", javascript)
+                self.assertIn("event.sensor_channel", javascript)
                 self.assertIn("evaluation aggregate", javascript.lower())
                 self.assertIn(".dashboard-grid", stylesheet)
                 self.assertEqual(
@@ -451,6 +453,25 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
         self.assertEqual(view["baselineSteps"], 72.1)
         self.assertEqual(view["candidateSteps"], 72.1)
         self.assertEqual(view["improvementValue"], "-20.67 pp")
+
+    def test_thermal_perception_benchmark_schema_is_mapped_correctly(self) -> None:
+        payload = json.loads(
+            (
+                REPOSITORY_ROOT
+                / "benchmarks"
+                / "thermal_perception_50_seeds.json"
+            ).read_text(encoding="utf-8")
+        )
+
+        view = benchmark_view(payload)
+
+        self.assertEqual(view["status"], "ready")
+        self.assertEqual(view["format"], "thermal_perception")
+        self.assertEqual(view["baselineLabel"], "Visual + smoke")
+        self.assertEqual(view["candidateLabel"], "Thermal + smoke")
+        self.assertEqual(view["baselineSteps"], 72.1)
+        self.assertEqual(view["candidateSteps"], 72.1)
+        self.assertEqual(view["improvementValue"], "+17.33 pp")
 
     def test_dashboard_server_accepts_network_aware_replay_schema(self) -> None:
         server = create_server(

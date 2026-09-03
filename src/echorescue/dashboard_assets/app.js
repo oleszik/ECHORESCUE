@@ -32,7 +32,7 @@ const elements = {};
 
 function cacheElements() {
   [
-    "seedValue", "knowledgeMode", "networkProfile", "missionStatus", "restartButton", "previousButton", "playButton",
+    "seedValue", "knowledgeMode", "networkProfile", "survivorSensor", "missionStatus", "restartButton", "previousButton", "playButton",
     "playIcon", "playLabel", "nextButton", "timeline", "currentStep", "maxStep",
     "speedSelect", "mapViewSelect", "mapViewTitle", "mapViewPurpose", "missionCanvas", "coverageValue", "eventFeed", "eventCount", "smokeDebugOption", "smokeDebugLegend",
     "resultBadge", "metricRecall", "metricReturned", "metricWalls", "metricDrones",
@@ -99,6 +99,7 @@ function initializeReplay(replay, benchmark) {
   elements.mapViewSelect.value = state.mapView;
   const relayStrategy = replay.mission.relay_strategy || replay.mission.configuration?.relay_strategy || "off";
   const networkProfile = replay.mission.network_profile || replay.mission.configuration?.network_profile || "ideal";
+  const survivorSensor = replay.mission.survivor_sensor || replay.mission.configuration?.survivor_sensor || "visual";
   elements.knowledgeMode.textContent = relayStrategy === "adaptive"
     ? `${knowledgeMode.toUpperCase()} · ADAPTIVE RELAY`
     : knowledgeMode.toUpperCase();
@@ -107,6 +108,7 @@ function initializeReplay(replay, benchmark) {
   }
   elements.seedValue.textContent = replay.mission.seed;
   elements.networkProfile.textContent = networkProfile.toUpperCase();
+  elements.survivorSensor.textContent = survivorSensor.toUpperCase();
   elements.networkProfile.classList.toggle("constrained", networkProfile === "constrained");
   elements.schemaVersion.textContent = replay.schema_version;
   elements.timeline.max = replay.frames.length - 1;
@@ -228,6 +230,9 @@ function updateStatus(frame) {
 }
 
 function eventColor(event) {
+  if (event.event_type === "survivor_sensor_observation") {
+    return event.detection_success ? "#22d3ee" : "#f97316";
+  }
   if (["smoke_entered", "smoke_exited"].includes(event.event_type)) return COLORS.smoke;
   if (event.event_type === "survivor_detection_degraded") return "#fb7185";
   if (event.event_type === "drone_failure_injected") return COLORS.failed;
@@ -302,7 +307,12 @@ function updateEventFeed() {
     const utilityDetail = event.utility == null ? "" : ` · utility ${event.utility.toFixed(1)}`;
     const reasonDetail = event.reason ? ` · ${event.reason.replaceAll("_", " ")}` : "";
     const backlogDetail = event.critical_backlog == null ? "" : ` · critical ${event.critical_backlog}`;
-    detail.textContent += `${utilityDetail}${reasonDetail}${backlogDetail}`;
+    const channelDetail = event.sensor_channel ? ` · ${event.sensor_channel}` : "";
+    const outcomeDetail = event.detection_success == null ? "" : ` · ${event.detection_success ? "detected" : "missed"}`;
+    const distanceDetail = event.survivor_distance == null ? "" : ` · range ${event.survivor_distance.toFixed(2)}`;
+    const smokeDetail = event.smoke_density == null ? "" : ` · smoke ${event.smoke_density.toFixed(2)}`;
+    const confidenceDetail = event.detection_confidence == null ? "" : ` · confidence ${(event.detection_confidence * 100).toFixed(0)}%`;
+    detail.textContent += `${utilityDetail}${reasonDetail}${backlogDetail}${channelDetail}${outcomeDetail}${distanceDetail}${smokeDetail}${confidenceDetail}`;
     copy.append(title, detail);
     item.append(step, node, copy);
     elements.eventFeed.append(item);
@@ -665,6 +675,39 @@ function normalizeSmokePerceptionBenchmark(benchmark) {
   };
 }
 
+function normalizeThermalPerceptionBenchmark(benchmark) {
+  const profiles = requiredObject(benchmark, "profiles", "Thermal perception");
+  const visual = requiredObject(profiles, "visual_smoke_moderate", "Thermal perception");
+  const thermal = requiredObject(profiles, "thermal_smoke_moderate", "Thermal perception");
+  const analysis = hasOwn(benchmark, "visual_smoke_failure_seed_analysis")
+    ? requiredObject(benchmark, "visual_smoke_failure_seed_analysis", "Thermal perception") : {};
+  const visualRecall = optionalNumber(visual, "average_survivor_recall", "profiles.visual_smoke_moderate");
+  const thermalRecall = optionalNumber(thermal, "average_survivor_recall", "profiles.thermal_smoke_moderate");
+  const rescued = optionalNumber(analysis, "rescued_by_thermal_count", "visual_smoke_failure_seed_analysis");
+  const failures = optionalNumber(analysis, "visual_failure_count", "visual_smoke_failure_seed_analysis");
+  const recallDelta = Number.isFinite(visualRecall) && Number.isFinite(thermalRecall)
+    ? (thermalRecall - visualRecall) * 100 : null;
+  const parts = [];
+  if (Number.isFinite(visualRecall) && Number.isFinite(thermalRecall)) {
+    parts.push(`Moderate-smoke Recall: ${(visualRecall * 100).toFixed(2)}% Visual versus ${(thermalRecall * 100).toFixed(2)}% Thermal.`);
+  }
+  if (Number.isFinite(rescued) && Number.isFinite(failures)) {
+    parts.push(`Thermal recovered ${rescued.toFixed(0)} of ${failures.toFixed(0)} Visual smoke-failure seeds.`);
+  }
+  return {
+    status: "ready",
+    format: "thermal_perception",
+    title: "Visual vs Thermal under smoke",
+    baselineLabel: "Visual + smoke",
+    candidateLabel: "Thermal + smoke",
+    baselineSteps: optionalNumber(visual, "average_mission_steps", "profiles.visual_smoke_moderate"),
+    candidateSteps: optionalNumber(thermal, "average_mission_steps", "profiles.thermal_smoke_moderate"),
+    improvementValue: signedMetric(recallDelta, " pp"),
+    improvementLabel: "recall delta",
+    note: joinBenchmarkNote(parts),
+  };
+}
+
 function normalizeBenchmark(benchmark) {
   if (!isRecord(benchmark)) throw new Error("Benchmark root must be a JSON object.");
   if (hasOwn(benchmark, "schema_version") && typeof benchmark.schema_version !== "string") {
@@ -675,6 +718,9 @@ function normalizeBenchmark(benchmark) {
   }
   if (benchmark.benchmark_type === "smoke_perception") {
     return normalizeSmokePerceptionBenchmark(benchmark);
+  }
+  if (benchmark.benchmark_type === "thermal_perception") {
+    return normalizeThermalPerceptionBenchmark(benchmark);
   }
   if (hasOwn(benchmark, "training") || hasOwn(benchmark, "holdout")) {
     return normalizeNetworkAwareRelayBenchmark(benchmark);

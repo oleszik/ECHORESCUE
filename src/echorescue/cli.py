@@ -37,6 +37,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--sensor-range", type=int, default=4)
     parser.add_argument("--survivors", type=int, default=3)
     parser.add_argument("--survivor-range", type=int, default=3)
+    parser.add_argument(
+        "--survivor-sensor",
+        choices=("visual", "thermal"),
+        default="visual",
+        help="select one isolated Survivor perception channel",
+    )
+    parser.add_argument("--thermal-survivor-range", type=int, default=3)
+    parser.add_argument("--thermal-detection-probability", type=float, default=0.6)
+    parser.add_argument("--thermal-smoke-attenuation", type=float, default=0.15)
     parser.add_argument("--confirmation-observations", type=int, default=2)
     parser.add_argument("--battery-capacity", type=float, default=220.0)
     parser.add_argument("--movement-energy", type=float, default=1.0)
@@ -143,6 +152,10 @@ def main(argv: list[str] | None = None) -> None:
         sensor_range=args.sensor_range,
         survivor_count=args.survivors,
         survivor_sensor_range=args.survivor_range,
+        survivor_sensor=args.survivor_sensor,
+        thermal_survivor_sensor_range=args.thermal_survivor_range,
+        thermal_detection_probability=args.thermal_detection_probability,
+        thermal_smoke_attenuation=args.thermal_smoke_attenuation,
         survivor_confirmation_observations=args.confirmation_observations,
         battery_capacity=args.battery_capacity,
         movement_energy_cost=args.movement_energy,

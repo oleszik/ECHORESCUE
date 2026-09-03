@@ -14,6 +14,10 @@ class SimulationConfig:
     sensor_range: int = 4
     survivor_count: int = 3
     survivor_sensor_range: int = 3
+    survivor_sensor: str = "visual"
+    thermal_survivor_sensor_range: int = 3
+    thermal_detection_probability: float = 0.6
+    thermal_smoke_attenuation: float = 0.15
     survivor_confirmation_observations: int = 2
     battery_capacity: float = 220.0
     movement_energy_cost: float = 1.0
@@ -72,6 +76,16 @@ class SimulationConfig:
             raise ValueError("survivor_count must fit within the interior grid")
         if self.survivor_sensor_range < 1:
             raise ValueError("survivor_sensor_range must be positive")
+        if self.survivor_sensor not in {"visual", "thermal"}:
+            raise ValueError("survivor_sensor must be visual or thermal")
+        if self.thermal_survivor_sensor_range < 1:
+            raise ValueError("thermal_survivor_sensor_range must be positive")
+        if not 0.0 < self.thermal_detection_probability <= 1.0:
+            raise ValueError(
+                "thermal_detection_probability must be in (0, 1]"
+            )
+        if not 0.0 <= self.thermal_smoke_attenuation <= 1.0:
+            raise ValueError("thermal_smoke_attenuation must be in [0, 1]")
         if self.survivor_confirmation_observations < 2:
             raise ValueError("survivor confirmation requires at least two observations")
         if self.battery_capacity <= 0:
@@ -199,3 +213,21 @@ class SimulationConfig:
         if self.local_map_shadow_mode is None:
             return self.knowledge_mode
         return "shadow" if self.local_map_shadow_mode else "shared"
+
+    @property
+    def active_survivor_sensor_range(self) -> int:
+        if self.survivor_sensor == "thermal":
+            return self.thermal_survivor_sensor_range
+        return self.survivor_sensor_range
+
+    @property
+    def active_survivor_detection_probability(self) -> float:
+        if self.survivor_sensor == "thermal":
+            return self.thermal_detection_probability
+        return 1.0
+
+    @property
+    def active_survivor_smoke_attenuation(self) -> float:
+        if self.survivor_sensor == "thermal":
+            return self.thermal_smoke_attenuation
+        return 1.0

@@ -67,6 +67,7 @@ class EventType(str, Enum):
     SMOKE_ENTERED = "smoke_entered"
     SMOKE_EXITED = "smoke_exited"
     SURVIVOR_DETECTION_DEGRADED = "survivor_detection_degraded"
+    SURVIVOR_SENSOR_OBSERVATION = "survivor_sensor_observation"
 
 
 @dataclass(frozen=True, slots=True)
@@ -92,6 +93,12 @@ class MissionEvent:
     smoke_density: float | None = None
     detection_attempts: int | None = None
     detection_successes: int | None = None
+    sensor_channel: str | None = None
+    observation_index: int | None = None
+    survivor_distance: float | None = None
+    detection_success: bool | None = None
+    detection_confidence: float | None = None
+    decision_score: float | None = None
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -137,6 +144,20 @@ class MissionEvent:
             payload["detection_attempts"] = self.detection_attempts
         if self.detection_successes is not None:
             payload["detection_successes"] = self.detection_successes
+        if self.sensor_channel is not None:
+            payload["sensor_channel"] = self.sensor_channel
+        if self.observation_index is not None:
+            payload["observation_index"] = self.observation_index
+        if self.survivor_distance is not None:
+            payload["survivor_distance"] = round(self.survivor_distance, 6)
+        if self.detection_success is not None:
+            payload["detection_success"] = self.detection_success
+        if self.detection_confidence is not None:
+            payload["detection_confidence"] = round(
+                self.detection_confidence, 6
+            )
+        if self.decision_score is not None:
+            payload["decision_score"] = round(self.decision_score, 6)
         return payload
 
 
@@ -220,6 +241,14 @@ class MissionLog:
             EventType.SURVIVOR_DETECTION_DEGRADED,
         }:
             key = (event.event_type, event.drone_id, event.step, event.position)
+        elif event.event_type is EventType.SURVIVOR_SENSOR_OBSERVATION:
+            key = (
+                event.event_type,
+                event.drone_id,
+                event.step,
+                event.position,
+                event.observation_index,
+            )
         else:
             key = (event.event_type, event.drone_id)
         if key in self._event_keys:

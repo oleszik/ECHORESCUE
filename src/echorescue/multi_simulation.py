@@ -476,7 +476,12 @@ class MultiSimulationResult:
         if self.failure_recovery_metrics is not None:
             payload["failure_recovery"] = self.failure_recovery_metrics
         if self.smoke_metrics is not None:
-            payload["smoke"] = self.smoke_metrics
+            metric_key = (
+                "perception"
+                if self.smoke_metrics.get("sensor_channel") == "thermal"
+                else "smoke"
+            )
+            payload[metric_key] = self.smoke_metrics
         if self.network_profile == "ideal":
             for key in tuple(payload):
                 if key.startswith("network_") or key in {
@@ -511,7 +516,14 @@ class MultiDroneSimulation:
         self.world = GridWorld.generate(config)
         self.occupancy_map = OccupancyMap(config.width, config.height)
         self.sensor = DistanceSensor(config.sensor_range)
-        self.survivor_sensor = SurvivorSensor(config.survivor_sensor_range)
+        self.survivor_sensor = SurvivorSensor(
+            max_range=config.active_survivor_sensor_range,
+            channel=config.survivor_sensor,
+            base_detection_probability=(
+                config.active_survivor_detection_probability
+            ),
+            smoke_attenuation=config.active_survivor_smoke_attenuation,
+        )
         self.communication_model = CommunicationModel(
             config.communication_range
         )
@@ -651,6 +663,7 @@ class MultiDroneSimulation:
         self._smoke_entries_by_drone: dict[str, int] = {}
         self._survivor_detection_attempts = 0
         self._survivor_detection_successes = 0
+        self._survivor_detection_failures = 0
         self._smoke_degraded_detection_attempts = 0
         self._smoke_successful_detection_attempts = 0
         self._smoke_degraded_detection_events = 0
@@ -1647,6 +1660,12 @@ class MultiDroneSimulation:
         smoke_density: float | None = None,
         detection_attempts: int | None = None,
         detection_successes: int | None = None,
+        sensor_channel: str | None = None,
+        observation_index: int | None = None,
+        survivor_distance: float | None = None,
+        detection_success: bool | None = None,
+        detection_confidence: float | None = None,
+        decision_score: float | None = None,
     ) -> None:
         self.mission_log.record(
             MissionEvent(
@@ -1666,6 +1685,12 @@ class MultiDroneSimulation:
                 smoke_density=smoke_density,
                 detection_attempts=detection_attempts,
                 detection_successes=detection_successes,
+                sensor_channel=sensor_channel,
+                observation_index=observation_index,
+                survivor_distance=survivor_distance,
+                detection_success=detection_success,
+                detection_confidence=detection_confidence,
+                decision_score=decision_score,
             )
         )
 
@@ -1928,10 +1953,29 @@ class MultiDroneSimulation:
         )
         self._survivor_detection_attempts += report.attempts
         self._survivor_detection_successes += report.successful_observations
+        self._survivor_detection_failures += report.failed_observations
         self._smoke_degraded_detection_attempts += report.degraded_attempts
         self._smoke_successful_detection_attempts += (
             report.successful_smoke_observations
         )
+        detailed_observations = (
+            report.sensor_channel == "thermal"
+            or self.config.smoke_profile != "off"
+        )
+        if detailed_observations:
+            for index, observation in enumerate(report.observations, start=1):
+                self._record_event(
+                    runtime,
+                    EventType.SURVIVOR_SENSOR_OBSERVATION,
+                    reason=observation.failure_reason or "detected",
+                    smoke_density=observation.smoke_exposure,
+                    sensor_channel=report.sensor_channel,
+                    observation_index=index,
+                    survivor_distance=observation.distance,
+                    detection_success=observation.success,
+                    detection_confidence=observation.confidence,
+                    decision_score=observation.decision_score,
+                )
         if (
             self.config.smoke_profile != "off"
             and report.degraded_attempts
@@ -1944,8 +1988,12 @@ class MultiDroneSimulation:
                 detection_attempts=report.attempts,
                 detection_successes=report.successful_observations,
                 reason="smoke_visibility",
+                sensor_channel=report.sensor_channel,
             )
         visible = report.visible_survivors
+        event_channel = (
+            report.sensor_channel if detailed_observations else None
+        )
         for position in visible:
             if runtime.last_survivor_observation_step.get(position) == self.steps:
                 continue
@@ -1957,7 +2005,10 @@ class MultiDroneSimulation:
                     runtime.detected_survivors.add(position)
                     self._detected_survivors.add(position)
                     self._record_event(
-                        runtime, EventType.SURVIVOR_DETECTED, position
+                        runtime,
+                        EventType.SURVIVOR_DETECTED,
+                        position,
+                        sensor_channel=event_channel,
                     )
                 if (
                     count >= self.config.survivor_confirmation_observations
@@ -1966,18 +2017,31 @@ class MultiDroneSimulation:
                     runtime.confirmed_survivors.add(position)
                     self._confirmed_survivors.add(position)
                     self._record_event(
-                        runtime, EventType.SURVIVOR_CONFIRMED, position
+                        runtime,
+                        EventType.SURVIVOR_CONFIRMED,
+                        position,
+                        sensor_channel=event_channel,
                     )
                 continue
             if position not in self._detected_survivors:
                 self._detected_survivors.add(position)
-                self._record_event(runtime, EventType.SURVIVOR_DETECTED, position)
+                self._record_event(
+                    runtime,
+                    EventType.SURVIVOR_DETECTED,
+                    position,
+                    sensor_channel=event_channel,
+                )
             if (
                 count >= self.config.survivor_confirmation_observations
                 and position not in self._confirmed_survivors
             ):
                 self._confirmed_survivors.add(position)
-                self._record_event(runtime, EventType.SURVIVOR_CONFIRMED, position)
+                self._record_event(
+                    runtime,
+                    EventType.SURVIVOR_CONFIRMED,
+                    position,
+                    sensor_channel=event_channel,
+                )
 
     @staticmethod
     def _relay_payload(
@@ -3897,7 +3961,7 @@ class MultiDroneSimulation:
         """Return aggregate perception telemetry without target locations."""
 
         drone_ids = sorted(self.runtimes)
-        return {
+        payload: dict[str, object] = {
             "profile": self.config.smoke_profile,
             "smoke_cells": len(self.world.smoke.cells),
             "maximum_density": round(self.world.smoke.maximum_density, 6),
@@ -3921,9 +3985,27 @@ class MultiDroneSimulation:
                 self._smoke_successful_detection_attempts
             ),
         }
+        if self.config.survivor_sensor == "thermal":
+            payload.update(
+                {
+                    "sensor_channel": "thermal",
+                    "failed_observations": self._survivor_detection_failures,
+                    "thermal_attempts": self._survivor_detection_attempts,
+                    "thermal_successful_observations": (
+                        self._survivor_detection_successes
+                    ),
+                    "thermal_failed_observations": (
+                        self._survivor_detection_failures
+                    ),
+                }
+            )
+        return payload
 
     def _smoke_metrics(self) -> dict[str, object] | None:
-        if self.config.smoke_profile == "off":
+        if (
+            self.config.smoke_profile == "off"
+            and self.config.survivor_sensor == "visual"
+        ):
             return None
         return self.smoke_detection_metrics()
 
