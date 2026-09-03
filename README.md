@@ -1,595 +1,208 @@
 # EchoRescue
 
-EchoRescue is a deterministic, grid-based search-and-rescue simulation with a
-browser replay dashboard. Two drones explore an initially unknown floor, share
-an occupancy map, confirm survivors, and return independently to base. Mission
-decisions remain headless; the dashboard only renders a versioned replay.
+[![CI](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml/badge.svg)](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml)
+[![Python 3.10–3.13](https://img.shields.io/badge/python-3.10--3.13-blue.svg)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## Mission replay
-
-![EchoRescue dashboard at mission step 42](docs/assets/echorescue-dashboard-step-42.png)
-
-<details>
-<summary>Watch the final mission phase through the safe return of both drones</summary>
+EchoRescue is a deterministic, grid-based search-and-rescue simulator for
+studying how autonomous agents explore an unknown environment, coordinate over
+imperfect communication, confirm Survivors, recover from failures, and return
+safely to base.
 
 ![EchoRescue deterministic mission replay](docs/assets/echorescue-mission-replay.gif)
 
-</details>
+The simulation core is headless and dependency-free. A browser dashboard
+replays its versioned, operator-safe telemetry without participating in mission
+decisions.
+
+## Verified results
+
+Every result below comes from a committed JSON artifact and can be regenerated
+with the documented benchmark commands.
+
+| Experiment | Stored result over 50 seeds |
+| --- | --- |
+| Two-agent search | 50/50 successful missions, 100% Survivor Recall, both drones returned, zero wall/drone collisions; 40.67% shorter mean duration than one drone |
+| Failure reassignment | 50/50 injected failures recovered, 50/50 released tasks reassigned, 100% Recall, zero collisions |
+| Constrained communication | 100% base-known Recall and mission success for Relay-off and Adaptive Relay, zero collisions and Final-Sync timeouts |
+| Visual perception under moderate Smoke | Recall falls from 100% to 79.33%; navigation and collision metrics remain unchanged |
+| Isolated Thermal perception under moderate Smoke | 96.67% Recall; 22 of 25 incomplete Visual-Smoke seeds recovered, zero collisions |
+
+The headline mission comparison is stored in
+[`benchmarks/two_drone_50_seeds.json`](benchmarks/two_drone_50_seeds.json).
+Failure, network, Smoke, Thermal, knowledge, deconfliction, and Relay artifacts
+are available in [`benchmarks/`](benchmarks/). Experiment-specific analysis is
+documented in [`docs/`](docs/).
+
+## Architecture
+
+EchoRescue keeps world truth, autonomous decisions, and presentation separated:
+
+```text
+Seeded environment
+       │
+       ▼
+Sensors ──► discovered knowledge / occupancy maps
+                         │
+                         ▼
+              frontier allocation ──► A* planning
+                         │
+                         ▼
+       energy + agent state machine + deconfliction shield
+                         │
+                         ▼
+             telemetry ──► versioned replay ──► dashboard
+
+Communication graph ──► map/Survivor sync ──► constrained transport
+                     └─► optional Relay roles
+Failure events ───────► task release and deterministic reassignment
+```
+
+The core components are:
+
+- deterministic environment generation, range sensors, Visual/Thermal Survivor
+  observations, and strict line-of-sight rules;
+- shared, shadow, and active local knowledge modes with explicit provenance;
+- deterministic frontier allocation, A* path planning, energy-aware return, and
+  collision prevention;
+- communication graphs, constrained store-and-forward transport, Relay
+  experiments, and failure reassignment;
+- versioned JSON telemetry and a read-only HTML/CSS/Canvas replay dashboard.
+
+Architecture decisions and their trade-offs are recorded in
+[`docs/adr/`](docs/adr/). Ground Truth never becomes an implicit planning input,
+and ordinary operator replays do not expose unknown walls, unconfirmed Survivor
+positions, or the full Smoke field.
 
 ## Quick start
 
-Python 3.10 or newer is required. The runtime and dashboard have no third-party
-dependencies.
+Python 3.10 or newer is required. Runtime code has no third-party dependencies.
 
 ```bash
 python -m pip install -e .
 python -m echorescue --drones 2 --seed 7 --replay-out replays/seed_7.json
-python -m echorescue --drones 2 --seed 7 --knowledge-mode local --replay-out replays/seed_7_local.json
-python -m echorescue --drones 2 --seed 7 --knowledge-mode local --relay-strategy adaptive --replay-out replays/seed_7_relay.json
-python -m echorescue --drones 2 --seed 7 --knowledge-mode local --network-profile constrained --replay-out replays/seed_7_constrained.json
-python -m echorescue --drones 2 --seed 7 --knowledge-mode local --network-profile constrained --relay-strategy network-aware --replay-out replays/seed_7_network_aware.json
-python -m echorescue --drones 2 --seed 7 --inject-failure drone-2:4 --replay-out replays/seed_7_failure.json
-python -m echorescue --drones 2 --seed 1 --smoke-profile moderate --replay-out replays/seed_1_smoke.json --replay-debug-smoke
-python -m echorescue --drones 2 --seed 3 --survivor-sensor thermal --smoke-profile moderate --replay-out replays/seed_3_thermal_smoke.json --replay-debug-smoke
 python -m echorescue.dashboard --replay replays/seed_7.json
 ```
 
-Open <http://127.0.0.1:8000>. The dashboard provides playback, single-step
-navigation, click/drag timeline scrubbing, 0.25× through 8× speed, drone trails,
-planned paths, battery and state telemetry, confirmed survivors, event history,
-coverage, direct and relay radio links, communication state, final metrics, and
-the verified single-/two-drone comparison. The map selector switches between
-the shared operator map, both local drone maps, and the base knowledge store.
-Smoke replays expose the ground-truth density layer only when generated with
-the explicit `--replay-debug-smoke` flag; ordinary operator maps never contain
-that layer.
-Thermal replays label the active Survivor sensor and show channel, outcome,
-range, smoke exposure, and confidence for compact perception events.
+Open <http://127.0.0.1:8000>. The dashboard provides timeline playback,
+operator/shared/local map views, paths, battery and agent state, communication
+links, events, confirmed Survivors, and final mission metrics.
 
-To reproduce the benchmark artifact:
+For a headless result only:
+
+```bash
+python -m echorescue --drones 2 --seed 7
+```
+
+The public Python entry points are also importable:
+
+```python
+from echorescue import MultiDroneSimulation, SimulationConfig
+
+result = MultiDroneSimulation(
+    SimulationConfig(seed=7, drone_count=2)
+).run()
+print(result.to_dict())
+```
+
+## Demo and deployment readiness
+
+The committed network-aware replay is a high-signal demonstration of mapping,
+local knowledge, constrained transport, Relay decisions, and safe return:
+
+```bash
+python -m echorescue.dashboard \
+  --replay replays/seed_7_network_aware.json \
+  --benchmark benchmarks/network_aware_relay_100_seeds.json \
+  --host 0.0.0.0 \
+  --port 8000
+```
+
+`--host` and `--port` make the built-in HTTP server suitable for a small
+provider-neutral demonstration environment. It resolves package assets and
+repository-relative replay paths at runtime; no local machine path is embedded
+in public configuration. External hosting should add TLS, access controls,
+resource limits, and production-grade HTTP serving as appropriate. No
+provider-specific deployment manifest or account credential is required by the
+repository.
+
+## Reproducible benchmarks
+
+The main baseline and selected resilience/perception experiments can be rebuilt
+with:
 
 ```bash
 python -m echorescue.benchmark --seeds 50 --output benchmarks/two_drone_50_seeds.json
-python -m echorescue.communication_benchmark --seeds 50 --output benchmarks/communication_50_seeds.json
-python -m echorescue.shadow_benchmark --seeds 50 --output benchmarks/shadow_mode_50_seeds.json
-python -m echorescue.knowledge_benchmark --seeds 50 --output benchmarks/knowledge_modes_50_seeds.json
-python -m echorescue.deconfliction_benchmark --seeds 50 --output benchmarks/distributed_deconfliction_50_seeds.json
-python -m echorescue.relay_benchmark --seeds 50 --output benchmarks/adaptive_relay_50_seeds.json
-python -m echorescue.network_benchmark --seeds 50 --output benchmarks/constrained_network_50_seeds.json
-python -m echorescue.network_aware_benchmark --train-seeds 50 --holdout-seeds 50 --base-coverage-quality-target 60 --output benchmarks/network_aware_relay_100_seeds.json --analysis-output benchmarks/network_aware_relay_analysis.json
 python -m echorescue.failure_benchmark --seeds 50 --failure-drone drone-2 --failure-step 4 --output benchmarks/failure_reassignment_50_seeds.json
+python -m echorescue.network_benchmark --seeds 50 --output benchmarks/constrained_network_50_seeds.json
 python -m echorescue.smoke_benchmark --seeds 50 --output benchmarks/smoke_perception_50_seeds.json
 python -m echorescue.thermal_benchmark --seeds 50 --output benchmarks/thermal_perception_50_seeds.json
 ```
 
-The server automatically loads that default benchmark file when it exists. A
-different artifact can be selected explicitly:
-
-```bash
-python -m echorescue.dashboard --replay replays/seed_7.json --benchmark benchmarks/two_drone_50_seeds.json
-```
-
-## Architecture
-
-Simulation and presentation have a one-way boundary:
-
-```text
-SimulationConfig + seed
-          |
-          v
- MultiDroneSimulation  --> JSON result
-          |
-    read-only observer
-          v
- versioned replay JSON --> local HTTP server --> HTML/CSS/Canvas dashboard
-```
-
-The browser does not generate maps, plan paths, assign frontiers, detect
-survivors, account for energy, or decide movements. Each replay frame is a
-snapshot of the simulation's already-computed operator-visible state. It
-contains both drone states, batteries, targets and paths; the known occupancy
-map; confirmed survivors; coverage; communication graph; and the events emitted
-at that step. In the default `shared` and opt-in `shadow` modes, the radio graph
-remains observational. Only the explicit `local` mode consumes communication
-state for map and survivor synchronization and component-scoped coordination.
-
-Local-map Shadow Mode runs beside that unchanged control path. Sensor readings
-enter the observing drone's local knowledge first and are then mirrored into
-the legacy shared operator map exactly as before. Connected graph components
-exchange local records immediately; connected drones also upload to and receive
-from the base knowledge store. None of these shadow stores is read by frontier
-allocation, A*, survivor decisions, energy logic, or movement.
-
-Ground truth and discovered knowledge remain separate. Standard replays never
-contain the full wall set, unconfirmed survivor positions, or a ground-truth
-map. Unknown cells stay unknown until the simulation's sensors map them.
-Unconfirmed survivor observations remain per drone. In Active Local mode the
-operator-safe survivor layer and top-level mission metrics show only knowledge
-that reached the base. Selecting a drone's local map deliberately exposes only
-that drone's confirmed knowledge; the global operator map is labeled as an
-evaluation aggregate and is never a local planning input.
-
-### Communication telemetry
-
-The base station is a separate graph node at the base cell. At frame zero and
-after every simulation step, radio links are recomputed from the configured
-Euclidean range and a conservative grid line-of-sight test: an intervening wall
-blocks the link. A drone is classified as direct, connected through the other
-drone, or disconnected. Transition events are emitted only when that state
-changes.
-
-Uptime values are connected frame samples divided by all frame samples,
-including frame zero. Relay uptime counts only samples where no direct base link
-exists and a peer path does; outage length is the number of consecutive
-disconnected samples. The reproducible 50-seed artifact is available at
-[`benchmarks/communication_50_seeds.json`](benchmarks/communication_50_seeds.json).
-
-### Local-map Shadow Mode
-
-Knowledge records contain only an observed cell state, observation step, and
-source node. Merge order is deterministic and independent of ground truth:
-occupied outranks free as the conservative conflict rule; equal states prefer
-the newer observation and then the lexicographically stable source ID. There is
-no synchronization between disconnected graph components. Transfers are
-instantaneous in this slice, with per-step cell counts aggregated into one
-upload and one receive event per participating drone.
-
-Coverage is reported for each drone, the base, and the union of both local
-maps. Divergence is the fraction of grid cells whose local states differ;
-staleness also includes older copies of otherwise equal knowledge.
-`map_sync_events` counts transfer rounds, while `time_to_map_convergence` is the
-first frame-level reconvergence after a persisted divergence. The 50-seed
-artifact is available at
-[`benchmarks/shadow_mode_50_seeds.json`](benchmarks/shadow_mode_50_seeds.json).
-
-### Knowledge modes
-
-`shared` is the unchanged default and preserves the verified two-drone control
-path. `shadow` simulates distributed maps and radio synchronization as telemetry
-without changing decisions. `local` is opt-in: each drone performs frontier
-detection, reachability checks, A*, and return-to-base planning against its own
-map only. Observations enter only the observing drone's store; cells and
-confirmed survivors cross nodes only within the current direct/relay radio
-component. Connected drones coordinate distinct targets, while disconnected
-drones choose independently and reconcile stale or duplicate goals
-deterministically after reconnect.
-
-The global occupancy map remains an evaluation/rendering aggregate in Active
-Local mode. It is not passed to frontier allocation, path planning, RTB, or
-Survivor decisions. The central movement resolver is retained solely as a
-last-resort safety shield against vertex and edge-swap collisions. Every time
-it blocks a locally planned movement, the replay records a
-`safety_shield_intervention`; ordinary component-aware route planning produces
-no such event. This is simulation safety containment, not decentralized proof
-of collision avoidance.
-
-Replay schema `1.5` stores the active mode and Relay strategy, labels operator,
-drone-local, and base knowledge explicitly, and includes the short motion
-intent/reservation that was available for distributed deconfliction. Relay
-frames also expose the locally selected waypoint, designated Scout, held/active
-state, and achieved communication chain. Full map snapshots remain
-intentionally simple and auditable; future large maps may benefit from delta
-encoding.
-
-### Distributed deconfliction
-
-Active Local mode shares position, state, remaining energy, next movement, and
-a two- or three-step reservation only inside the current radio component. When
-radio is unavailable, a configurable short-range proximity sensor propagates
-only through free cells; it can see around an open corner but never through a
-wall. Conflict priority is deterministic: urgent RTB, lower safe energy margin,
-longer waiting time, then stable drone ID. Repeated blocks trigger a local
-deadlock replan. The central movement resolver remains unchanged as the final
-shield and is not consulted by normal planning.
-
-The reproducible 50-seed artifact is
-[`benchmarks/distributed_deconfliction_50_seeds.json`](benchmarks/distributed_deconfliction_50_seeds.json).
-It reports 100% base-known Survivor Recall, zero collisions, safe return of both
-drones in every mission, and zero central shield interventions. Mean duration
-changes from 75.10 to 75.30 steps (+0.27%); targeted corridor tests cover vertex,
-edge-swap, wall-occluded proximity, repeated blocking, deterministic replanning,
-and starvation prevention.
-
-### Adaptive Relay role
-
-`--relay-strategy adaptive` is available only with Active Local Knowledge and
-is deliberately opt-in; `off` remains the default. After a sustained outage,
-one drone may temporarily enter `RELAY` when the disconnected peer has
-unacknowledged map or Survivor knowledge. Candidate waypoints are selected and
-replanned exclusively from the Relay drone's local free cells. Each plan must
-predict local line of sight to both base and the last communicated Scout
-position, remain locally reachable, and preserve the configured energy reserve
-plus Relay margin. A bounded role duration and deployment count prevent Relay
-starvation. RTB priority and distributed deconfliction remain in force.
-
-The versioned comparison at
-[`benchmarks/adaptive_relay_50_seeds.json`](benchmarks/adaptive_relay_50_seeds.json)
-runs seeds 0–49 at radio range 8, repeats every adaptive run, and verifies the
-`off` behavior fingerprint. Adaptive Relay completed 25/25 deployments and
-forwarded 4,353 unique per-mission cell positions plus 44 Survivor
-confirmations. Average communication uptime improved from 32.94% to 34.33%
-(+1.40 percentage points), and mean time to first base-known Survivor improved
-slightly from 21.44 to 21.24 steps. The explicit cost was 75.30 to 77.92 mean
-mission steps (+3.48%), 1.83% more combined path, and 1.99% more fleet energy.
-Both variants retained 100% Survivor Recall, safe return in all 50 missions,
-zero collisions, zero timeouts, and zero central Safety-Shield interventions.
-This measurable communication gain passes the benchmark acceptance rule but is
-not sufficient reason to change the default strategy automatically.
-
-### Constrained network transport
-
-`--network-profile ideal` remains the default and preserves instantaneous
-knowledge exchange and all verified fingerprints. The opt-in `constrained`
-profile is available only with Active Local Knowledge. It separates physical
-radio reachability from successful data delivery through the standalone
-`network_transport` module. The documented moderate defaults are one-step
-link latency, 5% deterministic packet loss, 36 payload units per physical link
-and step, fragments of at most 12 units, and age-based queue fairness every 8
-steps. CLI flags expose latency, loss, capacity, fragment size, knowledge TTLs,
-fairness age, backlog warning threshold, and the bounded Final-Sync budget.
-
-Safety-critical motion intent and drone/RTB state precede Survivor confirmation,
-Survivor detection, map data, and decision-free telemetry. Loss is derived from
-the mission seed, profile, directed hop, stable fragment ID, retry attempt, and
-send step; it never consumes a mutable random stream. A Relay route is genuine
-store-and-forward transport: Scout-to-Relay delivery only queues the second
-Relay-to-Base hop. Replay schema 1.7 exposes physical links, successful transfer
-links, queue/backlog state, loss, expiry, and Relay forwarding without leaking
-ground truth. Older schema 1.5 and 1.6 replays remain supported.
-
-Transport quality is reported with three explicit denominators. Fragment-attempt
-delivery counts every link-hop attempt and every retry. Unique-fragment eventual
-delivery counts each created end fragment once. Logical-message completion counts
-only messages whose complete fragment set reached the recipient. Packet losses,
-TTL expiry, and fragments discarded at mission close are separate counters; no
-missing value is replaced by zero.
-
-When both drones have landed but locally confirmed Survivor knowledge is still
-missing at the base, the constrained profile enters a bounded `FINAL_SYNC` data
-drain. It uses the normal latency, capacity, deterministic loss, retransmission,
-TTL, and routing machinery—there is no queue flush and no Ground-Truth fallback.
-Landed radios are explicitly abstracted as base-powered, so flight-battery values
-do not change. Once all confirmed Survivor data has arrived, remaining map traffic
-may be discarded; if the configured `--final-sync-max-steps` budget expires first,
-the mission remains failed with `final_sync_timeout`.
-
-Queued messages whose next hop becomes invalid are reconsidered deterministically
-against the currently observed communication graph. This prevents a stale fixed
-route from indefinitely blocking safety or Survivor traffic. Predictive routing,
-route-quality optimization, and a complete dynamic-routing protocol remain future
-work.
-
-The reproducible 50-seed comparison is stored at
-[`benchmarks/constrained_network_50_seeds.json`](benchmarks/constrained_network_50_seeds.json).
-Every seed is executed twice. Ideal Relay-off retains fingerprint
-`db80668469f645f5133b2c5bc53bfbeeefe91108d9e0103dc8a6b8369761b5bb` and
-averages 75.30 steps with 100% base-known Survivor Recall. Hardened constrained
-Relay-off averages 152.64 steps; Adaptive Relay averages 160.26. Both now reach
-100% mission success and base Recall, return both drones in every mission, and
-have zero wall/drone collisions, timeouts, Final-Sync timeouts, and central
-Safety-Shield interventions. Three missions per constrained profile enter Final
-Sync. Relay-off averages 4.00 Final-Sync steps (maximum 7), while Adaptive Relay
-averages 17.33 (maximum 33).
-
-The aggregate Relay-off ratios are 95.03% successful fragment attempts, 64.01%
-eventual unique-fragment delivery, and 65.11% logical-message completion.
-Adaptive Relay reaches 95.01%, 62.94%, and 63.03%. The apparent gap is not
-unexplained packet loss: low-priority map snapshots are intentionally discarded
-after critical Survivor delivery and mission close, while stale traffic also
-expires by TTL. Exact loss, TTL, close-drop, retransmission, and before/after
-Shield classifications are versioned in the artifact. The old 46 Relay-off and
-51 Adaptive Shield interventions reproduce as delayed/lost Intent cases; the
-hardened variants reduce every category to zero. Adaptive Relay remains slower
-and has lower completion ratios, so it is still not accepted as an improvement.
-
-### Network-aware Relay experiment
-
-`--relay-strategy network-aware` is an opt-in strategy for Active Local
-Knowledge with `--network-profile constrained`. It leaves `off` as the default
-and does not alter the existing `adaptive` policy. A Relay candidate is scored
-from current queue units, critical Survivor and RTB/status backlog, recent and
-general map deltas, route hops, observed attempt-delivery ratio, TTL reserve,
-link capacity, locally planned travel cost, energy headroom, and a conservative
-direct-reconnect estimate. Ground truth and future link state are never inputs.
-The default weights and threshold are emitted in every schema-1.8 replay and in
-the final JSON metrics so a decision can be audited.
-
-Critical Survivor confirmations and vehicle state keep transport priority over
-map traffic. Low-value map deltas are capped, and wholly unsent obsolete map
-messages can be compacted under backpressure; in-flight data is never silently
-rewritten. Routes are loop-free shortest paths over the currently observed
-communication graph and are limited to two hops. After the Relay link is
-established, the Scout resumes safe exploration while the transport completes
-the handoff. Energy/RTB safety and distributed deconfliction remain higher
-priority than the Relay role.
-
-```bash
-python -m echorescue --drones 2 --knowledge-mode local --network-profile constrained --relay-strategy network-aware --seed 7 --replay-out replays/seed_7_network_aware.json
-python -m echorescue.network_aware_benchmark --train-seeds 50 --holdout-seeds 50 --base-coverage-quality-target 60 --output benchmarks/network_aware_relay_100_seeds.json --analysis-output benchmarks/network_aware_relay_analysis.json
-python -m echorescue.dashboard --replay replays/seed_7_network_aware.json --benchmark benchmarks/network_aware_relay_100_seeds.json
-```
-
-The measured cause analysis is versioned in
-[`benchmarks/network_aware_relay_analysis.json`](benchmarks/network_aware_relay_analysis.json).
-The 100-seed artifact reports training seeds 0–49 and untouched holdout seeds
-50–99 independently, with every strategy executed twice. The fourth,
-benchmark-only `network_aware_transport_only` cell enables Backpressure, map
-compaction, the hop limit, and transport safety handling but never assigns an
-active Relay role. It is intentionally not a public CLI strategy.
-
-The reporting-only base-map quality target is configurable and fixed at 60% in
-this artifact. It does not change mission completion or any planning decision.
-All four variants achieved 100% mission success, Survivor Recall, safe return,
-and zero wall/drone collisions on both splits. Every one of the 150 reachable
-Survivors per split and variant produced a local confirmation event, so the
-result is not based on accidental base knowledge or a seed-specific shortcut.
-
-| Training 0–49 | Relay off | Adaptive | Transport only | Full network-aware |
-| --- | ---: | ---: | ---: | ---: |
-| Mission steps | 152.64 | 160.26 | 123.86 | 128.62 |
-| Fleet path length | 226.48 | 227.44 | 200.28 | 198.60 |
-| Energy consumed | 244.91 | 247.29 | 214.37 | 213.94 |
-| First / all Survivor knowledge at base | 31.80 / 90.70 | 32.70 / 98.66 | 28.82 / 70.86 | 27.76 / 76.82 |
-| Mean / maximum queue | 134.37 / 626 | 146.80 / 516 | 13.26 / 28 | 13.72 / 29 |
-| TTL expirations / Final Sync missions / mean steps | 4,262 / 3 / 4.00 | 5,170 / 3 / 17.33 | 149 / 0 / 0 | 173 / 0 / 0 |
-| Base coverage / 60%-target missions | 88.66% / 49 | 88.82% / 49 | 62.04% / 15 | 63.41% / 25 |
-| Physically explored free area | 68.95% | 69.74% | 66.59% | 66.00% |
-| Local coverage drone-1 / drone-2 | 96.92% / 96.64% | 96.94% / 96.70% | 96.95% / 96.80% | 96.95% / 96.46% |
-| Unique semantic cells at base | 242.04 | 242.48 | 169.36 | 173.12 |
-| Map units TTL-expired / close-discarded | 0 / 147,172 | 0 / 155,167 | 0 / 10,405 | 0 / 10,303 |
-| Compacted items / replaced messages | 0 / 0 | 0 / 0 | 116,458 / 5,172 | 128,459 / 5,761 |
-
-| Holdout 50–99 | Relay off | Adaptive | Transport only | Full network-aware |
-| --- | ---: | ---: | ---: | ---: |
-| Mission steps | 164.50 | 168.00 | 124.30 | 130.34 |
-| Fleet path length | 233.36 | 234.68 | 198.64 | 207.12 |
-| Energy consumed | 253.71 | 255.56 | 212.98 | 222.29 |
-| First / all Survivor knowledge at base | 38.74 / 111.76 | 39.34 / 109.90 | 31.44 / 79.12 | 25.64 / 76.20 |
-| Mean / maximum queue | 140.52 / 606 | 151.12 / 701 | 13.53 / 29 | 13.64 / 28 |
-| TTL expirations / Final Sync missions / mean steps | 5,358 / 7 / 3.00 | 5,697 / 2 / 7.50 | 133 / 0 / 0 | 164 / 0 / 0 |
-| Base coverage / 60%-target missions | 87.72% / 46 | 89.29% / 48 | 60.67% / 17 | 66.86% / 26 |
-| Physically explored free area | 68.97% | 69.42% | 66.27% | 67.42% |
-| Local coverage drone-1 / drone-2 | 96.86% / 96.56% | 96.84% / 96.52% | 96.92% / 96.71% | 96.92% / 96.84% |
-| Unique semantic cells at base | 239.48 | 243.76 | 165.64 | 182.52 |
-| Map units TTL-expired / close-discarded | 0 / 146,903 | 0 / 154,780 | 0 / 10,404 | 0 / 10,742 |
-| Compacted items / replaced messages | 0 / 0 | 0 / 0 | 123,346 / 5,519 | 129,929 / 5,799 |
-
-The causal split is not a blanket win. On holdout, Backpressure/compaction
-without Relay improves duration by 40.20 steps and cuts mean queue size by
-126.98, but loses 27.05 percentage points of base coverage versus Relay off.
-Adding Relay recovers 6.18 coverage points and improves first/all Survivor
-knowledge by 5.80/2.92 steps, while costing 6.04 mission steps, 8.48 path cells,
-and 9.31 energy units versus Transport only. The duration interaction is -2.54
-steps: Relay is not synergistic on duration, though its coverage interaction is
-+4.62 points. Less transferred map data is therefore reported as a coverage
-trade-off, never as mission improvement by itself.
-
-Holdout Relay-off records **five** and Adaptive Relay **four** central
-Safety-Shield interventions. These are not a regression of `network-aware`;
-they demonstrate that the earlier constrained strategies do not fully
-generalize decentralized safety outside the original seeds. Both network-aware
-ablation cells record zero interventions and timeouts.
-
-### Deterministic failure recovery
-
-Phase 4 task redistribution is available through the repeatable
-`--inject-failure DRONE_ID:STEP` option. At the configured step the vehicle
-enters `FAILED`, its radio goes offline, and its last search responsibility is
-released. The remaining operational drone is assigned a reachable frontier
-from its current knowledge. A stale or newly observed former target is never
-forced merely because the failed drone once owned it. The failed airframe is
-treated as a static collision obstacle; safety, energy reserve, and Return to
-Base remain higher priority than recovery.
-
-```bash
-python -m echorescue --drones 2 --seed 7 --inject-failure drone-2:4 --replay-out replays/seed_7_failure.json
-python -m echorescue.failure_benchmark --seeds 50 --failure-drone drone-2 --failure-step 4 --output benchmarks/failure_reassignment_50_seeds.json
-python -m echorescue.dashboard --replay replays/seed_7_failure.json --benchmark benchmarks/failure_reassignment_50_seeds.json
-```
-
-Schema-1.9 replays expose the injected transition, released/reassigned task,
-offline radio state, and `failure_recovery` metrics. Mission success in this
-mode requires every still-operational drone to return, all reachable Survivors
-to be confirmed, no unexpected vehicle failure, and zero wall or drone
-collisions. The injected vehicle remains reported separately as failed; this is
-a degraded-success result, not a claim that the vehicle was recovered.
-
-The versioned 50-seed artifact at
-[`benchmarks/failure_reassignment_50_seeds.json`](benchmarks/failure_reassignment_50_seeds.json)
-fails `drone-2` at step 4 and repeats every recovery mission. All 50 failures
-triggered deterministically, all 50 released search responsibilities were
-reassigned, all operational drones returned, Reachable-Survivor Recall was
-100%, and wall/drone collisions remained zero. Mean duration increased from
-72.10 to 119.20 steps (+65.33%), making the redundancy cost explicit.
-
-Phase-4 defaults and constraints are deliberately conservative:
-
-| Option | Default | Meaning |
-| --- | --- | --- |
-| `--knowledge-mode` | `shared` | Existing shared-map behavior; `local` enables communication-constrained decisions. |
-| `--communication-range` | `8` | Abstract Euclidean radio range; walls can block line of sight. |
-| `--network-profile` | `ideal` | Constrained delay/loss/capacity/TTL transport is opt-in. |
-| `--relay-strategy` | `off` | `adaptive` and `network-aware` are opt-in; network-aware also requires `local` + `constrained`. |
-| `--inject-failure` | not set | Repeatable `DRONE_ID:STEP` fail-stop injection; it requires two drones. |
-
-`FAILED` is terminal and distinct from `LANDED`: the vehicle is offline, owns
-no active target, remains a static obstacle, contributes to `drones_failed`,
-and never contributes to `drones_returned`. “Operational” means a drone not
-removed by a triggered injected failure. `LOST` is intentionally **not** a
-modeled state: radio disconnection does not imply physical loss. The complete
-Phase-4 audit, schema/event inventory, demo assessment, and residual risks are
-documented in [`docs/phase-4-closeout.md`](docs/phase-4-closeout.md).
-
-### Smoke-degraded Survivor perception
-
-The first Phase-5 slice is deliberately narrow and opt-in. `--smoke-profile
-moderate` creates three deterministic, Manhattan-radius smoke zones at density
-0.65. Smoke is environmental Ground Truth: it does not change free/occupied
-cells, DistanceSensor mapping, planning, collision checks, or motion. It only
-reduces the effective range and deterministic detection probability of the
-existing Survivor sensor. `off` remains the default and reproduces the prior
-result and replay bytes.
-
-Events record smoke entry/exit and aggregate degraded Survivor observations at
-the observing drone's position. They never reveal an undetected Survivor's
-position. Schema-2.0 frames report only the density currently experienced by
-each drone. The full density grid is absent from standard replays and is added
-only by `--replay-debug-smoke`, where the dashboard labels it as a debug-only
-Ground-Truth view.
-
-```bash
-python -m echorescue --drones 2 --seed 1 --smoke-profile moderate --replay-out replays/seed_1_smoke.json --replay-debug-smoke
-python -m echorescue.dashboard --replay replays/seed_1_smoke.json --benchmark benchmarks/smoke_perception_50_seeds.json
-python -m echorescue.smoke_benchmark --seeds 50 --output benchmarks/smoke_perception_50_seeds.json
-```
-
-The versioned seeds-0–49 comparison at
-[`benchmarks/smoke_perception_50_seeds.json`](benchmarks/smoke_perception_50_seeds.json)
-holds every non-smoke parameter fixed and repeats each moderate run. Moderate
-smoke reduced average Survivor Recall from 100% to **79.33%** and mission
-success from 100% to **50%**. Mean time to first detection rose from 7.16 to
-10.74 steps (+3.58). Across the 50 missions, 623 of 1,897 eligible Survivor
-detection attempts were degraded, aggregated into 556 telemetry events.
-
-This is a perception baseline, not a mitigation result. Both profiles still
-returned 2.0 drones per mission, averaged the same 72.10 steps and 96.95%
-explored area, and recorded zero wall or drone collisions. Those unchanged
-motion metrics are expected: the current strategy completes occupancy
-exploration independently of Survivor detections. The measured 20.67-point
-Recall loss isolates the missing capability that a later complementary sensor
-should address. Full design and metric semantics are documented in
-[`docs/phase-5-smoke-baseline.md`](docs/phase-5-smoke-baseline.md).
-
-### Abstracted Thermal Survivor sensing
-
-`--survivor-sensor thermal` selects a separate, isolated Survivor channel; it
-does not combine evidence with Visual. Both channels use the same range-three
-limit, wall occlusion, deterministic decisions, and two-observation
-confirmation rule. Thermal deliberately trades a lower clear-air base
-probability of 0.60 for much weaker Smoke attenuation of 0.15, compared with
-1.00 for Visual. It cannot see through walls and is not a simulated camera.
-
-The four-profile 50-seed artifact at
-[`benchmarks/thermal_perception_50_seeds.json`](benchmarks/thermal_perception_50_seeds.json)
-compares Visual/Thermal with Smoke off/moderate and repeats every mission.
-Visual loses 20.67 Recall points under Smoke, falling to 79.33%; Thermal has
-zero Recall-point Smoke penalty and reaches 96.67% under both profiles. Thermal
-recovers **22 of the 25** incomplete Visual-Smoke seeds, but remains imperfect:
-five Thermal-Smoke seeds are incomplete, including two clear examples of its
-lower base-probability trade-off.
-
-All four profiles retain 72.10 mean mission steps, 2.00 returned drones,
-96.95% explored area, and zero wall/drone collisions. Seed 3 is the paired
-visual demo: Visual confirms 2/3 Survivors, while Thermal confirms 3/3 with the
-same 60-step route and no collisions.
-
-```bash
-python -m echorescue --drones 2 --seed 3 --survivor-sensor visual --smoke-profile moderate --replay-debug-smoke --replay-out replays/seed_3_visual_smoke.json
-python -m echorescue --drones 2 --seed 3 --survivor-sensor thermal --smoke-profile moderate --replay-debug-smoke --replay-out replays/seed_3_thermal_smoke.json
-python -m echorescue.dashboard --replay replays/seed_3_thermal_smoke.json --benchmark benchmarks/thermal_perception_50_seeds.json
-```
-
-The abstraction, telemetry fields, complete comparison, Failure-seed analysis,
-and limitations are documented in
+Benchmark modules use identical seed ranges and deterministic repeat checks
+where their experiment requires them. Additional commands and interpretation
+are documented alongside the corresponding artifacts and in
+[`docs/phase-4-closeout.md`](docs/phase-4-closeout.md),
+[`docs/phase-5-smoke-baseline.md`](docs/phase-5-smoke-baseline.md), and
 [`docs/phase-5-thermal-baseline.md`](docs/phase-5-thermal-baseline.md).
 
-## Verified benchmark
+## Tests and quality checks
 
-[`benchmarks/two_drone_50_seeds.json`](benchmarks/two_drone_50_seeds.json) is
-machine-generated from seeds 0–49. Every two-drone seed is executed twice for a
-determinism check, alongside the existing single-drone baseline.
-
-| Metric | Single drone | Two drones |
-| --- | ---: | ---: |
-| Average mission duration | 121.52 steps | 72.10 steps |
-| Survivor recall | 100% | 100% |
-| Wall collisions | 0 | 0 |
-| Drone collisions | n/a | 0 |
-| Duplicate exploration | n/a | 12.56% |
-
-The reported **40.67% shorter mission duration** is calculated as
-`(121.52 - 72.10) / 121.52 × 100`, rounded to two decimals. All 50 two-drone
-missions returned both drones, with no failures or timeouts. The trade-off is
-explicit: combined fleet path length averaged 134.64 cells versus 121.52 for
-one drone, an increase of about 10.8%.
-
-The Shadow Mode suite also executes seeds 0–49 twice. Local maps diverged by an
-average peak of 26.07% of grid cells (maximum 52.75%) while radio links were
-unavailable or partitioned. All 50 missions later converged; the base finished
-with 96.95% average known coverage (minimum 95.60%). Its complete path-and-core-
-metric SHA-256 fingerprint matches the pre-Shadow baseline exactly.
-
-The mode comparison at
-[`benchmarks/knowledge_modes_50_seeds.json`](benchmarks/knowledge_modes_50_seeds.json)
-runs every seed twice in all three modes at radio range 8. Shared and Shadow
-retain the verified fingerprint exactly. Active Local completed all 50 missions
-with 100% base-known Survivor Recall, both drones safely returned, zero wall or
-drone collisions, and zero timeouts. It averaged 75.30 steps versus 72.10 for
-Shared/Shadow, with zero safety-shield interventions, 30 redundant
-frontier assignments, an average peak map divergence of 24.29%, and no final
-divergence. There were no failed seeds to classify; the measurable cost is
-3.20 additional average steps and substantially more local replanning caused by
-partial knowledge, disconnection, and deterministic target reconciliation.
-
-## Simulation controls
-
-For a headless JSON summary without a replay:
+Install the pinned development checker and run the same core checks as CI:
 
 ```bash
-python -m echorescue --seed 7 --drones 2
-```
-
-The deterministic model exposes occupancy sensor, isolated Visual/Thermal
-Survivor channel, smoke profile, battery, reserve, wait-cost,
-radio-range, knowledge mode, base-store, map-size, obstacle-density and
-maximum-step options through `--help`. Use
-`--drones 1` for the preserved single-drone regression mode and `--start-mode
-shared-base` for two virtual launch slots at the base.
-
-## Verification
-
-```bash
+python -m pip install -e ".[dev]"
 python -m unittest discover -s tests -v
+python -m mypy src
 python -m compileall -q src tests
 ```
 
-The suite covers seeded generation, sensing and occlusion, mapping, A* planning,
-survivor, energy, communication, and map-sync events, return safety,
-deterministic multi-drone coordination, collision avoidance, replay
-determinism, hidden-state protection, event/metric fidelity, dashboard assets,
-and a local HTTP smoke test.
+The mypy policy checks all production simulation, planning, mapping,
+coordination, sensing, networking, replay, dashboard, and CLI modules. Legacy
+benchmark JSON aggregation modules are a documented incremental exception; see
+[`docs/type-checking.md`](docs/type-checking.md).
 
-## Current limitations
+## Limitations
 
-- one static 2D floor and at most two drones
-- cardinal, noise-free occupancy sensing; Survivor perception is abstract and
-  deterministically degraded only by the opt-in smoke profile
-- replay schema compatibility is version-checked but has no migration layer
-- full occupancy snapshots favor transparency over file-size efficiency
-- the local server is intended for development and portfolio demos, not public
-  production hosting
-- the dashboard is desktop-first; it remains usable at narrow widths but has no
-  touch-specific gestures beyond the native range control
-- the default ideal profile is instantaneous and lossless; the constrained
-  profile models deterministic delay, capacity, loss, TTL and two-hop routing,
-  but not cryptography, stochastic interference, link-rate adaptation, or more
-  than the two drones plus base station
-- Adaptive Relay uses only two drones, freezes the designated Scout briefly,
-  and optimizes a deterministic local benefit heuristic rather than a learned
-  or globally optimal policy
-- Network-aware Relay is an experimental, fixed-weight utility policy; its
-  training/holdout benchmark is evidence for these map sizes and network
-  defaults, not proof of global optimality or real radio performance
-- Active Local mode is opt-in and retains a central simulator Safety Shield as
-  a final fail-safe; it does not claim real-world decentralized flight safety
-- failure injection is an abrupt deterministic fail-stop model; it does not
-  model probabilistic faults, diagnosis, repair, or a recoverable airframe
-- smoke uses static constant-density zones, not fluid dynamics, diffusion,
-  changing ventilation, or real camera response; it currently affects only
-  Survivor detection and the environment itself provides no mitigation
-- Thermal is a range/LOS/probability abstraction without images, calibrated IR
-  physics, false-positive heat sources, or hardware evidence
-- no Visual/Thermal fusion, acoustic or ultrasonic sensing; no persistent role
-  hierarchy, dynamic obstacles, ROS 2, hardware integration, or 3D visualization
+- EchoRescue is a software simulation, not evidence of real-world flight safety.
+- The world is a static two-dimensional grid; there are no dynamic obstacles,
+  floors, vehicle dynamics, aerodynamics, or flight-controller integration.
+- Sensors are abstract range/LOS/probability models. Thermal is not an infrared
+  camera, and there is no Visual/Thermal fusion, acoustic sensing, ML, or CV.
+- The radio model uses grid LOS and deterministic transport abstractions, not
+  measured RF propagation, interference, or a complete routing protocol.
+- The current mission runtime is specialized for one or two agents; arbitrary
+  fleet sizes are not yet validated.
+- Failure injection is deterministic fail-stop behavior without diagnosis,
+  repair, or probabilistic component reliability.
+- There is no ROS 2, hardware-in-the-loop, real sensor dataset, or hardware
+  validation.
+- The built-in dashboard server is intended for development and demonstrations,
+  not as a hardened public production server.
 
-This is a software simulation and not evidence of real-world flight safety.
+## Roadmap
+
+Implemented experimental capabilities such as Smoke, Thermal sensing, Relay,
+and failure reassignment remain available. The roadmap below defines future
+engineering priority rather than the historical order in which experiments
+were added.
+
+- **v0.5.x — Portfolio Hardening:** landing page, ADRs, typing, CI, and demo
+  readiness.
+- **v0.6 — N-Agent Generalization:** remove two-agent assumptions and validate
+  arbitrary fleet sizes.
+- **v0.7 — Noisy Perception & Confidence:** generalized uncertain observations
+  and confidence semantics.
+- **v0.8 — Dynamic Obstacles / Dynamic Replanning:** changing traversability and
+  replanning behavior.
+- **v0.9 — Generalized Roles + Failure Reassignment:** fleet-scale role and task
+  recovery policies.
+- **v0.10 — Predictive Communication / Multi-Relay:** route-quality prediction
+  and multi-hop Relay coordination.
+- **v0.11 — Multi-floor / 2.5D:** connected floor plans and vertical transitions.
+
+Development stops at v0.5.x in this slice. v0.6 begins only as a separate task.
+
+## License
+
+EchoRescue is available under the [MIT License](LICENSE).
