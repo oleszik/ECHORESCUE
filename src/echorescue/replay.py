@@ -23,6 +23,7 @@ SMOKE_REPLAY_SCHEMA_VERSION = "2.0"
 NOISY_PERCEPTION_REPLAY_SCHEMA_VERSION = "2.1"
 DYNAMIC_OBSTACLE_REPLAY_SCHEMA_VERSION = "2.2"
 ROLE_FAILURE_REPLAY_SCHEMA_VERSION = "2.3"
+MULTI_RELAY_REPLAY_SCHEMA_VERSION = "2.4"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -142,6 +143,24 @@ class ReplayRecorder:
                     "link_achieved": runtime.relay_link_achieved,
                     "role_steps": runtime.relay_role_steps,
                     "holding_for_relay": runtime.holding_for_relay,
+                    **(
+                        {
+                            "served_agent_ids": sorted(
+                                runtime.relay_served_ids
+                            ),
+                            "upstream_relay_id": runtime.relay_upstream_id,
+                            "downstream_relay_id": runtime.relay_downstream_id,
+                            "activation_reason": (
+                                runtime.network_relay_reason
+                            ),
+                            "predictive": (
+                                simulation.config.relay_strategy
+                                == "predictive"
+                            ),
+                        }
+                        if simulation.multi_relay_enabled
+                        else {}
+                    ),
                     **(
                         {
                             "utility": runtime.network_relay_utility,
@@ -411,6 +430,22 @@ class ReplayRecorder:
                 task.to_dict()
                 for task in simulation.task_registry.active_or_orphaned()
             ]
+        if simulation.multi_relay_enabled:
+            frame["multi_relay"] = {
+                "active_relay_ids": sorted(simulation.active_relays),
+                "deployments": [
+                    deployment.to_dict()
+                    for _, deployment in sorted(
+                        simulation.relay_deployments_by_agent.items()
+                    )
+                ],
+                "forecasts": {
+                    drone_id: forecast.to_dict()
+                    for drone_id, forecast in sorted(
+                        simulation._multi_relay_forecasts.items()
+                    )
+                },
+            }
         if self._frames and self._frames[-1]["step"] == simulation.steps:
             self._frames[-1] = frame
         else:
@@ -446,6 +481,11 @@ class ReplayRecorder:
             for key in tuple(configuration):
                 if key.startswith("network_relay_"):
                     configuration.pop(key)
+        if not simulation.multi_relay_enabled:
+            for key in tuple(configuration):
+                if key.startswith("multi_relay_"):
+                    configuration.pop(key)
+            configuration.pop("relay_prediction_horizon", None)
         if not simulation.config.failure_schedule:
             configuration.pop("failure_schedule", None)
         if simulation.config.smoke_profile == "off":
@@ -531,7 +571,9 @@ class ReplayRecorder:
                 ]
         return {
             "schema_version": (
-                ROLE_FAILURE_REPLAY_SCHEMA_VERSION
+                MULTI_RELAY_REPLAY_SCHEMA_VERSION
+                if simulation.multi_relay_enabled
+                else ROLE_FAILURE_REPLAY_SCHEMA_VERSION
                 if simulation.roles_enabled
                 else DYNAMIC_OBSTACLE_REPLAY_SCHEMA_VERSION
                 if simulation.dynamic_obstacles_enabled

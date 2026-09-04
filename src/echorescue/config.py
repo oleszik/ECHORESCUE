@@ -57,6 +57,15 @@ class SimulationConfig:
     network_relay_recent_map_age_steps: int = 8
     network_relay_map_delta_limit: int = 24
     network_relay_min_outage_steps: int = 8
+    multi_relay_max_active: int = 2
+    multi_relay_activation_outage_steps: int = 3
+    multi_relay_min_unsynced_cells: int = 12
+    multi_relay_min_hold_steps: int = 6
+    multi_relay_max_role_steps: int = 24
+    multi_relay_deactivation_hysteresis_steps: int = 3
+    multi_relay_max_deployments: int = 8
+    multi_relay_candidate_limit: int = 48
+    relay_prediction_horizon: int = 4
     network_profile: str = "ideal"
     network_latency_steps: int = 1
     network_packet_loss_rate: float = 0.05
@@ -145,9 +154,16 @@ class SimulationConfig:
             raise ValueError("motion_intent_ttl must be positive")
         if self.deadlock_wait_threshold < 2:
             raise ValueError("deadlock_wait_threshold must be at least 2")
-        if self.relay_strategy not in {"off", "adaptive", "network-aware"}:
+        if self.relay_strategy not in {
+            "off",
+            "adaptive",
+            "network-aware",
+            "multi-relay",
+            "predictive",
+        }:
             raise ValueError(
-                "relay_strategy must be off, adaptive, or network-aware"
+                "relay_strategy must be off, adaptive, network-aware, "
+                "multi-relay, or predictive"
             )
         if self.relay_min_outage_steps < 1:
             raise ValueError("relay_min_outage_steps must be positive")
@@ -177,6 +193,30 @@ class SimulationConfig:
             raise ValueError("network_relay_map_delta_limit must be positive")
         if self.network_relay_min_outage_steps < 1:
             raise ValueError("network_relay_min_outage_steps must be positive")
+        if not 1 <= self.multi_relay_max_active <= 2:
+            raise ValueError("multi_relay_max_active must be 1 or 2")
+        if self.multi_relay_activation_outage_steps < 1:
+            raise ValueError(
+                "multi_relay_activation_outage_steps must be positive"
+            )
+        if self.multi_relay_min_unsynced_cells < 1:
+            raise ValueError("multi_relay_min_unsynced_cells must be positive")
+        if self.multi_relay_min_hold_steps < 1:
+            raise ValueError("multi_relay_min_hold_steps must be positive")
+        if self.multi_relay_max_role_steps < self.multi_relay_min_hold_steps:
+            raise ValueError(
+                "multi_relay_max_role_steps must cover minimum hold time"
+            )
+        if self.multi_relay_deactivation_hysteresis_steps < 1:
+            raise ValueError(
+                "multi_relay_deactivation_hysteresis_steps must be positive"
+            )
+        if self.multi_relay_max_deployments < 1:
+            raise ValueError("multi_relay_max_deployments must be positive")
+        if self.multi_relay_candidate_limit < 4:
+            raise ValueError("multi_relay_candidate_limit must be at least 4")
+        if self.relay_prediction_horizon < 1:
+            raise ValueError("relay_prediction_horizon must be positive")
         if self.network_profile not in {"ideal", "constrained"}:
             raise ValueError("network_profile must be ideal or constrained")
         if self.network_profile == "constrained" and self.effective_knowledge_mode != "local":
@@ -245,20 +285,33 @@ class SimulationConfig:
                 + ", ".join(sorted(SMOKE_PROFILES))
             )
         if (
-            self.relay_strategy in {"adaptive", "network-aware"}
+            self.relay_strategy
+            in {"adaptive", "network-aware", "multi-relay", "predictive"}
             and self.effective_knowledge_mode != "local"
         ):
             raise ValueError("Relay strategies require knowledge_mode=local")
-        if self.relay_strategy != "off" and self.drone_count != 2:
+        if (
+            self.relay_strategy in {"adaptive", "network-aware"}
+            and self.drone_count != 2
+        ):
             raise ValueError(
                 "adaptive relay strategies currently require exactly two drones"
             )
         if (
-            self.relay_strategy == "network-aware"
+            self.relay_strategy
+            in {"network-aware", "multi-relay", "predictive"}
             and self.network_profile != "constrained"
         ):
             raise ValueError(
-                "network-aware relay requires network_profile=constrained"
+                "network-aware and N-agent Relay require "
+                "network_profile=constrained"
+            )
+        if (
+            self.relay_strategy in {"multi-relay", "predictive"}
+            and self.multi_relay_max_active >= self.drone_count
+        ):
+            raise ValueError(
+                "multi_relay_max_active must leave at least one non-Relay agent"
             )
         if self.max_steps < 1:
             raise ValueError("max_steps must be positive")

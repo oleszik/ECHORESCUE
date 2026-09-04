@@ -93,7 +93,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--relay-strategy",
-        choices=("off", "adaptive", "network-aware"),
+        choices=(
+            "off",
+            "adaptive",
+            "network-aware",
+            "multi-relay",
+            "predictive",
+        ),
         default="off",
     )
     parser.add_argument("--relay-min-outage-steps", type=int, default=40)
@@ -110,6 +116,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--network-relay-recent-map-age", type=int, default=8)
     parser.add_argument("--network-relay-map-delta-limit", type=int, default=24)
     parser.add_argument("--network-relay-min-outage", type=int, default=8)
+    parser.add_argument("--multi-relay-max-active", type=int, choices=(1, 2), default=2)
+    parser.add_argument("--multi-relay-activation-outage", type=int, default=3)
+    parser.add_argument("--multi-relay-min-unsynced-cells", type=int, default=12)
+    parser.add_argument("--multi-relay-min-hold", type=int, default=6)
+    parser.add_argument("--multi-relay-max-role-steps", type=int, default=24)
+    parser.add_argument("--multi-relay-deactivation-hysteresis", type=int, default=3)
+    parser.add_argument("--multi-relay-max-deployments", type=int, default=8)
+    parser.add_argument("--multi-relay-candidate-limit", type=int, default=48)
+    parser.add_argument("--relay-prediction-horizon", type=int, default=4)
     parser.add_argument(
         "--network-profile", choices=("ideal", "constrained"), default="ideal"
     )
@@ -239,6 +254,17 @@ def main(argv: list[str] | None = None) -> None:
         network_relay_recent_map_age_steps=args.network_relay_recent_map_age,
         network_relay_map_delta_limit=args.network_relay_map_delta_limit,
         network_relay_min_outage_steps=args.network_relay_min_outage,
+        multi_relay_max_active=args.multi_relay_max_active,
+        multi_relay_activation_outage_steps=args.multi_relay_activation_outage,
+        multi_relay_min_unsynced_cells=args.multi_relay_min_unsynced_cells,
+        multi_relay_min_hold_steps=args.multi_relay_min_hold,
+        multi_relay_max_role_steps=args.multi_relay_max_role_steps,
+        multi_relay_deactivation_hysteresis_steps=(
+            args.multi_relay_deactivation_hysteresis
+        ),
+        multi_relay_max_deployments=args.multi_relay_max_deployments,
+        multi_relay_candidate_limit=args.multi_relay_candidate_limit,
+        relay_prediction_horizon=args.relay_prediction_horizon,
         network_profile=args.network_profile,
         network_latency_steps=args.network_latency_steps,
         network_packet_loss_rate=args.network_packet_loss,

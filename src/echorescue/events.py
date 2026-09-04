@@ -88,6 +88,11 @@ class EventType(str, Enum):
     TASK_REASSIGNED = "task_reassigned"
     TASK_COMPLETED_AFTER_REASSIGNMENT = "task_completed_after_reassignment"
     FAILURE_RECOVERY_COMPLETED = "failure_recovery_completed"
+    MULTI_RELAY_ACTIVATED = "multi_relay_activated"
+    MULTI_RELAY_DEACTIVATED = "multi_relay_deactivated"
+    MULTI_RELAY_TOPOLOGY_CHANGED = "multi_relay_topology_changed"
+    PREDICTIVE_LINK_FORECAST = "predictive_link_forecast"
+    PREDICTIVE_RELAY_ACTIVATED = "predictive_relay_activated"
 
 
 @dataclass(frozen=True, slots=True)
@@ -140,6 +145,10 @@ class MissionEvent:
     new_role: str | None = None
     reassignment_score: int | None = None
     assignment_latency: int | None = None
+    served_agent_ids: tuple[str, ...] | None = None
+    active_relay_ids: tuple[str, ...] | None = None
+    forecast_disconnect_step: int | None = None
+    prediction_horizon: int | None = None
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -241,6 +250,16 @@ class MissionEvent:
             payload["reassignment_score"] = self.reassignment_score
         if self.assignment_latency is not None:
             payload["assignment_latency"] = self.assignment_latency
+        if self.served_agent_ids is not None:
+            payload["served_agent_ids"] = list(self.served_agent_ids)
+        if self.active_relay_ids is not None:
+            payload["active_relay_ids"] = list(self.active_relay_ids)
+        if self.forecast_disconnect_step is not None:
+            payload["forecast_disconnect_step"] = (
+                self.forecast_disconnect_step
+            )
+        if self.prediction_horizon is not None:
+            payload["prediction_horizon"] = self.prediction_horizon
         return payload
 
 
@@ -362,6 +381,11 @@ class MissionLog:
             EventType.TASK_REASSIGNED,
             EventType.TASK_COMPLETED_AFTER_REASSIGNMENT,
             EventType.FAILURE_RECOVERY_COMPLETED,
+            EventType.MULTI_RELAY_ACTIVATED,
+            EventType.MULTI_RELAY_DEACTIVATED,
+            EventType.MULTI_RELAY_TOPOLOGY_CHANGED,
+            EventType.PREDICTIVE_LINK_FORECAST,
+            EventType.PREDICTIVE_RELAY_ACTIVATED,
         }:
             key = (
                 event.event_type,

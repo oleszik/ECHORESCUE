@@ -236,7 +236,11 @@ function updateDroneCard(number, drone, frame) {
     dataStatus.textContent = delivered ? "Delivered this step" : (network.queue_size ? "Queued" : "Idle");
     dataStatus.className = delivered ? "data-delivered" : "";
   }
-  if (drone.relay?.active && drone.relay.strategy === "network-aware") {
+  if (drone.relay?.active && ["multi-relay", "predictive"].includes(drone.relay.strategy)) {
+    const served = Array.isArray(drone.relay.served_agent_ids) ? drone.relay.served_agent_ids.join(", ") : "—";
+    const reason = drone.relay.activation_reason || "reactive connectivity need";
+    dataStatus.textContent = `${drone.relay.predictive ? "Predictive relay" : "Multi-relay"} · ${reason} · serves ${served}`;
+  } else if (drone.relay?.active && drone.relay.strategy === "network-aware") {
     const utility = Number.isFinite(drone.relay.utility) ? drone.relay.utility.toFixed(1) : "—";
     const progress = Number.isFinite(drone.relay.transfer_progress)
       ? `${(drone.relay.transfer_progress * 100).toFixed(0)}%` : "—";
@@ -305,6 +309,8 @@ function eventColor(event) {
   if (event.event_type === "final_sync_started") return "#38bdf8";
   if (["relay_link_achieved", "relay_payload_forwarded", "network_relay_accepted", "critical_payload_acknowledged", "relay_backpressure_ended"].includes(event.event_type)) return "#34d399";
   if (["network_relay_rejected", "relay_backpressure_started"].includes(event.event_type)) return "#f59e0b";
+  if (["multi_relay_activated", "predictive_relay_activated", "predictive_link_forecast"].includes(event.event_type)) return COLORS.radioRelay;
+  if (event.event_type === "multi_relay_deactivated") return "#34d399";
   if (event.event_type.startsWith("relay_role_") || event.event_type === "relay_position_selected") return COLORS.radioRelay;
   if (["local_collision_avoided", "yield_started", "yield_ended", "deadlock_replanned"].includes(event.event_type)) return "#34d399";
   if (event.event_type === "corridor_deadlock_detected") return "#f59e0b";
@@ -859,6 +865,33 @@ function normalizeRoleFailureBenchmark(benchmark) {
   };
 }
 
+function normalizeMultiRelayBenchmark(benchmark) {
+  const profiles = requiredObject(benchmark, "profiles", "Predictive Multi-Relay");
+  const reactive = requiredObject(profiles, "C_reactive_max_2", "Predictive Multi-Relay");
+  const predictive = requiredObject(profiles, "E_predictive_max_2", "Predictive Multi-Relay");
+  const reactiveMetrics = requiredObject(reactive, "metrics", "Reactive Multi-Relay");
+  const predictiveMetrics = requiredObject(predictive, "metrics", "Predictive Multi-Relay");
+  const reactiveDuration = requiredObject(reactiveMetrics, "mission_duration", "Reactive Multi-Relay");
+  const predictiveDuration = requiredObject(predictiveMetrics, "mission_duration", "Predictive Multi-Relay");
+  const reactiveUptime = requiredObject(reactiveMetrics, "communication_uptime", "Reactive Multi-Relay");
+  const predictiveUptime = requiredObject(predictiveMetrics, "communication_uptime", "Predictive Multi-Relay");
+  const prevented = optionalNumber(predictive, "prevented_disconnection_steps", "E_predictive_max_2");
+  const unnecessary = optionalNumber(predictive, "unnecessary_predictive_activations", "E_predictive_max_2");
+  const uptimeDelta = 100 * (Number(predictiveUptime.mean) - Number(reactiveUptime.mean));
+  return {
+    status: "ready",
+    format: "predictive_multi_relay",
+    title: "Predictive Multi-Relay holdout",
+    baselineLabel: "Reactive max 2",
+    candidateLabel: "Predictive max 2",
+    baselineSteps: Number(reactiveDuration.mean),
+    candidateSteps: Number(predictiveDuration.mean),
+    improvementValue: signedMetric(uptimeDelta, " pp"),
+    improvementLabel: "uptime delta",
+    note: `${Number(prevented).toFixed(0)} prevented-disconnection agent-steps; ${Number(unnecessary).toFixed(0)} unnecessary predictive activations.`,
+  };
+}
+
 function normalizeBenchmark(benchmark) {
   if (!isRecord(benchmark)) throw new Error("Benchmark root must be a JSON object.");
   if (hasOwn(benchmark, "schema_version") && typeof benchmark.schema_version !== "string") {
@@ -881,6 +914,9 @@ function normalizeBenchmark(benchmark) {
   }
   if (benchmark.benchmark_type === "generalized_roles_failure_resilience") {
     return normalizeRoleFailureBenchmark(benchmark);
+  }
+  if (benchmark.benchmark === "v0.10-predictive-communication-multi-relay") {
+    return normalizeMultiRelayBenchmark(benchmark);
   }
   if (hasOwn(benchmark, "training") || hasOwn(benchmark, "holdout")) {
     return normalizeNetworkAwareRelayBenchmark(benchmark);
