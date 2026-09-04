@@ -22,6 +22,7 @@ with the documented benchmark commands.
 
 | Experiment | Stored result over 50 seeds |
 | --- | --- |
+| Dynamic obstacles | Paired Moderate vs Off: +2.92 steps (+4.28%) and +5.60 path cells (+4.32%); 49/49 replans successful, 50/50 missions successful, zero collisions |
 | Noisy Survivor perception | Visual/moderate: 96.67% Recall, 90% mission success, 7.98% FPR, 18.22% FNR; 100/100 agents returned and zero collisions |
 | N-agent scaling | 1/2/4/8-agent fleets: 200/200 successful and collision-free missions; mean duration 121.52/72.10/65.36/62.04 steps |
 | Two-agent search | 50/50 successful missions, 100% Survivor Recall, both drones returned, zero wall/drone collisions; 40.67% shorter mean duration than one drone |
@@ -40,6 +41,9 @@ in [`docs/v0.6-n-agent-scaling.md`](docs/v0.6-n-agent-scaling.md).
 The confidence model, holdout results, reliability analysis, and failure seeds
 are in
 [`docs/v0.7-noisy-perception-confidence.md`](docs/v0.7-noisy-perception-confidence.md).
+The dynamic-closure model, paired holdout, failure analysis, and replanning
+costs are in
+[`docs/v0.8-dynamic-obstacles-replanning.md`](docs/v0.8-dynamic-obstacles-replanning.md).
 
 ## Architecture
 
@@ -63,6 +67,7 @@ Sensors ──► discovered knowledge / occupancy maps
 Communication graph ──► map/Survivor sync ──► constrained transport
                      └─► optional Relay roles
 Failure events ───────► task release and deterministic reassignment
+Dynamic closures ─────► observed map transition ──► path invalidation/replan
 ```
 
 The core components are:
@@ -100,6 +105,8 @@ For a headless result only:
 ```bash
 python -m echorescue --drones 8 --seed 7
 python -m echorescue --drones 2 --seed 50 --survivor-sensor visual --perception-noise moderate
+python -m echorescue --drones 2 --seed 51 --dynamic-obstacles moderate --replay-out replays/seed_51_dynamic_obstacles.json
+python -m echorescue --drones 2 --seed 7 --inject-obstacle 5,7:20
 ```
 
 The public Python entry points are also importable:
@@ -152,6 +159,7 @@ python -m echorescue.network_benchmark --seeds 50 --output benchmarks/constraine
 python -m echorescue.smoke_benchmark --seeds 50 --output benchmarks/smoke_perception_50_seeds.json
 python -m echorescue.thermal_benchmark --seeds 50 --output benchmarks/thermal_perception_50_seeds.json
 python -m echorescue.noisy_perception_benchmark --output benchmarks/noisy_perception_50_holdout_seeds.json
+python -m echorescue.dynamic_obstacle_benchmark --output benchmarks/dynamic_obstacles_50_holdout_seeds.json
 ```
 
 Benchmark modules use identical seed ranges and deterministic repeat checks
@@ -180,7 +188,8 @@ benchmark JSON aggregation modules are a documented incremental exception; see
 ## Limitations
 
 - EchoRescue is a software simulation, not evidence of real-world flight safety.
-- The world is a static two-dimensional grid; there are no dynamic obstacles,
+- The world is a two-dimensional grid with abstract persistent cell closures;
+  there is no collapse physics, obstacle reopening, movable debris, additional
   floors, vehicle dynamics, aerodynamics, or flight-controller integration.
 - Sensors are abstract range/LOS/probability models. Thermal is not an infrared
   camera, and there is no Visual/Thermal fusion, acoustic sensing, ML, or CV.
@@ -208,15 +217,15 @@ were added.
   1/2/4/8 agents, with scaling statistics and fleet-safe replay/dashboard data.
 - **v0.7 — Noisy Perception & Confidence:** generalized uncertain observations
   and confidence semantics.
-- **v0.8 — Dynamic Obstacles / Dynamic Replanning:** changing traversability and
-  replanning behavior.
+- **v0.8 — Dynamic Obstacles / Dynamic Replanning:** observation-driven changing
+  traversability, safe path invalidation, and deterministic replanning.
 - **v0.9 — Generalized Roles + Failure Reassignment:** fleet-scale role and task
   recovery policies.
 - **v0.10 — Predictive Communication / Multi-Relay:** route-quality prediction
   and multi-hop Relay coordination.
 - **v0.11 — Multi-floor / 2.5D:** connected floor plans and vertical transitions.
 
-Development stops at completed v0.6 in this slice. v0.7 begins only as a
+Development stops at completed v0.8 in this slice. v0.9 begins only as a
 separate task.
 
 ## License

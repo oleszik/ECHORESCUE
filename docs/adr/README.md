@@ -12,3 +12,5 @@ rather than silently rewriting its decision.
 | [0004](0004-headless-core-and-replay-dashboard.md) | Accepted | Headless simulation with read-only visualization |
 | [0005](0005-versioned-replay-interface.md) | Accepted | Replay JSON as a versioned compatibility boundary |
 | [0006](0006-generic-n-agent-coordination.md) | Accepted | One deterministic collection-oriented core for 1–8 agents |
+| [0007](0007-evidence-based-survivor-hypotheses.md) | Accepted | Confidence-weighted Survivor hypotheses without Ground-Truth leakage |
+| [0008](0008-mutable-environment-observation-driven-replanning.md) | Accepted | Mutable Ground Truth with observation-driven path invalidation and replanning |
