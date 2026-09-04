@@ -15,3 +15,5 @@ rather than silently rewriting its decision.
 | [0007](0007-evidence-based-survivor-hypotheses.md) | Accepted | Confidence-weighted Survivor hypotheses without Ground-Truth leakage |
 | [0008](0008-mutable-environment-observation-driven-replanning.md) | Accepted | Mutable Ground Truth with observation-driven path invalidation and replanning |
 | [0009](0009-role-task-ownership-recovery.md) | Accepted | Deterministic N-agent role and single-owner task recovery semantics |
+| [0010](0010-generic-multi-relay-topology.md) | Accepted | Collection-oriented Relay deployments over the existing communication graph |
+| [0011](0011-planned-path-connectivity-forecast.md) | Accepted | Known-map planned-path forecasts for near-term communication loss |

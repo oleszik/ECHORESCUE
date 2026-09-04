@@ -22,6 +22,7 @@ with the documented benchmark commands.
 
 | Experiment | Stored result over 50 seeds |
 | --- | --- |
+| Predictive communication / Multi-Relay | 4 agents: reactive two-vs-one Relay uptime +5.09 points; predictive-vs-reactive +2.38 points; all 150 Relay missions successful with full Recall/return and zero collisions |
 | Generalized roles + failure resilience | 4 agents: 50/50 failure tasks reassigned, 100% mission success/Recall/operational return, 1-step execution recovery, zero collisions and Role Thrashing |
 | Dynamic obstacles | Paired Moderate vs Off: +2.92 steps (+4.28%) and +5.60 path cells (+4.32%); 49/49 replans successful, 50/50 missions successful, zero collisions |
 | Noisy Survivor perception | Visual/moderate: 96.67% Recall, 90% mission success, 7.98% FPR, 18.22% FNR; 100/100 agents returned and zero collisions |
@@ -48,6 +49,9 @@ costs are in
 The N-agent role/task model, paired failure holdout, recovery latencies, and
 Generalist comparison are in
 [`docs/v0.9-generalized-roles-failure-resilience.md`](docs/v0.9-generalized-roles-failure-resilience.md).
+The N-agent Relay topology, planned-path forecast, paired holdout costs, and
+per-seed limitations are in
+[`docs/v0.10-predictive-communication-multi-relay.md`](docs/v0.10-predictive-communication-multi-relay.md).
 
 ## Architecture
 
@@ -112,6 +116,7 @@ python -m echorescue --drones 2 --seed 50 --survivor-sensor visual --perception-
 python -m echorescue --drones 2 --seed 51 --dynamic-obstacles moderate --replay-out replays/seed_51_dynamic_obstacles.json
 python -m echorescue --drones 2 --seed 7 --inject-obstacle 5,7:20
 python -m echorescue --drones 4 --seed 50 --role-policy generalized --inject-failure drone-2:12
+python -m echorescue --drones 4 --seed 74 --knowledge-mode local --network-profile constrained --role-policy generalized --relay-strategy predictive --multi-relay-max-active 2 --replay-out replays/seed_74_predictive_multi_relay.json
 ```
 
 The public Python entry points are also importable:
@@ -159,6 +164,12 @@ deterministic multi-candidate score, temporarily becomes a Scout, completes
 the same task ID, and returns to its base role. All operational agents land
 with full Recall and zero collisions.
 
+For the v0.10 communication demo, use
+`replays/seed_74_predictive_multi_relay.json` with
+`benchmarks/predictive_multi_relay_50_seeds.json`. It shows a four-agent
+planned-path loss forecast, shared and two-Relay topology, critical knowledge
+delivery, Relay release, full return, and zero collisions.
+
 ## Reproducible benchmarks
 
 The main baseline and selected resilience/perception experiments can be rebuilt
@@ -174,6 +185,7 @@ python -m echorescue.thermal_benchmark --seeds 50 --output benchmarks/thermal_pe
 python -m echorescue.noisy_perception_benchmark --output benchmarks/noisy_perception_50_holdout_seeds.json
 python -m echorescue.dynamic_obstacle_benchmark --output benchmarks/dynamic_obstacles_50_holdout_seeds.json
 python -m echorescue.role_failure_benchmark --output benchmarks/generalized_roles_failure_50_holdout_seeds.json
+python -m echorescue.multi_relay_benchmark --seed-start 50 --seed-end 99 --output benchmarks/predictive_multi_relay_50_seeds.json
 ```
 
 Benchmark modules use identical seed ranges and deterministic repeat checks
