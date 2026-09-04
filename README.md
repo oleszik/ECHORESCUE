@@ -22,6 +22,7 @@ with the documented benchmark commands.
 
 | Experiment | Stored result over 50 seeds |
 | --- | --- |
+| Generalized roles + failure resilience | 4 agents: 50/50 failure tasks reassigned, 100% mission success/Recall/operational return, 1-step execution recovery, zero collisions and Role Thrashing |
 | Dynamic obstacles | Paired Moderate vs Off: +2.92 steps (+4.28%) and +5.60 path cells (+4.32%); 49/49 replans successful, 50/50 missions successful, zero collisions |
 | Noisy Survivor perception | Visual/moderate: 96.67% Recall, 90% mission success, 7.98% FPR, 18.22% FNR; 100/100 agents returned and zero collisions |
 | N-agent scaling | 1/2/4/8-agent fleets: 200/200 successful and collision-free missions; mean duration 121.52/72.10/65.36/62.04 steps |
@@ -44,6 +45,9 @@ are in
 The dynamic-closure model, paired holdout, failure analysis, and replanning
 costs are in
 [`docs/v0.8-dynamic-obstacles-replanning.md`](docs/v0.8-dynamic-obstacles-replanning.md).
+The N-agent role/task model, paired failure holdout, recovery latencies, and
+Generalist comparison are in
+[`docs/v0.9-generalized-roles-failure-resilience.md`](docs/v0.9-generalized-roles-failure-resilience.md).
 
 ## Architecture
 
@@ -107,6 +111,7 @@ python -m echorescue --drones 8 --seed 7
 python -m echorescue --drones 2 --seed 50 --survivor-sensor visual --perception-noise moderate
 python -m echorescue --drones 2 --seed 51 --dynamic-obstacles moderate --replay-out replays/seed_51_dynamic_obstacles.json
 python -m echorescue --drones 2 --seed 7 --inject-obstacle 5,7:20
+python -m echorescue --drones 4 --seed 50 --role-policy generalized --inject-failure drone-2:12
 ```
 
 The public Python entry points are also importable:
@@ -146,6 +151,14 @@ For a compact fleet-scaling demo, use `replays/seed_44_4_agents.json` with
 distinct targets, Survivor confirmation, movement interventions, and safe
 return.
 
+For the v0.9 recovery demo, use
+`replays/seed_50_generalized_roles_failure.json` with
+`benchmarks/generalized_roles_failure_50_holdout_seeds.json`. At step 12 a
+Scout fails during an owned exploration task; a Generalist wins the
+deterministic multi-candidate score, temporarily becomes a Scout, completes
+the same task ID, and returns to its base role. All operational agents land
+with full Recall and zero collisions.
+
 ## Reproducible benchmarks
 
 The main baseline and selected resilience/perception experiments can be rebuilt
@@ -160,6 +173,7 @@ python -m echorescue.smoke_benchmark --seeds 50 --output benchmarks/smoke_percep
 python -m echorescue.thermal_benchmark --seeds 50 --output benchmarks/thermal_perception_50_seeds.json
 python -m echorescue.noisy_perception_benchmark --output benchmarks/noisy_perception_50_holdout_seeds.json
 python -m echorescue.dynamic_obstacle_benchmark --output benchmarks/dynamic_obstacles_50_holdout_seeds.json
+python -m echorescue.role_failure_benchmark --output benchmarks/generalized_roles_failure_50_holdout_seeds.json
 ```
 
 Benchmark modules use identical seed ranges and deterministic repeat checks
@@ -197,6 +211,9 @@ benchmark JSON aggregation modules are a documented incremental exception; see
   measured RF propagation, interference, or a complete routing protocol.
 - The mission runtime is validated for 1–8 agents. Adaptive and Network-aware
   Relay roles remain intentionally limited to two-agent experiments.
+- Generalized role/task ownership is authoritative in shared mode. Constrained
+  local communication has regression coverage but no distributed role
+  consensus, predictive placement, or Multi-Relay optimization.
 - Failure injection is deterministic fail-stop behavior without diagnosis,
   repair, or probabilistic component reliability.
 - There is no ROS 2, hardware-in-the-loop, real sensor dataset, or hardware
@@ -219,13 +236,14 @@ were added.
   and confidence semantics.
 - **v0.8 — Dynamic Obstacles / Dynamic Replanning:** observation-driven changing
   traversability, safe path invalidation, and deterministic replanning.
-- **v0.9 — Generalized Roles + Failure Reassignment:** fleet-scale role and task
-  recovery policies.
+- **v0.9 — Generalized Roles + Failure Reassignment:** deterministic N-agent
+  roles, explicit task ownership, energy-safe recovery, and paired holdout
+  validation.
 - **v0.10 — Predictive Communication / Multi-Relay:** route-quality prediction
   and multi-hop Relay coordination.
 - **v0.11 — Multi-floor / 2.5D:** connected floor plans and vertical transitions.
 
-Development stops at completed v0.8 in this slice. v0.9 begins only as a
+Development stops at completed v0.9 in this slice. v0.10 begins only as a
 separate task.
 
 ## License

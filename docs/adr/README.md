@@ -14,3 +14,4 @@ rather than silently rewriting its decision.
 | [0006](0006-generic-n-agent-coordination.md) | Accepted | One deterministic collection-oriented core for 1–8 agents |
 | [0007](0007-evidence-based-survivor-hypotheses.md) | Accepted | Confidence-weighted Survivor hypotheses without Ground-Truth leakage |
 | [0008](0008-mutable-environment-observation-driven-replanning.md) | Accepted | Mutable Ground Truth with observation-driven path invalidation and replanning |
+| [0009](0009-role-task-ownership-recovery.md) | Accepted | Deterministic N-agent role and single-owner task recovery semantics |
