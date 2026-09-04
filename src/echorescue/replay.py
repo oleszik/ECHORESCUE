@@ -5,6 +5,7 @@ from pathlib import Path
 
 from echorescue.communication import BASE_NODE_ID, CommunicationLink
 from echorescue.config import SimulationConfig
+from echorescue.events import EventType
 from echorescue.knowledge import KnowledgeMap
 from echorescue.models import CellState, DroneStatus, Position
 from echorescue.multi_simulation import (
@@ -20,6 +21,7 @@ NETWORK_AWARE_REPLAY_SCHEMA_VERSION = "1.8"
 FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION = "1.9"
 SMOKE_REPLAY_SCHEMA_VERSION = "2.0"
 NOISY_PERCEPTION_REPLAY_SCHEMA_VERSION = "2.1"
+DYNAMIC_OBSTACLE_REPLAY_SCHEMA_VERSION = "2.2"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -379,6 +381,13 @@ class ReplayRecorder:
                     simulation.hypothesis_tracker.hypotheses.items()
                 )
             ]
+        if simulation.dynamic_obstacles_enabled:
+            frame["dynamic_obstacles_observed"] = [
+                _position(position)
+                for position in sorted(
+                    simulation._dynamic_obstacles_observed
+                )
+            ]
         if self._frames and self._frames[-1]["step"] == simulation.steps:
             self._frames[-1] = frame
         else:
@@ -391,6 +400,11 @@ class ReplayRecorder:
     ) -> dict[str, object]:
         events_by_step: dict[int, list[dict[str, object]]] = {}
         for event in result.mission_events:
+            if event.event_type in {
+                EventType.DYNAMIC_OBSTACLE_INJECTED,
+                EventType.DYNAMIC_OBSTACLE_REJECTED,
+            }:
+                continue
             events_by_step.setdefault(event.step, []).append(event.to_dict())
         frames = []
         for captured in self._frames:
@@ -421,6 +435,9 @@ class ReplayRecorder:
                 "survivor_negative_evidence_weight",
             ):
                 configuration.pop(key, None)
+        if not simulation.dynamic_obstacles_enabled:
+            configuration.pop("dynamic_obstacles", None)
+            configuration.pop("dynamic_obstacle_schedule", None)
         if simulation.config.survivor_sensor == "visual":
             for key in (
                 "survivor_sensor",
@@ -437,6 +454,12 @@ class ReplayRecorder:
         }
         if simulation.config.perception_noise != "off":
             mission["perception_noise"] = simulation.config.perception_noise
+        if simulation.dynamic_obstacles_enabled:
+            mission["dynamic_obstacles"] = (
+                "explicit"
+                if simulation.config.dynamic_obstacle_schedule
+                else simulation.config.dynamic_obstacles
+            )
         if simulation.network_transport is not None:
             mission["network_profile"] = simulation.config.network_profile
         if simulation.config.survivor_sensor != "visual":
@@ -465,9 +488,25 @@ class ReplayRecorder:
                     simulation.config.width, simulation.config.height
                 ),
             }
+        metrics = result.to_dict()
+        if simulation.dynamic_obstacles_enabled:
+            mission_events = metrics.get("mission_events")
+            if isinstance(mission_events, list):
+                metrics["mission_events"] = [
+                    event
+                    for event in mission_events
+                    if isinstance(event, dict)
+                    and event.get("event_type")
+                    not in {
+                        EventType.DYNAMIC_OBSTACLE_INJECTED.value,
+                        EventType.DYNAMIC_OBSTACLE_REJECTED.value,
+                    }
+                ]
         return {
             "schema_version": (
-                NOISY_PERCEPTION_REPLAY_SCHEMA_VERSION
+                DYNAMIC_OBSTACLE_REPLAY_SCHEMA_VERSION
+                if simulation.dynamic_obstacles_enabled
+                else NOISY_PERCEPTION_REPLAY_SCHEMA_VERSION
                 if simulation.config.perception_noise != "off"
                 else SMOKE_REPLAY_SCHEMA_VERSION
                 if (
@@ -493,7 +532,7 @@ class ReplayRecorder:
             },
             "map": map_payload,
             "frames": frames,
-            "metrics": result.to_dict(),
+            "metrics": metrics,
         }
 
 

@@ -72,6 +72,16 @@ class EventType(str, Enum):
     SURVIVOR_EVIDENCE_UPDATED = "survivor_evidence_updated"
     SURVIVOR_HYPOTHESIS_CONFIRMED = "survivor_hypothesis_confirmed"
     SURVIVOR_HYPOTHESIS_REJECTED = "survivor_hypothesis_rejected"
+    DYNAMIC_OBSTACLE_INJECTED = "dynamic_obstacle_injected"
+    DYNAMIC_OBSTACLE_REJECTED = "dynamic_obstacle_rejected"
+    DYNAMIC_OBSTACLE_OBSERVED = "dynamic_obstacle_observed"
+    PATH_INVALIDATED = "path_invalidated"
+    REPLAN_REQUESTED = "replan_requested"
+    REPLAN_SUCCEEDED = "replan_succeeded"
+    REPLAN_FAILED = "replan_failed"
+    TARGET_UNREACHABLE = "target_unreachable"
+    TARGET_REASSIGNED = "target_reassigned"
+    STALE_PATH_SAFETY_INTERVENTION = "stale_path_safety_intervention"
 
 
 @dataclass(frozen=True, slots=True)
@@ -112,6 +122,10 @@ class MissionEvent:
     hypothesis_status: str | None = None
     hypothesis_confirmed: bool | None = None
     hypothesis_rejected: bool | None = None
+    old_cell_state: str | None = None
+    new_cell_state: str | None = None
+    old_path_length: int | None = None
+    new_path_length: int | None = None
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -189,6 +203,14 @@ class MissionEvent:
             payload["hypothesis_confirmed"] = self.hypothesis_confirmed
         if self.hypothesis_rejected is not None:
             payload["hypothesis_rejected"] = self.hypothesis_rejected
+        if self.old_cell_state is not None:
+            payload["old_cell_state"] = self.old_cell_state
+        if self.new_cell_state is not None:
+            payload["new_cell_state"] = self.new_cell_state
+        if self.old_path_length is not None:
+            payload["old_path_length"] = self.old_path_length
+        if self.new_path_length is not None:
+            payload["new_path_length"] = self.new_path_length
         return payload
 
 
@@ -292,6 +314,24 @@ class MissionLog:
                 event.step,
                 event.position,
                 event.hypothesis_observations,
+            )
+        elif event.event_type in {
+            EventType.DYNAMIC_OBSTACLE_INJECTED,
+            EventType.DYNAMIC_OBSTACLE_REJECTED,
+            EventType.DYNAMIC_OBSTACLE_OBSERVED,
+            EventType.PATH_INVALIDATED,
+            EventType.REPLAN_REQUESTED,
+            EventType.REPLAN_SUCCEEDED,
+            EventType.REPLAN_FAILED,
+            EventType.TARGET_UNREACHABLE,
+            EventType.TARGET_REASSIGNED,
+            EventType.STALE_PATH_SAFETY_INTERVENTION,
+        }:
+            key = (
+                event.event_type,
+                event.drone_id,
+                event.step,
+                event.position,
             )
         else:
             key = (event.event_type, event.drone_id)

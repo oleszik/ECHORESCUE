@@ -12,6 +12,7 @@ const COLORS = {
   survivor: "#fde047",
   hypothesis: "#22d3ee",
   rejectedHypothesis: "#fb7185",
+  dynamicObstacle: "#f97316",
   base: "#f1f5f9",
   radioDirect: "#34d399",
   radioRelay: "#c084fc",
@@ -152,6 +153,7 @@ function initializeReplay(replay, benchmark) {
   const networkProfile = replay.mission.network_profile || replay.mission.configuration?.network_profile || "ideal";
   const survivorSensor = replay.mission.survivor_sensor || replay.mission.configuration?.survivor_sensor || "visual";
   const perceptionNoise = replay.mission.perception_noise || replay.mission.configuration?.perception_noise || "off";
+  const dynamicObstacles = replay.mission.dynamic_obstacles || replay.mission.configuration?.dynamic_obstacles || "off";
   elements.knowledgeMode.textContent = relayStrategy === "adaptive"
     ? `${knowledgeMode.toUpperCase()} · ADAPTIVE RELAY`
     : knowledgeMode.toUpperCase();
@@ -159,7 +161,7 @@ function initializeReplay(replay, benchmark) {
     elements.knowledgeMode.textContent = `${knowledgeMode.toUpperCase()} · NETWORK-AWARE RELAY`;
   }
   elements.seedValue.textContent = replay.mission.seed;
-  elements.networkProfile.textContent = networkProfile.toUpperCase();
+  elements.networkProfile.textContent = `${networkProfile.toUpperCase()} · DYNAMIC ${dynamicObstacles.toUpperCase()}`;
   elements.survivorSensor.textContent = `${survivorSensor.toUpperCase()} · NOISE ${perceptionNoise.toUpperCase()}`;
   elements.networkProfile.classList.toggle("constrained", networkProfile === "constrained");
   elements.schemaVersion.textContent = replay.schema_version;
@@ -282,6 +284,9 @@ function updateStatus(frame) {
 }
 
 function eventColor(event) {
+  if (["dynamic_obstacle_observed", "path_invalidated", "replan_requested", "target_unreachable"].includes(event.event_type)) return COLORS.dynamicObstacle;
+  if (["replan_succeeded", "target_reassigned"].includes(event.event_type)) return "#34d399";
+  if (["replan_failed", "stale_path_safety_intervention"].includes(event.event_type)) return "#fb7185";
   if (event.event_type === "survivor_sensor_observation") {
     return event.detection_success ? "#22d3ee" : "#f97316";
   }
@@ -365,7 +370,11 @@ function updateEventFeed() {
     const confidenceDetail = event.detection_confidence == null ? "" : ` · confidence ${(event.detection_confidence * 100).toFixed(0)}%`;
     const evidenceDetail = event.evidence_after == null ? "" : ` · evidence ${event.evidence_after.toFixed(2)}`;
     const hypothesisDetail = event.hypothesis_status ? ` · ${event.hypothesis_status}` : "";
-    detail.textContent += `${utilityDetail}${reasonDetail}${backlogDetail}${channelDetail}${outcomeDetail}${distanceDetail}${smokeDetail}${confidenceDetail}${evidenceDetail}${hypothesisDetail}`;
+    const pathDetail = event.new_path_length == null
+      ? (event.old_path_length == null ? "" : ` · old path ${event.old_path_length}`)
+      : ` · path ${event.old_path_length ?? "—"}→${event.new_path_length}`;
+    const transitionDetail = event.new_cell_state ? ` · ${event.old_cell_state ?? "?"}→${event.new_cell_state}` : "";
+    detail.textContent += `${utilityDetail}${reasonDetail}${backlogDetail}${channelDetail}${outcomeDetail}${distanceDetail}${smokeDetail}${confidenceDetail}${evidenceDetail}${hypothesisDetail}${pathDetail}${transitionDetail}`;
     copy.append(title, detail);
     item.append(step, node, copy);
     elements.eventFeed.append(item);
@@ -790,6 +799,33 @@ function normalizeThermalPerceptionBenchmark(benchmark) {
   };
 }
 
+function normalizeDynamicObstacleBenchmark(benchmark) {
+  const baseline = requiredObject(benchmark, "baseline", "Dynamic obstacles");
+  const dynamic = requiredObject(benchmark, "dynamic", "Dynamic obstacles");
+  const overhead = requiredObject(benchmark, "paired_overhead", "Dynamic obstacles");
+  const baselineDuration = requiredObject(baseline, "mission_duration", "Dynamic obstacles baseline");
+  const dynamicDuration = requiredObject(dynamic, "mission_duration", "Dynamic obstacles candidate");
+  const durationOverhead = requiredObject(overhead, "mission_duration", "Dynamic obstacles paired overhead");
+  const pathOverhead = requiredObject(overhead, "total_path_length", "Dynamic obstacles paired overhead");
+  const replans = requiredObject(dynamic, "replans_total", "Dynamic obstacles candidate");
+  const parts = [
+    `Paired mean overhead: ${Number(durationOverhead.mean).toFixed(2)} steps and ${Number(pathOverhead.mean).toFixed(2)} path cells.`,
+    `Dynamic runs averaged ${Number(replans.mean).toFixed(2)} replans with ${Number(dynamic.wall_collisions) + Number(dynamic.drone_collisions)} collisions.`,
+  ];
+  return {
+    status: "ready",
+    format: "dynamic_obstacles_paired_holdout",
+    title: "Dynamic-obstacle replanning",
+    baselineLabel: "Obstacles off",
+    candidateLabel: "Moderate",
+    baselineSteps: Number(baselineDuration.mean),
+    candidateSteps: Number(dynamicDuration.mean),
+    improvementValue: signedMetric(-Number(durationOverhead.mean), " steps"),
+    improvementLabel: "paired duration impact",
+    note: joinBenchmarkNote(parts),
+  };
+}
+
 function normalizeBenchmark(benchmark) {
   if (!isRecord(benchmark)) throw new Error("Benchmark root must be a JSON object.");
   if (hasOwn(benchmark, "schema_version") && typeof benchmark.schema_version !== "string") {
@@ -806,6 +842,9 @@ function normalizeBenchmark(benchmark) {
   }
   if (benchmark.benchmark_type === "n_agent_scaling") {
     return normalizeScalingBenchmark(benchmark);
+  }
+  if (benchmark.benchmark_type === "dynamic_obstacles_paired_holdout") {
+    return normalizeDynamicObstacleBenchmark(benchmark);
   }
   if (hasOwn(benchmark, "training") || hasOwn(benchmark, "holdout")) {
     return normalizeNetworkAwareRelayBenchmark(benchmark);
@@ -1071,6 +1110,16 @@ function drawMission() {
   context.textBaseline = "middle";
   context.fillText("B", baseX, baseY);
   context.restore();
+
+  (frame.dynamic_obstacles_observed || []).forEach((position) => {
+    const [x, y] = cellCenter(position, geometry);
+    const size = Math.max(4 * ratio, cell * 0.24);
+    context.save();
+    context.strokeStyle = COLORS.dynamicObstacle;
+    context.lineWidth = 2 * ratio;
+    context.strokeRect(x - size, y - size, size * 2, size * 2);
+    context.restore();
+  });
 
   (frame.survivor_hypotheses || []).forEach((hypothesis) => {
     if (hypothesis.status === "confirmed") return;

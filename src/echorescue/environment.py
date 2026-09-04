@@ -1,5 +1,5 @@
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from random import Random
 
 from echorescue.config import SimulationConfig
@@ -17,6 +17,9 @@ class GridWorld:
     walls: frozenset[Position]
     survivors: frozenset[Position] = frozenset()
     smoke: SmokeField = SmokeField()
+    dynamic_obstacles: set[Position] = field(
+        default_factory=set, compare=False, repr=False
+    )
 
     @classmethod
     def generate(cls, config: SimulationConfig) -> "GridWorld":
@@ -105,9 +108,26 @@ class GridWorld:
         return 0 <= position.x < self.width and 0 <= position.y < self.height
 
     def cell_at(self, position: Position) -> CellState:
-        if not self.contains(position) or position in self.walls:
+        if (
+            not self.contains(position)
+            or position in self.walls
+            or position in self.dynamic_obstacles
+        ):
             return CellState.OCCUPIED
         return CellState.FREE
 
     def is_free(self, position: Position) -> bool:
         return self.cell_at(position) is CellState.FREE
+
+    def block_cell(self, position: Position) -> None:
+        """Persistently close one valid initially-free Ground-Truth cell."""
+
+        if not self.contains(position):
+            raise ValueError("dynamic obstacle must be inside the world")
+        if position == self.base:
+            raise ValueError("dynamic obstacle cannot block the base")
+        if position in self.walls:
+            raise ValueError("dynamic obstacle cannot duplicate an initial wall")
+        if position in self.survivors:
+            raise ValueError("dynamic obstacle cannot block a Survivor")
+        self.dynamic_obstacles.add(position)

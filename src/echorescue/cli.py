@@ -30,6 +30,22 @@ def failure_spec(value: str) -> tuple[str, int]:
     return drone_id, step
 
 
+def obstacle_spec(value: str) -> tuple[int, int, int]:
+    try:
+        raw_position, raw_step = value.rsplit(":", 1)
+        raw_x, raw_y = raw_position.split(",", 1)
+        x, y, step = int(raw_x), int(raw_y), int(raw_step)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(
+            "obstacle must use X,Y:STEP, for example 5,7:20"
+        ) from error
+    if x < 0 or y < 0 or step < 1:
+        raise argparse.ArgumentTypeError(
+            "obstacle coordinates must be non-negative and step positive"
+        )
+    return x, y, step
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run the deterministic EchoRescue search-and-rescue simulation."
@@ -126,6 +142,20 @@ def build_parser() -> argparse.ArgumentParser:
         default="off",
         help="opt in to deterministic smoke-degraded survivor perception",
     )
+    parser.add_argument(
+        "--dynamic-obstacles",
+        choices=("off", "moderate"),
+        default="off",
+        help="opt in to deterministic persistent path blockages",
+    )
+    parser.add_argument(
+        "--inject-obstacle",
+        action="append",
+        default=[],
+        type=obstacle_spec,
+        metavar="X,Y:STEP",
+        help="persistently block an initially-free cell at a mission step",
+    )
     parser.add_argument("--max-steps", type=int, default=1_000)
     parser.add_argument(
         "--obstacle-density", type=float, default=0.08, metavar="FRACTION"
@@ -216,6 +246,10 @@ def main(argv: list[str] | None = None) -> None:
         knowledge_mode=args.knowledge_mode,
         base_knowledge_store_enabled=not args.disable_base_knowledge_store,
         failure_schedule=tuple(sorted(args.inject_failure, key=lambda item: item[1])),
+        dynamic_obstacles=args.dynamic_obstacles,
+        dynamic_obstacle_schedule=tuple(
+            sorted(args.inject_obstacle, key=lambda item: item[2])
+        ),
         smoke_profile=args.smoke_profile,
         max_steps=args.max_steps,
     )

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from echorescue.dynamic_obstacles import DYNAMIC_OBSTACLE_PROFILES
 from echorescue.perception import PERCEPTION_NOISE_PROFILES
 from echorescue.smoke import SMOKE_PROFILES
 
@@ -69,6 +70,8 @@ class SimulationConfig:
     local_map_shadow_mode: bool | None = None
     base_knowledge_store_enabled: bool = True
     failure_schedule: tuple[tuple[str, int], ...] = ()
+    dynamic_obstacles: str = "off"
+    dynamic_obstacle_schedule: tuple[tuple[int, int, int], ...] = ()
     smoke_profile: str = "off"
     max_steps: int = 1_000
 
@@ -206,6 +209,29 @@ class SimulationConfig:
             if step < 0 or step >= self.max_steps:
                 raise ValueError("failure step must be within the mission step limit")
             seen_failure_ids.add(drone_id)
+        if self.dynamic_obstacles not in DYNAMIC_OBSTACLE_PROFILES:
+            raise ValueError(
+                "dynamic_obstacles must be one of "
+                + ", ".join(sorted(DYNAMIC_OBSTACLE_PROFILES))
+            )
+        if self.dynamic_obstacles != "off" and self.dynamic_obstacle_schedule:
+            raise ValueError(
+                "dynamic obstacle profile and explicit injections are exclusive"
+            )
+        seen_obstacles: set[tuple[int, int]] = set()
+        configured_starts = self.drone_start_positions or ()
+        for x, y, step in self.dynamic_obstacle_schedule:
+            if not (0 < x < self.width - 1 and 0 < y < self.height - 1):
+                raise ValueError("dynamic obstacle must be an interior cell")
+            if (x, y) == (1, 1):
+                raise ValueError("dynamic obstacle cannot block the base")
+            if (x, y) in configured_starts:
+                raise ValueError("dynamic obstacle cannot block an agent start")
+            if (x, y) in seen_obstacles:
+                raise ValueError("a dynamic obstacle location may occur only once")
+            if step < 1 or step >= self.max_steps:
+                raise ValueError("dynamic obstacle step must be within mission steps")
+            seen_obstacles.add((x, y))
         if self.smoke_profile not in SMOKE_PROFILES:
             raise ValueError(
                 "smoke_profile must be one of "

@@ -27,12 +27,16 @@ from echorescue.events import EventType, MissionEvent, MissionLog
 from echorescue.knowledge import CellKnowledge, KnowledgeMap
 from echorescue.map_sync import ShadowMapSynchronizer
 from echorescue.mapping import KnownMap, OccupancyMap
-from echorescue.models import Drone, DroneStatus, Position
+from echorescue.models import CellState, Drone, DroneStatus, Position
 from echorescue.network_transport import (
     DeterministicNetworkTransport,
     MessageType,
     NetworkDelivery,
     shortest_route,
+)
+from echorescue.dynamic_obstacles import (
+    DynamicObstacleEvent,
+    moderate_schedule,
 )
 from echorescue.network_aware_relay import (
     RelayUtilityDecision,
@@ -111,6 +115,10 @@ class DroneRuntime:
     network_relay_forwarded_units: int = 0
     network_relay_backpressure: bool = False
     in_smoke: bool = False
+    dynamic_replan_pending: bool = False
+    dynamic_replan_target: Position | None = None
+    dynamic_replan_old_path_length: int | None = None
+    dynamic_replan_return: bool = False
 
     @property
     def terminal(self) -> bool:
@@ -235,6 +243,7 @@ class MultiSimulationResult:
     failure_recovery_metrics: dict[str, object] | None
     smoke_metrics: dict[str, object] | None
     perception_metrics: dict[str, object] | None
+    dynamic_obstacle_metrics: dict[str, object] | None
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
@@ -490,6 +499,8 @@ class MultiSimulationResult:
             payload[metric_key] = self.smoke_metrics
         if self.perception_metrics is not None:
             payload["noisy_perception"] = self.perception_metrics
+        if self.dynamic_obstacle_metrics is not None:
+            payload["dynamic_obstacles"] = self.dynamic_obstacle_metrics
         if self.network_profile == "ideal":
             for key in tuple(payload):
                 if key.startswith("network_") or key in {
@@ -696,6 +707,44 @@ class MultiDroneSimulation:
         self._network_aware_relay_roles_enabled = True
 
         starts = self._resolve_start_positions()
+        explicit_dynamic_events = tuple(
+            DynamicObstacleEvent(Position(x, y), step, "explicit_injection")
+            for x, y, step in config.dynamic_obstacle_schedule
+        )
+        for event in explicit_dynamic_events:
+            if event.position in self.world.walls:
+                raise ValueError(
+                    "dynamic obstacle cannot duplicate an initial wall"
+                )
+            if event.position in self.world.survivors:
+                raise ValueError("dynamic obstacle cannot block a Survivor")
+        profile_events = (
+            moderate_schedule(
+                self.world,
+                seed=config.seed,
+                excluded_positions=frozenset(starts),
+            )
+            if config.dynamic_obstacles == "moderate"
+            else ()
+        )
+        self.dynamic_obstacle_events = tuple(
+            sorted(
+                explicit_dynamic_events + profile_events,
+                key=lambda event: (event.step, event.position),
+            )
+        )
+        self._dynamic_event_index = 0
+        self._dynamic_obstacles_injected: set[Position] = set()
+        self._dynamic_obstacles_observed: set[Position] = set()
+        self._path_invalidations = 0
+        self._replans_total = 0
+        self._successful_replans = 0
+        self._failed_replans = 0
+        self._target_invalidations = 0
+        self._target_reassignments = 0
+        self._rtb_replans = 0
+        self._stale_path_safety_interventions = 0
+        self._dynamic_replan_path_delta = 0
         self.runtimes: dict[str, DroneRuntime] = {}
         for index, position in enumerate(starts, start=1):
             drone_id = f"drone-{index}"
@@ -1725,6 +1774,10 @@ class MultiDroneSimulation:
         hypothesis_status: str | None = None,
         hypothesis_confirmed: bool | None = None,
         hypothesis_rejected: bool | None = None,
+        old_cell_state: str | None = None,
+        new_cell_state: str | None = None,
+        old_path_length: int | None = None,
+        new_path_length: int | None = None,
     ) -> None:
         self.mission_log.record(
             MissionEvent(
@@ -1759,6 +1812,10 @@ class MultiDroneSimulation:
                 hypothesis_status=hypothesis_status,
                 hypothesis_confirmed=hypothesis_confirmed,
                 hypothesis_rejected=hypothesis_rejected,
+                old_cell_state=old_cell_state,
+                new_cell_state=new_cell_state,
+                old_path_length=old_path_length,
+                new_path_length=new_path_length,
             )
         )
 
@@ -1969,6 +2026,147 @@ class MultiDroneSimulation:
                         )
                     )
 
+    @property
+    def dynamic_obstacles_enabled(self) -> bool:
+        return bool(self.dynamic_obstacle_events)
+
+    def _inject_dynamic_obstacles(self) -> None:
+        while (
+            self._dynamic_event_index < len(self.dynamic_obstacle_events)
+            and self.dynamic_obstacle_events[self._dynamic_event_index].step
+            == self.steps
+        ):
+            event = self.dynamic_obstacle_events[self._dynamic_event_index]
+            self._dynamic_event_index += 1
+            occupying = next(
+                (
+                    runtime.drone.identifier
+                    for runtime in self._ordered_runtimes()
+                    if runtime.drone.position == event.position
+                ),
+                None,
+            )
+            if occupying is not None:
+                self.mission_log.record(
+                    MissionEvent(
+                        position=event.position,
+                        step=self.steps,
+                        drone_id="environment",
+                        event_type=EventType.DYNAMIC_OBSTACLE_REJECTED,
+                        reason=f"occupied_by_{occupying}",
+                        old_cell_state=CellState.FREE.value,
+                        new_cell_state=CellState.FREE.value,
+                    )
+                )
+                continue
+            self.world.block_cell(event.position)
+            self._dynamic_obstacles_injected.add(event.position)
+            self.mission_log.record(
+                MissionEvent(
+                    position=event.position,
+                    step=self.steps,
+                    drone_id="environment",
+                    event_type=EventType.DYNAMIC_OBSTACLE_INJECTED,
+                    reason=event.cause,
+                    old_cell_state=CellState.FREE.value,
+                    new_cell_state=CellState.OCCUPIED.value,
+                )
+            )
+
+    def _path_remaining_length(
+        self, runtime: DroneRuntime, path: tuple[Position, ...]
+    ) -> int:
+        if runtime.drone.position in path:
+            return len(path) - path.index(runtime.drone.position) - 1
+        return max(0, len(path) - 1)
+
+    def _invalidate_dynamic_paths(
+        self,
+        observer: DroneRuntime,
+        observed_positions: set[Position],
+    ) -> None:
+        candidates = (
+            (observer,)
+            if self.knowledge_mode == "local"
+            else self._ordered_runtimes()
+        )
+        for runtime in candidates:
+            if runtime.terminal or runtime.dynamic_replan_pending:
+                continue
+            path = (
+                runtime.current_return_path
+                if runtime.drone.status is DroneStatus.RETURN_HOME
+                else runtime.planned_path
+            )
+            blocked = next(
+                (position for position in path[1:] if position in observed_positions),
+                None,
+            )
+            if blocked is None:
+                continue
+            runtime.dynamic_replan_pending = True
+            runtime.dynamic_replan_target = runtime.active_frontier_target
+            runtime.dynamic_replan_old_path_length = self._path_remaining_length(
+                runtime, path
+            )
+            runtime.dynamic_replan_return = (
+                runtime.drone.status is DroneStatus.RETURN_HOME
+            )
+            if runtime.dynamic_replan_return:
+                runtime.return_replan_required = True
+            self._path_invalidations += 1
+            self._replans_total += 1
+            self._record_event(
+                runtime,
+                EventType.PATH_INVALIDATED,
+                blocked,
+                reason=(
+                    "return_path_blocked"
+                    if runtime.dynamic_replan_return
+                    else "planned_path_blocked"
+                ),
+                old_path_length=runtime.dynamic_replan_old_path_length,
+            )
+            self._record_event(
+                runtime,
+                EventType.REPLAN_REQUESTED,
+                blocked,
+                reason=(
+                    "return_path_blocked"
+                    if runtime.dynamic_replan_return
+                    else "planned_path_blocked"
+                ),
+                old_path_length=runtime.dynamic_replan_old_path_length,
+            )
+
+    def _register_dynamic_observations(
+        self,
+        runtime: DroneRuntime,
+        observations: dict[Position, CellState],
+        prior_states: dict[Position, CellState] | None = None,
+    ) -> None:
+        observed = {
+            position
+            for position, state in observations.items()
+            if state is CellState.OCCUPIED
+            and position in self._dynamic_obstacles_injected
+        }
+        for position in sorted(observed - self._dynamic_obstacles_observed):
+            self._dynamic_obstacles_observed.add(position)
+            self._record_event(
+                runtime,
+                EventType.DYNAMIC_OBSTACLE_OBSERVED,
+                position,
+                reason="distance_sensor",
+                old_cell_state=(
+                    prior_states.get(position, CellState.UNKNOWN).value
+                    if prior_states is not None
+                    else CellState.UNKNOWN.value
+                ),
+                new_cell_state=CellState.OCCUPIED.value,
+            )
+        self._invalidate_dynamic_paths(runtime, observed)
+
     def _sense(self, runtime: DroneRuntime) -> None:
         if runtime.terminal:
             return
@@ -1976,6 +2174,11 @@ class MultiDroneSimulation:
             self._fail_energy(runtime)
             return
         observations = self.sensor.observe(self.world, runtime.drone.position)
+        prior_states = {
+            position: self._decision_map(runtime).cell_at(position)
+            for position in observations
+            if position in self._dynamic_obstacles_injected
+        }
         if self.knowledge_sync_enabled:
             runtime.local_map.observe(
                 observations,
@@ -1984,6 +2187,10 @@ class MultiDroneSimulation:
             )
         if self.knowledge_mode != "local":
             self.occupancy_map.update(observations)
+        if self.dynamic_obstacles_enabled:
+            self._register_dynamic_observations(
+                runtime, observations, prior_states
+            )
         self._observe_smoke_state(runtime)
         self._observe_survivors(runtime)
 
@@ -3063,6 +3270,73 @@ class MultiDroneSimulation:
                 else:
                     self._start_return(runtime, return_path)
 
+    def _complete_explore_dynamic_replan(
+        self,
+        runtime: DroneRuntime,
+        assignment: FrontierAssignment | None,
+    ) -> None:
+        if (
+            not runtime.dynamic_replan_pending
+            or runtime.dynamic_replan_return
+        ):
+            return
+        old_target = runtime.dynamic_replan_target
+        old_length = runtime.dynamic_replan_old_path_length or 0
+        if assignment is None:
+            self._failed_replans += 1
+            if old_target is not None:
+                self._target_invalidations += 1
+                self._record_event(
+                    runtime,
+                    EventType.TARGET_UNREACHABLE,
+                    old_target,
+                    reason="no_reachable_frontier_after_blockage",
+                    old_path_length=old_length,
+                )
+            self._record_event(
+                runtime,
+                EventType.REPLAN_FAILED,
+                old_target or runtime.drone.position,
+                reason="no_reachable_frontier_after_blockage",
+                old_path_length=old_length,
+            )
+        else:
+            new_length = max(0, len(assignment.path) - 1)
+            self._successful_replans += 1
+            self._dynamic_replan_path_delta += new_length - old_length
+            reason = "target_retained"
+            if old_target is not None and assignment.target != old_target:
+                reason = "target_reassigned"
+                self._target_invalidations += 1
+                self._target_reassignments += 1
+                self._record_event(
+                    runtime,
+                    EventType.TARGET_UNREACHABLE,
+                    old_target,
+                    reason="blocked_route_or_target",
+                    old_path_length=old_length,
+                )
+                self._record_event(
+                    runtime,
+                    EventType.TARGET_REASSIGNED,
+                    assignment.target,
+                    reason="replacement_frontier",
+                    old_path_length=old_length,
+                    new_path_length=new_length,
+                )
+            self._record_event(
+                runtime,
+                EventType.REPLAN_SUCCEEDED,
+                assignment.target,
+                reason=reason,
+                old_path_length=old_length,
+                new_path_length=new_length,
+            )
+        runtime.dynamic_replan_pending = False
+        runtime.dynamic_replan_target = None
+        runtime.dynamic_replan_old_path_length = None
+        runtime.dynamic_replan_return = False
+
     def _allocate_frontiers(self) -> dict[str, FrontierAssignment]:
         self._prepare_failure_task_reassignments()
         if self.knowledge_mode == "local":
@@ -3126,6 +3400,7 @@ class MultiDroneSimulation:
                 assignment.target if assignment is not None else None
             )
             runtime.planned_path = assignment.path if assignment is not None else ()
+            self._complete_explore_dynamic_replan(runtime, assignment)
             if assignment is not None and assignment.target != old_target:
                 event_type = (
                     EventType.FRONTIER_ASSIGNED
@@ -3258,6 +3533,7 @@ class MultiDroneSimulation:
                 runtime.planned_path = (
                     assignment.path if assignment is not None else ()
                 )
+                self._complete_explore_dynamic_replan(runtime, assignment)
                 if new_target is not None and new_target != old_target:
                     if old_target is not None:
                         self._local_replanning_by_drone[drone_id] = (
@@ -3297,6 +3573,15 @@ class MultiDroneSimulation:
         replan_required = previous_path_invalid or runtime.return_replan_required
         static_path = self._known_return_path(runtime, avoid_other_drones=False)
         if static_path is None:
+            if runtime.dynamic_replan_pending:
+                self._failed_replans += 1
+                self._record_event(
+                    runtime,
+                    EventType.REPLAN_FAILED,
+                    reason="return_path_unavailable",
+                    old_path_length=runtime.dynamic_replan_old_path_length,
+                )
+                runtime.dynamic_replan_pending = False
             self._fail_return_path(runtime)
             return runtime.drone.position
         path = self._known_return_path(runtime)
@@ -3313,6 +3598,23 @@ class MultiDroneSimulation:
             return runtime.drone.position
         if previous_path and path != previous_path and replan_required:
             self._record_event(runtime, EventType.RETURN_REPLANNED)
+        if runtime.dynamic_replan_pending:
+            old_length = runtime.dynamic_replan_old_path_length or 0
+            new_length = max(0, len(path) - 1)
+            self._successful_replans += 1
+            self._rtb_replans += 1
+            self._dynamic_replan_path_delta += new_length - old_length
+            self._record_event(
+                runtime,
+                EventType.REPLAN_SUCCEEDED,
+                reason="return_route_replanned",
+                old_path_length=old_length,
+                new_path_length=new_length,
+            )
+            runtime.dynamic_replan_pending = False
+            runtime.dynamic_replan_target = None
+            runtime.dynamic_replan_old_path_length = None
+            runtime.dynamic_replan_return = False
         runtime.return_replan_required = False
         runtime.current_return_path = path
         if len(path) == 1:
@@ -4028,6 +4330,35 @@ class MultiDroneSimulation:
                 self._fail_return_path(runtime)
                 continue
             if not self.world.is_free(destination):
+                if destination in self.world.dynamic_obstacles:
+                    self.safety_shield_interventions += 1
+                    self._stale_path_safety_interventions += 1
+                    self._record_event(
+                        runtime,
+                        EventType.STALE_PATH_SAFETY_INTERVENTION,
+                        destination,
+                        reason="dynamic_obstacle_on_stale_path",
+                        old_cell_state=CellState.FREE.value,
+                        new_cell_state=CellState.OCCUPIED.value,
+                    )
+                    contact_observation = {
+                        destination: CellState.OCCUPIED
+                    }
+                    if self.knowledge_sync_enabled:
+                        runtime.local_map.observe(
+                            contact_observation,
+                            step=self.steps,
+                            source_id=runtime.drone.identifier,
+                        )
+                    if self.knowledge_mode != "local":
+                        self.occupancy_map.update(contact_observation)
+                    self._register_dynamic_observations(
+                        runtime,
+                        contact_observation,
+                        {destination: CellState.FREE},
+                    )
+                    waiting.add(drone_id)
+                    continue
                 self.collisions += 1
                 runtime.drone.status = DroneStatus.FAILED
                 continue
@@ -4064,6 +4395,8 @@ class MultiDroneSimulation:
                 self._visited_by_cell.setdefault(destination, set()).add(drone_id)
 
         self.steps += 1
+        if self.dynamic_obstacles_enabled:
+            self._inject_dynamic_obstacles()
         for runtime in self._ordered_runtimes():
             runtime.position_trace.append(runtime.drone.position)
 
@@ -4431,6 +4764,38 @@ class MultiDroneSimulation:
                 min(first_true_steps) if first_true_steps else None
             ),
             "calibration": calibration,
+        }
+
+    def _dynamic_obstacle_metrics(self) -> dict[str, object] | None:
+        if not self.dynamic_obstacles_enabled:
+            return None
+        return {
+            "profile": (
+                "explicit"
+                if self.config.dynamic_obstacle_schedule
+                else self.config.dynamic_obstacles
+            ),
+            "scheduled": len(self.dynamic_obstacle_events),
+            "dynamic_obstacles_injected": len(
+                self._dynamic_obstacles_injected
+            ),
+            "dynamic_obstacles_observed": len(
+                self._dynamic_obstacles_observed
+            ),
+            "path_invalidations": self._path_invalidations,
+            "replans_total": self._replans_total,
+            "successful_replans": self._successful_replans,
+            "failed_replans": self._failed_replans,
+            "target_invalidations": self._target_invalidations,
+            "target_reassignments": self._target_reassignments,
+            "rtb_replans": self._rtb_replans,
+            "stale_path_safety_interventions": (
+                self._stale_path_safety_interventions
+            ),
+            "additional_path_length_due_to_replanning": (
+                self._dynamic_replan_path_delta
+            ),
+            "additional_mission_duration_due_to_obstacles": None,
         }
 
     def _failure_recovery_metrics(self) -> dict[str, object] | None:
@@ -4899,6 +5264,7 @@ class MultiDroneSimulation:
             failure_recovery_metrics=failure_recovery_metrics,
             smoke_metrics=self._smoke_metrics(),
             perception_metrics=self._perception_metrics(),
+            dynamic_obstacle_metrics=self._dynamic_obstacle_metrics(),
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )

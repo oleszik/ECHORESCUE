@@ -7,8 +7,10 @@ from socketserver import BaseServer
 
 from echorescue.replay import (
     CONSTRAINED_REPLAY_SCHEMA_VERSION,
+    DYNAMIC_OBSTACLE_REPLAY_SCHEMA_VERSION,
     FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION,
     NETWORK_AWARE_REPLAY_SCHEMA_VERSION,
+    NOISY_PERCEPTION_REPLAY_SCHEMA_VERSION,
     REPLAY_SCHEMA_VERSION,
     SMOKE_REPLAY_SCHEMA_VERSION,
 )
@@ -26,6 +28,8 @@ def _validate_replay(path: Path) -> None:
         NETWORK_AWARE_REPLAY_SCHEMA_VERSION,
         FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION,
         SMOKE_REPLAY_SCHEMA_VERSION,
+        NOISY_PERCEPTION_REPLAY_SCHEMA_VERSION,
+        DYNAMIC_OBSTACLE_REPLAY_SCHEMA_VERSION,
     }:
         raise ValueError(
             f"unsupported replay schema: {replay.get('schema_version')!r}"
