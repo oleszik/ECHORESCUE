@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from echorescue.dynamic_obstacles import DYNAMIC_OBSTACLE_PROFILES
 from echorescue.perception import PERCEPTION_NOISE_PROFILES
+from echorescue.roles import ROLE_POLICIES
 from echorescue.smoke import SMOKE_PROFILES
 
 MIN_DRONE_COUNT = 1
@@ -70,6 +71,7 @@ class SimulationConfig:
     local_map_shadow_mode: bool | None = None
     base_knowledge_store_enabled: bool = True
     failure_schedule: tuple[tuple[str, int], ...] = ()
+    role_policy: str = "off"
     dynamic_obstacles: str = "off"
     dynamic_obstacle_schedule: tuple[tuple[int, int, int], ...] = ()
     smoke_profile: str = "off"
@@ -209,6 +211,11 @@ class SimulationConfig:
             if step < 0 or step >= self.max_steps:
                 raise ValueError("failure step must be within the mission step limit")
             seen_failure_ids.add(drone_id)
+        if self.role_policy not in ROLE_POLICIES:
+            raise ValueError(
+                "role_policy must be one of "
+                + ", ".join(sorted(ROLE_POLICIES))
+            )
         if self.dynamic_obstacles not in DYNAMIC_OBSTACLE_PROFILES:
             raise ValueError(
                 "dynamic_obstacles must be one of "

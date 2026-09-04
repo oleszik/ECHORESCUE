@@ -50,6 +50,18 @@ from echorescue.perception import (
     SurvivorHypothesisTracker,
 )
 from echorescue.relay import RelayPlan, select_relay_plan
+from echorescue.roles import (
+    ENERGY_PENALTY_INTERVAL,
+    TASK_LOAD_PENALTY,
+    AgentRole,
+    MissionTask,
+    TaskRegistry,
+    TaskStatus,
+    TaskType,
+    initial_roles,
+    preferred_role,
+    role_mismatch_penalty,
+)
 from echorescue.sensors import DistanceSensor
 from echorescue.survivors import SurvivorObservationReport, SurvivorSensor
 
@@ -119,10 +131,28 @@ class DroneRuntime:
     dynamic_replan_target: Position | None = None
     dynamic_replan_old_path_length: int | None = None
     dynamic_replan_return: bool = False
+    role: AgentRole = AgentRole.GENERALIST
+    base_role: AgentRole = AgentRole.GENERALIST
+    role_last_changed_step: int = 0
+    recovery_task_id: str | None = None
 
     @property
     def terminal(self) -> bool:
         return self.drone.status in TERMINAL_STATUSES
+
+
+@dataclass(frozen=True, slots=True)
+class FailureRecoveryClaim:
+    task_id: str
+    failed_id: str
+    assignee_id: str
+    target: Position
+    path: tuple[Position, ...]
+    score: int
+    path_cost: int
+    task_load_penalty: int
+    role_penalty: int
+    energy_penalty: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -244,6 +274,7 @@ class MultiSimulationResult:
     smoke_metrics: dict[str, object] | None
     perception_metrics: dict[str, object] | None
     dynamic_obstacle_metrics: dict[str, object] | None
+    role_failure_metrics: dict[str, object] | None
     mission_success: bool
     mission_events: tuple[MissionEvent, ...]
 
@@ -501,6 +532,8 @@ class MultiSimulationResult:
             payload["noisy_perception"] = self.perception_metrics
         if self.dynamic_obstacle_metrics is not None:
             payload["dynamic_obstacles"] = self.dynamic_obstacle_metrics
+        if self.role_failure_metrics is not None:
+            payload["role_failure_resilience"] = self.role_failure_metrics
         if self.network_profile == "ideal":
             for key in tuple(payload):
                 if key.startswith("network_") or key in {
@@ -676,8 +709,18 @@ class MultiDroneSimulation:
         self._injected_failure_ids: set[str] = set()
         self._released_failure_tasks: dict[Position, str] = {}
         self._claimed_failure_tasks: dict[Position, tuple[str, str]] = {}
+        self.task_registry = TaskRegistry()
+        self._orphan_failure_tasks: dict[str, str] = {}
+        self._role_failure_claims: dict[str, FailureRecoveryClaim] = {}
         self._failure_tasks_released = 0
         self._failure_tasks_reassigned = 0
+        self._failed_reassignments = 0
+        self._reassignment_latencies: list[int] = []
+        self._recovery_latencies: list[int] = []
+        self._role_changes = 0
+        self._emergency_role_takeovers = 0
+        self._role_changes_by_agent: dict[str, int] = {}
+        self._tasks_completed_by_reassigned_agent = 0
         self._failed_drone_collision_avoidances = 0
         self._smoke_exposure_samples_by_drone: dict[str, int] = {}
         self._smoke_entries_by_drone: dict[str, int] = {}
@@ -762,6 +805,22 @@ class MultiDroneSimulation:
             if position != self.world.base:
                 self._visited_by_cell.setdefault(position, set()).add(drone_id)
 
+        assigned_roles = initial_roles(
+            tuple(self.runtimes), config.role_policy
+        )
+        for runtime in self._ordered_runtimes():
+            role = assigned_roles[runtime.drone.identifier]
+            runtime.role = role
+            runtime.base_role = role
+            self._role_changes_by_agent[runtime.drone.identifier] = 0
+            if self.roles_enabled:
+                self._record_event(
+                    runtime,
+                    EventType.ROLE_ASSIGNED,
+                    reason="initial_policy",
+                    new_role=role.value,
+                )
+
         self.base_knowledge_map = (
             KnowledgeMap(config.width, config.height)
             if config.base_knowledge_store_enabled
@@ -812,6 +871,10 @@ class MultiDroneSimulation:
     @property
     def knowledge_sync_enabled(self) -> bool:
         return self.knowledge_mode in {"shadow", "local"}
+
+    @property
+    def roles_enabled(self) -> bool:
+        return self.config.role_policy != "off"
 
     @property
     def adaptive_relay_enabled(self) -> bool:
@@ -1484,6 +1547,179 @@ class MultiDroneSimulation:
             )
         )
 
+    def _task_type_for_target(self, target: Position) -> TaskType:
+        detected = (
+            self._base_detected_survivors
+            if self.knowledge_mode == "local"
+            else self._detected_survivors
+        )
+        confirmed = (
+            self._base_confirmed_survivors
+            if self.knowledge_mode == "local"
+            else self._confirmed_survivors
+        )
+        if target in detected - confirmed:
+            return TaskType.SURVIVOR_VERIFICATION
+        return TaskType.EXPLORATION
+
+    def _transition_role(
+        self,
+        runtime: DroneRuntime,
+        new_role: AgentRole,
+        *,
+        reason: str,
+        task: MissionTask | None = None,
+        emergency_takeover: bool = False,
+    ) -> None:
+        old_role = runtime.role
+        if old_role is new_role:
+            return
+        runtime.role = new_role
+        runtime.role_last_changed_step = self.steps
+        self._role_changes += 1
+        drone_id = runtime.drone.identifier
+        self._role_changes_by_agent[drone_id] = (
+            self._role_changes_by_agent.get(drone_id, 0) + 1
+        )
+        if emergency_takeover:
+            self._emergency_role_takeovers += 1
+        self._record_event(
+            runtime,
+            EventType.ROLE_CHANGED,
+            task.target if task is not None else runtime.drone.position,
+            reason=reason,
+            task_id=task.identifier if task is not None else None,
+            task_type=task.task_type.value if task is not None else None,
+            task_owner=runtime.drone.identifier,
+            old_role=old_role.value,
+            new_role=new_role.value,
+        )
+
+    def _finish_runtime_task(
+        self,
+        runtime: DroneRuntime,
+        *,
+        completed: bool,
+    ) -> MissionTask | None:
+        task = (
+            self.task_registry.complete_owner(
+                runtime.drone.identifier, self.steps
+            )
+            if completed
+            else self.task_registry.cancel_owner(
+                runtime.drone.identifier, self.steps
+            )
+        )
+        if task is None:
+            return None
+        if completed and task.reassigned:
+            self._tasks_completed_by_reassigned_agent += 1
+            self._record_event(
+                runtime,
+                EventType.TASK_COMPLETED_AFTER_REASSIGNMENT,
+                task.target,
+                reason="reassigned_task_completed",
+                task_id=task.identifier,
+                task_type=task.task_type.value,
+                task_status=task.status.value,
+                task_owner=runtime.drone.identifier,
+            )
+        if runtime.recovery_task_id == task.identifier:
+            runtime.recovery_task_id = None
+            if (
+                self.config.role_policy == "generalized"
+                and runtime.role is not runtime.base_role
+            ):
+                self._transition_role(
+                    runtime,
+                    runtime.base_role,
+                    reason="recovery_task_completed",
+                    task=task,
+                )
+        return task
+
+    def _synchronize_role_tasks(self) -> None:
+        if not self.roles_enabled:
+            return
+        for runtime in self._ordered_runtimes():
+            current = self.task_registry.current_for(
+                runtime.drone.identifier
+            )
+            desired: tuple[TaskType, Position, int] | None = None
+            if (
+                runtime.drone.status is DroneStatus.EXPLORE
+                and runtime.active_frontier_target is not None
+            ):
+                task_type = self._task_type_for_target(
+                    runtime.active_frontier_target
+                )
+                desired = (
+                    task_type,
+                    runtime.active_frontier_target,
+                    80 if task_type is TaskType.SURVIVOR_VERIFICATION else 50,
+                )
+            elif (
+                runtime.drone.status is DroneStatus.RELAY
+                and runtime.relay_target is not None
+            ):
+                desired = (TaskType.RELAY_POSITIONING, runtime.relay_target, 70)
+            elif runtime.drone.status is DroneStatus.RETURN_HOME:
+                desired = (TaskType.RETURN_HOME, self.world.base, 100)
+
+            if desired is None:
+                if current is not None:
+                    self._finish_runtime_task(
+                        runtime,
+                        completed=runtime.drone.status is DroneStatus.LANDED,
+                    )
+                continue
+            task_type, target, priority = desired
+            if (
+                current is not None
+                and current.task_type is task_type
+                and current.target == target
+            ):
+                continue
+            if current is not None:
+                self._finish_runtime_task(runtime, completed=True)
+            self.task_registry.create(
+                owner_id=runtime.drone.identifier,
+                task_type=task_type,
+                target=target,
+                step=self.steps,
+                priority=priority,
+            )
+
+    def _record_recovery_movements(self, movers: dict[str, Position]) -> None:
+        if not self.roles_enabled:
+            return
+        for drone_id in sorted(movers):
+            runtime = self.runtimes[drone_id]
+            task_id = runtime.recovery_task_id
+            if task_id is None:
+                continue
+            task = self.task_registry.tasks.get(task_id)
+            if (
+                task is None
+                or task.execution_recovered_step is not None
+                or task.orphaned_step is None
+            ):
+                continue
+            task.execution_recovered_step = self.steps
+            latency = self.steps - task.orphaned_step
+            self._recovery_latencies.append(latency)
+            self._record_event(
+                runtime,
+                EventType.FAILURE_RECOVERY_COMPLETED,
+                task.target,
+                reason="productive_execution_resumed",
+                task_id=task.identifier,
+                task_type=task.task_type.value,
+                task_status=task.status.value,
+                task_owner=drone_id,
+                assignment_latency=latency,
+            )
+
     def _inject_scheduled_failures(self) -> None:
         due = tuple(
             sorted(
@@ -1500,6 +1736,23 @@ class MultiDroneSimulation:
             if runtime.terminal:
                 continue
             released_target = runtime.active_frontier_target
+            orphaned_task = (
+                self.task_registry.orphan_owner(drone_id, self.steps)
+                if self.roles_enabled
+                else None
+            )
+            if orphaned_task is not None:
+                released_target = orphaned_task.target
+                self._orphan_failure_tasks[orphaned_task.identifier] = drone_id
+                self._record_event(
+                    runtime,
+                    EventType.TASK_ORPHANED,
+                    orphaned_task.target,
+                    reason="owner_failed",
+                    task_id=orphaned_task.identifier,
+                    task_type=orphaned_task.task_type.value,
+                    task_status=orphaned_task.status.value,
+                )
             if runtime.drone.status is DroneStatus.RELAY:
                 self._finish_relay_role(runtime, successful=False)
             for relay in self._ordered_runtimes():
@@ -1535,6 +1788,9 @@ class MultiDroneSimulation:
         self.communication_snapshot = self._compute_communication_snapshot()
 
     def _prepare_failure_task_reassignments(self) -> None:
+        if self.roles_enabled:
+            self._prepare_role_failure_task_reassignments()
+            return
         for target, failed_id in sorted(
             self._released_failure_tasks.items(),
             key=lambda item: (item[0].y, item[0].x, item[1]),
@@ -1571,9 +1827,160 @@ class MultiDroneSimulation:
             assignee.planned_path = path
             self._claimed_failure_tasks[target] = (failed_id, assignee_id)
 
+    def _prepare_role_failure_task_reassignments(self) -> None:
+        claimed_assignees = {
+            claim.assignee_id for claim in self._role_failure_claims.values()
+        }
+        for task_id, failed_id in sorted(self._orphan_failure_tasks.items()):
+            if task_id in self._role_failure_claims:
+                continue
+            task = self.task_registry.tasks[task_id]
+            if task.status is not TaskStatus.ORPHANED:
+                continue
+            if task.task_type not in {
+                TaskType.EXPLORATION,
+                TaskType.SURVIVOR_VERIFICATION,
+            }:
+                continue
+            candidates: list[
+                tuple[
+                    int,
+                    int,
+                    float,
+                    str,
+                    Position,
+                    tuple[Position, ...],
+                    int,
+                    int,
+                    int,
+                ]
+            ] = []
+            fallback_candidates: list[
+                tuple[
+                    int,
+                    int,
+                    float,
+                    str,
+                    Position,
+                    tuple[Position, ...],
+                    int,
+                    int,
+                    int,
+                ]
+            ] = []
+            for runtime in self._ordered_runtimes():
+                drone_id = runtime.drone.identifier
+                if (
+                    drone_id in claimed_assignees
+                    or runtime.drone.status is not DroneStatus.EXPLORE
+                    or runtime.holding_for_relay
+                ):
+                    continue
+                decision_map = self._decision_map(runtime)
+                frontiers = decision_map.frontiers()
+                if not frontiers:
+                    continue
+                targets = frontiers
+                blocked = self._observable_failed_positions(runtime)
+                for target in targets:
+                    path = astar(
+                        runtime.drone.position,
+                        target,
+                        lambda position: decision_map.is_known_free(position)
+                        and (
+                            position == runtime.drone.position
+                            or position not in blocked
+                        ),
+                    )
+                    return_path = astar(
+                        target,
+                        self.world.base,
+                        lambda position: decision_map.is_known_free(position)
+                        and (position == target or position not in blocked),
+                    )
+                    if path is None or return_path is None:
+                        continue
+                    required_energy = (
+                        runtime.battery.estimate_path(len(path))
+                        + runtime.battery.estimate_path(len(return_path))
+                        + self.config.energy_safety_reserve
+                    )
+                    if runtime.battery.remaining + 1e-9 < required_energy:
+                        continue
+                    path_cost = max(0, len(path) - 1)
+                    retarget_penalty = 0 if target == task.target else 5
+                    load_penalty = (
+                        self.task_registry.active_load(drone_id)
+                        * TASK_LOAD_PENALTY
+                    )
+                    role_penalty = role_mismatch_penalty(
+                        runtime.role, task.task_type
+                    )
+                    energy_penalty = int(
+                        runtime.battery.consumed // ENERGY_PENALTY_INTERVAL
+                    )
+                    score = (
+                        path_cost
+                        + retarget_penalty
+                        + load_penalty
+                        + role_penalty
+                        + energy_penalty
+                    )
+                    candidate = (
+                        (
+                            score,
+                            path_cost,
+                            -runtime.battery.remaining,
+                            drone_id,
+                            target,
+                            path,
+                            load_penalty,
+                            role_penalty,
+                            energy_penalty,
+                        )
+                    )
+                    if target == task.target:
+                        candidates.append(candidate)
+                    else:
+                        fallback_candidates.append(candidate)
+            if not candidates:
+                candidates = fallback_candidates
+            if not candidates:
+                continue
+            (
+                score,
+                path_cost,
+                _,
+                assignee_id,
+                target,
+                path,
+                load_penalty,
+                role_penalty,
+                energy_penalty,
+            ) = min(candidates)
+            assignee = self.runtimes[assignee_id]
+            assignee.active_frontier_target = target
+            assignee.planned_path = path
+            self._role_failure_claims[task_id] = FailureRecoveryClaim(
+                task_id=task_id,
+                failed_id=failed_id,
+                assignee_id=assignee_id,
+                target=target,
+                path=path,
+                score=score,
+                path_cost=path_cost,
+                task_load_penalty=load_penalty,
+                role_penalty=role_penalty,
+                energy_penalty=energy_penalty,
+            )
+            claimed_assignees.add(assignee_id)
+
     def _confirm_failure_task_reassignments(
         self, assignments: dict[str, FrontierAssignment]
     ) -> None:
+        if self.roles_enabled:
+            self._confirm_role_failure_task_reassignments(assignments)
+            return
         used_assignees: set[str] = set()
         for target, (failed_id, assignee_id) in tuple(
             self._claimed_failure_tasks.items()
@@ -1625,6 +2032,70 @@ class MultiDroneSimulation:
             used_assignees.add(assignee_id)
             self._released_failure_tasks.pop(released_target, None)
             self._claimed_failure_tasks.pop(released_target, None)
+
+    def _confirm_role_failure_task_reassignments(
+        self, assignments: dict[str, FrontierAssignment]
+    ) -> None:
+        for task_id, claim in tuple(sorted(self._role_failure_claims.items())):
+            assignment = assignments.get(claim.assignee_id)
+            if assignment is None or assignment.target != claim.target:
+                continue
+            task = self.task_registry.tasks[task_id]
+            original_target = task.target
+            reassigned = self.task_registry.assign_orphan(
+                task_id,
+                owner_id=claim.assignee_id,
+                target=claim.target,
+                step=self.steps,
+            )
+            assignee = self.runtimes[claim.assignee_id]
+            assignee.recovery_task_id = task_id
+            latency = (
+                self.steps - reassigned.orphaned_step
+                if reassigned.orphaned_step is not None
+                else 0
+            )
+            self._reassignment_latencies.append(latency)
+            self._failure_tasks_reassigned += 1
+            assignee.frontier_assignments += 1
+            preferred = preferred_role(reassigned.task_type)
+            if (
+                self.config.role_policy == "generalized"
+                and assignee.role is not preferred
+            ):
+                self._transition_role(
+                    assignee,
+                    preferred,
+                    reason="failure_recovery",
+                    task=reassigned,
+                    emergency_takeover=True,
+                )
+            self._record_event(
+                assignee,
+                EventType.TASK_REASSIGNED,
+                claim.target,
+                reason=claim.failed_id,
+                task_id=task_id,
+                task_type=reassigned.task_type.value,
+                task_status=reassigned.status.value,
+                task_owner=claim.assignee_id,
+                reassignment_score=claim.score,
+                assignment_latency=latency,
+            )
+            self._record_event(
+                assignee,
+                EventType.FAILURE_TASK_REASSIGNED,
+                claim.target,
+                reason=claim.failed_id,
+                task_id=task_id,
+                task_type=reassigned.task_type.value,
+                task_owner=claim.assignee_id,
+                reassignment_score=claim.score,
+                assignment_latency=latency,
+            )
+            self._released_failure_tasks.pop(original_target, None)
+            self._orphan_failure_tasks.pop(task_id, None)
+            self._role_failure_claims.pop(task_id, None)
 
     def _resolve_start_positions(self) -> tuple[Position, ...]:
         starts: tuple[Position, ...]
@@ -1778,6 +2249,14 @@ class MultiDroneSimulation:
         new_cell_state: str | None = None,
         old_path_length: int | None = None,
         new_path_length: int | None = None,
+        task_id: str | None = None,
+        task_type: str | None = None,
+        task_status: str | None = None,
+        task_owner: str | None = None,
+        old_role: str | None = None,
+        new_role: str | None = None,
+        reassignment_score: int | None = None,
+        assignment_latency: int | None = None,
     ) -> None:
         self.mission_log.record(
             MissionEvent(
@@ -1816,6 +2295,14 @@ class MultiDroneSimulation:
                 new_cell_state=new_cell_state,
                 old_path_length=old_path_length,
                 new_path_length=new_path_length,
+                task_id=task_id,
+                task_type=task_type,
+                task_status=task_status,
+                task_owner=task_owner,
+                old_role=old_role,
+                new_role=new_role,
+                reassignment_score=reassignment_score,
+                assignment_latency=assignment_latency,
             )
         )
 
@@ -2560,6 +3047,12 @@ class MultiDroneSimulation:
             )
         self._record_event(runtime, EventType.RELAY_ROLE_RELEASED)
         runtime.drone.status = DroneStatus.EXPLORE
+        if self.roles_enabled and runtime.role is AgentRole.RELAY:
+            self._transition_role(
+                runtime,
+                runtime.base_role,
+                reason="relay_task_completed",
+            )
         runtime.active_frontier_target = None
         runtime.planned_path = ()
         runtime.relay_target = None
@@ -2679,6 +3172,12 @@ class MultiDroneSimulation:
         ) = min(tasks)
         relay = self.runtimes[relay_id]
         relay.drone.status = DroneStatus.RELAY
+        if self.roles_enabled:
+            self._transition_role(
+                relay,
+                AgentRole.RELAY,
+                reason="relay_needed",
+            )
         relay.active_frontier_target = None
         relay.relay_scout_id = scout_id
         relay.relay_scout_position = self.runtimes[scout_id].drone.position
@@ -2894,6 +3393,12 @@ class MultiDroneSimulation:
             ),
         )[: self.config.network_relay_map_delta_limit]
         relay.drone.status = DroneStatus.RELAY
+        if self.roles_enabled:
+            self._transition_role(
+                relay,
+                AgentRole.RELAY,
+                reason="relay_needed",
+            )
         relay.active_frontier_target = None
         relay.relay_scout_id = scout_id
         relay.relay_scout_position = scout.drone.position
@@ -3390,6 +3895,37 @@ class MultiDroneSimulation:
             old_targets,
             blocked=self._observable_failed_positions(),
         )
+        if self.roles_enabled and not assignments:
+            failed_positions = self._observable_failed_positions()
+            structurally_reachable = any(
+                astar(
+                    origin,
+                    target,
+                    lambda position: self.occupancy_map.is_known_free(position)
+                    and (
+                        position == origin
+                        or position not in failed_positions
+                    ),
+                )
+                is not None
+                for origin in explorers.values()
+                for target in frontiers
+            )
+            if not structurally_reachable:
+                self._exploration_complete = True
+                for runtime in self._ordered_runtimes():
+                    if runtime.drone.status is not DroneStatus.EXPLORE:
+                        continue
+                    path = self._known_return_path(runtime)
+                    if path is None:
+                        path = self._known_return_path(
+                            runtime, avoid_other_drones=False
+                        )
+                    if path is None:
+                        self._fail_return_path(runtime)
+                    else:
+                        self._start_return(runtime, path)
+                return {}
         for runtime in self._ordered_runtimes():
             drone_id = runtime.drone.identifier
             if drone_id not in explorers:
@@ -4395,6 +4931,7 @@ class MultiDroneSimulation:
                 self._visited_by_cell.setdefault(destination, set()).add(drone_id)
 
         self.steps += 1
+        self._record_recovery_movements(movers)
         if self.dynamic_obstacles_enabled:
             self._inject_dynamic_obstacles()
         for runtime in self._ordered_runtimes():
@@ -4488,6 +5025,7 @@ class MultiDroneSimulation:
                     runtime.current_return_path = ()
             self.completed = True
             self.termination_reason = "max_steps"
+            self._synchronize_role_tasks()
             self._finalize_network_transport()
             return False
 
@@ -4503,6 +5041,7 @@ class MultiDroneSimulation:
             self._assign_network_aware_relay()
         else:
             self._assign_adaptive_relay()
+        self._synchronize_role_tasks()
         intentions = self._plan_intentions(assignments)
         intentions = self._deconflict_intentions(intentions)
         if self.network_transport is not None:
@@ -4512,6 +5051,7 @@ class MultiDroneSimulation:
         self._execute_intentions(intentions)
         if self.steps != previous_step:
             self._inject_scheduled_failures()
+            self._synchronize_role_tasks()
             base_before = (
                 dict(self.base_knowledge_map.records)
                 if self.base_knowledge_map is not None
@@ -4846,6 +5386,89 @@ class MultiDroneSimulation:
             "recovery_success": recovery_success,
         }
 
+    def _role_failure_metrics(
+        self,
+        *,
+        mission_success: bool,
+        survivor_recall: float,
+    ) -> dict[str, object] | None:
+        if not self.roles_enabled:
+            return None
+        orphaned = tuple(
+            task
+            for task in self.task_registry.tasks.values()
+            if task.orphaned_step is not None
+        )
+        reassigned = tuple(task for task in orphaned if task.reassigned)
+        failed_reassignments = len(orphaned) - len(reassigned)
+        operational = tuple(
+            runtime
+            for runtime in self._ordered_runtimes()
+            if runtime.drone.identifier not in self._injected_failure_ids
+        )
+
+        def average(values: list[int]) -> float | None:
+            return sum(values) / len(values) if values else None
+
+        return {
+            "role_policy": self.config.role_policy,
+            "initial_roles": {
+                runtime.drone.identifier: runtime.base_role.value
+                for runtime in self._ordered_runtimes()
+            },
+            "final_roles": {
+                runtime.drone.identifier: runtime.role.value
+                for runtime in self._ordered_runtimes()
+            },
+            "failures_injected": len(self._injected_failure_ids),
+            "failed_agents": len(self._injected_failure_ids),
+            "failed_agent_ids": sorted(self._injected_failure_ids),
+            "tasks_orphaned": len(orphaned),
+            "tasks_reassigned": len(reassigned),
+            "successful_reassignments": len(reassigned),
+            "failed_reassignments": failed_reassignments,
+            "reassignment_success_rate": (
+                len(reassigned) / len(orphaned) if orphaned else None
+            ),
+            "mean_reassignment_latency": average(
+                self._reassignment_latencies
+            ),
+            "max_reassignment_latency": (
+                max(self._reassignment_latencies)
+                if self._reassignment_latencies
+                else None
+            ),
+            "mean_recovery_latency": average(self._recovery_latencies),
+            "max_recovery_latency": (
+                max(self._recovery_latencies)
+                if self._recovery_latencies
+                else None
+            ),
+            "role_changes": self._role_changes,
+            "role_changes_per_agent": dict(
+                sorted(self._role_changes_by_agent.items())
+            ),
+            "role_thrashing_detected": any(
+                changes > 2
+                for changes in self._role_changes_by_agent.values()
+            ),
+            "emergency_role_takeovers": self._emergency_role_takeovers,
+            "tasks_completed_by_reassigned_agent": (
+                self._tasks_completed_by_reassigned_agent
+            ),
+            "mission_success_after_failure": (
+                mission_success if self._injected_failure_ids else None
+            ),
+            "survivor_recall_after_failure": (
+                survivor_recall if self._injected_failure_ids else None
+            ),
+            "operational_agents": len(operational),
+            "operational_agents_returned": sum(
+                runtime.drone.status is DroneStatus.LANDED
+                for runtime in operational
+            ),
+        }
+
     def result(self) -> MultiSimulationResult:
         self._finalize_network_transport()
         transport = self.network_transport
@@ -4914,6 +5537,10 @@ class MultiDroneSimulation:
                 and self.drone_drone_collisions == 0
                 and drones_returned == len(self.runtimes)
             )
+        )
+        role_failure_metrics = self._role_failure_metrics(
+            mission_success=mission_success,
+            survivor_recall=survivor_recall,
         )
         shared_shadow_map = self.shadow_synchronizer.shared_shadow_map()
         evaluation_known_cells = (
@@ -5265,6 +5892,7 @@ class MultiDroneSimulation:
             smoke_metrics=self._smoke_metrics(),
             perception_metrics=self._perception_metrics(),
             dynamic_obstacle_metrics=self._dynamic_obstacle_metrics(),
+            role_failure_metrics=role_failure_metrics,
             mission_success=mission_success,
             mission_events=self.mission_log.events,
         )

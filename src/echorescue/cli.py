@@ -137,6 +137,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="deterministically fail a drone at a simulation step (repeatable)",
     )
     parser.add_argument(
+        "--role-policy",
+        choices=("off", "generalist", "generalized"),
+        default="off",
+        help="opt in to explicit task ownership and N-agent role priorities",
+    )
+    parser.add_argument(
         "--smoke-profile",
         choices=("off", "moderate"),
         default="off",
@@ -246,6 +252,7 @@ def main(argv: list[str] | None = None) -> None:
         knowledge_mode=args.knowledge_mode,
         base_knowledge_store_enabled=not args.disable_base_knowledge_store,
         failure_schedule=tuple(sorted(args.inject_failure, key=lambda item: item[1])),
+        role_policy=args.role_policy,
         dynamic_obstacles=args.dynamic_obstacles,
         dynamic_obstacle_schedule=tuple(
             sorted(args.inject_obstacle, key=lambda item: item[2])

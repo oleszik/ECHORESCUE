@@ -304,6 +304,7 @@ input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border: 2px s
 .battery-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--accent); box-shadow: 0 0 10px var(--accent-soft); transition: width .2s ease; }
 .drone-detail { margin-top: 12px; color: var(--muted); font-size: 10px; }
 .drone-detail strong { color: var(--text); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.role-badge { padding: 2px 7px; border: 1px solid var(--border-strong); border-radius: 99px; color: var(--radio-relay) !important; font-size: 9px; letter-spacing: .05em; }
 .communication-status.direct { color: var(--radio-direct); }
 .communication-status.relay { color: var(--radio-relay); }
 .communication-status.offline { color: var(--danger); }

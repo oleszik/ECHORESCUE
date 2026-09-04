@@ -1,0 +1,3414 @@
+{
+  "acceptance": {
+    "all_failure_tasks_reassigned": true,
+    "all_operational_agents_returned": true,
+    "collision_free": true,
+    "deterministic_failure_repeats": true,
+    "no_role_thrashing": true
+  },
+  "benchmark_type": "generalized_roles_failure_resilience",
+  "configuration": {
+    "development_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "drone_count": 4,
+    "dynamic_obstacles": "off",
+    "failure_agent_id": "drone-2",
+    "failure_step": 12,
+    "holdout_seeds": [
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99
+    ],
+    "knowledge_mode": "shared",
+    "network_profile": "ideal",
+    "perception_noise": "off",
+    "relay_strategy": "off",
+    "scenarios": [
+      "A_generalist_no_failure",
+      "B_generalist_failure",
+      "C_generalized_no_failure",
+      "D_generalized_failure"
+    ],
+    "smoke_profile": "off",
+    "survivor_sensor": "visual"
+  },
+  "failure_analysis": {
+    "largest_failure_duration_overhead": [
+      {
+        "delta": 165,
+        "seed": 77
+      },
+      {
+        "delta": 14,
+        "seed": 59
+      },
+      {
+        "delta": 14,
+        "seed": 86
+      },
+      {
+        "delta": 12,
+        "seed": 84
+      },
+      {
+        "delta": 10,
+        "seed": 83
+      }
+    ],
+    "largest_failure_path_overhead": [
+      {
+        "delta": 277,
+        "seed": 77
+      },
+      {
+        "delta": 13,
+        "seed": 90
+      },
+      {
+        "delta": 3,
+        "seed": 59
+      },
+      {
+        "delta": -7,
+        "seed": 61
+      },
+      {
+        "delta": -7,
+        "seed": 84
+      }
+    ],
+    "low_failure_effect_seeds": [
+      52,
+      63,
+      64,
+      68,
+      69,
+      72,
+      75,
+      76,
+      85
+    ],
+    "mission_failure_seeds": [],
+    "reassignment_failure_seeds": [],
+    "recall_loss_seeds": [],
+    "role_thrashing_seeds": [],
+    "roles_faster_seeds": [
+      51,
+      53,
+      58,
+      64,
+      78,
+      90,
+      97
+    ],
+    "roles_slower_seeds": [
+      52,
+      63,
+      75,
+      86
+    ],
+    "slow_recovery_seeds": []
+  },
+  "frozen_scoring": {
+    "energy_gate": "task path + known return path + safety reserve",
+    "energy_penalty": "floor(consumed_energy / 20)",
+    "path_cost": "path edges",
+    "retarget_penalty": 5,
+    "role_penalty": {
+      "generalist": 3,
+      "other_specialist": 6,
+      "preferred": 0
+    },
+    "task_load_penalty": 4,
+    "tie_break": "score, path cost, remaining energy descending, agent ID, target"
+  },
+  "paired_failure_overhead": {
+    "generalist_duration": {
+      "count": 50,
+      "max": 165,
+      "mean": 6.68,
+      "median": 4.0,
+      "min": -10,
+      "population_standard_deviation": 23.120069
+    },
+    "generalist_path_length": {
+      "count": 50,
+      "max": 277,
+      "mean": -22.72,
+      "median": -31.0,
+      "min": -65,
+      "population_standard_deviation": 45.072404
+    },
+    "generalized_duration": {
+      "count": 50,
+      "max": 165,
+      "mean": 6.38,
+      "median": 4.0,
+      "min": -10,
+      "population_standard_deviation": 23.125648
+    },
+    "generalized_path_length": {
+      "count": 50,
+      "max": 277,
+      "mean": -22.44,
+      "median": -30.0,
+      "min": -59,
+      "population_standard_deviation": 44.753619
+    }
+  },
+  "per_seed": [
+    {
+      "A_generalist_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 193,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 193,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -31,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -31,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 50
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 57,
+        "mission_success": true,
+        "path_length": 208,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 197,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 57,
+        "mission_success": true,
+        "path_length": 208,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 59,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 179,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 9,
+        "mission_success_changed": false,
+        "path_length": -11,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 2,
+        "mission_success_changed": false,
+        "path_length": -29,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": -7,
+        "path_length": -18,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 51
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "path_length": 234,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "path_length": 234,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 193,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -1,
+        "mission_success_changed": false,
+        "path_length": -45,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 0,
+        "mission_success_changed": false,
+        "path_length": -41,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 1,
+        "path_length": 4,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 52
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 63,
+        "mission_success": true,
+        "path_length": 230,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 72,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 191,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 63,
+        "mission_success": true,
+        "path_length": 230,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 71,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 207,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 9,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 8,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": -1,
+        "path_length": 16,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 53
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 60,
+        "mission_success": true,
+        "path_length": 220,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 60,
+        "mission_success": true,
+        "path_length": 220,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 6,
+        "mission_success_changed": false,
+        "path_length": -31,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 6,
+        "mission_success_changed": false,
+        "path_length": -31,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 54
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 214,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 193,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 214,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 193,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -21,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -21,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 55
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 79,
+        "mission_success": true,
+        "path_length": 232,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 84,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 215,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 79,
+        "mission_success": true,
+        "path_length": 232,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 84,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 215,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 5,
+        "mission_success_changed": false,
+        "path_length": -17,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 5,
+        "mission_success_changed": false,
+        "path_length": -17,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 56
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 73,
+        "mission_success": true,
+        "path_length": 222,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 77,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 191,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 73,
+        "mission_success": true,
+        "path_length": 222,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 77,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 191,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -31,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -31,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 57
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 68,
+        "mission_success": true,
+        "path_length": 212,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 81,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 68,
+        "mission_success": true,
+        "path_length": 212,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 71,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 13,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 3,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": -10,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 58
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 218,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 76,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 227,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 218,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 76,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 221,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 14,
+        "mission_success_changed": false,
+        "path_length": 9,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 14,
+        "mission_success_changed": false,
+        "path_length": 3,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": -6,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 59
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 59,
+        "mission_success": true,
+        "path_length": 210,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 63,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 191,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 59,
+        "mission_success": true,
+        "path_length": 210,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 63,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 191,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -19,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -19,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 60
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "path_length": 204,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 69,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 197,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "path_length": 204,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 69,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 197,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -7,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -7,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 61
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 69,
+        "mission_success": true,
+        "path_length": 252,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 187,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 69,
+        "mission_success": true,
+        "path_length": 252,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 195,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -3,
+        "mission_success_changed": false,
+        "path_length": -65,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": -3,
+        "mission_success_changed": false,
+        "path_length": -57,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 8,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 62
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 73,
+        "mission_success": true,
+        "path_length": 214,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 69,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 169,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 73,
+        "mission_success": true,
+        "path_length": 214,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 73,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 179,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -4,
+        "mission_success_changed": false,
+        "path_length": -45,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 0,
+        "mission_success_changed": false,
+        "path_length": -35,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 4,
+        "path_length": 10,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 63
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 77,
+        "mission_success": true,
+        "path_length": 226,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 80,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 193,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 77,
+        "mission_success": true,
+        "path_length": 226,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 77,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 3,
+        "mission_success_changed": false,
+        "path_length": -33,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 0,
+        "mission_success_changed": false,
+        "path_length": -37,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": -3,
+        "path_length": -4,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 64
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 71,
+        "mission_success": true,
+        "path_length": 244,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 74,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 207,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 71,
+        "mission_success": true,
+        "path_length": 244,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 74,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 207,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 3,
+        "mission_success_changed": false,
+        "path_length": -37,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 3,
+        "mission_success_changed": false,
+        "path_length": -37,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 65
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 77,
+        "mission_success": true,
+        "path_length": 234,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 74,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 195,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 77,
+        "mission_success": true,
+        "path_length": 234,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 74,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 195,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -3,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": -3,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 66
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 232,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 70,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 203,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 232,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 70,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 203,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 8,
+        "mission_success_changed": false,
+        "path_length": -29,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 8,
+        "mission_success_changed": false,
+        "path_length": -29,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 67
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "path_length": 234,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 195,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "path_length": 234,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 195,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 1,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 1,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 68
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "path_length": 226,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 187,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "path_length": 226,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 187,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 0,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 0,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 69
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 218,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 193,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 218,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 193,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 5,
+        "mission_success_changed": false,
+        "path_length": -25,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 5,
+        "mission_success_changed": false,
+        "path_length": -25,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 70
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 59,
+        "mission_success": true,
+        "path_length": 210,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 63,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 177,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 59,
+        "mission_success": true,
+        "path_length": 210,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 63,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 177,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -33,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -33,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 71
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 71,
+        "mission_success": true,
+        "path_length": 210,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 70,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 175,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 71,
+        "mission_success": true,
+        "path_length": 210,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 70,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 175,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -1,
+        "mission_success_changed": false,
+        "path_length": -35,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": -1,
+        "mission_success_changed": false,
+        "path_length": -35,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 72
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 70,
+        "mission_success": true,
+        "path_length": 226,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 67,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 185,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 70,
+        "mission_success": true,
+        "path_length": 226,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 67,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 185,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -3,
+        "mission_success_changed": false,
+        "path_length": -41,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": -3,
+        "mission_success_changed": false,
+        "path_length": -41,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 73
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 60,
+        "mission_success": true,
+        "path_length": 218,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 60,
+        "mission_success": true,
+        "path_length": 218,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 6,
+        "mission_success_changed": false,
+        "path_length": -29,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 6,
+        "mission_success_changed": false,
+        "path_length": -29,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 74
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 59,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 179,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 60,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 179,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -2,
+        "mission_success_changed": false,
+        "path_length": -45,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": -1,
+        "mission_success_changed": false,
+        "path_length": -45,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 1,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 75
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 218,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 179,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 218,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 179,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -1,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": -1,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 76
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "path_length": 208,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 230,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 485,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "path_length": 208,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 230,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 485,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 165,
+        "mission_success_changed": false,
+        "path_length": 277,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 165,
+        "mission_success_changed": false,
+        "path_length": 277,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 77
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "path_length": 220,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 63,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "path_length": 220,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 60,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 181,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -1,
+        "mission_success_changed": false,
+        "path_length": -31,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": -4,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": -3,
+        "path_length": -8,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 78
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 58,
+        "mission_success": true,
+        "path_length": 210,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 179,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 58,
+        "mission_success": true,
+        "path_length": 210,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 179,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 3,
+        "mission_success_changed": false,
+        "path_length": -31,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 3,
+        "mission_success_changed": false,
+        "path_length": -31,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 79
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 74,
+        "mission_success": true,
+        "path_length": 234,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 77,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 199,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 74,
+        "mission_success": true,
+        "path_length": 234,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 77,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 199,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 3,
+        "mission_success_changed": false,
+        "path_length": -35,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 3,
+        "mission_success_changed": false,
+        "path_length": -35,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 80
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 59,
+        "mission_success": true,
+        "path_length": 214,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 187,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 59,
+        "mission_success": true,
+        "path_length": 214,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 187,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 5,
+        "mission_success_changed": false,
+        "path_length": -27,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 5,
+        "mission_success_changed": false,
+        "path_length": -27,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 81
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 74,
+        "mission_success": true,
+        "path_length": 244,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 185,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 74,
+        "mission_success": true,
+        "path_length": 244,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 185,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -10,
+        "mission_success_changed": false,
+        "path_length": -59,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": -10,
+        "mission_success_changed": false,
+        "path_length": -59,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 82
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 72,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 211,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 72,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 211,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 10,
+        "mission_success_changed": false,
+        "path_length": -13,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 10,
+        "mission_success_changed": false,
+        "path_length": -13,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 83
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "path_length": 230,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 78,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 223,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "path_length": 230,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 78,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 223,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 12,
+        "mission_success_changed": false,
+        "path_length": -7,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 12,
+        "mission_success_changed": false,
+        "path_length": -7,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 84
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 75,
+        "mission_success": true,
+        "path_length": 242,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 76,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 199,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 75,
+        "mission_success": true,
+        "path_length": 242,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 76,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 199,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 1,
+        "mission_success_changed": false,
+        "path_length": -43,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 1,
+        "mission_success_changed": false,
+        "path_length": -43,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 85
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 195,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 76,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 207,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -29,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 14,
+        "mission_success_changed": false,
+        "path_length": -17,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 10,
+        "path_length": 12,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 86
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 222,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "path_length": 222,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 2,
+        "mission_success_changed": false,
+        "path_length": -33,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 2,
+        "mission_success_changed": false,
+        "path_length": -33,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 87
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 70,
+        "mission_success": true,
+        "path_length": 234,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 195,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 70,
+        "mission_success": true,
+        "path_length": 234,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 195,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -6,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": -6,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 88
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 218,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 195,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 218,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 195,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 89
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "path_length": 196,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 74,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 207,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "path_length": 196,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 69,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 209,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 10,
+        "mission_success_changed": false,
+        "path_length": 11,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 5,
+        "mission_success_changed": false,
+        "path_length": 13,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": -5,
+        "path_length": 2,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 90
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 69,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 209,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 66,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 69,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 209,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 3,
+        "mission_success_changed": false,
+        "path_length": -15,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 3,
+        "mission_success_changed": false,
+        "path_length": -15,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 91
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "path_length": 210,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 181,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "path_length": 210,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 62,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 181,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": -2,
+        "mission_success_changed": false,
+        "path_length": -29,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": -2,
+        "mission_success_changed": false,
+        "path_length": -29,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 92
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 67,
+        "mission_success": true,
+        "path_length": 214,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 73,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 191,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 67,
+        "mission_success": true,
+        "path_length": 214,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 73,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 191,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 6,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 6,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 93
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 56,
+        "mission_success": true,
+        "path_length": 208,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 193,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 56,
+        "mission_success": true,
+        "path_length": 208,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 193,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 8,
+        "mission_success_changed": false,
+        "path_length": -15,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 8,
+        "mission_success_changed": false,
+        "path_length": -15,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 94
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "path_length": 230,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 71,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 207,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 64,
+        "mission_success": true,
+        "path_length": 230,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 71,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 207,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 7,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 7,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 95
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 63,
+        "mission_success": true,
+        "path_length": 236,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 67,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 197,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 63,
+        "mission_success": true,
+        "path_length": 236,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 67,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 197,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -39,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 96
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 59,
+        "mission_success": true,
+        "path_length": 204,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 189,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 59,
+        "mission_success": true,
+        "path_length": 204,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 63,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 187,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 6,
+        "mission_success_changed": false,
+        "path_length": -15,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -17,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": -2,
+        "path_length": -2,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 97
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 68,
+        "mission_success": true,
+        "path_length": 208,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 76,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 185,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 68,
+        "mission_success": true,
+        "path_length": 208,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 76,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 185,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 8,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 8,
+        "mission_success_changed": false,
+        "path_length": -23,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 98
+    },
+    {
+      "A_generalist_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "B_generalist_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 191,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 0,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "C_generalized_no_failure": {
+        "duration": 61,
+        "mission_success": true,
+        "path_length": 224,
+        "survivor_recall": 1.0
+      },
+      "D_generalized_failure": {
+        "duration": 65,
+        "mission_success": true,
+        "operational_agents_returned": 3,
+        "path_length": 191,
+        "reassignment_latency": 0.0,
+        "recovery_latency": 1.0,
+        "role_changes": 2,
+        "successful_reassignments": 1,
+        "survivor_recall": 1.0,
+        "task_completions": 1
+      },
+      "generalist_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -33,
+        "survivor_recall": 0.0
+      },
+      "generalized_failure_overhead": {
+        "duration": 4,
+        "mission_success_changed": false,
+        "path_length": -33,
+        "survivor_recall": 0.0
+      },
+      "roles_vs_generalist_under_failure": {
+        "duration": 0,
+        "path_length": 0,
+        "recovery_latency": 0.0,
+        "survivor_recall": 0.0
+      },
+      "seed": 99
+    }
+  ],
+  "representative_demo_seed": 50,
+  "roles_vs_generalist_under_failure": {
+    "duration": {
+      "count": 50,
+      "max": 10,
+      "mean": -0.3,
+      "median": 0.0,
+      "min": -10,
+      "population_standard_deviation": 2.491987
+    },
+    "path_length": {
+      "count": 50,
+      "max": 16,
+      "mean": 0.28,
+      "median": 0.0,
+      "min": -18,
+      "population_standard_deviation": 4.52566
+    }
+  },
+  "scenarios": {
+    "A_generalist_no_failure": {
+      "configured_agents": 200,
+      "drone_collisions": 0,
+      "emergency_role_takeovers": 0,
+      "failed_reassignments": 0,
+      "mission_duration": {
+        "count": 50,
+        "max": 79,
+        "mean": 65.18,
+        "median": 64.0,
+        "min": 56,
+        "population_standard_deviation": 5.63095
+      },
+      "mission_success": {
+        "count": 50,
+        "percentage": 100.0
+      },
+      "missions": 50,
+      "operational_return_success": {
+        "count": 200,
+        "operational_agents": 200,
+        "percentage": 100.0
+      },
+      "reassignment_latency": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "min": null,
+        "population_standard_deviation": null
+      },
+      "reassignment_success": {
+        "count": 0,
+        "opportunities": 0,
+        "percentage": null
+      },
+      "recovery_latency": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "min": null,
+        "population_standard_deviation": null
+      },
+      "role_changes": {
+        "count": 50,
+        "max": 0,
+        "mean": 0,
+        "median": 0.0,
+        "min": 0,
+        "population_standard_deviation": 0.0
+      },
+      "role_thrashing_missions": 0,
+      "successful_reassignments": 0,
+      "survivor_recall": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 1.0,
+        "median": 1.0,
+        "min": 1.0,
+        "population_standard_deviation": 0.0
+      },
+      "task_completions_after_reassignment": {
+        "count": 50,
+        "max": 0,
+        "mean": 0,
+        "median": 0.0,
+        "min": 0,
+        "population_standard_deviation": 0.0
+      },
+      "tasks_orphaned": 0,
+      "total_path_length": {
+        "count": 50,
+        "max": 252,
+        "mean": 221.84,
+        "median": 222.0,
+        "min": 196,
+        "population_standard_deviation": 11.763265
+      },
+      "wall_collisions": 0
+    },
+    "B_generalist_failure": {
+      "configured_agents": 200,
+      "drone_collisions": 0,
+      "emergency_role_takeovers": 0,
+      "failed_reassignments": 0,
+      "mission_duration": {
+        "count": 50,
+        "max": 230,
+        "mean": 71.86,
+        "median": 66.0,
+        "min": 59,
+        "population_standard_deviation": 23.316955
+      },
+      "mission_success": {
+        "count": 50,
+        "percentage": 100.0
+      },
+      "missions": 50,
+      "operational_return_success": {
+        "count": 150,
+        "operational_agents": 150,
+        "percentage": 100.0
+      },
+      "reassignment_latency": {
+        "count": 50,
+        "max": 0.0,
+        "mean": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "population_standard_deviation": 0.0
+      },
+      "reassignment_success": {
+        "count": 50,
+        "opportunities": 50,
+        "percentage": 100.0
+      },
+      "recovery_latency": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 1.0,
+        "median": 1.0,
+        "min": 1.0,
+        "population_standard_deviation": 0.0
+      },
+      "role_changes": {
+        "count": 50,
+        "max": 0,
+        "mean": 0,
+        "median": 0.0,
+        "min": 0,
+        "population_standard_deviation": 0.0
+      },
+      "role_thrashing_missions": 0,
+      "successful_reassignments": 50,
+      "survivor_recall": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 1.0,
+        "median": 1.0,
+        "min": 1.0,
+        "population_standard_deviation": 0.0
+      },
+      "task_completions_after_reassignment": {
+        "count": 50,
+        "max": 1,
+        "mean": 1,
+        "median": 1.0,
+        "min": 1,
+        "population_standard_deviation": 0.0
+      },
+      "tasks_orphaned": 50,
+      "total_path_length": {
+        "count": 50,
+        "max": 485,
+        "mean": 199.12,
+        "median": 192.0,
+        "min": 169,
+        "population_standard_deviation": 42.346022
+      },
+      "wall_collisions": 0
+    },
+    "C_generalized_no_failure": {
+      "configured_agents": 200,
+      "drone_collisions": 0,
+      "emergency_role_takeovers": 0,
+      "failed_reassignments": 0,
+      "mission_duration": {
+        "count": 50,
+        "max": 79,
+        "mean": 65.18,
+        "median": 64.0,
+        "min": 56,
+        "population_standard_deviation": 5.63095
+      },
+      "mission_success": {
+        "count": 50,
+        "percentage": 100.0
+      },
+      "missions": 50,
+      "operational_return_success": {
+        "count": 200,
+        "operational_agents": 200,
+        "percentage": 100.0
+      },
+      "reassignment_latency": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "min": null,
+        "population_standard_deviation": null
+      },
+      "reassignment_success": {
+        "count": 0,
+        "opportunities": 0,
+        "percentage": null
+      },
+      "recovery_latency": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "min": null,
+        "population_standard_deviation": null
+      },
+      "role_changes": {
+        "count": 50,
+        "max": 0,
+        "mean": 0,
+        "median": 0.0,
+        "min": 0,
+        "population_standard_deviation": 0.0
+      },
+      "role_thrashing_missions": 0,
+      "successful_reassignments": 0,
+      "survivor_recall": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 1.0,
+        "median": 1.0,
+        "min": 1.0,
+        "population_standard_deviation": 0.0
+      },
+      "task_completions_after_reassignment": {
+        "count": 50,
+        "max": 0,
+        "mean": 0,
+        "median": 0.0,
+        "min": 0,
+        "population_standard_deviation": 0.0
+      },
+      "tasks_orphaned": 0,
+      "total_path_length": {
+        "count": 50,
+        "max": 252,
+        "mean": 221.84,
+        "median": 222.0,
+        "min": 196,
+        "population_standard_deviation": 11.763265
+      },
+      "wall_collisions": 0
+    },
+    "D_generalized_failure": {
+      "configured_agents": 200,
+      "drone_collisions": 0,
+      "emergency_role_takeovers": 12,
+      "failed_reassignments": 0,
+      "mission_duration": {
+        "count": 50,
+        "max": 230,
+        "mean": 71.56,
+        "median": 66.5,
+        "min": 59,
+        "population_standard_deviation": 23.333375
+      },
+      "mission_success": {
+        "count": 50,
+        "percentage": 100.0
+      },
+      "missions": 50,
+      "operational_return_success": {
+        "count": 150,
+        "operational_agents": 150,
+        "percentage": 100.0
+      },
+      "reassignment_latency": {
+        "count": 50,
+        "max": 0.0,
+        "mean": 0.0,
+        "median": 0.0,
+        "min": 0.0,
+        "population_standard_deviation": 0.0
+      },
+      "reassignment_success": {
+        "count": 50,
+        "opportunities": 50,
+        "percentage": 100.0
+      },
+      "recovery_latency": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 1.0,
+        "median": 1.0,
+        "min": 1.0,
+        "population_standard_deviation": 0.0
+      },
+      "role_changes": {
+        "count": 50,
+        "max": 2,
+        "mean": 0.48,
+        "median": 0.0,
+        "min": 0,
+        "population_standard_deviation": 0.854166
+      },
+      "role_thrashing_missions": 0,
+      "successful_reassignments": 50,
+      "survivor_recall": {
+        "count": 50,
+        "max": 1.0,
+        "mean": 1.0,
+        "median": 1.0,
+        "min": 1.0,
+        "population_standard_deviation": 0.0
+      },
+      "task_completions_after_reassignment": {
+        "count": 50,
+        "max": 1,
+        "mean": 1,
+        "median": 1.0,
+        "min": 1,
+        "population_standard_deviation": 0.0
+      },
+      "tasks_orphaned": 50,
+      "total_path_length": {
+        "count": 50,
+        "max": 485,
+        "mean": 199.4,
+        "median": 193.0,
+        "min": 175,
+        "population_standard_deviation": 42.301773
+      },
+      "wall_collisions": 0
+    }
+  },
+  "schema_version": "1.0"
+}

@@ -87,12 +87,13 @@ function initializeFleetViews() {
     card.style.setProperty("--accent-soft", `${color}24`);
     card.innerHTML = `
       <div class="drone-card-head"><div class="drone-identity"><span class="drone-number">${number}</span><div><p>${droneId}</p><strong id="droneState${number}">—</strong></div></div><span class="coordinate" id="dronePosition${number}">—, —</span></div>
+      <div class="drone-detail"><span>Role</span><strong class="role-badge" id="droneRole${number}">—</strong></div><div class="drone-detail"><span>Owned task</span><strong id="droneTask${number}">—</strong></div>
       <div class="battery-label"><span>Energy reserve</span><strong id="droneEnergy${number}">—</strong></div><div class="battery-track"><span id="droneBattery${number}"></span></div>
       <div class="drone-detail"><span>Current target</span><strong id="droneTarget${number}">—</strong></div><div class="drone-detail"><span>Communication</span><strong id="droneCommunication${number}" class="communication-status">—</strong></div>
       <div class="drone-detail"><span>Data transfer</span><strong id="droneDataLink${number}">—</strong></div><div class="drone-detail"><span>Local coverage</span><strong id="droneCoverage${number}">—</strong></div>
       <div class="drone-detail"><span>Local survivors</span><strong id="droneSurvivors${number}">—</strong></div><div class="drone-detail"><span>Data age</span><strong id="droneDataAge${number}">—</strong></div>`;
     elements.droneCards.append(card);
-    ["State", "Position", "Energy", "Battery", "Target", "Communication", "DataLink", "Coverage", "Survivors", "DataAge"].forEach((field) => {
+    ["State", "Position", "Role", "Task", "Energy", "Battery", "Target", "Communication", "DataLink", "Coverage", "Survivors", "DataAge"].forEach((field) => {
       elements[`drone${field}${number}`] = document.getElementById(`drone${field}${number}`);
     });
     elements[`droneCard${number}`] = card;
@@ -198,6 +199,8 @@ function updateDroneCard(number, drone, frame) {
   elements[`droneCard${number}`].classList.toggle("relay-active", Boolean(drone.relay?.active));
   elements[`droneCard${number}`].classList.toggle("failed", drone.state === "FAILED");
   elements[`dronePosition${number}`].textContent = `${x}, ${y}`;
+  elements[`droneRole${number}`].textContent = drone.role || "LEGACY";
+  elements[`droneTask${number}`].textContent = drone.task_id || "—";
   elements[`droneEnergy${number}`].textContent = `${drone.energy_remaining.toFixed(1)} units`;
   elements[`droneBattery${number}`].style.width = `${Math.max(0, Math.min(100, drone.energy_remaining_percent))}%`;
   elements[`droneTarget${number}`].textContent = drone.target ? `${drone.target[0]}, ${drone.target[1]}` : "—";
@@ -293,8 +296,9 @@ function eventColor(event) {
   if (["smoke_entered", "smoke_exited"].includes(event.event_type)) return COLORS.smoke;
   if (event.event_type === "survivor_detection_degraded") return "#fb7185";
   if (event.event_type === "drone_failure_injected") return COLORS.failed;
-  if (event.event_type === "failure_task_released") return "#f59e0b";
-  if (["failure_task_reassigned", "failed_drone_collision_avoided"].includes(event.event_type)) return "#34d399";
+  if (["failure_task_released", "task_orphaned"].includes(event.event_type)) return "#f59e0b";
+  if (["failure_task_reassigned", "task_reassigned", "failure_recovery_completed", "task_completed_after_reassignment", "failed_drone_collision_avoided"].includes(event.event_type)) return "#34d399";
+  if (["role_assigned", "role_changed"].includes(event.event_type)) return COLORS.radioRelay;
   if (event.event_type === "safety_shield_intervention") return "#fb7185";
   if (event.event_type === "final_sync_timeout") return "#fb7185";
   if (event.event_type === "final_sync_completed") return "#34d399";
@@ -374,7 +378,12 @@ function updateEventFeed() {
       ? (event.old_path_length == null ? "" : ` · old path ${event.old_path_length}`)
       : ` · path ${event.old_path_length ?? "—"}→${event.new_path_length}`;
     const transitionDetail = event.new_cell_state ? ` · ${event.old_cell_state ?? "?"}→${event.new_cell_state}` : "";
-    detail.textContent += `${utilityDetail}${reasonDetail}${backlogDetail}${channelDetail}${outcomeDetail}${distanceDetail}${smokeDetail}${confidenceDetail}${evidenceDetail}${hypothesisDetail}${pathDetail}${transitionDetail}`;
+    const taskDetail = event.task_id ? ` · ${event.task_id} ${event.task_type ?? ""}` : "";
+    const ownerDetail = event.task_owner ? ` · owner ${event.task_owner}` : "";
+    const roleDetail = event.new_role ? ` · role ${event.old_role ?? "—"}→${event.new_role}` : "";
+    const scoreDetail = event.reassignment_score == null ? "" : ` · score ${event.reassignment_score}`;
+    const latencyDetail = event.assignment_latency == null ? "" : ` · latency ${event.assignment_latency}`;
+    detail.textContent += `${utilityDetail}${reasonDetail}${backlogDetail}${channelDetail}${outcomeDetail}${distanceDetail}${smokeDetail}${confidenceDetail}${evidenceDetail}${hypothesisDetail}${pathDetail}${transitionDetail}${taskDetail}${ownerDetail}${roleDetail}${scoreDetail}${latencyDetail}`;
     copy.append(title, detail);
     item.append(step, node, copy);
     elements.eventFeed.append(item);
@@ -826,6 +835,30 @@ function normalizeDynamicObstacleBenchmark(benchmark) {
   };
 }
 
+function normalizeRoleFailureBenchmark(benchmark) {
+  const scenarios = requiredObject(benchmark, "scenarios", "Role/failure");
+  const generalist = requiredObject(scenarios, "B_generalist_failure", "Role/failure");
+  const generalized = requiredObject(scenarios, "D_generalized_failure", "Role/failure");
+  const generalistDuration = requiredObject(generalist, "mission_duration", "Generalist failure");
+  const generalizedDuration = requiredObject(generalized, "mission_duration", "Generalized-role failure");
+  const comparison = requiredObject(benchmark, "roles_vs_generalist_under_failure", "Role/failure");
+  const durationDelta = requiredObject(comparison, "duration", "Role/failure comparison");
+  const reassignment = requiredObject(generalized, "reassignment_success", "Generalized-role failure");
+  const recovery = requiredObject(generalized, "recovery_latency", "Generalized-role failure");
+  return {
+    status: "ready",
+    format: "generalized_roles_failure_resilience",
+    title: "Role-aware failure recovery",
+    baselineLabel: "Generalists + failure",
+    candidateLabel: "Roles + failure",
+    baselineSteps: Number(generalistDuration.mean),
+    candidateSteps: Number(generalizedDuration.mean),
+    improvementValue: signedMetric(-Number(durationDelta.mean), " steps"),
+    improvementLabel: "role duration impact",
+    note: `Reassignment success ${Number(reassignment.percentage).toFixed(1)}%; mean productive recovery ${Number(recovery.mean).toFixed(2)} steps.`,
+  };
+}
+
 function normalizeBenchmark(benchmark) {
   if (!isRecord(benchmark)) throw new Error("Benchmark root must be a JSON object.");
   if (hasOwn(benchmark, "schema_version") && typeof benchmark.schema_version !== "string") {
@@ -845,6 +878,9 @@ function normalizeBenchmark(benchmark) {
   }
   if (benchmark.benchmark_type === "dynamic_obstacles_paired_holdout") {
     return normalizeDynamicObstacleBenchmark(benchmark);
+  }
+  if (benchmark.benchmark_type === "generalized_roles_failure_resilience") {
+    return normalizeRoleFailureBenchmark(benchmark);
   }
   if (hasOwn(benchmark, "training") || hasOwn(benchmark, "holdout")) {
     return normalizeNetworkAwareRelayBenchmark(benchmark);

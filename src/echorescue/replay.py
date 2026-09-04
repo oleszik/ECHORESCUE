@@ -22,6 +22,7 @@ FAILURE_RECOVERY_REPLAY_SCHEMA_VERSION = "1.9"
 SMOKE_REPLAY_SCHEMA_VERSION = "2.0"
 NOISY_PERCEPTION_REPLAY_SCHEMA_VERSION = "2.1"
 DYNAMIC_OBSTACLE_REPLAY_SCHEMA_VERSION = "2.2"
+ROLE_FAILURE_REPLAY_SCHEMA_VERSION = "2.3"
 CELL_SYMBOLS = {
     CellState.UNKNOWN: "?",
     CellState.FREE: ".",
@@ -82,6 +83,11 @@ class ReplayRecorder:
         shared_shadow_map = simulation.shadow_synchronizer.shared_shadow_map()
         drones = {}
         for drone_id, runtime in sorted(simulation.runtimes.items()):
+            current_task = (
+                simulation.task_registry.current_for(drone_id)
+                if simulation.roles_enabled
+                else None
+            )
             path = _remaining_path(runtime)
             target = (
                 runtime.relay_target
@@ -102,6 +108,18 @@ class ReplayRecorder:
                     runtime.battery.remaining_percent, 3
                 ),
                 "target": _position(target) if target is not None else None,
+                **(
+                    {
+                        "role": runtime.role.value,
+                        "task_id": (
+                            current_task.identifier
+                            if current_task is not None
+                            else None
+                        ),
+                    }
+                    if simulation.roles_enabled
+                    else {}
+                ),
                 "planned_path": [_position(position) for position in path],
                 "path_kind": (
                     "return"
@@ -388,6 +406,11 @@ class ReplayRecorder:
                     simulation._dynamic_obstacles_observed
                 )
             ]
+        if simulation.roles_enabled:
+            frame["task_ownership"] = [
+                task.to_dict()
+                for task in simulation.task_registry.active_or_orphaned()
+            ]
         if self._frames and self._frames[-1]["step"] == simulation.steps:
             self._frames[-1] = frame
         else:
@@ -438,6 +461,8 @@ class ReplayRecorder:
         if not simulation.dynamic_obstacles_enabled:
             configuration.pop("dynamic_obstacles", None)
             configuration.pop("dynamic_obstacle_schedule", None)
+        if not simulation.roles_enabled:
+            configuration.pop("role_policy", None)
         if simulation.config.survivor_sensor == "visual":
             for key in (
                 "survivor_sensor",
@@ -460,6 +485,8 @@ class ReplayRecorder:
                 if simulation.config.dynamic_obstacle_schedule
                 else simulation.config.dynamic_obstacles
             )
+        if simulation.roles_enabled:
+            mission["role_policy"] = simulation.config.role_policy
         if simulation.network_transport is not None:
             mission["network_profile"] = simulation.config.network_profile
         if simulation.config.survivor_sensor != "visual":
@@ -504,7 +531,9 @@ class ReplayRecorder:
                 ]
         return {
             "schema_version": (
-                DYNAMIC_OBSTACLE_REPLAY_SCHEMA_VERSION
+                ROLE_FAILURE_REPLAY_SCHEMA_VERSION
+                if simulation.roles_enabled
+                else DYNAMIC_OBSTACLE_REPLAY_SCHEMA_VERSION
                 if simulation.dynamic_obstacles_enabled
                 else NOISY_PERCEPTION_REPLAY_SCHEMA_VERSION
                 if simulation.config.perception_noise != "off"

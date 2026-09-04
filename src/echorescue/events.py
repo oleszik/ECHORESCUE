@@ -82,6 +82,12 @@ class EventType(str, Enum):
     TARGET_UNREACHABLE = "target_unreachable"
     TARGET_REASSIGNED = "target_reassigned"
     STALE_PATH_SAFETY_INTERVENTION = "stale_path_safety_intervention"
+    ROLE_ASSIGNED = "role_assigned"
+    ROLE_CHANGED = "role_changed"
+    TASK_ORPHANED = "task_orphaned"
+    TASK_REASSIGNED = "task_reassigned"
+    TASK_COMPLETED_AFTER_REASSIGNMENT = "task_completed_after_reassignment"
+    FAILURE_RECOVERY_COMPLETED = "failure_recovery_completed"
 
 
 @dataclass(frozen=True, slots=True)
@@ -126,6 +132,14 @@ class MissionEvent:
     new_cell_state: str | None = None
     old_path_length: int | None = None
     new_path_length: int | None = None
+    task_id: str | None = None
+    task_type: str | None = None
+    task_status: str | None = None
+    task_owner: str | None = None
+    old_role: str | None = None
+    new_role: str | None = None
+    reassignment_score: int | None = None
+    assignment_latency: int | None = None
 
     def to_dict(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -211,6 +225,22 @@ class MissionEvent:
             payload["old_path_length"] = self.old_path_length
         if self.new_path_length is not None:
             payload["new_path_length"] = self.new_path_length
+        if self.task_id is not None:
+            payload["task_id"] = self.task_id
+        if self.task_type is not None:
+            payload["task_type"] = self.task_type
+        if self.task_status is not None:
+            payload["task_status"] = self.task_status
+        if self.task_owner is not None:
+            payload["task_owner"] = self.task_owner
+        if self.old_role is not None:
+            payload["old_role"] = self.old_role
+        if self.new_role is not None:
+            payload["new_role"] = self.new_role
+        if self.reassignment_score is not None:
+            payload["reassignment_score"] = self.reassignment_score
+        if self.assignment_latency is not None:
+            payload["assignment_latency"] = self.assignment_latency
         return payload
 
 
@@ -326,6 +356,12 @@ class MissionLog:
             EventType.TARGET_UNREACHABLE,
             EventType.TARGET_REASSIGNED,
             EventType.STALE_PATH_SAFETY_INTERVENTION,
+            EventType.ROLE_ASSIGNED,
+            EventType.ROLE_CHANGED,
+            EventType.TASK_ORPHANED,
+            EventType.TASK_REASSIGNED,
+            EventType.TASK_COMPLETED_AFTER_REASSIGNMENT,
+            EventType.FAILURE_RECOVERY_COMPLETED,
         }:
             key = (
                 event.event_type,
