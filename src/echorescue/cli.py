@@ -46,6 +46,27 @@ def obstacle_spec(value: str) -> tuple[int, int, int]:
     return x, y, step
 
 
+def floor_obstacle_spec(value: str) -> tuple[int, int, int, int]:
+    try:
+        raw_floor, raw_position, raw_step = value.split(":", 2)
+        raw_row, raw_col = raw_position.split(",", 1)
+        floor, row, col, step = (
+            int(raw_floor),
+            int(raw_row),
+            int(raw_col),
+            int(raw_step),
+        )
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(
+            "floor obstacle must use FLOOR:ROW,COL:STEP, for example 1:5,7:20"
+        ) from error
+    if floor < 0 or row < 0 or col < 0 or step < 1:
+        raise argparse.ArgumentTypeError(
+            "floor obstacle coordinates must be non-negative and step positive"
+        )
+    return floor, row, col, step
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run the deterministic EchoRescue search-and-rescue simulation."
@@ -59,6 +80,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--width", type=int, default=21)
     parser.add_argument("--height", type=int, default=13)
+    parser.add_argument("--floors", type=int, choices=range(1, 9), default=1)
+    parser.add_argument("--transition-cost", type=int, default=3)
+    parser.add_argument("--stairwells", type=int, choices=(1, 2), default=2)
+    parser.add_argument("--survivors-per-floor", type=int, default=1)
     parser.add_argument("--sensor-range", type=int, default=4)
     parser.add_argument("--survivors", type=int, default=3)
     parser.add_argument("--survivor-range", type=int, default=3)
@@ -177,6 +202,14 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="X,Y:STEP",
         help="persistently block an initially-free cell at a mission step",
     )
+    parser.add_argument(
+        "--inject-floor-obstacle",
+        action="append",
+        default=[],
+        type=floor_obstacle_spec,
+        metavar="FLOOR:ROW,COL:STEP",
+        help="persistently block a floor-aware cell at a mission step",
+    )
     parser.add_argument("--max-steps", type=int, default=1_000)
     parser.add_argument(
         "--obstacle-density", type=float, default=0.08, metavar="FRACTION"
@@ -207,6 +240,31 @@ def main(argv: list[str] | None = None) -> None:
         raise SystemExit(
             "--replay-debug-smoke requires an active --smoke-profile"
         )
+    if args.floors > 1:
+        if args.visualize:
+            raise SystemExit("multi-floor terminal rendering is replay-first; omit --visualize")
+        if args.inject_obstacle:
+            raise SystemExit("multi-floor missions require --inject-floor-obstacle")
+        from echorescue.multi_floor import run_multi_floor_cli
+
+        run_multi_floor_cli(
+            floors=args.floors,
+            width=args.width,
+            height=args.height,
+            seed=args.seed,
+            drones=args.drones,
+            obstacle_density=args.obstacle_density,
+            survivors_per_floor=args.survivors_per_floor,
+            transition_cost=args.transition_cost,
+            stairwells=args.stairwells,
+            max_steps=args.max_steps,
+            replay_out=args.replay_out,
+            failure_schedule=tuple(sorted(args.inject_failure, key=lambda item: item[1])),
+            dynamic_obstacle_schedule=tuple(
+                sorted(args.inject_floor_obstacle, key=lambda item: item[3])
+            ),
+        )
+        return
     start_positions = None
     if args.start_mode == "shared-base":
         start_positions = tuple((1, 1) for _ in range(args.drones))

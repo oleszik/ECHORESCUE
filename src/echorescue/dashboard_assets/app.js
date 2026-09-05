@@ -31,6 +31,7 @@ const state = {
   speed: 1,
   timer: null,
   mapView: "operator",
+  selectedFloor: 0,
 };
 
 const elements = {};
@@ -39,7 +40,7 @@ function cacheElements() {
   [
     "seedValue", "knowledgeMode", "networkProfile", "survivorSensor", "missionStatus", "restartButton", "previousButton", "playButton",
     "playIcon", "playLabel", "nextButton", "timeline", "currentStep", "maxStep",
-    "speedSelect", "mapViewSelect", "mapViewTitle", "mapViewPurpose", "missionCanvas", "coverageValue", "eventFeed", "eventCount", "smokeDebugOption", "smokeDebugLegend",
+    "speedSelect", "mapViewSelect", "floorSelect", "floorSelectLabel", "floorOverview", "mapViewTitle", "mapViewPurpose", "missionCanvas", "coverageValue", "eventFeed", "eventCount", "smokeDebugOption", "smokeDebugLegend",
     "resultBadge", "metricRecall", "metricReturned", "metricWalls", "metricDrones",
     "metricSteps", "metricDuplicate", "schemaVersion", "singleSteps", "multiSteps",
     "improvementValue", "benchmarkNote", "benchmarkPanel", "fatalError", "droneCards",
@@ -144,6 +145,20 @@ function initializeReplay(replay, benchmark) {
   state.replay = replay;
   state.benchmark = benchmark;
   initializeFleetViews();
+  const multiFloor = replay.schema_version === "2.5";
+  if (multiFloor) {
+    const floors = Object.keys(replay.map.floors).map(Number).sort((a, b) => a - b);
+    state.selectedFloor = floors[0];
+    elements.floorSelect.replaceChildren(...floors.map((floor) => {
+      const option = document.createElement("option");
+      option.value = String(floor);
+      option.textContent = `Floor ${floor}`;
+      return option;
+    }));
+    elements.floorSelectLabel.hidden = false;
+    elements.floorOverview.hidden = false;
+    elements.mapViewSelect.parentElement.hidden = true;
+  }
   const knowledgeMode = replay.mission.knowledge_mode || replay.mission.configuration?.knowledge_mode || "shared";
   state.mapView = knowledgeMode === "local" ? "base" : "operator";
   const hasSmokeDebug = Boolean(replay.map.smoke_debug?.debug_only);
@@ -168,7 +183,10 @@ function initializeReplay(replay, benchmark) {
   elements.schemaVersion.textContent = replay.schema_version;
   elements.timeline.max = replay.frames.length - 1;
   elements.maxStep.textContent = replay.frames.at(-1).step;
-  elements.missionCanvas.parentElement.style.aspectRatio = `${replay.map.width} / ${replay.map.height}`;
+  const initialMap = multiFloor
+    ? replay.map.floors[String(state.selectedFloor)]
+    : { width: replay.map.width, height: replay.map.height };
+  elements.missionCanvas.parentElement.style.aspectRatio = `${initialMap.width} / ${initialMap.height}`;
   populateMetrics();
   populateBenchmark();
   setFrame(0);
@@ -190,6 +208,23 @@ function setFrame(index) {
 }
 
 function updateDroneCard(number, drone, frame) {
+  if (state.replay.schema_version === "2.5") {
+    const [floor, row, col] = drone.position;
+    elements[`droneState${number}`].textContent = drone.state.replaceAll("_", " ");
+    elements[`dronePosition${number}`].textContent = `F${floor} · ${row}, ${col}`;
+    elements[`droneRole${number}`].textContent = "GENERALIST";
+    elements[`droneTask${number}`].textContent = drone.target ? "FLOOR EXPLORATION" : "—";
+    elements[`droneEnergy${number}`].textContent = `${drone.energy_remaining.toFixed(1)} units`;
+    elements[`droneBattery${number}`].style.width = `${Math.max(0, Math.min(100, drone.energy_remaining / 5))}%`;
+    elements[`droneTarget${number}`].textContent = drone.target ? `F${drone.target[0]} · ${drone.target[1]}, ${drone.target[2]}` : "—";
+    elements[`droneCommunication${number}`].textContent = "Shared mission link";
+    elements[`droneCommunication${number}`].className = "communication-status direct";
+    elements[`droneDataLink${number}`].textContent = "Floor-aware";
+    elements[`droneCoverage${number}`].textContent = `Floor ${floor}`;
+    elements[`droneSurvivors${number}`].textContent = `${frame.confirmed_survivors.filter((item) => item[0] === floor).length} on floor`;
+    elements[`droneDataAge${number}`].textContent = "Shared";
+    return;
+  }
   const [x, y] = drone.position;
   const relayHold = drone.relay?.holding_for_relay ? "RELAY HOLD · " : "";
   const smokeState = drone.smoke?.in_smoke
@@ -250,6 +285,10 @@ function updateDroneCard(number, drone, frame) {
 
 function updateNetworkReadout(frame) {
   if (!elements.networkSummary) return;
+  if (state.replay.schema_version === "2.5") {
+    elements.networkSummaryState.textContent = `${state.replay.mission.network_profile.toUpperCase()} · FLOOR-AWARE`;
+    return;
+  }
   const network = frame.network;
   if (!network) {
     elements.networkSummaryState.textContent = "NOT AVAILABLE";
@@ -260,6 +299,12 @@ function updateNetworkReadout(frame) {
 }
 
 function selectedKnowledgeMap(frame) {
+  if (state.replay.schema_version === "2.5") {
+    const occupancy = frame.floor_maps[String(state.selectedFloor)];
+    const known = occupancy.join("").replaceAll("?", "").length;
+    const total = occupancy.reduce((sum, row) => sum + row.length, 0);
+    return { occupancy, known_coverage: 100 * known / total, differences_from_shadow: [], confirmed_survivors: frame.confirmed_survivors.filter((item) => item[0] === state.selectedFloor).map((item) => [item[2], item[1]]) };
+  }
   if (state.mapView === "smoke-debug") return frame.knowledge_maps.operator;
   return frame.knowledge_maps[state.mapView] || frame.knowledge_maps.operator;
 }
@@ -268,6 +313,14 @@ function updateMapReadout(frame) {
   const knowledgeMap = selectedKnowledgeMap(frame);
   elements.smokeDebugLegend.hidden = state.mapView !== "smoke-debug";
   elements.coverageValue.textContent = `${knowledgeMap.known_coverage.toFixed(1)}%`;
+  if (state.replay.schema_version === "2.5") {
+    const counts = {};
+    Object.values(frame.drones).forEach((drone) => { counts[drone.floor] = (counts[drone.floor] || 0) + 1; });
+    elements.floorOverview.textContent = Object.keys(state.replay.map.floors).map((floor) => `F${floor}: ${counts[floor] || 0}`).join(" · ");
+    elements.mapViewTitle.textContent = `Floor ${state.selectedFloor} occupancy map`;
+    elements.mapViewPurpose.textContent = "Floor-aware shared mission knowledge";
+    return;
+  }
   const labels = {
     operator: ["Global operator map", "Evaluation aggregate · never used for local decisions"],
     base: ["Base knowledge", "Operational knowledge received over radio"],
@@ -283,7 +336,7 @@ function updateMapReadout(frame) {
 
 function updateStatus(frame) {
   const last = state.frameIndex === state.replay.frames.length - 1;
-  const success = state.replay.metrics.mission_success;
+  const success = state.replay.schema_version === "2.5" ? state.replay.result.mission_success : state.replay.metrics.mission_success;
   elements.missionStatus.className = `status-pill ${last ? (success ? "success" : "failure") : "running"}`;
   elements.missionStatus.lastElementChild.textContent = last ? (success ? "Mission complete" : "Mission failed") : "Replay in progress";
   elements.resultBadge.className = `result-badge ${last ? (success ? "success" : "failure") : "pending"}`;
@@ -369,7 +422,7 @@ function updateEventFeed() {
     const messages = event.message_count == null ? "" : ` · ${event.message_count} msg`;
     const messageType = event.message_type ? ` · ${event.message_type.replaceAll("_", " ")}` : "";
     const units = event.payload_units == null ? "" : ` · ${event.payload_units} units`;
-    detail.textContent = `${event.drone_id} · [${event.position.join(", ")}]${cells}${survivors}${messages}${messageType}${units}`;
+    detail.textContent = `${event.drone_id || event.agent_id || "mission"} · [${event.position.join(", ")}]${cells}${survivors}${messages}${messageType}${units}`;
     const utilityDetail = event.utility == null ? "" : ` · utility ${event.utility.toFixed(1)}`;
     const reasonDetail = event.reason ? ` · ${event.reason.replaceAll("_", " ")}` : "";
     const backlogDetail = event.critical_backlog == null ? "" : ` · critical ${event.critical_backlog}`;
@@ -397,6 +450,19 @@ function updateEventFeed() {
 }
 
 function populateMetrics() {
+  if (state.replay.schema_version === "2.5") {
+    const metrics = state.replay.result;
+    elements.metricRecall.textContent = `${(metrics.survivor_recall * 100).toFixed(0)}%`;
+    elements.metricReturned.textContent = String(metrics.returned_agents);
+    elements.metricWalls.textContent = metrics.wall_collisions;
+    elements.metricDrones.textContent = metrics.drone_collisions;
+    elements.metricSteps.textContent = metrics.mission_duration;
+    elements.metricDuplicate.textContent = "—";
+    elements.relaySummary.classList.add("inactive");
+    elements.relaySummaryState.textContent = "OFF";
+    elements.networkSummaryState.textContent = "IDEAL / SHARED";
+    return;
+  }
   const metrics = state.replay.metrics;
   elements.metricRecall.textContent = `${(metrics.survivor_recall * 100).toFixed(0)}%`;
   const recovery = metrics.failure_recovery;
@@ -892,6 +958,29 @@ function normalizeMultiRelayBenchmark(benchmark) {
   };
 }
 
+function normalizeMultiFloorBenchmark(benchmark) {
+  const profiles = requiredObject(benchmark, "profiles", "Multi-floor 2.5D");
+  const flattened = requiredObject(profiles, "A_flattened_control", "Multi-floor 2.5D");
+  const multi = requiredObject(profiles, "B_multi_floor", "Multi-floor 2.5D");
+  const flatMetrics = requiredObject(flattened, "metrics", "Flattened control");
+  const multiMetrics = requiredObject(multi, "metrics", "Multi-floor mission");
+  const flatDuration = requiredObject(flatMetrics, "mission_duration", "Flattened control");
+  const multiDuration = requiredObject(multiMetrics, "mission_duration", "Multi-floor mission");
+  const transitions = requiredObject(multiMetrics, "transition_count", "Multi-floor mission");
+  return {
+    status: "ready",
+    format: "multi_floor_2_5d",
+    title: "Multi-floor 2.5D holdout",
+    baselineLabel: "Flattened control",
+    candidateLabel: "Three floors",
+    baselineSteps: Number(flatDuration.mean),
+    candidateSteps: Number(multiDuration.mean),
+    improvementValue: signedMetric(Number(multiDuration.mean) - Number(flatDuration.mean), " steps"),
+    improvementLabel: "vertical-layout delta",
+    note: `${Number(transitions.mean).toFixed(2)} transitions/mission; size-matched control with different boundary geometry.`,
+  };
+}
+
 function normalizeBenchmark(benchmark) {
   if (!isRecord(benchmark)) throw new Error("Benchmark root must be a JSON object.");
   if (hasOwn(benchmark, "schema_version") && typeof benchmark.schema_version !== "string") {
@@ -917,6 +1006,9 @@ function normalizeBenchmark(benchmark) {
   }
   if (benchmark.benchmark === "v0.10-predictive-communication-multi-relay") {
     return normalizeMultiRelayBenchmark(benchmark);
+  }
+  if (benchmark.benchmark === "v0.11-multi-floor-2.5d") {
+    return normalizeMultiFloorBenchmark(benchmark);
   }
   if (hasOwn(benchmark, "training") || hasOwn(benchmark, "holdout")) {
     return normalizeNetworkAwareRelayBenchmark(benchmark);
@@ -996,8 +1088,10 @@ function canvasGeometry() {
     canvas.width = width;
     canvas.height = height;
   }
-  const mapWidth = state.replay.map.width;
-  const mapHeight = state.replay.map.height;
+  const floorMap = state.replay.schema_version === "2.5"
+    ? state.replay.map.floors[String(state.selectedFloor)] : state.replay.map;
+  const mapWidth = floorMap.width;
+  const mapHeight = floorMap.height;
   const padding = 20 * ratio;
   const cell = Math.min((width - padding * 2) / mapWidth, (height - padding * 2) / mapHeight);
   return {
@@ -1116,8 +1210,74 @@ function drawMotionReservation(context, drone, geometry, color) {
   context.restore();
 }
 
+function drawMultiFloorMission() {
+  const frame = state.replay.frames[state.frameIndex];
+  const geometry = canvasGeometry();
+  const { context, ratio, cell, offsetX, offsetY } = geometry;
+  const occupancy = frame.floor_maps[String(state.selectedFloor)];
+  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+  occupancy.forEach((row, rowIndex) => {
+    [...row].forEach((symbol, colIndex) => {
+      context.fillStyle = symbol === "?" ? COLORS.unknown : symbol === "." ? COLORS.free : COLORS.occupied;
+      context.fillRect(offsetX + colIndex * cell, offsetY + rowIndex * cell, cell, cell);
+      context.strokeStyle = COLORS.grid;
+      context.strokeRect(offsetX + colIndex * cell, offsetY + rowIndex * cell, cell, cell);
+    });
+  });
+  state.replay.map.transitions.forEach((transition) => {
+    [transition.source, transition.destination].forEach((position) => {
+      if (position[0] !== state.selectedFloor) return;
+      const [x, y] = cellCenter([position[2], position[1]], geometry);
+      context.fillStyle = COLORS.radioRelay;
+      context.font = `800 ${Math.max(9 * ratio, cell * 0.35)}px Inter, sans-serif`;
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillText("↕", x, y);
+    });
+  });
+  frame.confirmed_survivors.filter((position) => position[0] === state.selectedFloor).forEach((position) => {
+    const [x, y] = cellCenter([position[2], position[1]], geometry);
+    context.beginPath();
+    context.fillStyle = COLORS.survivor;
+    context.arc(x, y, Math.max(3.5 * ratio, cell * 0.18), 0, Math.PI * 2);
+    context.fill();
+  });
+  const base = state.replay.map.base;
+  if (base[0] === state.selectedFloor) {
+    const [x, y] = cellCenter([base[2], base[1]], geometry);
+    context.fillStyle = COLORS.base;
+    context.font = `800 ${Math.max(9 * ratio, cell * 0.32)}px Inter, sans-serif`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText("B", x, y);
+  }
+  fleetIds().forEach((droneId, index) => {
+    const drone = frame.drones[droneId];
+    if (drone.floor !== state.selectedFloor) return;
+    const visibleTrail = state.replay.frames.slice(0, state.frameIndex + 1)
+      .map((item) => item.drones[droneId].position)
+      .filter((position) => position[0] === state.selectedFloor)
+      .map((position) => [position[2], position[1]]);
+    drawPolyline(context, visibleTrail, geometry, `${droneColor(droneId)}88`, 1.5);
+    const [x, y] = cellCenter([drone.position[2], drone.position[1]], geometry);
+    context.beginPath();
+    context.fillStyle = drone.state === "FAILED" ? COLORS.failed : droneColor(droneId);
+    context.arc(x, y, Math.max(7 * ratio, cell * 0.31), 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = COLORS.textDark;
+    context.font = `800 ${Math.max(9 * ratio, cell * 0.28)}px Inter, sans-serif`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(String(index + 1), x, y);
+  });
+}
+
 function drawMission() {
   if (!state.replay) return;
+  if (state.replay.schema_version === "2.5") {
+    drawMultiFloorMission();
+    return;
+  }
   const frame = state.replay.frames[state.frameIndex];
   const geometry = canvasGeometry();
   const { context, ratio, cell, offsetX, offsetY } = geometry;
@@ -1315,6 +1475,14 @@ function bindControls() {
   });
   elements.mapViewSelect.addEventListener("change", (event) => {
     state.mapView = event.target.value;
+    updateMapReadout(state.replay.frames[state.frameIndex]);
+    updateEventFeed();
+    drawMission();
+  });
+  elements.floorSelect.addEventListener("change", (event) => {
+    state.selectedFloor = Number(event.target.value);
+    const floorMap = state.replay.map.floors[String(state.selectedFloor)];
+    elements.missionCanvas.parentElement.style.aspectRatio = `${floorMap.width} / ${floorMap.height}`;
     updateMapReadout(state.replay.frames[state.frameIndex]);
     updateEventFeed();
     drawMission();

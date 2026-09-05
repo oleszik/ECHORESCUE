@@ -93,6 +93,12 @@ class EventType(str, Enum):
     MULTI_RELAY_TOPOLOGY_CHANGED = "multi_relay_topology_changed"
     PREDICTIVE_LINK_FORECAST = "predictive_link_forecast"
     PREDICTIVE_RELAY_ACTIVATED = "predictive_relay_activated"
+    FLOOR_TRANSITION_STARTED = "floor_transition_started"
+    FLOOR_TRANSITION_COMPLETED = "floor_transition_completed"
+    TRANSITION_CONFLICT = "transition_conflict"
+    FLOOR_TARGET_ASSIGNED = "floor_target_assigned"
+    FLOOR_ENTERED = "floor_entered"
+    FLOOR_EXPLORATION_COMPLETED = "floor_exploration_completed"
 
 
 @dataclass(frozen=True, slots=True)
