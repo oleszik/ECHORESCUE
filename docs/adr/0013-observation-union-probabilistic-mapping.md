@@ -5,7 +5,7 @@ Status: accepted for v0.12. Legacy perception remains the default.
 ## Inventory and implementation plan
 
 The starting branch was `feature/failure-reassignment`, with a clean working
- tree. No AGENTS.md was found in the repository or ancestor directories.
+tree. No AGENTS.md was found in the repository or ancestor directories.
 The project brief describes the old MVP; the explicit v0.12 task supersedes it.
 Existing v0.11 has N-agent 2D missions, role/failure logic, constrained transport,
 and a separate centralized 2.5D runner. Its floor communication graph is

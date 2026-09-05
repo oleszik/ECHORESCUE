@@ -22,6 +22,7 @@ with the documented benchmark commands.
 
 | Experiment | Stored result over 50 seeds |
 | --- | --- |
+| Probabilistic perception / v0.12 | 160 paired runs: success 100/70/25/0% from clean to high noise for both planners; clean entropy-proxy duration -10.8 steps, high-noise Recall -18.3 points versus naive |
 | Multi-floor / 2.5D | 4 agents across 3 floors: 50/50 success, full Recall/return, zero collisions; 13.28 transitions and 1.40 safely resolved conflicts per mission |
 | Predictive communication / Multi-Relay | 4 agents: reactive two-vs-one Relay uptime +5.09 points; predictive-vs-reactive +2.38 points; all 150 Relay missions successful with full Recall/return and zero collisions |
 | Generalized roles + failure resilience | 4 agents: 50/50 failure tasks reassigned, 100% mission success/Recall/operational return, 1-step execution recovery, zero collisions and Role Thrashing |
@@ -56,6 +57,24 @@ per-seed limitations are in
 The discrete floor graph, transition deconfliction, Floor allocation, vertical
 overhead, and scaling results are in
 [`docs/v0.11-multi-floor-2.5d.md`](docs/v0.11-multi-floor-2.5d.md).
+
+## v0.12: Uncertain perception and probabilistic mapping
+
+Probabilistic perception is opt-in. Bounded occupancy log odds, provenance-aware
+idempotent fusion, simulation-time decay, and separate Survivor evidence use the
+existing mapping/sensor/transport interfaces. Compare `naive` and
+`uncertainty-aware` planning on the same probability map:
+
+```bash
+python -m echorescue --drones 2 --uncertainty-profile medium_noise --planning-variant uncertainty-aware --replay-out replays/uncertainty_preview.json
+python -m echorescue.dashboard --replay replays/uncertainty_preview.json
+python -m echorescue.uncertainty_benchmark --split holdout --output benchmarks/uncertainty_holdout.json
+```
+
+The [frozen protocol, results and limits](docs/v0.12-uncertain-perception.md)
+explain the four profiles, fresh paired seeds, confidence intervals, local entropy
+proxy, and privileged safety veto. The dashboard adds occupancy percentages,
+uncertain cells, information age and Survivor scores. Legacy mode remains the default.
 
 ## Architecture
 
@@ -221,8 +240,9 @@ benchmark JSON aggregation modules are a documented incremental exception; see
 
 - EchoRescue is a software simulation, not evidence of real-world flight safety.
 - The world is a two-dimensional grid with abstract persistent cell closures;
-  there is no collapse physics, obstacle reopening, movable debris, additional
-  floors, vehicle dynamics, aerodynamics, or flight-controller integration.
+  dynamic closures can reopen through the world API; discrete 2.5D floors and
+  stairs are supported. There is no collapse physics, vehicle dynamics,
+  aerodynamics, or flight-controller integration.
 - Sensors are abstract range/LOS/probability models. Thermal is not an infrared
   camera, and there is no Visual/Thermal fusion, acoustic sensing, ML, or CV.
 - The radio model uses grid LOS and deterministic transport abstractions, not
@@ -231,7 +251,8 @@ benchmark JSON aggregation modules are a documented incremental exception; see
   Relay roles remain intentionally limited to two-agent experiments.
 - Generalized role/task ownership is authoritative in shared mode. Constrained
   local communication has regression coverage but no distributed role
-  consensus, predictive placement, or Multi-Relay optimization.
+  consensus. Predictive/Multi-Relay experiments are available separately; the
+  multi-floor runner still uses centralized shared knowledge.
 - Failure injection is deterministic fail-stop behavior without diagnosis,
   repair, or probabilistic component reliability.
 - There is no ROS 2, hardware-in-the-loop, real sensor dataset, or hardware
@@ -261,8 +282,10 @@ were added.
   and multi-hop Relay coordination.
 - **v0.11 — Multi-floor / 2.5D:** connected floor plans and vertical transitions.
 
-Development stops at completed v0.9 in this slice. v0.10 begins only as a
-separate task.
+- **v0.12 ? Uncertain Perception & Probabilistic Mapping:** opt-in probability
+  maps, bounded evidence fusion/decay and paired uncertainty-aware planning study.
+
+Development stops at v0.12. v0.13 has not been started.
 
 ## License
 

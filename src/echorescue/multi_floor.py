@@ -1125,7 +1125,7 @@ class MultiFloorSimulation:
         operational = [
             agent for agent in self.agents.values() if agent.status != "FAILED"
         ]
-        recalled = len(self.confirmed_survivors)
+        recalled = len(self.confirmed_survivors & self.environment.survivors)
         total_survivors = len(self.environment.survivors)
         recall = recalled / total_survivors if total_survivors else 1.0
         returned = sum(agent.status == "LANDED" for agent in operational)

@@ -1283,6 +1283,9 @@ function drawProbability(frame, geometry, key) {
   const cells = frame.probabilistic_maps?.[key];
   if (!cells) return;
   const { context, cell, offsetX, offsetY, ratio } = geometry;
+  context.save();
+  context.textAlign = "left";
+  context.textBaseline = "alphabetic";
   for (const item of cells) {
     const [x, y] = item.position;
     context.fillStyle = item.classification === "uncertain" ? "#a16207"
@@ -1295,6 +1298,7 @@ function drawProbability(frame, geometry, key) {
       context.fillText(`${item.age}t`, offsetX+x*cell+2*ratio, offsetY+y*cell+cell*.83);
     }
   }
+  context.restore();
   elements.mapViewPurpose.textContent = `${frame.perception_profile} / ${frame.planning_variant} ? occupancy % / age ticks ? amber: uncertain ? dark: unknown`;
 }
 
@@ -1382,8 +1386,15 @@ function drawMission() {
 
   (frame.local_survivor_hypotheses ? (frame.local_survivor_hypotheses[state.mapView] || [])
     : (frame.survivor_hypotheses || [])).forEach((hypothesis) => {
-    if (hypothesis.status === "confirmed") return;
     const [x, y] = cellCenter(hypothesis.location, geometry);
+    if (hypothesis.status === "confirmed") {
+      context.save();
+      context.fillStyle = COLORS.survivor;
+      context.font = `${Math.max(9*ratio, cell*.22)}px sans-serif`;
+      context.fillText(`confirmed ${hypothesis.accumulated_evidence.toFixed(2)}`, x+cell*.2, y-cell*.2);
+      context.restore();
+      return;
+    }
     const radius = Math.max(4 * ratio, cell * 0.2);
     context.save();
     context.strokeStyle = hypothesis.status === "rejected"

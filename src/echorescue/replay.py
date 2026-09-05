@@ -384,7 +384,7 @@ class ReplayRecorder:
             ),
         }
         if simulation.config.uncertainty_profile != "off":
-            maps = {"shared": simulation.occupancy_map, "base": simulation.base_knowledge_map,
+            maps = {"shared": shared_shadow_map if simulation.knowledge_mode == "local" else simulation.occupancy_map, "base": simulation.base_knowledge_map,
                     **{key: runtime.local_map for key, runtime in simulation.runtimes.items()}}
             frame["probabilistic_maps"] = {key: value.telemetry() for key, value in maps.items()
                 if isinstance(value, ProbabilisticKnowledgeMap)}

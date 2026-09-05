@@ -156,3 +156,12 @@ class ProbabilisticIntegrationTests(unittest.TestCase):
         sim.run()
         self.assertIn("probabilistic_maps",sim.frames[-1])
         self.assertEqual(set(sim.frames[-1]["probabilistic_maps"]),{"0","1"})
+
+    def test_floor_recall_does_not_count_false_confirmation(self):
+        from echorescue.multi_floor import MultiFloorSimulation, MultiFloorConfig
+        sim = MultiFloorSimulation(MultiFloorConfig(seed=0,uncertainty_profile="clean"))
+        false = next(GridPosition(0,y,x) for y in range(1,8) for x in range(1,12)
+                     if GridPosition(0,y,x) not in sim.environment.survivors)
+        sim.confirmed_survivors.add(false)
+        self.assertEqual(sim.result().survivor_recall,0.0)
+        self.assertFalse(sim.result().success)
