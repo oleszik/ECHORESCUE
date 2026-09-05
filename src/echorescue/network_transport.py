@@ -156,6 +156,7 @@ def _canonical(value: object) -> object:
         return {
             name: _canonical(getattr(value, name))
             for name in value.__dataclass_fields__
+            if name != "evidence" or getattr(value, name)
         }
     if isinstance(value, dict):
         return {

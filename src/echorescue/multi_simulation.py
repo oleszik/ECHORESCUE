@@ -25,7 +25,8 @@ from echorescue.deconfliction import (
 from echorescue.energy import Battery
 from echorescue.environment import GridWorld
 from echorescue.events import EventType, MissionEvent, MissionLog
-from echorescue.knowledge import CellKnowledge, KnowledgeMap
+from echorescue.knowledge import CellKnowledge, KnowledgeMap, ProbabilisticKnowledgeMap
+from echorescue.probabilistic import UNCERTAINTY_PROFILES
 from echorescue.map_sync import ShadowMapSynchronizer
 from echorescue.mapping import KnownMap, OccupancyMap
 from echorescue.models import CellState, Drone, DroneStatus, Position
@@ -58,6 +59,7 @@ from echorescue.planning import astar
 from echorescue.perception import (
     HypothesisStatus,
     SurvivorHypothesisTracker,
+    SurvivorHypothesis,
 )
 from echorescue.relay import RelayPlan, known_radio_link, select_relay_plan
 from echorescue.roles import (
@@ -72,7 +74,7 @@ from echorescue.roles import (
     preferred_role,
     role_mismatch_penalty,
 )
-from echorescue.sensors import DistanceSensor
+from echorescue.sensors import DistanceSensor, uncertain_observations
 from echorescue.survivors import SurvivorObservationReport, SurvivorSensor
 
 
@@ -580,7 +582,9 @@ class MultiDroneSimulation:
         self.config = config
         self.knowledge_mode = config.effective_knowledge_mode
         self.world = GridWorld.generate(config)
-        self.occupancy_map = OccupancyMap(config.width, config.height)
+        self.occupancy_map: OccupancyMap | ProbabilisticKnowledgeMap = (
+            cast(ProbabilisticKnowledgeMap, self._new_knowledge_map(config)) if config.uncertainty_profile != "off"
+            else OccupancyMap(config.width, config.height))
         self.sensor = DistanceSensor(config.sensor_range)
         self.survivor_sensor = SurvivorSensor(
             max_range=config.active_survivor_sensor_range,
@@ -841,7 +845,7 @@ class MultiDroneSimulation:
                     movement_cost=config.movement_energy_cost,
                     sensor_cost=config.sensor_energy_cost,
                 ),
-                local_map=KnowledgeMap(config.width, config.height),
+                local_map=self._new_knowledge_map(config),
                 position_trace=[position],
             )
             self.runtimes[drone_id] = runtime
@@ -864,8 +868,14 @@ class MultiDroneSimulation:
                     new_role=role.value,
                 )
 
+        self.local_hypothesis_trackers = {drone_id: SurvivorHypothesisTracker(
+            minimum_positive_observations=config.survivor_confirmation_observations,
+            confirmation_threshold=config.survivor_confirmation_evidence_threshold,
+            rejection_threshold=config.survivor_rejection_evidence_threshold,
+            negative_evidence_weight=config.survivor_negative_evidence_weight)
+            for drone_id in self.runtimes}
         self.base_knowledge_map = (
-            KnowledgeMap(config.width, config.height)
+            self._new_knowledge_map(config)
             if config.base_knowledge_store_enabled
             else None
         )
@@ -894,6 +904,22 @@ class MultiDroneSimulation:
         if self.knowledge_mode == "local":
             self._record_base_event(EventType.KNOWLEDGE_MODE_ACTIVATED)
         self._update_completion()
+
+    @staticmethod
+    def _new_knowledge_map(config: SimulationConfig) -> ProbabilisticKnowledgeMap | KnowledgeMap:
+        if config.uncertainty_profile == "off":
+            return KnowledgeMap(config.width, config.height)
+        return ProbabilisticKnowledgeMap(config.width, config.height,
+            probability_config=config.probability_config,
+            reliability=UNCERTAINTY_PROFILES[config.uncertainty_profile].occupancy_reliability,
+            planning_variant=config.planning_variant)
+
+    def _advance_probability_maps(self) -> None:
+        maps = [self.occupancy_map, self.base_knowledge_map,
+                *(runtime.local_map for runtime in self.runtimes.values())]
+        for knowledge in maps:
+            if isinstance(knowledge, ProbabilisticKnowledgeMap):
+                knowledge.advance(self.steps)
 
     @property
     def drones(self) -> tuple[Drone, ...]:
@@ -1079,7 +1105,9 @@ class MultiDroneSimulation:
                         recipient=recipient,
                         route=route,
                         message_type=MessageType.MAP_UPDATE,
-                        payload=records,
+                        payload=[(position, CellKnowledge(record.state, e.observed_step,
+                            e.source_id, (e,))) for position, record in records for e in record.evidence]
+                            if self.config.uncertainty_profile != "off" else records,
                         created_step=self.steps,
                         ttl=self.config.network_map_ttl,
                         message_key=f"map:{sender}:{recipient}",
@@ -2741,7 +2769,12 @@ class MultiDroneSimulation:
         if not runtime.battery.consume(self.config.sensor_energy_cost):
             self._fail_energy(runtime)
             return
+        self._advance_probability_maps()
         observations = self.sensor.observe(self.world, runtime.drone.position)
+        if self.config.uncertainty_profile != "off":
+            observations = uncertain_observations(observations, seed=self.config.seed,
+                agent_id=runtime.drone.identifier, step=self.steps,
+                profile=self.config.uncertainty_profile)
         prior_states = {
             position: self._decision_map(runtime).cell_at(position)
             for position in observations
@@ -2754,7 +2787,11 @@ class MultiDroneSimulation:
                 source_id=runtime.drone.identifier,
             )
         if self.knowledge_mode != "local":
-            self.occupancy_map.update(observations)
+            if isinstance(self.occupancy_map, ProbabilisticKnowledgeMap):
+                self.occupancy_map.observe(observations, step=self.steps,
+                    source_id=runtime.drone.identifier)
+            else:
+                self.occupancy_map.update(observations)
         if self.dynamic_obstacles_enabled:
             self._register_dynamic_observations(
                 runtime, observations, prior_states
@@ -2904,6 +2941,9 @@ class MultiDroneSimulation:
     def _apply_noisy_survivor_evidence(
         self, runtime: DroneRuntime, report: SurvivorObservationReport
     ) -> None:
+        tracker = (self.local_hypothesis_trackers[runtime.drone.identifier]
+                   if self.config.uncertainty_profile != "off" and self.knowledge_mode == "local"
+                   else self.hypothesis_tracker)
         observed_positions: set[Position] = set()
         for index, observation in enumerate(report.observations, start=1):
             if not observation.success:
@@ -2915,7 +2955,7 @@ class MultiDroneSimulation:
                     observation.position in self.world.survivors,
                 )
             )
-            update = self.hypothesis_tracker.positive(
+            update = tracker.positive(
                 observation.position,
                 confidence=observation.confidence,
                 channel=report.sensor_channel,
@@ -3006,7 +3046,7 @@ class MultiDroneSimulation:
                 )
 
         for position, hypothesis in sorted(
-            self.hypothesis_tracker.hypotheses.items()
+            tracker.hypotheses.items()
         ):
             if (
                 hypothesis.status is not HypothesisStatus.UNCONFIRMED
@@ -3019,7 +3059,7 @@ class MultiDroneSimulation:
             negative_confidence = 0.25 * (
                 self.survivor_sensor.base_detection_probability
             )
-            negative_update = self.hypothesis_tracker.negative(
+            negative_update = tracker.negative(
                 position,
                 confidence=negative_confidence,
                 channel=report.sensor_channel,
@@ -5849,6 +5889,12 @@ class MultiDroneSimulation:
                 self._fail_return_path(runtime)
                 continue
             if not self.world.is_free(destination):
+                if self.config.uncertainty_profile != "off":
+                    # Privileged execution veto only: no truth injected into mapping.
+                    self.safety_shield_interventions += 1
+                    self._stale_path_safety_interventions += 1
+                    waiting.add(drone_id)
+                    continue
                 if destination in self.world.dynamic_obstacles:
                     self.safety_shield_interventions += 1
                     self._stale_path_safety_interventions += 1
@@ -5870,7 +5916,8 @@ class MultiDroneSimulation:
                             source_id=runtime.drone.identifier,
                         )
                     if self.knowledge_mode != "local":
-                        self.occupancy_map.update(contact_observation)
+                        if isinstance(self.occupancy_map, OccupancyMap):
+                            self.occupancy_map.update(contact_observation)
                     self._register_dynamic_observations(
                         runtime,
                         contact_observation,
@@ -5991,6 +6038,7 @@ class MultiDroneSimulation:
         return self.completed
 
     def step(self) -> bool:
+        self._advance_probability_maps()
         if self._is_completed():
             return False
         if self._final_sync_active:
@@ -6359,6 +6407,14 @@ class MultiDroneSimulation:
         if self.config.perception_noise == "off":
             return None
         hypotheses = tuple(self.hypothesis_tracker.hypotheses.values())
+        if self.config.uncertainty_profile != "off" and self.knowledge_mode == "local":
+            by_location: dict[Position, SurvivorHypothesis] = {}
+            for tracker in self.local_hypothesis_trackers.values():
+                for location, hypothesis in tracker.hypotheses.items():
+                    current = by_location.get(location)
+                    if current is None or hypothesis.status is HypothesisStatus.CONFIRMED:
+                        by_location[location] = hypothesis
+            hypotheses = tuple(by_location.values())
         confirmed = tuple(
             item for item in hypotheses if item.status is HypothesisStatus.CONFIRMED
         )

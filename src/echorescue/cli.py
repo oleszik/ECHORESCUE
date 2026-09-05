@@ -97,6 +97,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--thermal-detection-probability", type=float, default=0.6)
     parser.add_argument("--thermal-smoke-attenuation", type=float, default=0.15)
     parser.add_argument("--confirmation-observations", type=int, default=2)
+    parser.add_argument("--uncertainty-profile", default="off",
+                        choices=["off", "clean", "low_noise", "medium_noise", "high_noise"])
+    parser.add_argument("--planning-variant", default="naive",
+                        choices=["naive", "uncertainty-aware"])
     parser.add_argument(
         "--perception-noise",
         choices=("off", "moderate"),
@@ -249,6 +253,8 @@ def main(argv: list[str] | None = None) -> None:
 
         run_multi_floor_cli(
             floors=args.floors,
+            uncertainty_profile=args.uncertainty_profile,
+            planning_variant=args.planning_variant,
             width=args.width,
             height=args.height,
             seed=args.seed,
@@ -269,6 +275,8 @@ def main(argv: list[str] | None = None) -> None:
     if args.start_mode == "shared-base":
         start_positions = tuple((1, 1) for _ in range(args.drones))
     config = SimulationConfig(
+        uncertainty_profile=args.uncertainty_profile,
+        planning_variant=args.planning_variant,
         width=args.width,
         height=args.height,
         seed=args.seed,

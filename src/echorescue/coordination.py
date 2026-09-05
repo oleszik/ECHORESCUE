@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from echorescue.mapping import KnownMap
+from echorescue.knowledge import ProbabilisticKnowledgeMap
 from echorescue.models import Position
 from echorescue.planning import astar
 
@@ -70,7 +71,7 @@ def assign_frontiers(
             assignments[drone_id] = FrontierAssignment(target, path)
             claimed.add(target)
 
-    candidates: list[tuple[int, int, int, str, Position, tuple[Position, ...]]] = []
+    candidates: list[tuple[float, int, int, str, Position, tuple[Position, ...]]] = []
     for drone_id in sorted(positions):
         if drone_id in assignments:
             continue
@@ -85,7 +86,9 @@ def assign_frontiers(
             )
             if path is not None:
                 candidates.append(
-                    (len(path), target.y, target.x, drone_id, target, path)
+                    (len(path) - (occupancy_map.information_bonus(target)
+                        if isinstance(occupancy_map, ProbabilisticKnowledgeMap) else 0),
+                     target.y, target.x, drone_id, target, path)
                 )
 
     # Greedy global minimum: distance first, then target coordinates and ID.

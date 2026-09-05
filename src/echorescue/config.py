@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from echorescue.dynamic_obstacles import DYNAMIC_OBSTACLE_PROFILES
 from echorescue.perception import PERCEPTION_NOISE_PROFILES
+from echorescue.probabilistic import ProbabilityConfig, UNCERTAINTY_PROFILES
 from echorescue.roles import ROLE_POLICIES
 from echorescue.smoke import SMOKE_PROFILES
 
@@ -26,6 +27,9 @@ class SimulationConfig:
     thermal_smoke_attenuation: float = 0.15
     survivor_confirmation_observations: int = 2
     perception_noise: str = "off"
+    uncertainty_profile: str = "off"
+    planning_variant: str = "naive"
+    probability_config: ProbabilityConfig = ProbabilityConfig()
     survivor_confirmation_evidence_threshold: float = 0.65
     survivor_rejection_evidence_threshold: float = 0.12
     survivor_negative_evidence_weight: float = 0.55
@@ -87,6 +91,16 @@ class SimulationConfig:
     max_steps: int = 1_000
 
     def __post_init__(self) -> None:
+        if self.uncertainty_profile not in {"off", *UNCERTAINTY_PROFILES}:
+            raise ValueError("unknown uncertainty profile")
+        if self.planning_variant not in {"naive", "uncertainty-aware"}:
+            raise ValueError("unknown planning variant")
+        if self.uncertainty_profile != "off":
+            if self.perception_noise not in {"off", self.uncertainty_profile}:
+                raise ValueError("uncertainty profile replaces legacy noise configuration")
+            object.__setattr__(self, "perception_noise", self.uncertainty_profile)
+        elif self.planning_variant != "naive":
+            raise ValueError("uncertainty-aware planning requires probabilistic perception")
         if self.width < 7 or self.height < 7:
             raise ValueError("width and height must both be at least 7")
         if not 0.0 <= self.obstacle_density <= 0.35:

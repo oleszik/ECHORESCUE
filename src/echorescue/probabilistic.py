@@ -1,6 +1,6 @@
 """Bounded, observation-based occupancy evidence (simulation time only)."""
 from dataclasses import dataclass
-from math import exp, log, log2, fsum
+from math import exp, log, log2, fsum, isfinite
 
 from echorescue.models import CellState
 
@@ -35,7 +35,8 @@ class ProbabilityConfig:
     def __post_init__(self) -> None:
         if not 0 < self.free_threshold < self.prior < self.occupied_threshold < 1:
             raise ValueError("thresholds must bracket an interior prior")
-        if self.max_log_odds <= 0 or self.half_life <= 0 or self.retention_steps < 1:
+        if (not all(isfinite(v) for v in (self.max_log_odds, self.half_life, self.retention_steps))
+                or self.max_log_odds <= 0 or self.half_life <= 0 or self.retention_steps < 1):
             raise ValueError("bounds, half life and retention must be positive")
 
 

@@ -18,6 +18,11 @@ from typing import Callable
 
 from echorescue.environment import GridWorld
 from echorescue.models import CellState, Position
+from echorescue.knowledge import ProbabilisticKnowledgeMap
+from echorescue.probabilistic import ProbabilityConfig, UNCERTAINTY_PROFILES
+from echorescue.sensors import DistanceSensor, uncertain_observations
+from echorescue.survivors import SurvivorSensor
+from echorescue.perception import SurvivorHypothesisTracker
 
 
 MULTI_FLOOR_REPLAY_SCHEMA_VERSION = "2.5"
@@ -85,6 +90,7 @@ class MultiFloorKnowledge:
     widths: dict[int, int]
     heights: dict[int, int]
     cells: dict[GridPosition, CellState] = field(default_factory=dict)
+    probabilistic: dict[int, ProbabilisticKnowledgeMap] = field(default_factory=dict)
 
     def contains(self, position: GridPosition) -> bool:
         return (
@@ -96,19 +102,27 @@ class MultiFloorKnowledge:
     def cell_at(self, position: GridPosition) -> CellState:
         if not self.contains(position):
             return CellState.OCCUPIED
+        if self.probabilistic:
+            return self.probabilistic[position.floor].cell_at(position.local)
         return self.cells.get(position, CellState.UNKNOWN)
 
     def observe(self, position: GridPosition, state: CellState) -> None:
         if self.contains(position):
             self.cells[position] = state
+            if self.probabilistic:
+                self.probabilistic[position.floor].observe({position.local: state},
+                    step=0, source_id="mission-topology")
 
     def is_known_free(self, position: GridPosition) -> bool:
         return self.cell_at(position) is CellState.FREE
 
     def frontiers(self, floor: int | None = None) -> tuple[GridPosition, ...]:
         result = []
-        for position, state in sorted(self.cells.items()):
-            if state is not CellState.FREE:
+        positions = (tuple(GridPosition(f, y, x) for f in sorted(self.widths)
+                           for y in range(self.heights[f]) for x in range(self.widths[f]))
+                     if self.probabilistic else tuple(sorted(self.cells)))
+        for position in positions:
+            if self.cell_at(position) is not CellState.FREE:
                 continue
             if floor is not None and position.floor != floor:
                 continue
@@ -333,6 +347,9 @@ def path_cost(
 
 @dataclass(frozen=True, slots=True)
 class MultiFloorConfig:
+    uncertainty_profile: str = "off"
+    planning_variant: str = "naive"
+    probability_config: ProbabilityConfig = ProbabilityConfig()
     floor_count: int = 3
     width: int = 13
     height: int = 9
@@ -357,6 +374,12 @@ class MultiFloorConfig:
     dynamic_obstacle_schedule: tuple[tuple[int, int, int, int], ...] = ()
 
     def __post_init__(self) -> None:
+        if self.uncertainty_profile not in {"off", *UNCERTAINTY_PROFILES}:
+            raise ValueError("unknown uncertainty profile")
+        if self.planning_variant not in {"naive", "uncertainty-aware"}:
+            raise ValueError("unknown planning variant")
+        if self.uncertainty_profile == "off" and self.planning_variant != "naive":
+            raise ValueError("probabilistic perception required")
         if not 1 <= self.floor_count <= 8:
             raise ValueError("floor_count must be between 1 and 8")
         if self.width < 7 or self.height < 7:
@@ -429,6 +452,17 @@ class MultiFloorSimulation:
             {floor: world.width for floor, world in self.environment.floors.items()},
             {floor: world.height for floor, world in self.environment.floors.items()},
         )
+        self.floor_hypotheses = {floor: SurvivorHypothesisTracker(
+            minimum_positive_observations=2, confirmation_threshold=.65,
+            rejection_threshold=.12, negative_evidence_weight=.55)
+            for floor in self.environment.floors}
+        if config.uncertainty_profile != "off":
+            self.knowledge.probabilistic = {floor: ProbabilisticKnowledgeMap(
+                world.width, world.height, floor=floor,
+                probability_config=config.probability_config,
+                reliability=UNCERTAINTY_PROFILES[config.uncertainty_profile].occupancy_reliability,
+                planning_variant=config.planning_variant)
+                for floor, world in self.environment.floors.items()}
         for transition in self.environment.transitions:
             self.knowledge.observe(transition.source, CellState.FREE)
             self.knowledge.observe(transition.destination, CellState.FREE)
@@ -445,6 +479,7 @@ class MultiFloorSimulation:
         self.frames: list[dict[str, object]] = []
         self.transition_conflicts = 0
         self.wall_collisions = 0
+        self.safety_interventions = 0
         self.drone_collisions = 0
         self.time_to_first_new_floor: int | None = None
         self.time_to_first_survivor_per_floor: dict[int, int] = {}
@@ -478,12 +513,43 @@ class MultiFloorSimulation:
 
     def _observe(self, agent: FloorAgent) -> None:
         world = self.environment.floors[agent.position.floor]
+        if self.config.uncertainty_profile != "off":
+            knowledge = self.knowledge.probabilistic[agent.position.floor]
+            observed = uncertain_observations(
+                DistanceSensor(self.config.sensor_range).observe(world, agent.position.local),
+                seed=self.config.seed, agent_id=agent.identifier, step=self.steps,
+                profile=self.config.uncertainty_profile, floor=agent.position.floor)
+            knowledge.observe(observed, step=self.steps, source_id=agent.identifier)
+            report = SurvivorSensor(self.config.survivor_range).observe_report(
+                world, agent.position.local, smoke_profile="off", seed=self.config.seed, step=self.steps,
+                observer_id=f"{agent.identifier}:floor:{agent.position.floor}",
+                perception_noise=self.config.uncertainty_profile)
+            tracker = self.floor_hypotheses[agent.position.floor]
+            positives = set()
+            for observation in report.observations:
+                if observation.success:
+                    positives.add(observation.position)
+                    tracker.positive(observation.position, confidence=observation.confidence,
+                        channel="visual", agent_id=agent.identifier, step=self.steps)
+            for position in tuple(tracker.hypotheses):
+                if position not in positives and SurvivorSensor(self.config.survivor_range).can_observe(
+                        world, agent.position.local, position):
+                    tracker.negative(position, confidence=UNCERTAINTY_PROFILES[
+                        self.config.uncertainty_profile].survivor_reliability,
+                        channel="visual", agent_id=agent.identifier, step=self.steps)
+            for position in tracker.confirmed_locations:
+                location = GridPosition(agent.position.floor, position.y, position.x)
+                if location not in self.confirmed_survivors:
+                    self.confirmed_survivors.add(location)
+                    self.time_to_first_survivor_per_floor.setdefault(location.floor, self.steps)
+                    self._event("survivor_confirmed", agent)
+            return
         for row in range(world.height):
             for col in range(world.width):
-                position = GridPosition(agent.position.floor, row, col)
+                grid_position = GridPosition(agent.position.floor, row, col)
                 distance = abs(row - agent.position.row) + abs(col - agent.position.col)
                 if distance <= self.config.sensor_range:
-                    self.knowledge.observe(position, self.environment.cell_at(position))
+                    self.knowledge.observe(grid_position, self.environment.cell_at(grid_position))
         for survivor in self.environment.survivors:
             if (
                 survivor.floor == agent.position.floor
@@ -557,7 +623,9 @@ class MultiFloorSimulation:
                     continue
                 cost = path_cost(self.environment, path)
                 score = cost + self.config.floor_congestion_penalty * floor_load[target.floor]
-                candidates.append((score, cost, target, path))
+                bonus = (self.knowledge.probabilistic[target.floor].information_bonus(target.local)
+                         if self.knowledge.probabilistic else 0.0)
+                candidates.append((score-bonus, cost, target, path))
             if not candidates:
                 # Do not let an unassigned agent become a permanent corridor
                 # obstacle. It deterministically vacates toward Base; other
@@ -879,6 +947,11 @@ class MultiFloorSimulation:
                     agent.wait_steps += 1
                     continue
             if not self.environment.is_free(destination):
+                if self.config.uncertainty_profile != "off":
+                    self.safety_interventions += 1
+                    agent.path = ()
+                    agent.target = None
+                    continue
                 self.wall_collisions += 1
                 agent.path = ()
                 agent.target = None
@@ -949,6 +1022,14 @@ class MultiFloorSimulation:
             {
                 "step": self.steps,
                 "active_floor": 0,
+                **({"probabilistic_maps": {str(f): m.telemetry()
+                     for f, m in self.knowledge.probabilistic.items()},
+                    "perception_profile": self.config.uncertainty_profile,
+                    "planning_variant": self.config.planning_variant,
+                    "survivor_hypotheses": [dict(h.to_dict(), floor=f)
+                        for f, tracker in self.floor_hypotheses.items()
+                        for h in tracker.hypotheses.values()]}
+                   if self.knowledge.probabilistic else {}),
                 "floor_maps": {
                     str(floor): self.knowledge.floor_rows(floor)
                     for floor in sorted(self.environment.floors)
@@ -1009,6 +1090,8 @@ class MultiFloorSimulation:
 
     def step(self) -> None:
         self.steps += 1
+        for knowledge in self.knowledge.probabilistic.values():
+            knowledge.advance(self.steps)
         self._apply_schedules()
         self._advance_transitions()
         for agent in self.agents.values():
@@ -1180,6 +1263,8 @@ class MultiFloorSimulation:
 def run_multi_floor_cli(
     *,
     floors: int,
+    uncertainty_profile: str = "off",
+    planning_variant: str = "naive",
     width: int,
     height: int,
     seed: int,
@@ -1195,6 +1280,8 @@ def run_multi_floor_cli(
 ) -> None:
     config = MultiFloorConfig(
         floor_count=floors,
+        uncertainty_profile=uncertainty_profile,
+        planning_variant=planning_variant,
         width=width,
         height=height,
         seed=seed,
