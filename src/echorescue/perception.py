@@ -3,6 +3,7 @@ from enum import Enum
 from hashlib import sha256
 
 from echorescue.models import Position
+from echorescue.probabilistic import UNCERTAINTY_PROFILES
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,6 +43,12 @@ PERCEPTION_NOISE_PROFILES = {
         false_positive_confidence_max=0.52,
     ),
 }
+
+for _name, _profile in UNCERTAINTY_PROFILES.items():
+    PERCEPTION_NOISE_PROFILES[_name] = PerceptionNoiseProfile(
+        _name, 1-_profile.survivor_detection, 1-_profile.survivor_detection,
+        _profile.survivor_false_positive, _profile.survivor_false_positive,
+        _profile.survivor_reliability, _profile.survivor_reliability)
 
 
 def deterministic_unit(*identity: object) -> float:
@@ -118,6 +125,7 @@ class SurvivorHypothesisTracker:
         self.rejection_threshold = rejection_threshold
         self.negative_evidence_weight = negative_evidence_weight
         self.hypotheses: dict[Position, SurvivorHypothesis] = {}
+        self._latest: dict[tuple[Position, str, str], int] = {}
 
     def positive(
         self,
@@ -145,7 +153,10 @@ class SurvivorHypothesisTracker:
             self.hypotheses[location] = hypothesis
         status_before = None if created else hypothesis.status
         evidence_before = hypothesis.accumulated_evidence
-        if hypothesis.status is HypothesisStatus.UNCONFIRMED:
+        key = (location, agent_id, channel)
+        fresh = step > self._latest.get(key, -1)
+        self._latest[key] = max(step, self._latest.get(key, -1))
+        if hypothesis.status is HypothesisStatus.UNCONFIRMED and fresh:
             hypothesis.accumulated_evidence = min(
                 1.0, hypothesis.accumulated_evidence + confidence * 0.5
             )
@@ -190,6 +201,10 @@ class SurvivorHypothesisTracker:
         hypothesis = self.hypotheses.get(location)
         if hypothesis is None or hypothesis.status is not HypothesisStatus.UNCONFIRMED:
             return None
+        key = (location, agent_id, channel)
+        if step <= self._latest.get(key, -1):
+            return None
+        self._latest[key] = step
         confidence = min(1.0, max(0.0, confidence))
         evidence_before = hypothesis.accumulated_evidence
         status_before = hypothesis.status

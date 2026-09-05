@@ -1,3 +1,4 @@
+from echorescue.probabilistic import UNCERTAINTY_PROFILES
 from dataclasses import dataclass
 from hashlib import sha256
 from math import sqrt
@@ -211,6 +212,8 @@ class SurvivorSensor:
                             perception_noise
                         ].false_negative_rate(self.channel)
                     )
+            if perception_noise in UNCERTAINTY_PROFILES:
+                confidence = UNCERTAINTY_PROFILES[perception_noise].survivor_reliability
             observations.append(
                 SurvivorObservation(
                     position=survivor,

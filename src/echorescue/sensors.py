@@ -27,3 +27,19 @@ class DistanceSensor:
                     break
         return observations
 
+
+
+def uncertain_observations(observations: dict[Position, CellState], *,
+                           seed: int, agent_id: str, step: int, profile: str,
+                           floor: int = 0) -> dict[Position, CellState]:
+    """Corrupt range returns only; ground truth is confined to sensor generation."""
+    from echorescue.perception import deterministic_unit
+    from echorescue.probabilistic import UNCERTAINTY_PROFILES
+    parameters = UNCERTAINTY_PROFILES[profile]
+    result = {}
+    for position, state in observations.items():
+        draw = deterministic_unit("occupancy", seed, agent_id, step, floor, position.x, position.y)
+        occupied = draw < (parameters.occupancy_detection if state is CellState.OCCUPIED
+                           else parameters.occupancy_false_positive)
+        result[position] = CellState.OCCUPIED if occupied else CellState.FREE
+    return result
