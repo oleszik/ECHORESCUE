@@ -2778,7 +2778,7 @@ class MultiDroneSimulation:
         prior_states = {
             position: self._decision_map(runtime).cell_at(position)
             for position in observations
-            if position in self._dynamic_obstacles_injected
+            if self.config.uncertainty_profile != "off" or position in self._dynamic_obstacles_injected
         }
         if self.knowledge_sync_enabled:
             runtime.local_map.observe(
@@ -2792,10 +2792,13 @@ class MultiDroneSimulation:
                     source_id=runtime.drone.identifier)
             else:
                 self.occupancy_map.update(observations)
-        if self.dynamic_obstacles_enabled:
-            self._register_dynamic_observations(
-                runtime, observations, prior_states
-            )
+        if self.config.uncertainty_profile != "off":
+            self._invalidate_dynamic_paths(runtime, {
+                position for position, previous in prior_states.items()
+                if previous is CellState.FREE and
+                self._decision_map(runtime).cell_at(position) is not CellState.FREE})
+        elif self.dynamic_obstacles_enabled:
+            self._register_dynamic_observations(runtime, observations, prior_states)
         self._observe_smoke_state(runtime)
         self._observe_survivors(runtime)
 
@@ -3056,9 +3059,10 @@ class MultiDroneSimulation:
                 )
             ):
                 continue
-            negative_confidence = 0.25 * (
-                self.survivor_sensor.base_detection_probability
-            )
+            negative_confidence = (
+                UNCERTAINTY_PROFILES[self.config.uncertainty_profile].survivor_reliability
+                if self.config.uncertainty_profile != "off" else
+                0.25 * self.survivor_sensor.base_detection_probability)
             negative_update = tracker.negative(
                 position,
                 confidence=negative_confidence,

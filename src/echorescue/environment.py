@@ -131,3 +131,7 @@ class GridWorld:
         if position in self.survivors:
             raise ValueError("dynamic obstacle cannot block a Survivor")
         self.dynamic_obstacles.add(position)
+
+    def unblock_cell(self, position: Position) -> None:
+        """Reopen a dynamic closure; this does not notify knowledge maps."""
+        self.dynamic_obstacles.discard(position)

@@ -6,7 +6,7 @@ from pathlib import Path
 from echorescue.communication import BASE_NODE_ID, CommunicationLink
 from echorescue.config import SimulationConfig
 from echorescue.events import EventType
-from echorescue.knowledge import KnowledgeMap
+from echorescue.knowledge import KnowledgeMap, ProbabilisticKnowledgeMap
 from echorescue.models import CellState, DroneStatus, Position
 from echorescue.multi_simulation import (
     DroneRuntime,
@@ -383,6 +383,16 @@ class ReplayRecorder:
                 3,
             ),
         }
+        if simulation.config.uncertainty_profile != "off":
+            maps = {"shared": simulation.occupancy_map, "base": simulation.base_knowledge_map,
+                    **{key: runtime.local_map for key, runtime in simulation.runtimes.items()}}
+            frame["probabilistic_maps"] = {key: value.telemetry() for key, value in maps.items()
+                if isinstance(value, ProbabilisticKnowledgeMap)}
+            frame["perception_profile"] = simulation.config.uncertainty_profile
+            frame["planning_variant"] = simulation.config.planning_variant
+            if simulation.knowledge_mode == "local":
+                frame["local_survivor_hypotheses"] = {key: [h.to_dict() for h in tracker.hypotheses.values()]
+                    for key, tracker in simulation.local_hypothesis_trackers.items()}
         if simulation.network_transport is not None:
             transport = simulation.network_transport
             frame["network"] = {
@@ -474,6 +484,9 @@ class ReplayRecorder:
             frame["events"] = events_by_step.get(step, [])
             frames.append(frame)
         configuration = asdict(simulation.config)
+        if simulation.config.uncertainty_profile == "off":
+            for key in ("uncertainty_profile", "planning_variant", "probability_config"):
+                configuration.pop(key)
         if simulation.network_transport is None:
             for key in tuple(configuration):
                 if key.startswith("network_") or key == "final_sync_max_steps":

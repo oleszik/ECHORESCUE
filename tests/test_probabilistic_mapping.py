@@ -102,3 +102,57 @@ class ProbabilisticMappingTests(unittest.TestCase):
         self.assertLess(m.information_bonus(p), 4)
         m.planning_variant = "naive"
         self.assertEqual(m.information_bonus(p), 0)
+
+
+class ProbabilisticIntegrationTests(unittest.TestCase):
+    def test_delayed_relay_transport_and_ttl(self):
+        from test_network_transport import transport, snapshot
+        from echorescue.network_transport import MessageType
+        a, b = [ProbabilisticKnowledgeMap(7,7) for _ in range(2)]
+        p = Position(2,2)
+        a.observe({p:CellState.FREE},step=0,source_id="drone-1")
+        net = transport()
+        radio = snapshot(("drone-1","drone-2"),("drone-2","base"))
+        net.enqueue(sender="drone-1",recipient="base",route=("drone-1","drone-2","base"),
+            message_type=MessageType.MAP_UPDATE,payload=a.records,created_step=0,ttl=10)
+        deliveries = []
+        for step in range(5):
+            b.advance(step)
+            for delivery in net.advance(step=step,snapshot=radio):
+                deliveries.append(delivery)
+                b.apply(delivery.payload)
+                b.apply(delivery.payload)
+        self.assertTrue(deliveries)
+        self.assertTrue(deliveries[0].relayed)
+        self.assertEqual(b.probability_at(p).evidence_count,1)
+        self.assertEqual(b.probability_at(p).observed_step,0)
+        expired = transport(latency_steps=4)
+        expired.enqueue(sender="drone-1",recipient="base",route=("drone-1","drone-2","base"),
+            message_type=MessageType.MAP_UPDATE,payload=a.records,created_step=0,ttl=1)
+        self.assertFalse([d for tick in range(8) for d in expired.advance(step=tick,snapshot=radio)])
+
+    def test_full_mission_replay_reproducibility(self):
+        from echorescue.config import SimulationConfig
+        from echorescue.replay import generate_replay, replay_json_bytes
+        config = SimulationConfig(seed=1,width=9,height=7,drone_count=2,
+            uncertainty_profile="medium_noise",planning_variant="uncertainty-aware",max_steps=40)
+        first, second = generate_replay(config), generate_replay(config)
+        self.assertEqual(replay_json_bytes(first),replay_json_bytes(second))
+        self.assertIn("probabilistic_maps",first["frames"][0])
+        self.assertEqual(first["frames"][0]["planning_variant"],"uncertainty-aware")
+
+    def test_local_confidence_is_not_shared_before_messages(self):
+        from echorescue.config import SimulationConfig
+        from echorescue.multi_simulation import MultiDroneSimulation
+        sim = MultiDroneSimulation(SimulationConfig(width=9,height=7,drone_count=2,
+            uncertainty_profile="clean",knowledge_mode="local",network_profile="constrained"))
+        self.assertIsNot(sim.local_hypothesis_trackers["drone-1"], sim.local_hypothesis_trackers["drone-2"])
+        self.assertFalse(sim.hypothesis_tracker.hypotheses)
+
+    def test_floor_probabilistic_mission(self):
+        from echorescue.multi_floor import MultiFloorSimulation, MultiFloorConfig
+        sim = MultiFloorSimulation(MultiFloorConfig(seed=0,width=9,height=7,floor_count=2,
+            uncertainty_profile="clean",max_steps=80))
+        sim.run()
+        self.assertIn("probabilistic_maps",sim.frames[-1])
+        self.assertEqual(set(sim.frames[-1]["probabilistic_maps"]),{"0","1"})

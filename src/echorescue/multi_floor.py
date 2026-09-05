@@ -1208,6 +1208,7 @@ class MultiFloorSimulation:
         }
         success = (
             recall == 1.0
+            and not (self.confirmed_survivors - self.environment.survivors)
             and returned == len(operational)
             and self.wall_collisions == 0
             and self.drone_collisions == 0

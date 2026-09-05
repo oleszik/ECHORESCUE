@@ -1224,6 +1224,13 @@ function drawMultiFloorMission() {
       context.strokeRect(offsetX + colIndex * cell, offsetY + rowIndex * cell, cell, cell);
     });
   });
+  drawProbability(frame, geometry, String(state.selectedFloor));
+  (frame.survivor_hypotheses || []).filter(h => h.floor === state.selectedFloor).forEach(h => {
+    const [x,y] = cellCenter(h.location, geometry);
+    context.fillStyle = COLORS.hypothesis;
+    context.font = `${Math.max(9*ratio, cell*.22)}px sans-serif`;
+    context.fillText(`${h.status} ${h.accumulated_evidence.toFixed(2)}`, x, y-cell*.3);
+  });
   state.replay.map.transitions.forEach((transition) => {
     [transition.source, transition.destination].forEach((position) => {
       if (position[0] !== state.selectedFloor) return;
@@ -1272,6 +1279,25 @@ function drawMultiFloorMission() {
   });
 }
 
+function drawProbability(frame, geometry, key) {
+  const cells = frame.probabilistic_maps?.[key];
+  if (!cells) return;
+  const { context, cell, offsetX, offsetY, ratio } = geometry;
+  for (const item of cells) {
+    const [x, y] = item.position;
+    context.fillStyle = item.classification === "uncertain" ? "#a16207"
+      : item.classification === "free" ? COLORS.free : COLORS.occupied;
+    context.fillRect(offsetX+x*cell+ratio, offsetY+y*cell+ratio, cell-2*ratio, cell-2*ratio);
+    if (cell > 24*ratio) {
+      context.fillStyle = "#ffffff";
+      context.font = `${Math.max(8, cell*.21)}px sans-serif`;
+      context.fillText(`${Math.round(item.probability*100)}%`, offsetX+x*cell+2*ratio, offsetY+y*cell+cell*.42);
+      context.fillText(`${item.age}t`, offsetX+x*cell+2*ratio, offsetY+y*cell+cell*.83);
+    }
+  }
+  elements.mapViewPurpose.textContent = `${frame.perception_profile} / ${frame.planning_variant} ? occupancy % / age ticks ? amber: uncertain ? dark: unknown`;
+}
+
 function drawMission() {
   if (!state.replay) return;
   if (state.replay.schema_version === "2.5") {
@@ -1307,6 +1333,7 @@ function drawMission() {
     });
   });
 
+  drawProbability(frame, geometry, state.mapView === "operator" ? "shared" : state.mapView);
   if (state.mapView === "smoke-debug" && state.replay.map.smoke_debug?.debug_only) {
     state.replay.map.smoke_debug.density.forEach((row, y) => {
       row.forEach((density, x) => {
@@ -1353,7 +1380,8 @@ function drawMission() {
     context.restore();
   });
 
-  (frame.survivor_hypotheses || []).forEach((hypothesis) => {
+  (frame.local_survivor_hypotheses ? (frame.local_survivor_hypotheses[state.mapView] || [])
+    : (frame.survivor_hypotheses || [])).forEach((hypothesis) => {
     if (hypothesis.status === "confirmed") return;
     const [x, y] = cellCenter(hypothesis.location, geometry);
     const radius = Math.max(4 * ratio, cell * 0.2);
@@ -1374,6 +1402,9 @@ function drawMission() {
       context.arc(x, y, radius, 0, Math.PI * 2);
       context.stroke();
     }
+    context.fillStyle = COLORS.hypothesis;
+    context.font = `${Math.max(9*ratio, cell*.22)}px sans-serif`;
+    context.fillText(`${hypothesis.status} ${hypothesis.accumulated_evidence.toFixed(2)}`, x+radius, y-radius);
     context.restore();
   });
 
