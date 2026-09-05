@@ -1,0 +1,127 @@
+{
+  "version": "v0.12",
+  "development_seeds": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "holdout_seeds": [
+    12000,
+    12001,
+    12002,
+    12003,
+    12004,
+    12005,
+    12006,
+    12007,
+    12008,
+    12009,
+    12010,
+    12011,
+    12012,
+    12013,
+    12014,
+    12015,
+    12016,
+    12017,
+    12018,
+    12019
+  ],
+  "profiles": {
+    "clean": {
+      "occupancy_detection": 1.0,
+      "occupancy_false_positive": 0.0,
+      "occupancy_reliability": 0.95,
+      "survivor_detection": 1.0,
+      "survivor_false_positive": 0.0,
+      "survivor_reliability": 0.95
+    },
+    "low_noise": {
+      "occupancy_detection": 0.95,
+      "occupancy_false_positive": 0.02,
+      "occupancy_reliability": 0.9,
+      "survivor_detection": 0.95,
+      "survivor_false_positive": 0.02,
+      "survivor_reliability": 0.9
+    },
+    "medium_noise": {
+      "occupancy_detection": 0.85,
+      "occupancy_false_positive": 0.08,
+      "occupancy_reliability": 0.8,
+      "survivor_detection": 0.85,
+      "survivor_false_positive": 0.08,
+      "survivor_reliability": 0.8
+    },
+    "high_noise": {
+      "occupancy_detection": 0.65,
+      "occupancy_false_positive": 0.2,
+      "occupancy_reliability": 0.65,
+      "survivor_detection": 0.65,
+      "survivor_false_positive": 0.2,
+      "survivor_reliability": 0.65
+    }
+  },
+  "probability_config": {
+    "prior": 0.5,
+    "free_threshold": 0.35,
+    "occupied_threshold": 0.65,
+    "max_log_odds": 4.0,
+    "half_life": 80.0,
+    "retention_steps": 640
+  },
+  "planning_variants": [
+    "naive",
+    "uncertainty-aware"
+  ],
+  "entropy_weight": 4.0,
+  "primary": {
+    "width": 13,
+    "height": 9,
+    "drone_count": 2,
+    "survivor_count": 3,
+    "max_steps": 200,
+    "knowledge_mode": "shared",
+    "network_profile": "ideal",
+    "battery_capacity": 220.0
+  },
+  "targeted_seeds": [
+    4,
+    5
+  ],
+  "bootstrap": {
+    "resamples": 2000,
+    "seed": 912,
+    "confidence": 0.95
+  },
+  "rules": "All runs retained. Successful-duration analysis conditions on success; paired successful duration only when both succeed. Seed-level paired percentile bootstrap for differences; Wilson interval for binary rates. No tuning on holdout. Mapping Brier across all in-bounds cells (including boundaries), unknown prior .5; also observed subset and separate retained-evidence coverage. Primary success requires full true recall, all agents returned, no collisions and no false confirmations. Timeout and other failure reported separately. Negative planning effect is valid.",
+  "targeted_scenarios": {
+    "closure": {
+      "close_step": 10,
+      "reopen_step": 30,
+      "profile": "medium_noise",
+      "cell_rule": "first initially free non-survivor interior cell in row-major order; skip if occupied by agent at tick 10"
+    },
+    "stale_transport": {
+      "latency_steps": [
+        1,
+        8
+      ],
+      "profile": "medium_noise",
+      "knowledge_mode": "local",
+      "network_profile": "constrained",
+      "network_packet_loss_rate": 0.0,
+      "max_steps": 80,
+      "final_sync_max_steps": 16
+    },
+    "multi_floor": {
+      "floor_count": 3,
+      "width": 13,
+      "height": 9,
+      "drone_count": 4,
+      "max_steps": 200,
+      "profile": "medium_noise"
+    }
+  },
+  "replans_definition": "Changed nonempty remaining route with unchanged endpoint, excluding identical routes and removal of the first cell after normal movement; sampled at simulation frames."
+}
