@@ -1,0 +1,3087 @@
+{
+  "schema_version": "1.0",
+  "benchmark": "v0.11-multi-floor-2.5d",
+  "seeds": [
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99
+  ],
+  "configuration": {
+    "agents": 4,
+    "floors": 3,
+    "floor_dimensions": [
+      13,
+      9
+    ],
+    "flattened_dimensions": [
+      37,
+      9
+    ],
+    "survivors": 3,
+    "communication": "ideal/shared",
+    "perception": "visual_noise_off_smoke_off",
+    "dynamic_obstacles": "off",
+    "failures": "off",
+    "relays": "off",
+    "development_seeds": [
+      0,
+      9
+    ],
+    "holdout_seeds": [
+      50,
+      99
+    ],
+    "frozen_parameters": {
+      "transition_cost": 3,
+      "transition_energy_cost": 3.0,
+      "floor_congestion_penalty": 4,
+      "stairwells_per_floor_pair": 2
+    },
+    "control_caveat": "Size and survivor matched; boundary geometry differs, so the paired delta is not a perfectly isolated causal estimate."
+  },
+  "profiles": {
+    "A_flattened_control": {
+      "rows": [
+        {
+          "seed": 50,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 87,
+          "total_path_length": 328,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 51,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 80,
+          "total_path_length": 304,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 52,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 86,
+          "total_path_length": 314,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 53,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 83,
+          "total_path_length": 306,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 54,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 97,
+          "total_path_length": 350,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 55,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 89,
+          "total_path_length": 310,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 56,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 91,
+          "total_path_length": 334,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 57,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 83,
+          "total_path_length": 304,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 58,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 91,
+          "total_path_length": 328,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 59,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 90,
+          "total_path_length": 324,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 60,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 102,
+          "total_path_length": 352,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 61,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 92,
+          "total_path_length": 334,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 62,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 95,
+          "total_path_length": 342,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 63,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 104,
+          "total_path_length": 354,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 64,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 97,
+          "total_path_length": 334,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 65,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 86,
+          "total_path_length": 326,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 66,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 96,
+          "total_path_length": 324,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 67,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 84,
+          "total_path_length": 314,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 68,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 82,
+          "total_path_length": 306,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 69,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 84,
+          "total_path_length": 316,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 70,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 95,
+          "total_path_length": 352,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 71,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 82,
+          "total_path_length": 298,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 72,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 91,
+          "total_path_length": 334,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 73,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 92,
+          "total_path_length": 342,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 74,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 86,
+          "total_path_length": 324,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 75,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 94,
+          "total_path_length": 328,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 76,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 87,
+          "total_path_length": 326,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 77,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 88,
+          "total_path_length": 310,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 78,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 92,
+          "total_path_length": 340,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 79,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 93,
+          "total_path_length": 340,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 80,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 96,
+          "total_path_length": 354,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 81,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 86,
+          "total_path_length": 318,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 82,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 92,
+          "total_path_length": 336,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 83,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 86,
+          "total_path_length": 310,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 84,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 87,
+          "total_path_length": 310,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 85,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 94,
+          "total_path_length": 338,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 86,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 86,
+          "total_path_length": 318,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 87,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 90,
+          "total_path_length": 324,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 88,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 94,
+          "total_path_length": 346,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 89,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 96,
+          "total_path_length": 344,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 90,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 86,
+          "total_path_length": 320,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 91,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 94,
+          "total_path_length": 346,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 92,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 90,
+          "total_path_length": 322,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 93,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 96,
+          "total_path_length": 346,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 94,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 85,
+          "total_path_length": 318,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 95,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 86,
+          "total_path_length": 306,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 96,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 99,
+          "total_path_length": 366,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 97,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 81,
+          "total_path_length": 304,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 98,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 82,
+          "total_path_length": 310,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 99,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 84,
+          "total_path_length": 310,
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        }
+      ],
+      "missions": 50,
+      "mission_success_rate": 1.0,
+      "mean_survivor_recall": 1.0,
+      "return_success_rate": 1.0,
+      "total_wall_collisions": 0,
+      "total_drone_collisions": 0,
+      "metrics": {
+        "mission_duration": {
+          "mean": 89.78,
+          "population_std": 5.597464,
+          "median": 90.0,
+          "min": 80.0,
+          "max": 104.0
+        },
+        "total_path_length": {
+          "mean": 326.88,
+          "population_std": 16.502897,
+          "median": 325.0,
+          "min": 298.0,
+          "max": 366.0
+        }
+      }
+    },
+    "B_multi_floor": {
+      "rows": [
+        {
+          "seed": 50,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 65,
+          "total_path_length": 206,
+          "transition_count": 14,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.463415,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.473077,
+            "1": 0.307692,
+            "2": 0.219231
+          },
+          "path_length_per_floor": {
+            "0": 82,
+            "1": 73,
+            "2": 51
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 51,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 63,
+          "total_path_length": 184,
+          "transition_count": 12,
+          "transition_conflicts": 3,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.330827,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.527778,
+            "1": 0.297619,
+            "2": 0.174603
+          },
+          "path_length_per_floor": {
+            "0": 76,
+            "1": 72,
+            "2": 36
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 52,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 73,
+          "total_path_length": 200,
+          "transition_count": 12,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.463576,
+          "explored_percent_per_floor": {
+            "0": 99.145299,
+            "1": 98.290598,
+            "2": 99.145299
+          },
+          "floor_work_distribution": {
+            "0": 0.517123,
+            "1": 0.239726,
+            "2": 0.243151
+          },
+          "path_length_per_floor": {
+            "0": 62,
+            "1": 70,
+            "2": 68
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 53,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 79,
+          "total_path_length": 224,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.406452,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 97.435897,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.490506,
+            "1": 0.199367,
+            "2": 0.310127
+          },
+          "path_length_per_floor": {
+            "0": 76,
+            "1": 61,
+            "2": 87
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 54,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 59,
+          "total_path_length": 186,
+          "transition_count": 12,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.490196,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 99.145299
+          },
+          "floor_work_distribution": {
+            "0": 0.432203,
+            "1": 0.355932,
+            "2": 0.211864
+          },
+          "path_length_per_floor": {
+            "0": 62,
+            "1": 76,
+            "2": 48
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 55,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 62,
+          "total_path_length": 190,
+          "transition_count": 12,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.45,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.483871,
+            "1": 0.298387,
+            "2": 0.217742
+          },
+          "path_length_per_floor": {
+            "0": 62,
+            "1": 74,
+            "2": 54
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 4
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 56,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 61,
+          "total_path_length": 192,
+          "transition_count": 14,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.530435,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.471311,
+            "1": 0.25,
+            "2": 0.278689
+          },
+          "path_length_per_floor": {
+            "0": 68,
+            "1": 59,
+            "2": 65
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 4
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 57,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 64,
+          "total_path_length": 202,
+          "transition_count": 12,
+          "transition_conflicts": 3,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.383459,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.519531,
+            "1": 0.28125,
+            "2": 0.199219
+          },
+          "path_length_per_floor": {
+            "0": 84,
+            "1": 68,
+            "2": 50
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 58,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 71,
+          "total_path_length": 210,
+          "transition_count": 12,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.377777,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 99.145299,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.475352,
+            "1": 0.34507,
+            "2": 0.179577
+          },
+          "path_length_per_floor": {
+            "0": 72,
+            "1": 92,
+            "2": 46
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 59,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 62,
+          "total_path_length": 208,
+          "transition_count": 16,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 32,
+          "floor_work_balance": 0.576577,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 95.726496
+          },
+          "floor_work_distribution": {
+            "0": 0.447581,
+            "1": 0.258065,
+            "2": 0.294355
+          },
+          "path_length_per_floor": {
+            "0": 77,
+            "1": 64,
+            "2": 67
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 6,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 4
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 60,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 56,
+          "total_path_length": 182,
+          "transition_count": 14,
+          "transition_conflicts": 2,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.617022,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.419643,
+            "1": 0.321429,
+            "2": 0.258929
+          },
+          "path_length_per_floor": {
+            "0": 66,
+            "1": 65,
+            "2": 51
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 61,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 71,
+          "total_path_length": 240,
+          "transition_count": 14,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.74074,
+          "explored_percent_per_floor": {
+            "0": 97.435897,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.380282,
+            "1": 0.28169,
+            "2": 0.338028
+          },
+          "path_length_per_floor": {
+            "0": 80,
+            "1": 73,
+            "2": 87
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 62,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 72,
+          "total_path_length": 236,
+          "transition_count": 14,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.595419,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.454861,
+            "1": 0.270833,
+            "2": 0.274306
+          },
+          "path_length_per_floor": {
+            "0": 90,
+            "1": 73,
+            "2": 73
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 63,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 85,
+          "total_path_length": 232,
+          "transition_count": 12,
+          "transition_conflicts": 7,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.352273,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.517647,
+            "1": 0.3,
+            "2": 0.182353
+          },
+          "path_length_per_floor": {
+            "0": 86,
+            "1": 88,
+            "2": 58
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 64,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 61,
+          "total_path_length": 192,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.605505,
+          "explored_percent_per_floor": {
+            "0": 96.581197,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.446721,
+            "1": 0.270492,
+            "2": 0.282787
+          },
+          "path_length_per_floor": {
+            "0": 64,
+            "1": 63,
+            "2": 65
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 65,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 68,
+          "total_path_length": 228,
+          "transition_count": 14,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.562501,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.470588,
+            "1": 0.264706,
+            "2": 0.264706
+          },
+          "path_length_per_floor": {
+            "0": 90,
+            "1": 69,
+            "2": 69
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 66,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 61,
+          "total_path_length": 196,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.556522,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 99.145299,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.471311,
+            "1": 0.266393,
+            "2": 0.262295
+          },
+          "path_length_per_floor": {
+            "0": 72,
+            "1": 65,
+            "2": 59
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 67,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 67,
+          "total_path_length": 218,
+          "transition_count": 16,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 32,
+          "floor_work_balance": 0.529412,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.44403,
+            "1": 0.235075,
+            "2": 0.320896
+          },
+          "path_length_per_floor": {
+            "0": 78,
+            "1": 62,
+            "2": 78
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 4
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 68,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 85,
+          "total_path_length": 238,
+          "transition_count": 16,
+          "transition_conflicts": 21,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 32,
+          "floor_work_balance": 0.608109,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 99.145299,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.435294,
+            "1": 0.264706,
+            "2": 0.3
+          },
+          "path_length_per_floor": {
+            "0": 70,
+            "1": 88,
+            "2": 80
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 4
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 69,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 52,
+          "total_path_length": 176,
+          "transition_count": 10,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 20,
+          "floor_work_balance": 0.382353,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 97.435897,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.490385,
+            "1": 0.322115,
+            "2": 0.1875
+          },
+          "path_length_per_floor": {
+            "0": 75,
+            "1": 67,
+            "2": 34
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 0,
+            "drone-4": 4
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 70,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 68,
+          "total_path_length": 228,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.507692,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 97.435897,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.477941,
+            "1": 0.279412,
+            "2": 0.242647
+          },
+          "path_length_per_floor": {
+            "0": 90,
+            "1": 73,
+            "2": 65
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 71,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 63,
+          "total_path_length": 200,
+          "transition_count": 12,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.396826,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 97.435897,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.5,
+            "1": 0.301587,
+            "2": 0.198413
+          },
+          "path_length_per_floor": {
+            "0": 80,
+            "1": 70,
+            "2": 50
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 72,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 66,
+          "total_path_length": 224,
+          "transition_count": 12,
+          "transition_conflicts": 6,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.417391,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 99.145299
+          },
+          "floor_work_distribution": {
+            "0": 0.435606,
+            "1": 0.382576,
+            "2": 0.181818
+          },
+          "path_length_per_floor": {
+            "0": 86,
+            "1": 90,
+            "2": 48
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 73,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 56,
+          "total_path_length": 198,
+          "transition_count": 8,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 16,
+          "floor_work_balance": 0.283582,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 99.145299,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.598214,
+            "1": 0.232143,
+            "2": 0.169643
+          },
+          "path_length_per_floor": {
+            "0": 109,
+            "1": 52,
+            "2": 37
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 0
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 74,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 63,
+          "total_path_length": 194,
+          "transition_count": 10,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 20,
+          "floor_work_balance": 0.442749,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.519841,
+            "1": 0.230159,
+            "2": 0.25
+          },
+          "path_length_per_floor": {
+            "0": 77,
+            "1": 57,
+            "2": 60
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 0,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 75,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 61,
+          "total_path_length": 210,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.6,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.430328,
+            "1": 0.311475,
+            "2": 0.258197
+          },
+          "path_length_per_floor": {
+            "0": 78,
+            "1": 71,
+            "2": 61
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 76,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 60,
+          "total_path_length": 204,
+          "transition_count": 16,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 32,
+          "floor_work_balance": 0.534482,
+          "explored_percent_per_floor": {
+            "0": 97.435897,
+            "1": 96.581197,
+            "2": 96.581197
+          },
+          "floor_work_distribution": {
+            "0": 0.483333,
+            "1": 0.258333,
+            "2": 0.258333
+          },
+          "path_length_per_floor": {
+            "0": 86,
+            "1": 60,
+            "2": 58
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 4
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 77,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 63,
+          "total_path_length": 208,
+          "transition_count": 14,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.539822,
+          "explored_percent_per_floor": {
+            "0": 96.581197,
+            "1": 99.145299,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.448413,
+            "1": 0.309524,
+            "2": 0.242063
+          },
+          "path_length_per_floor": {
+            "0": 78,
+            "1": 73,
+            "2": 57
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 78,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 56,
+          "total_path_length": 176,
+          "transition_count": 12,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.418804,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 97.435897,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.522321,
+            "1": 0.258929,
+            "2": 0.21875
+          },
+          "path_length_per_floor": {
+            "0": 72,
+            "1": 58,
+            "2": 46
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 79,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 63,
+          "total_path_length": 196,
+          "transition_count": 14,
+          "transition_conflicts": 3,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.663463,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.412698,
+            "1": 0.313492,
+            "2": 0.27381
+          },
+          "path_length_per_floor": {
+            "0": 68,
+            "1": 65,
+            "2": 63
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 4
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 80,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 56,
+          "total_path_length": 186,
+          "transition_count": 12,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.515153,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 99.145299,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.441964,
+            "1": 0.330357,
+            "2": 0.227679
+          },
+          "path_length_per_floor": {
+            "0": 68,
+            "1": 68,
+            "2": 50
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 81,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 55,
+          "total_path_length": 174,
+          "transition_count": 12,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.436364,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.5,
+            "1": 0.281818,
+            "2": 0.218182
+          },
+          "path_length_per_floor": {
+            "0": 68,
+            "1": 60,
+            "2": 46
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 82,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 63,
+          "total_path_length": 204,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.445377,
+          "explored_percent_per_floor": {
+            "0": 99.145299,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.472222,
+            "1": 0.31746,
+            "2": 0.210317
+          },
+          "path_length_per_floor": {
+            "0": 80,
+            "1": 73,
+            "2": 51
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 83,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 71,
+          "total_path_length": 242,
+          "transition_count": 14,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.74074,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 99.145299
+          },
+          "floor_work_distribution": {
+            "0": 0.380282,
+            "1": 0.28169,
+            "2": 0.338028
+          },
+          "path_length_per_floor": {
+            "0": 82,
+            "1": 73,
+            "2": 87
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 84,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 62,
+          "total_path_length": 202,
+          "transition_count": 14,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.554547,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.443548,
+            "1": 0.310484,
+            "2": 0.245968
+          },
+          "path_length_per_floor": {
+            "0": 78,
+            "1": 71,
+            "2": 53
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 85,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 58,
+          "total_path_length": 186,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.547169,
+          "explored_percent_per_floor": {
+            "0": 97.435897,
+            "1": 98.290598,
+            "2": 99.145299
+          },
+          "floor_work_distribution": {
+            "0": 0.456897,
+            "1": 0.293103,
+            "2": 0.25
+          },
+          "path_length_per_floor": {
+            "0": 68,
+            "1": 67,
+            "2": 51
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 86,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 68,
+          "total_path_length": 210,
+          "transition_count": 12,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.439716,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.518382,
+            "1": 0.227941,
+            "2": 0.253676
+          },
+          "path_length_per_floor": {
+            "0": 82,
+            "1": 62,
+            "2": 66
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 87,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 70,
+          "total_path_length": 216,
+          "transition_count": 14,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.484127,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 95.726496,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.45,
+            "1": 0.217857,
+            "2": 0.332143
+          },
+          "path_length_per_floor": {
+            "0": 70,
+            "1": 61,
+            "2": 85
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 88,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 59,
+          "total_path_length": 186,
+          "transition_count": 16,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 32,
+          "floor_work_balance": 0.621358,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 99.145299,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.436441,
+            "1": 0.271186,
+            "2": 0.292373
+          },
+          "path_length_per_floor": {
+            "0": 68,
+            "1": 60,
+            "2": 58
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 4
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 89,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 58,
+          "total_path_length": 190,
+          "transition_count": 14,
+          "transition_conflicts": 1,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.596153,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.448276,
+            "1": 0.284483,
+            "2": 0.267241
+          },
+          "path_length_per_floor": {
+            "0": 70,
+            "1": 65,
+            "2": 55
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 90,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 63,
+          "total_path_length": 200,
+          "transition_count": 14,
+          "transition_conflicts": 2,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.59091,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 99.145299,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.436508,
+            "1": 0.257937,
+            "2": 0.305556
+          },
+          "path_length_per_floor": {
+            "0": 68,
+            "1": 63,
+            "2": 69
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 91,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 67,
+          "total_path_length": 208,
+          "transition_count": 12,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.392857,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 99.145299
+          },
+          "floor_work_distribution": {
+            "0": 0.522388,
+            "1": 0.272388,
+            "2": 0.205224
+          },
+          "path_length_per_floor": {
+            "0": 86,
+            "1": 70,
+            "2": 52
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 92,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 66,
+          "total_path_length": 208,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.575001,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.454545,
+            "1": 0.261364,
+            "2": 0.284091
+          },
+          "path_length_per_floor": {
+            "0": 70,
+            "1": 69,
+            "2": 69
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 93,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 63,
+          "total_path_length": 196,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.572649,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.464286,
+            "1": 0.265873,
+            "2": 0.269841
+          },
+          "path_length_per_floor": {
+            "0": 68,
+            "1": 63,
+            "2": 65
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 94,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 63,
+          "total_path_length": 204,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.478991,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.472222,
+            "1": 0.301587,
+            "2": 0.22619
+          },
+          "path_length_per_floor": {
+            "0": 80,
+            "1": 71,
+            "2": 53
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 95,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 61,
+          "total_path_length": 200,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.471545,
+          "explored_percent_per_floor": {
+            "0": 97.435897,
+            "1": 98.290598,
+            "2": 97.435897
+          },
+          "floor_work_distribution": {
+            "0": 0.504098,
+            "1": 0.258197,
+            "2": 0.237705
+          },
+          "path_length_per_floor": {
+            "0": 84,
+            "1": 61,
+            "2": 55
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 96,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 65,
+          "total_path_length": 212,
+          "transition_count": 12,
+          "transition_conflicts": 6,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.432432,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.388462,
+            "1": 0.426923,
+            "2": 0.184615
+          },
+          "path_length_per_floor": {
+            "0": 74,
+            "1": 92,
+            "2": 46
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 97,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 63,
+          "total_path_length": 200,
+          "transition_count": 14,
+          "transition_conflicts": 2,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.591304,
+          "explored_percent_per_floor": {
+            "0": 99.145299,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.456349,
+            "1": 0.27381,
+            "2": 0.269841
+          },
+          "path_length_per_floor": {
+            "0": 72,
+            "1": 67,
+            "2": 61
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 98,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 59,
+          "total_path_length": 186,
+          "transition_count": 12,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 24,
+          "floor_work_balance": 0.469026,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 98.290598
+          },
+          "floor_work_distribution": {
+            "0": 0.478814,
+            "1": 0.29661,
+            "2": 0.224576
+          },
+          "path_length_per_floor": {
+            "0": 64,
+            "1": 70,
+            "2": 52
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 2,
+            "drone-2": 4,
+            "drone-3": 2,
+            "drone-4": 4
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        },
+        {
+          "seed": 99,
+          "mission_success": true,
+          "survivor_recall": 1.0,
+          "return_success": true,
+          "mission_duration": 80,
+          "total_path_length": 212,
+          "transition_count": 14,
+          "transition_conflicts": 0,
+          "time_to_first_new_floor": 6,
+          "vertical_transition_overhead": 28,
+          "floor_work_balance": 0.4125,
+          "explored_percent_per_floor": {
+            "0": 98.290598,
+            "1": 98.290598,
+            "2": 96.581197
+          },
+          "floor_work_distribution": {
+            "0": 0.5,
+            "1": 0.20625,
+            "2": 0.29375
+          },
+          "path_length_per_floor": {
+            "0": 68,
+            "1": 63,
+            "2": 81
+          },
+          "floor_transitions_per_agent": {
+            "drone-1": 4,
+            "drone-2": 4,
+            "drone-3": 4,
+            "drone-4": 2
+          },
+          "floor_ping_pong_agents": [],
+          "wall_collisions": 0,
+          "drone_collisions": 0
+        }
+      ],
+      "missions": 50,
+      "mission_success_rate": 1.0,
+      "mean_survivor_recall": 1.0,
+      "return_success_rate": 1.0,
+      "total_wall_collisions": 0,
+      "total_drone_collisions": 0,
+      "metrics": {
+        "mission_duration": {
+          "mean": 64.52,
+          "population_std": 7.020655,
+          "median": 63.0,
+          "min": 52.0,
+          "max": 85.0
+        },
+        "total_path_length": {
+          "mean": 204.0,
+          "population_std": 16.951696,
+          "median": 202.0,
+          "min": 174.0,
+          "max": 242.0
+        },
+        "transition_count": {
+          "mean": 13.28,
+          "population_std": 1.587955,
+          "median": 14.0,
+          "min": 8.0,
+          "max": 16.0
+        },
+        "transition_conflicts": {
+          "mean": 1.4,
+          "population_std": 3.218695,
+          "median": 0.5,
+          "min": 0.0,
+          "max": 21.0
+        },
+        "time_to_first_new_floor": {
+          "mean": 6.0,
+          "population_std": 0.0,
+          "median": 6.0,
+          "min": 6.0,
+          "max": 6.0
+        },
+        "vertical_transition_overhead": {
+          "mean": 26.56,
+          "population_std": 3.175909,
+          "median": 28.0,
+          "min": 16.0,
+          "max": 32.0
+        },
+        "floor_work_balance": {
+          "mean": 0.503906,
+          "population_std": 0.098976,
+          "median": 0.498944,
+          "min": 0.283582,
+          "max": 0.74074
+        }
+      },
+      "per_floor_metrics": {
+        "explored_percent_per_floor": {
+          "0": {
+            "mean": 98.205128,
+            "population_std": 0.46027,
+            "median": 98.290598,
+            "min": 96.581197,
+            "max": 99.145299
+          },
+          "1": {
+            "mean": 98.25641,
+            "population_std": 0.615385,
+            "median": 98.290598,
+            "min": 95.726496,
+            "max": 99.145299
+          },
+          "2": {
+            "mean": 97.965812,
+            "population_std": 0.70252,
+            "median": 98.290598,
+            "min": 95.726496,
+            "max": 99.145299
+          }
+        },
+        "floor_work_distribution": {
+          "0": {
+            "mean": 0.468469,
+            "population_std": 0.040934,
+            "median": 0.47095,
+            "min": 0.380282,
+            "max": 0.598214
+          },
+          "1": {
+            "mean": 0.28291,
+            "population_std": 0.041949,
+            "median": 0.280331,
+            "min": 0.199367,
+            "max": 0.426923
+          },
+          "2": {
+            "mean": 0.248621,
+            "population_std": 0.044442,
+            "median": 0.25,
+            "min": 0.169643,
+            "max": 0.338028
+          }
+        },
+        "path_length_per_floor": {
+          "0": {
+            "mean": 75.68,
+            "population_std": 9.115789,
+            "median": 75.5,
+            "min": 62.0,
+            "max": 109.0
+          },
+          "1": {
+            "mean": 68.8,
+            "population_std": 8.790904,
+            "median": 68.0,
+            "min": 52.0,
+            "max": 92.0
+          },
+          "2": {
+            "mean": 59.52,
+            "population_std": 12.998831,
+            "median": 58.0,
+            "min": 34.0,
+            "max": 87.0
+          }
+        }
+      }
+    }
+  },
+  "paired_vertical_overhead": {
+    "difference_semantics": "multi_floor_minus_flattened",
+    "per_seed": [
+      {
+        "seed": 50,
+        "mission_duration": -22.0,
+        "total_path_length": -122.0,
+        "transition_count": 14,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 51,
+        "mission_duration": -17.0,
+        "total_path_length": -120.0,
+        "transition_count": 12,
+        "transition_conflicts": 3
+      },
+      {
+        "seed": 52,
+        "mission_duration": -13.0,
+        "total_path_length": -114.0,
+        "transition_count": 12,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 53,
+        "mission_duration": -4.0,
+        "total_path_length": -82.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 54,
+        "mission_duration": -38.0,
+        "total_path_length": -164.0,
+        "transition_count": 12,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 55,
+        "mission_duration": -27.0,
+        "total_path_length": -120.0,
+        "transition_count": 12,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 56,
+        "mission_duration": -30.0,
+        "total_path_length": -142.0,
+        "transition_count": 14,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 57,
+        "mission_duration": -19.0,
+        "total_path_length": -102.0,
+        "transition_count": 12,
+        "transition_conflicts": 3
+      },
+      {
+        "seed": 58,
+        "mission_duration": -20.0,
+        "total_path_length": -118.0,
+        "transition_count": 12,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 59,
+        "mission_duration": -28.0,
+        "total_path_length": -116.0,
+        "transition_count": 16,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 60,
+        "mission_duration": -46.0,
+        "total_path_length": -170.0,
+        "transition_count": 14,
+        "transition_conflicts": 2
+      },
+      {
+        "seed": 61,
+        "mission_duration": -21.0,
+        "total_path_length": -94.0,
+        "transition_count": 14,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 62,
+        "mission_duration": -23.0,
+        "total_path_length": -106.0,
+        "transition_count": 14,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 63,
+        "mission_duration": -19.0,
+        "total_path_length": -122.0,
+        "transition_count": 12,
+        "transition_conflicts": 7
+      },
+      {
+        "seed": 64,
+        "mission_duration": -36.0,
+        "total_path_length": -142.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 65,
+        "mission_duration": -18.0,
+        "total_path_length": -98.0,
+        "transition_count": 14,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 66,
+        "mission_duration": -35.0,
+        "total_path_length": -128.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 67,
+        "mission_duration": -17.0,
+        "total_path_length": -96.0,
+        "transition_count": 16,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 68,
+        "mission_duration": 3.0,
+        "total_path_length": -68.0,
+        "transition_count": 16,
+        "transition_conflicts": 21
+      },
+      {
+        "seed": 69,
+        "mission_duration": -32.0,
+        "total_path_length": -140.0,
+        "transition_count": 10,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 70,
+        "mission_duration": -27.0,
+        "total_path_length": -124.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 71,
+        "mission_duration": -19.0,
+        "total_path_length": -98.0,
+        "transition_count": 12,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 72,
+        "mission_duration": -25.0,
+        "total_path_length": -110.0,
+        "transition_count": 12,
+        "transition_conflicts": 6
+      },
+      {
+        "seed": 73,
+        "mission_duration": -36.0,
+        "total_path_length": -144.0,
+        "transition_count": 8,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 74,
+        "mission_duration": -23.0,
+        "total_path_length": -130.0,
+        "transition_count": 10,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 75,
+        "mission_duration": -33.0,
+        "total_path_length": -118.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 76,
+        "mission_duration": -27.0,
+        "total_path_length": -122.0,
+        "transition_count": 16,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 77,
+        "mission_duration": -25.0,
+        "total_path_length": -102.0,
+        "transition_count": 14,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 78,
+        "mission_duration": -36.0,
+        "total_path_length": -164.0,
+        "transition_count": 12,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 79,
+        "mission_duration": -30.0,
+        "total_path_length": -144.0,
+        "transition_count": 14,
+        "transition_conflicts": 3
+      },
+      {
+        "seed": 80,
+        "mission_duration": -40.0,
+        "total_path_length": -168.0,
+        "transition_count": 12,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 81,
+        "mission_duration": -31.0,
+        "total_path_length": -144.0,
+        "transition_count": 12,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 82,
+        "mission_duration": -29.0,
+        "total_path_length": -132.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 83,
+        "mission_duration": -15.0,
+        "total_path_length": -68.0,
+        "transition_count": 14,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 84,
+        "mission_duration": -25.0,
+        "total_path_length": -108.0,
+        "transition_count": 14,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 85,
+        "mission_duration": -36.0,
+        "total_path_length": -152.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 86,
+        "mission_duration": -18.0,
+        "total_path_length": -108.0,
+        "transition_count": 12,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 87,
+        "mission_duration": -20.0,
+        "total_path_length": -108.0,
+        "transition_count": 14,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 88,
+        "mission_duration": -35.0,
+        "total_path_length": -160.0,
+        "transition_count": 16,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 89,
+        "mission_duration": -38.0,
+        "total_path_length": -154.0,
+        "transition_count": 14,
+        "transition_conflicts": 1
+      },
+      {
+        "seed": 90,
+        "mission_duration": -23.0,
+        "total_path_length": -120.0,
+        "transition_count": 14,
+        "transition_conflicts": 2
+      },
+      {
+        "seed": 91,
+        "mission_duration": -27.0,
+        "total_path_length": -138.0,
+        "transition_count": 12,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 92,
+        "mission_duration": -24.0,
+        "total_path_length": -114.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 93,
+        "mission_duration": -33.0,
+        "total_path_length": -150.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 94,
+        "mission_duration": -22.0,
+        "total_path_length": -114.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 95,
+        "mission_duration": -25.0,
+        "total_path_length": -106.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 96,
+        "mission_duration": -34.0,
+        "total_path_length": -154.0,
+        "transition_count": 12,
+        "transition_conflicts": 6
+      },
+      {
+        "seed": 97,
+        "mission_duration": -18.0,
+        "total_path_length": -104.0,
+        "transition_count": 14,
+        "transition_conflicts": 2
+      },
+      {
+        "seed": 98,
+        "mission_duration": -23.0,
+        "total_path_length": -124.0,
+        "transition_count": 12,
+        "transition_conflicts": 0
+      },
+      {
+        "seed": 99,
+        "mission_duration": -4.0,
+        "total_path_length": -98.0,
+        "transition_count": 14,
+        "transition_conflicts": 0
+      }
+    ],
+    "statistics": {
+      "mission_duration": {
+        "mean": -25.26,
+        "population_std": 9.448407,
+        "median": -25.0,
+        "min": -46.0,
+        "max": 3.0
+      },
+      "total_path_length": {
+        "mean": -122.88,
+        "population_std": 24.24264,
+        "median": -120.0,
+        "min": -170.0,
+        "max": -68.0
+      },
+      "transition_count": {
+        "mean": 13.28,
+        "population_std": 1.587955,
+        "median": 14.0,
+        "min": 8.0,
+        "max": 16.0
+      },
+      "transition_conflicts": {
+        "mean": 1.4,
+        "population_std": 3.218695,
+        "median": 0.5,
+        "min": 0.0,
+        "max": 21.0
+      }
+    }
+  },
+  "agent_scaling_development": {
+    "2": {
+      "missions": 5,
+      "mission_success_rate": 1.0,
+      "mean_survivor_recall": 1.0,
+      "return_success_rate": 1.0,
+      "total_wall_collisions": 0,
+      "total_drone_collisions": 0,
+      "metrics": {
+        "mission_duration": {
+          "mean": 81.2,
+          "population_std": 4.915282,
+          "median": 83.0,
+          "min": 74.0,
+          "max": 87.0
+        },
+        "total_path_length": {
+          "mean": 154.4,
+          "population_std": 9.583319,
+          "median": 158.0,
+          "min": 140.0,
+          "max": 168.0
+        },
+        "transition_count": {
+          "mean": 6.0,
+          "population_std": 0.0,
+          "median": 6.0,
+          "min": 6.0,
+          "max": 6.0
+        }
+      }
+    },
+    "4": {
+      "missions": 5,
+      "mission_success_rate": 1.0,
+      "mean_survivor_recall": 1.0,
+      "return_success_rate": 1.0,
+      "total_wall_collisions": 0,
+      "total_drone_collisions": 0,
+      "metrics": {
+        "mission_duration": {
+          "mean": 64.0,
+          "population_std": 4.427189,
+          "median": 65.0,
+          "min": 58.0,
+          "max": 70.0
+        },
+        "total_path_length": {
+          "mean": 200.0,
+          "population_std": 13.145341,
+          "median": 206.0,
+          "min": 182.0,
+          "max": 218.0
+        },
+        "transition_count": {
+          "mean": 14.0,
+          "population_std": 1.788854,
+          "median": 14.0,
+          "min": 12.0,
+          "max": 16.0
+        }
+      }
+    },
+    "8": {
+      "missions": 5,
+      "mission_success_rate": 1.0,
+      "mean_survivor_recall": 1.0,
+      "return_success_rate": 1.0,
+      "total_wall_collisions": 0,
+      "total_drone_collisions": 0,
+      "metrics": {
+        "mission_duration": {
+          "mean": 63.8,
+          "population_std": 5.418487,
+          "median": 65.0,
+          "min": 57.0,
+          "max": 70.0
+        },
+        "total_path_length": {
+          "mean": 250.0,
+          "population_std": 22.018174,
+          "median": 254.0,
+          "min": 212.0,
+          "max": 278.0
+        },
+        "transition_count": {
+          "mean": 15.6,
+          "population_std": 1.496663,
+          "median": 16.0,
+          "min": 14.0,
+          "max": 18.0
+        }
+      }
+    }
+  },
+  "acceptance": {
+    "all_profiles_complete": true,
+    "full_recall": true,
+    "full_return": true,
+    "collision_free": true,
+    "no_floor_ping_pong": true,
+    "scaling_complete": true
+  }
+}

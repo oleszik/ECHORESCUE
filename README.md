@@ -22,6 +22,7 @@ with the documented benchmark commands.
 
 | Experiment | Stored result over 50 seeds |
 | --- | --- |
+| Multi-floor / 2.5D | 4 agents across 3 floors: 50/50 success, full Recall/return, zero collisions; 13.28 transitions and 1.40 safely resolved conflicts per mission |
 | Predictive communication / Multi-Relay | 4 agents: reactive two-vs-one Relay uptime +5.09 points; predictive-vs-reactive +2.38 points; all 150 Relay missions successful with full Recall/return and zero collisions |
 | Generalized roles + failure resilience | 4 agents: 50/50 failure tasks reassigned, 100% mission success/Recall/operational return, 1-step execution recovery, zero collisions and Role Thrashing |
 | Dynamic obstacles | Paired Moderate vs Off: +2.92 steps (+4.28%) and +5.60 path cells (+4.32%); 49/49 replans successful, 50/50 missions successful, zero collisions |
@@ -52,6 +53,9 @@ Generalist comparison are in
 The N-agent Relay topology, planned-path forecast, paired holdout costs, and
 per-seed limitations are in
 [`docs/v0.10-predictive-communication-multi-relay.md`](docs/v0.10-predictive-communication-multi-relay.md).
+The discrete floor graph, transition deconfliction, Floor allocation, vertical
+overhead, and scaling results are in
+[`docs/v0.11-multi-floor-2.5d.md`](docs/v0.11-multi-floor-2.5d.md).
 
 ## Architecture
 
@@ -117,6 +121,7 @@ python -m echorescue --drones 2 --seed 51 --dynamic-obstacles moderate --replay-
 python -m echorescue --drones 2 --seed 7 --inject-obstacle 5,7:20
 python -m echorescue --drones 4 --seed 50 --role-policy generalized --inject-failure drone-2:12
 python -m echorescue --drones 4 --seed 74 --knowledge-mode local --network-profile constrained --role-policy generalized --relay-strategy predictive --multi-relay-max-active 2 --replay-out replays/seed_74_predictive_multi_relay.json
+python -m echorescue --floors 3 --width 13 --height 9 --drones 4 --seed 68 --replay-out replays/seed_68_multi_floor.json
 ```
 
 The public Python entry points are also importable:
@@ -186,6 +191,7 @@ python -m echorescue.noisy_perception_benchmark --output benchmarks/noisy_percep
 python -m echorescue.dynamic_obstacle_benchmark --output benchmarks/dynamic_obstacles_50_holdout_seeds.json
 python -m echorescue.role_failure_benchmark --output benchmarks/generalized_roles_failure_50_holdout_seeds.json
 python -m echorescue.multi_relay_benchmark --seed-start 50 --seed-end 99 --output benchmarks/predictive_multi_relay_50_seeds.json
+python -m echorescue.multi_floor_benchmark --seed-start 50 --seed-end 99 --output benchmarks/multi_floor_50_holdout_seeds.json
 ```
 
 Benchmark modules use identical seed ranges and deterministic repeat checks

@@ -17,3 +17,4 @@ rather than silently rewriting its decision.
 | [0009](0009-role-task-ownership-recovery.md) | Accepted | Deterministic N-agent role and single-owner task recovery semantics |
 | [0010](0010-generic-multi-relay-topology.md) | Accepted | Collection-oriented Relay deployments over the existing communication graph |
 | [0011](0011-planned-path-connectivity-forecast.md) | Accepted | Known-map planned-path forecasts for near-term communication loss |
+| [0012](0012-discrete-multi-floor-topology.md) | Accepted | Discrete floor graphs and explicit vertical transitions instead of continuous 3D |
