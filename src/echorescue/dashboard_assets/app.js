@@ -26,6 +26,8 @@ const COLORS = {
 const state = {
   replay: null,
   benchmark: null,
+  catalog: [],
+  activeScenarioId: "multi-agent",
   frameIndex: 0,
   playing: false,
   speed: 1,
@@ -38,6 +40,8 @@ const elements = {};
 
 function cacheElements() {
   [
+    "operationMode", "scenarioList", "scenarioName", "scenarioDescription", "scenarioError", "retryScenarioButton", "replayUpload",
+    "droneCount", "floorCount", "configurationSummary", "visibleFleetCount", "successChart", "evaluationSource",
     "seedValue", "knowledgeMode", "networkProfile", "survivorSensor", "missionStatus", "restartButton", "previousButton", "playButton",
     "playIcon", "playLabel", "nextButton", "timeline", "currentStep", "maxStep",
     "speedSelect", "mapViewSelect", "floorSelect", "floorSelectLabel", "floorOverview", "mapViewTitle", "mapViewPurpose", "missionCanvas", "coverageValue", "eventFeed", "eventCount", "smokeDebugOption", "smokeDebugLegend",
@@ -54,6 +58,14 @@ function cacheElements() {
     "networkSummary", "networkSummaryState", "metricNetworkDelivery", "metricNetworkAttemptDelivery", "metricNetworkMessageCompletion", "metricNetworkLatency",
     "metricNetworkQueue", "metricNetworkLoss", "metricNetworkPayload", "metricNetworkRelay",
   ].forEach((id) => { elements[id] = document.getElementById(id); });
+}
+
+function appUrl(path) {
+  return new URL(path, document.baseURI).toString();
+}
+
+function recorded(value, formatter = String) {
+  return value === null || value === undefined || value === "" ? "Not recorded" : formatter(value);
 }
 
 function fleetIds() {
@@ -88,13 +100,13 @@ function initializeFleetViews() {
     card.style.setProperty("--accent-soft", `${color}24`);
     card.innerHTML = `
       <div class="drone-card-head"><div class="drone-identity"><span class="drone-number">${number}</span><div><p>${droneId}</p><strong id="droneState${number}">—</strong></div></div><span class="coordinate" id="dronePosition${number}">—, —</span></div>
-      <div class="drone-detail"><span>Role</span><strong class="role-badge" id="droneRole${number}">—</strong></div><div class="drone-detail"><span>Owned task</span><strong id="droneTask${number}">—</strong></div>
+      <div class="drone-detail"><span>Role</span><strong class="role-badge" id="droneRole${number}">—</strong></div><div class="drone-detail"><span>Floor</span><strong id="droneFloor${number}">—</strong></div><div class="drone-detail"><span>Owned task</span><strong id="droneTask${number}">—</strong></div>
       <div class="battery-label"><span>Energy reserve</span><strong id="droneEnergy${number}">—</strong></div><div class="battery-track"><span id="droneBattery${number}"></span></div>
       <div class="drone-detail"><span>Current target</span><strong id="droneTarget${number}">—</strong></div><div class="drone-detail"><span>Communication</span><strong id="droneCommunication${number}" class="communication-status">—</strong></div>
       <div class="drone-detail"><span>Data transfer</span><strong id="droneDataLink${number}">—</strong></div><div class="drone-detail"><span>Local coverage</span><strong id="droneCoverage${number}">—</strong></div>
       <div class="drone-detail"><span>Local survivors</span><strong id="droneSurvivors${number}">—</strong></div><div class="drone-detail"><span>Data age</span><strong id="droneDataAge${number}">—</strong></div>`;
     elements.droneCards.append(card);
-    ["State", "Position", "Role", "Task", "Energy", "Battery", "Target", "Communication", "DataLink", "Coverage", "Survivors", "DataAge"].forEach((field) => {
+    ["State", "Position", "Role", "Floor", "Task", "Energy", "Battery", "Target", "Communication", "DataLink", "Coverage", "Survivors", "DataAge"].forEach((field) => {
       elements[`drone${field}${number}`] = document.getElementById(`drone${field}${number}`);
     });
     elements[`droneCard${number}`] = card;
@@ -140,10 +152,16 @@ function validateReplay(replay) {
   }
 }
 
-function initializeReplay(replay, benchmark) {
+function initializeReplay(replay, benchmark, scenario = null) {
   validateReplay(replay);
+  pause();
   state.replay = replay;
   state.benchmark = benchmark;
+  state.frameIndex = 0;
+  elements.fatalError.hidden = true;
+  elements.floorSelectLabel.hidden = true;
+  elements.floorOverview.hidden = true;
+  elements.mapViewSelect.parentElement.hidden = false;
   initializeFleetViews();
   const multiFloor = replay.schema_version === "2.5";
   if (multiFloor) {
@@ -176,7 +194,22 @@ function initializeReplay(replay, benchmark) {
   if (relayStrategy === "network-aware") {
     elements.knowledgeMode.textContent = `${knowledgeMode.toUpperCase()} · NETWORK-AWARE RELAY`;
   }
-  elements.seedValue.textContent = replay.mission.seed;
+  const droneTotal = fleetIds().length;
+  const floorTotal = multiFloor ? Object.keys(replay.map.floors).length : 1;
+  const configuration = replay.mission.configuration || {};
+  elements.operationMode.textContent = scenario?.mode || "Uploaded recorded simulation";
+  elements.scenarioName.textContent = scenario?.name || "Uploaded replay";
+  elements.scenarioDescription.textContent = scenario?.description || "Locally supplied, schema-compatible mission telemetry.";
+  elements.droneCount.textContent = String(droneTotal);
+  elements.floorCount.textContent = String(floorTotal);
+  elements.visibleFleetCount.textContent = `${droneTotal} ${droneTotal === 1 ? "agent" : "agents"}`;
+  elements.seedValue.textContent = recorded(replay.mission.seed);
+  const configParts = [
+    configuration.planning_variant || replay.mission.planning_variant,
+    configuration.uncertainty_profile || replay.mission.uncertainty_profile,
+    configuration.role_policy || replay.mission.role_policy,
+  ].filter((value) => value && value !== "off");
+  elements.configurationSummary.textContent = configParts.length ? configParts.join(" · ").replaceAll("_", " ") : "Standard recorded configuration";
   elements.networkProfile.textContent = `${networkProfile.toUpperCase()} · DYNAMIC ${dynamicObstacles.toUpperCase()}`;
   elements.survivorSensor.textContent = `${survivorSensor.toUpperCase()} · NOISE ${perceptionNoise.toUpperCase()}`;
   elements.networkProfile.classList.toggle("constrained", networkProfile === "constrained");
@@ -190,6 +223,85 @@ function initializeReplay(replay, benchmark) {
   populateMetrics();
   populateBenchmark();
   setFrame(0);
+  renderScenarioCatalog();
+}
+
+function renderScenarioCatalog() {
+  elements.scenarioList.replaceChildren(...state.catalog.map((scenario) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `scenario-card${scenario.id === state.activeScenarioId ? " active" : ""}`;
+    button.disabled = !scenario.available;
+    button.dataset.scenarioId = scenario.id;
+    button.setAttribute("role", "listitem");
+    const meta = scenario.available
+      ? `${recorded(scenario.drones)} ${scenario.drones === 1 ? "drone" : "drones"} · ${recorded(scenario.floors)} ${scenario.floors === 1 ? "floor" : "floors"}`
+      : "Replay unavailable";
+    button.innerHTML = `<span class="scenario-card-title">${scenario.name}</span><span>${scenario.description}</span><small>${meta}</small>`;
+    button.addEventListener("click", () => loadScenario(scenario.id));
+    return button;
+  }));
+}
+
+function showScenarioError(message) {
+  elements.scenarioError.hidden = false;
+  elements.scenarioError.querySelector("span").textContent = message;
+}
+
+async function loadScenario(id) {
+  const scenario = state.catalog.find((item) => item.id === id);
+  if (!scenario) return;
+  pause();
+  elements.scenarioError.hidden = true;
+  elements.missionStatus.className = "status-pill loading";
+  elements.missionStatus.lastElementChild.textContent = "Loading recording";
+  try {
+    const replayUrl = appUrl(`api/scenarios/${encodeURIComponent(id)}/replay`);
+    const benchmarkUrl = appUrl(`api/scenarios/${encodeURIComponent(id)}/benchmark`);
+    const [replay, benchmark] = await Promise.all([loadJson(replayUrl), loadOptionalBenchmark(benchmarkUrl)]);
+    state.activeScenarioId = id;
+    initializeReplay(replay, benchmark, scenario);
+    const locationUrl = new URL(window.location.href);
+    if (id === "multi-agent") locationUrl.searchParams.delete("scenario");
+    else locationUrl.searchParams.set("scenario", id);
+    window.history.replaceState(null, "", locationUrl);
+  } catch (error) {
+    showScenarioError(`${scenario.name} could not be loaded. ${error.message}`);
+  }
+}
+
+function loadUploadedReplay(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    try {
+      const replay = JSON.parse(String(reader.result));
+      state.activeScenarioId = "upload";
+      initializeReplay(replay, null, {
+        id: "upload",
+        name: file.name,
+        description: "User-provided recorded replay; values are shown only when present.",
+        mode: "Uploaded recorded simulation",
+      });
+      elements.scenarioError.hidden = true;
+    } catch (error) {
+      showScenarioError(`The uploaded replay is not usable. ${error.message}`);
+    }
+  });
+  reader.addEventListener("error", () => showScenarioError("The uploaded replay could not be read."));
+  reader.readAsText(file);
+}
+
+function renderProjectSummary(summary) {
+  elements.successChart.replaceChildren(...summary.profiles.map((profile) => {
+    const row = document.createElement("div");
+    row.className = "success-row";
+    const percentage = Math.round(profile.naive * 100);
+    row.innerHTML = `<span>${profile.label}</span><div class="bar-track"><i style="width:${percentage}%"></i><b style="width:${percentage}%"></b></div><strong>${percentage}%</strong><small>both · n=${profile.n} each</small>`;
+    return row;
+  }));
+  const duration = summary.clean_duration_difference;
+  elements.evaluationSource.textContent = `${summary.runs} runs · 4 profiles × 2 planners × 20 seeds. Clean paired successful duration: ${duration.mean.toFixed(1)} steps [95% CI ${duration.ci95[0].toFixed(2)}, ${duration.ci95[1].toFixed(2)}], aware minus naive.`;
 }
 
 function setFrame(index) {
@@ -213,9 +325,10 @@ function updateDroneCard(number, drone, frame) {
     elements[`droneState${number}`].textContent = drone.state.replaceAll("_", " ");
     elements[`dronePosition${number}`].textContent = `F${floor} · ${row}, ${col}`;
     elements[`droneRole${number}`].textContent = "GENERALIST";
+    elements[`droneFloor${number}`].textContent = `Floor ${floor}`;
     elements[`droneTask${number}`].textContent = drone.target ? "FLOOR EXPLORATION" : "—";
-    elements[`droneEnergy${number}`].textContent = `${drone.energy_remaining.toFixed(1)} units`;
-    elements[`droneBattery${number}`].style.width = `${Math.max(0, Math.min(100, drone.energy_remaining / 5))}%`;
+    elements[`droneEnergy${number}`].textContent = recorded(drone.energy_remaining, (value) => `${Number(value).toFixed(1)} units`);
+    elements[`droneBattery${number}`].style.width = Number.isFinite(drone.energy_remaining) ? `${Math.max(0, Math.min(100, drone.energy_remaining / 5))}%` : "0";
     elements[`droneTarget${number}`].textContent = drone.target ? `F${drone.target[0]} · ${drone.target[1]}, ${drone.target[2]}` : "—";
     elements[`droneCommunication${number}`].textContent = "Shared mission link";
     elements[`droneCommunication${number}`].className = "communication-status direct";
@@ -229,40 +342,43 @@ function updateDroneCard(number, drone, frame) {
   const relayHold = drone.relay?.holding_for_relay ? "RELAY HOLD · " : "";
   const smokeState = drone.smoke?.in_smoke
     ? `SMOKE ${(drone.smoke.density * 100).toFixed(0)}% · ` : "";
-  elements[`droneState${number}`].textContent = `${smokeState}${drone.yielding ? "YIELDING · " : relayHold}${drone.state.replaceAll("_", " ")}`;
+  elements[`droneState${number}`].textContent = `${smokeState}${drone.yielding ? "YIELDING · " : relayHold}${recorded(drone.state, (value) => String(value).replaceAll("_", " "))}`;
   elements[`droneCard${number}`].classList.toggle("yielding", Boolean(drone.yielding));
   elements[`droneCard${number}`].classList.toggle("relay-active", Boolean(drone.relay?.active));
   elements[`droneCard${number}`].classList.toggle("failed", drone.state === "FAILED");
   elements[`dronePosition${number}`].textContent = `${x}, ${y}`;
-  elements[`droneRole${number}`].textContent = drone.role || "LEGACY";
-  elements[`droneTask${number}`].textContent = drone.task_id || "—";
-  elements[`droneEnergy${number}`].textContent = `${drone.energy_remaining.toFixed(1)} units`;
-  elements[`droneBattery${number}`].style.width = `${Math.max(0, Math.min(100, drone.energy_remaining_percent))}%`;
-  elements[`droneTarget${number}`].textContent = drone.target ? `${drone.target[0]}, ${drone.target[1]}` : "—";
-  elements[`droneCoverage${number}`].textContent = `${drone.knowledge.known_coverage.toFixed(1)}%`;
-  elements[`droneSurvivors${number}`].textContent = `${drone.knowledge.confirmed_survivors || 0} confirmed`;
-  elements[`droneDataAge${number}`].textContent = `${drone.knowledge.average_data_age.toFixed(1)} avg · ${drone.knowledge.oldest_data_age} max`;
-  const communication = drone.communication;
+  elements[`droneRole${number}`].textContent = recorded(drone.role);
+  elements[`droneFloor${number}`].textContent = "Floor 0";
+  elements[`droneTask${number}`].textContent = recorded(drone.task_id);
+  elements[`droneEnergy${number}`].textContent = recorded(drone.energy_remaining, (value) => `${Number(value).toFixed(1)} units`);
+  elements[`droneBattery${number}`].style.width = Number.isFinite(drone.energy_remaining_percent) ? `${Math.max(0, Math.min(100, drone.energy_remaining_percent))}%` : "0";
+  elements[`droneTarget${number}`].textContent = drone.target ? `${drone.target[0]}, ${drone.target[1]}` : "Not recorded";
+  elements[`droneCoverage${number}`].textContent = recorded(drone.knowledge?.known_coverage, (value) => `${Number(value).toFixed(1)}%`);
+  elements[`droneSurvivors${number}`].textContent = recorded(drone.knowledge?.confirmed_survivors, (value) => `${value} confirmed`);
+  elements[`droneDataAge${number}`].textContent = Number.isFinite(drone.knowledge?.average_data_age) && Number.isFinite(drone.knowledge?.oldest_data_age) ? `${drone.knowledge.average_data_age.toFixed(1)} avg · ${drone.knowledge.oldest_data_age} max` : "Not recorded";
+  const communication = drone.communication || {};
   const status = elements[`droneCommunication${number}`];
   status.className = "communication-status";
   if (drone.state === "FAILED") {
     status.textContent = "Offline · failed";
     status.classList.add("offline");
-  } else if (communication.direct_to_base) {
+  } else if (communication.direct_to_base === true) {
     status.textContent = "Direct to base";
     status.classList.add("direct");
-  } else if (communication.via_relay) {
+  } else if (communication.via_relay === true) {
     const relay = communication.relay_path.at(-2);
     status.textContent = `Relay via ${relay}`;
     status.classList.add("relay");
-  } else {
+  } else if (communication.connected_to_base === false) {
     status.textContent = "Disconnected";
     status.classList.add("offline");
+  } else {
+    status.textContent = "Not recorded";
   }
   const dataStatus = elements[`droneDataLink${number}`];
   const network = frame.network;
   if (!network) {
-    dataStatus.textContent = "Instant (ideal)";
+    dataStatus.textContent = "Not recorded";
   } else {
     const droneId = `drone-${number}`;
     const delivered = (network.successful_transfer_links || []).some(
@@ -464,15 +580,21 @@ function populateMetrics() {
     return;
   }
   const metrics = state.replay.metrics;
-  elements.metricRecall.textContent = `${(metrics.survivor_recall * 100).toFixed(0)}%`;
+  const derivedRecall = Number.isFinite(metrics.survivor_recall)
+    ? metrics.survivor_recall
+    : (Number.isFinite(metrics.survivors_confirmed) && Number.isFinite(metrics.survivors_expected) && metrics.survivors_expected > 0
+      ? metrics.survivors_confirmed / metrics.survivors_expected : null);
+  elements.metricRecall.textContent = recorded(derivedRecall, (value) => `${(Number(value) * 100).toFixed(0)}%`);
   const recovery = metrics.failure_recovery;
   elements.metricReturned.textContent = recovery
     ? `${recovery.operational_drones_returned}/${recovery.operational_drones} operational`
-    : `${metrics.drones_returned}/${metrics.drones_total}`;
-  elements.metricWalls.textContent = metrics.collisions;
-  elements.metricDrones.textContent = metrics.drone_drone_collisions;
-  elements.metricSteps.textContent = metrics.steps;
-  elements.metricDuplicate.textContent = `${(metrics.duplicate_exploration_ratio * 100).toFixed(2)}%`;
+    : (Number.isFinite(metrics.drones_returned) && Number.isFinite(metrics.drones_total)
+      ? `${metrics.drones_returned}/${metrics.drones_total}`
+      : recorded(metrics.returned_to_base, (value) => value ? "1/1" : "0/1"));
+  elements.metricWalls.textContent = recorded(metrics.collisions);
+  elements.metricDrones.textContent = recorded(metrics.drone_drone_collisions);
+  elements.metricSteps.textContent = recorded(metrics.steps ?? metrics.commands_issued);
+  elements.metricDuplicate.textContent = recorded(metrics.duplicate_exploration_ratio, (value) => `${(Number(value) * 100).toFixed(2)}%`);
   const relayEnabled = ["adaptive", "network-aware"].includes(metrics.relay_strategy);
   const networkAware = metrics.relay_strategy === "network-aware";
   elements.relaySummary.classList.toggle("inactive", !relayEnabled);
@@ -1529,6 +1651,8 @@ function bindControls() {
     updateEventFeed();
     drawMission();
   });
+  elements.replayUpload.addEventListener("change", (event) => loadUploadedReplay(event.target.files?.[0]));
+  elements.retryScenarioButton.addEventListener("click", () => loadScenario("multi-agent"));
   window.addEventListener("keydown", (event) => {
     if (event.target.matches("input, select, button")) return;
     if (event.code === "Space") { event.preventDefault(); state.playing ? pause() : play(); }
@@ -1547,18 +1671,34 @@ async function main() {
   cacheElements();
   bindControls();
   try {
-    const [replay, benchmark] = await Promise.all([
-      loadJson("/replay.json"),
-      loadOptionalBenchmark("/benchmark.json"),
+    const [catalog, projectSummary] = await Promise.all([
+      loadJson(appUrl("api/scenarios")),
+      loadJson(appUrl("api/project-summary")),
     ]);
-    initializeReplay(replay, benchmark);
+    state.catalog = catalog.scenarios;
+    renderProjectSummary(projectSummary);
+    const requested = new URLSearchParams(window.location.search).get("scenario") || catalog.default;
+    if (!state.catalog.some((item) => item.id === requested && item.available)) {
+      showScenarioError(`The requested scenario "${requested}" is unavailable. Loading the default demo instead.`);
+    }
+    const initialId = state.catalog.some((item) => item.id === requested && item.available) ? requested : catalog.default;
+    if (initialId === catalog.default) {
+      const [replay, benchmark] = await Promise.all([
+        loadJson(appUrl("replay.json")),
+        loadOptionalBenchmark(appUrl("benchmark.json")),
+      ]);
+      state.activeScenarioId = catalog.default;
+      initializeReplay(replay, benchmark, state.catalog.find((item) => item.id === catalog.default));
+    } else {
+      await loadScenario(initialId);
+    }
   } catch (error) {
     showFatalError(error);
   }
 }
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { normalizeBenchmark, safeBenchmarkView, validateReplay };
+  module.exports = { normalizeBenchmark, recorded, safeBenchmarkView, validateReplay };
 }
 
 if (typeof document !== "undefined") {

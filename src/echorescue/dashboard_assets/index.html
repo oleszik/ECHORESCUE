@@ -1,190 +1,55 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0b1018">
-    <link rel="icon" href="data:,">
-    <title>EchoRescue Mission Replay</title>
-    <meta
-      name="description"
-      content="Deterministic multi-agent search-and-rescue mission replay dashboard."
-    >
-    <link rel="stylesheet" href="/styles.css">
-  </head>
-  <body>
-    <main class="app-shell">
-      <header class="topbar">
-        <div class="brand-lockup">
-          <div class="brand-mark" aria-hidden="true"><span></span><span></span></div>
-          <div>
-            <p class="eyebrow">Autonomous SAR simulation</p>
-            <h1>EchoRescue <span>Mission Replay</span></h1>
-          </div>
-        </div>
-        <div class="header-meta">
-          <div class="mode-chip"><span>Knowledge</span><strong id="knowledgeMode">—</strong></div>
-          <div class="mode-chip network-chip"><span>Network</span><strong id="networkProfile">—</strong></div>
-          <div class="mode-chip"><span>Survivor sensor</span><strong id="survivorSensor">VISUAL</strong></div>
-          <div class="seed-chip"><span>Seed</span><strong id="seedValue">—</strong></div>
-          <div class="status-pill loading" id="missionStatus">
-            <span class="status-dot"></span><span>Loading replay</span>
-          </div>
-        </div>
-      </header>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#070b14">
+  <meta name="description" content="Explore verified EchoRescue multi-agent missions, evaluation results and ROS 2 integration evidence.">
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="styles.css"><title>EchoRescue Mission Control</title>
+</head>
+<body><main class="app-shell">
+  <header class="topbar">
+    <div class="brand-lockup"><div class="brand-mark" aria-hidden="true"><span></span><span></span></div><div><p class="eyebrow">Autonomous search &amp; rescue research</p><h1>EchoRescue <span>Mission Control</span></h1></div></div>
+    <div class="header-meta"><div class="recorded-chip"><span class="recorded-dot"></span><strong id="operationMode">Recorded simulation</strong></div><div class="status-pill loading" id="missionStatus"><span class="status-dot"></span><span>Loading replay</span></div></div>
+  </header>
 
-      <section class="control-deck panel" aria-label="Replay controls">
-        <div class="transport-controls">
-          <button id="restartButton" class="icon-button" aria-label="Restart replay" title="Restart">↺</button>
-          <button id="previousButton" class="icon-button" aria-label="Previous step" title="Previous step">‹</button>
-          <button id="playButton" class="play-button" aria-label="Play replay"><span id="playIcon">▶</span><span id="playLabel">Play</span></button>
-          <button id="nextButton" class="icon-button" aria-label="Next step" title="Next step">›</button>
-        </div>
-        <div class="timeline-block">
-          <div class="timeline-labels">
-            <span>Mission timeline</span>
-            <strong><span id="currentStep">0</span> / <span id="maxStep">0</span></strong>
-          </div>
-          <input id="timeline" type="range" min="0" max="0" value="0" aria-label="Mission timeline">
-        </div>
-        <label class="speed-control">
-          <span>Playback</span>
-          <select id="speedSelect" aria-label="Playback speed">
-            <option value="0.25">0.25×</option>
-            <option value="0.5">0.5×</option>
-            <option value="1" selected>1×</option>
-            <option value="2">2×</option>
-            <option value="4">4×</option>
-            <option value="8">8×</option>
-          </select>
-        </label>
-      </section>
+  <section class="scenario-deck panel" aria-labelledby="scenarioHeading">
+    <div class="scenario-intro"><div><p class="eyebrow">Demo library</p><h2 id="scenarioHeading">Choose a recorded mission</h2></div><label class="upload-button" for="replayUpload">Upload replay<input id="replayUpload" type="file" accept="application/json,.json"></label></div>
+    <div class="scenario-list" id="scenarioList" role="list"></div>
+    <div class="scenario-error" id="scenarioError" hidden><span></span><button id="retryScenarioButton" type="button">Retry default demo</button></div>
+  </section>
 
-      <section class="dashboard-grid">
-        <article class="map-panel panel">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Operator view</p>
-              <h2 id="mapViewTitle">Shared occupancy map</h2>
-              <p class="map-purpose" id="mapViewPurpose">Evaluation aggregate</p>
-            </div>
-            <div class="map-view-controls">
-              <label id="floorSelectLabel" hidden>Floor
-                <select id="floorSelect" aria-label="Active floor"></select>
-              </label>
-              <span id="floorOverview" hidden></span>
-              <label>Map view
-                <select id="mapViewSelect" aria-label="Map knowledge view">
-                  <option value="operator">Shared operator map</option>
-                  <option value="base">Base knowledge</option>
-                  <option id="smokeDebugOption" value="smoke-debug" hidden>Smoke debug (ground truth)</option>
-                </select>
-              </label>
-              <div class="coverage-readout"><span id="coverageValue">0.0%</span><small>known</small></div>
-            </div>
-          </div>
-          <div class="canvas-wrap">
-            <canvas id="missionCanvas" aria-label="Mission occupancy map replay"></canvas>
-            <div class="map-legend" aria-label="Map legend">
-              <span><i class="swatch unknown"></i>Unknown</span>
-              <span><i class="swatch free"></i>Free</span>
-              <span><i class="swatch wall"></i>Occupied</span>
-              <span><i class="swatch survivor"></i>Confirmed</span>
-              <span><i class="swatch hypothesis"></i>Hypothesis</span>
-              <span><i class="swatch rejected-hypothesis"></i>Rejected</span>
-              <span><i class="swatch dynamic-obstacle"></i>New blockage</span>
-              <span><i class="swatch direct-link"></i>Direct radio</span>
-              <span><i class="swatch relay-link"></i>Relay radio</span>
-              <span><i class="swatch knowledge-gap"></i>Knowledge difference</span>
-              <span id="smokeDebugLegend" hidden><i class="swatch smoke"></i>Smoke density (debug)</span>
-            </div>
-          </div>
-        </article>
+  <section class="mission-identity" aria-label="Active mission details">
+    <div class="identity-primary"><p class="eyebrow">Active scenario</p><h2 id="scenarioName">Loading mission</h2><p id="scenarioDescription">Preparing recorded telemetry.</p></div>
+    <div class="identity-stat"><span>Drones</span><strong id="droneCount">—</strong></div><div class="identity-stat"><span>Floors</span><strong id="floorCount">—</strong></div><div class="identity-stat"><span>Seed</span><strong id="seedValue">—</strong></div><div class="identity-stat wide"><span>Configuration</span><strong id="configurationSummary">—</strong></div>
+  </section>
 
-        <aside class="telemetry-column">
-          <div class="drone-cards" id="droneCards"></div>
+  <section class="control-deck panel" aria-label="Replay controls">
+    <div class="transport-controls"><button id="restartButton" class="icon-button" aria-label="Restart replay" title="Restart">↺</button><button id="previousButton" class="icon-button" aria-label="Previous step" title="Previous step">‹</button><button id="playButton" class="play-button" aria-label="Play replay"><span id="playIcon">▶</span><span id="playLabel">Play</span></button><button id="nextButton" class="icon-button" aria-label="Next step" title="Next step">›</button></div>
+    <div class="timeline-block"><div class="timeline-labels"><span>Recorded mission timeline</span><strong><span id="currentStep">0</span> / <span id="maxStep">0</span></strong></div><input id="timeline" type="range" min="0" max="0" value="0" aria-label="Mission timeline"></div>
+    <label class="speed-control"><span>Playback</span><select id="speedSelect" aria-label="Playback speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option><option value="8">8×</option></select></label>
+  </section>
+  <section class="context-strip" aria-label="Mission configuration"><div><span>Knowledge</span><strong id="knowledgeMode">—</strong></div><div><span>Network</span><strong id="networkProfile">—</strong></div><div><span>Survivor sensor</span><strong id="survivorSensor">—</strong></div></section>
 
-          <section class="event-panel panel">
-            <div class="panel-heading compact"><div><p class="eyebrow">Telemetry</p><h2>Mission events</h2></div><span id="eventCount">0</span></div>
-            <ol class="event-feed" id="eventFeed" aria-live="polite"></ol>
-          </section>
-        </aside>
-      </section>
+  <section class="dashboard-grid">
+    <article class="map-panel panel">
+      <div class="panel-heading"><div><p class="eyebrow">Mission map · knowledge boundary</p><h2 id="mapViewTitle">Shared occupancy map</h2><p class="map-purpose" id="mapViewPurpose">Evaluation aggregate</p></div><div class="map-view-controls"><label id="floorSelectLabel" hidden>Floor<select id="floorSelect" aria-label="Active floor"></select></label><span id="floorOverview" hidden></span><label>Map view<select id="mapViewSelect" aria-label="Map knowledge view"><option value="operator">Shared operator map</option><option value="base">Base knowledge</option><option id="smokeDebugOption" value="smoke-debug" hidden>Smoke debug (Ground Truth)</option></select></label><div class="coverage-readout"><span id="coverageValue">0.0%</span><small>known</small></div></div></div>
+      <div class="canvas-wrap"><canvas id="missionCanvas" aria-label="Mission occupancy map replay"></canvas><div class="map-legend" aria-label="Map legend"><span><i class="swatch unknown"></i>Unknown</span><span><i class="swatch free"></i>Free</span><span><i class="swatch wall"></i>Occupied</span><span><i class="swatch survivor"></i>Confirmed</span><span><i class="swatch hypothesis"></i>Hypothesis</span><span><i class="swatch rejected-hypothesis"></i>Rejected</span><span><i class="swatch dynamic-obstacle"></i>New blockage</span><span><i class="swatch direct-link"></i>Direct radio</span><span><i class="swatch relay-link"></i>Relay radio</span><span><i class="swatch knowledge-gap"></i>Knowledge difference</span><span id="smokeDebugLegend" hidden><i class="swatch smoke"></i>Smoke density · Ground Truth debug</span></div></div>
+    </article>
+    <aside class="telemetry-column"><section class="fleet-panel panel"><div class="panel-heading compact"><div><p class="eyebrow">Fleet telemetry</p><h2>Agents in this frame</h2></div><span class="fleet-count" id="visibleFleetCount">—</span></div><div class="drone-cards" id="droneCards"></div></section><section class="event-panel panel"><div class="panel-heading compact"><div><p class="eyebrow">Telemetry</p><h2>Mission events</h2></div><span id="eventCount">0</span></div><ol class="event-feed" id="eventFeed" aria-live="polite"></ol></section></aside>
+  </section>
 
-      <section class="results-grid">
-        <article class="result-panel panel">
-          <div class="panel-heading">
-            <div><p class="eyebrow">Mission outcome</p><h2>Verified result</h2></div>
-            <div class="result-badge pending" id="resultBadge">In progress</div>
-          </div>
-          <div class="metric-grid">
-            <div><span>Survivor recall</span><strong id="metricRecall">—</strong></div>
-            <div><span>Drones returned</span><strong id="metricReturned">—</strong></div>
-            <div><span>Wall collisions</span><strong id="metricWalls">—</strong></div>
-            <div><span>Drone collisions</span><strong id="metricDrones">—</strong></div>
-            <div><span>Mission steps</span><strong id="metricSteps">—</strong></div>
-            <div><span>Duplicate exploration</span><strong id="metricDuplicate">—</strong></div>
-          </div>
-          <div class="relay-summary" id="relaySummary">
-            <div class="relay-summary-head"><span id="relaySummaryLabel">Adaptive relay impact</span><strong id="relaySummaryState">—</strong></div>
-            <div class="relay-metric-grid">
-              <div><span>Successful deployments</span><strong id="metricRelayDeployments">—</strong></div>
-              <div><span>Cells forwarded</span><strong id="metricRelayCells">—</strong></div>
-              <div><span>Survivors forwarded</span><strong id="metricRelaySurvivors">—</strong></div>
-              <div><span>Controlled delay</span><strong id="metricRelayDelay">—</strong></div>
-              <div><span>Relay energy</span><strong id="metricRelayEnergy">—</strong></div>
-              <div><span>Base coverage</span><strong id="metricBaseCoverage">—</strong></div>
-              <div><span>Accepted utility avg</span><strong id="metricRelayUtility">—</strong></div>
-              <div><span>Critical payloads relayed</span><strong id="metricRelayCritical">—</strong></div>
-              <div><span>Backpressure duration</span><strong id="metricRelayBackpressure">—</strong></div>
-              <div><span>Decision acceptance</span><strong id="metricRelayProgress">—</strong></div>
-              <div><span>Accepted / evaluated</span><strong id="metricRelayDecision">—</strong></div>
-              <div><span>Rejected decisions</span><strong id="metricRelayRejected">—</strong></div>
-            </div>
-          </div>
-          <div class="network-summary" id="networkSummary">
-            <div class="relay-summary-head"><span>Network transport</span><strong id="networkSummaryState">NOT AVAILABLE</strong></div>
-            <div class="relay-metric-grid">
-              <div><span>Unique fragment delivery</span><strong id="metricNetworkDelivery">—</strong></div>
-              <div><span>Attempt delivery</span><strong id="metricNetworkAttemptDelivery">—</strong></div>
-              <div><span>Logical completion</span><strong id="metricNetworkMessageCompletion">—</strong></div>
-              <div><span>Mean / max latency</span><strong id="metricNetworkLatency">—</strong></div>
-              <div><span>Queue avg / max</span><strong id="metricNetworkQueue">—</strong></div>
-              <div><span>Lost / TTL / close</span><strong id="metricNetworkLoss">—</strong></div>
-              <div><span>Payload delivered</span><strong id="metricNetworkPayload">—</strong></div>
-              <div><span>Relay forwarding</span><strong id="metricNetworkRelay">—</strong></div>
-            </div>
-          </div>
-        </article>
+  <section class="results-grid">
+    <article class="result-panel panel"><div class="panel-heading"><div><p class="eyebrow">Selected recording</p><h2>Mission outcome</h2></div><div class="result-badge pending" id="resultBadge">In progress</div></div><div class="metric-grid"><div><span>Survivor recall</span><strong id="metricRecall">—</strong></div><div><span>Drones returned</span><strong id="metricReturned">—</strong></div><div><span>Wall collisions</span><strong id="metricWalls">—</strong></div><div><span>Drone collisions</span><strong id="metricDrones">—</strong></div><div><span>Mission steps</span><strong id="metricSteps">—</strong></div><div><span>Duplicate exploration</span><strong id="metricDuplicate">—</strong></div></div>
+      <div class="relay-summary" id="relaySummary"><div class="relay-summary-head"><span id="relaySummaryLabel">Adaptive relay impact</span><strong id="relaySummaryState">—</strong></div><div class="relay-metric-grid"><div><span>Successful deployments</span><strong id="metricRelayDeployments">—</strong></div><div><span>Cells forwarded</span><strong id="metricRelayCells">—</strong></div><div><span>Survivors forwarded</span><strong id="metricRelaySurvivors">—</strong></div><div><span>Controlled delay</span><strong id="metricRelayDelay">—</strong></div><div><span>Relay energy</span><strong id="metricRelayEnergy">—</strong></div><div><span>Base coverage</span><strong id="metricBaseCoverage">—</strong></div><div><span>Accepted utility avg</span><strong id="metricRelayUtility">—</strong></div><div><span>Critical payloads relayed</span><strong id="metricRelayCritical">—</strong></div><div><span>Backpressure duration</span><strong id="metricRelayBackpressure">—</strong></div><div><span>Decision acceptance</span><strong id="metricRelayProgress">—</strong></div><div><span>Accepted / evaluated</span><strong id="metricRelayDecision">—</strong></div><div><span>Rejected decisions</span><strong id="metricRelayRejected">—</strong></div></div></div>
+      <div class="network-summary" id="networkSummary"><div class="relay-summary-head"><span>Network transport</span><strong id="networkSummaryState">NOT RECORDED</strong></div><div class="relay-metric-grid"><div><span>Unique fragment delivery</span><strong id="metricNetworkDelivery">—</strong></div><div><span>Attempt delivery</span><strong id="metricNetworkAttemptDelivery">—</strong></div><div><span>Logical completion</span><strong id="metricNetworkMessageCompletion">—</strong></div><div><span>Mean / max latency</span><strong id="metricNetworkLatency">—</strong></div><div><span>Queue avg / max</span><strong id="metricNetworkQueue">—</strong></div><div><span>Lost / TTL / close</span><strong id="metricNetworkLoss">—</strong></div><div><span>Payload delivered</span><strong id="metricNetworkPayload">—</strong></div><div><span>Relay forwarding</span><strong id="metricNetworkRelay">—</strong></div></div></div>
+    </article>
+    <article class="benchmark-panel panel" id="benchmarkPanel"><div class="panel-heading"><div><p class="eyebrow">Scenario evaluation</p><h2 id="benchmarkTitle">Benchmark evidence</h2></div><span class="verified-chip" id="benchmarkBadge">Loading</span></div><div class="comparison-main"><div><span id="baselineLabel">Baseline</span><strong id="singleSteps">—</strong><small>average steps</small></div><div class="comparison-arrow">→</div><div><span id="candidateLabel">Candidate</span><strong id="multiSteps">—</strong><small>average steps</small></div><div class="improvement"><strong id="improvementValue">—</strong><span id="improvementLabel">difference</span></div></div><div class="ablation-grid" id="ablationGrid" hidden><div><span>Relay off</span><strong id="ablationOff">—</strong><small>steps</small></div><div><span>Adaptive</span><strong id="ablationAdaptive">—</strong><small>steps</small></div><div><span>Transport only</span><strong id="ablationTransport">—</strong><small>steps</small></div><div><span>Full network-aware</span><strong id="ablationFull">—</strong><small>steps</small></div><div><span>Transport effect</span><strong id="ablationTransportEffect">—</strong><small>positive = improvement</small></div><div><span>Relay effect</span><strong id="ablationRelayEffect">—</strong><small>positive = improvement</small></div><div><span>Interaction</span><strong id="ablationInteraction">—</strong><small>positive = synergy</small></div><div><span>Base coverage</span><strong id="ablationCoverage">—</strong><small>full mode, holdout</small></div></div><p class="benchmark-note" id="benchmarkNote">Benchmark artifact unavailable.</p></article>
+  </section>
 
-        <article class="benchmark-panel panel" id="benchmarkPanel">
-          <div class="panel-heading"><div><p class="eyebrow">50-seed benchmark</p><h2 id="benchmarkTitle">Parallel exploration impact</h2></div><span class="verified-chip" id="benchmarkBadge">Reproducible</span></div>
-          <div class="comparison-main">
-            <div><span id="baselineLabel">Single drone</span><strong id="singleSteps">—</strong><small>average steps</small></div>
-            <div class="comparison-arrow">→</div>
-            <div><span id="candidateLabel">Two drones</span><strong id="multiSteps">—</strong><small>average steps</small></div>
-            <div class="improvement"><strong id="improvementValue">—</strong><span id="improvementLabel">shorter duration</span></div>
-          </div>
-          <div class="ablation-grid" id="ablationGrid" hidden>
-            <div><span>Relay off</span><strong id="ablationOff">—</strong><small>steps</small></div>
-            <div><span>Adaptive</span><strong id="ablationAdaptive">—</strong><small>steps</small></div>
-            <div><span>Transport only</span><strong id="ablationTransport">—</strong><small>steps</small></div>
-            <div><span>Full network-aware</span><strong id="ablationFull">—</strong><small>steps</small></div>
-            <div><span>Transport effect</span><strong id="ablationTransportEffect">—</strong><small>positive = improvement</small></div>
-            <div><span>Relay effect</span><strong id="ablationRelayEffect">—</strong><small>positive = improvement</small></div>
-            <div><span>Interaction</span><strong id="ablationInteraction">—</strong><small>positive = synergy</small></div>
-            <div><span>Base coverage</span><strong id="ablationCoverage">—</strong><small>full mode, holdout</small></div>
-          </div>
-          <p class="benchmark-note" id="benchmarkNote">Benchmark artifact unavailable.</p>
-        </article>
-      </section>
-
-      <footer>
-        <span>Replay schema <strong id="schemaVersion">—</strong></span>
-        <span>Operator-safe data · No hidden ground truth</span>
-      </footer>
-    </main>
-    <div class="fatal-error" id="fatalError" hidden></div>
-    <script src="/app.js" defer></script>
-  </body>
-</html>
+  <section class="project-section" aria-labelledby="projectHeading"><div class="section-heading"><div><p class="eyebrow">Project status · v0.13</p><h2 id="projectHeading">What has actually been validated</h2></div><p>Simulation capability, evaluation evidence and integration scope are reported separately.</p></div><div class="project-grid">
+    <article class="project-card capabilities-card"><p class="card-index">01 · Simulation</p><h3>Implemented capabilities</h3><ul><li>Deterministic 1–8 agent missions</li><li>Multi-floor topology and transitions</li><li>Constrained networks and Relay roles</li><li>Probabilistic occupancy and Survivor evidence</li><li>Failure recovery and dynamic replanning</li></ul><a href="https://github.com/oleszik/ECHORESCUE/tree/main/docs" target="_blank" rel="noreferrer">Read architecture notes ↗</a></article>
+    <article class="project-card evaluation-card"><p class="card-index">02 · Evaluation</p><h3>Uncertain perception holdout</h3><p class="evaluation-lead">Mission success is identical for naive and uncertainty-aware planning across all four profiles.</p><div class="success-chart" id="successChart" aria-label="Mission success by noise profile"></div><p class="source-note" id="evaluationSource">Loading committed benchmark…</p><a href="https://github.com/oleszik/ECHORESCUE/blob/main/docs/v0.12-uncertain-perception.md" target="_blank" rel="noreferrer">Method and intervals ↗</a></article>
+    <article class="project-card ros-card"><p class="card-index">03 · Integration</p><h3>ROS 2 closed loop</h3><div class="validation-mark"><span>Validated</span><strong>6 process cases</strong></div><p>Observations, planning, atomic movement commands and actual-state feedback crossed a real ROS 2 process boundary.</p><p class="scope-warning">Simulator integration only · one drone · one floor · no hardware flight claim.</p><a href="https://github.com/oleszik/ECHORESCUE/blob/main/docs/v0.13-ros2-bridge.md" target="_blank" rel="noreferrer">Integration evidence ↗</a></article>
+    <article class="project-card limits-card"><p class="card-index">04 · Limits</p><h3>Known boundaries</h3><ul><li>Discrete grid motion, not vehicle dynamics</li><li>Abstract sensors and radio propagation</li><li>Safety Shield is privileged simulator logic</li><li>No MAVLink, flight controller or hardware validation</li></ul></article>
+  </div></section>
+  <footer><span>Replay schema <strong id="schemaVersion">—</strong></span><span>Recorded telemetry · Operator knowledge is separated from debug Ground Truth</span></footer>
+</main><div class="fatal-error" id="fatalError" hidden></div><script src="app.js" defer></script></body></html>

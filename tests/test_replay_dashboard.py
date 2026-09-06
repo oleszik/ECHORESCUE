@@ -10,7 +10,7 @@ from urllib.request import urlopen
 
 from echorescue.benchmark import BENCHMARK_SCHEMA_VERSION, run_benchmark
 from echorescue.config import SimulationConfig
-from echorescue.dashboard import ASSET_DIRECTORY, create_server
+from echorescue.dashboard import ASSET_DIRECTORY, SCENARIOS, _project_summary, create_server
 from echorescue.environment import GridWorld
 from echorescue.multi_simulation import MultiDroneSimulation
 from echorescue.replay import (
@@ -197,6 +197,58 @@ class ReplayTests(unittest.TestCase):
 
 
 class DashboardAndBenchmarkTests(unittest.TestCase):
+    def test_portfolio_catalog_defaults_to_four_agents_and_serves_every_demo(self) -> None:
+        server = create_server(
+            REPOSITORY_ROOT / "replays" / "seed_44_4_agents.json",
+            REPOSITORY_ROOT / "benchmarks" / "n_agent_scaling_50_seeds.json",
+            port=0,
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            host, port = server.server_address[:2]
+            with urlopen(f"http://{host}:{port}/api/scenarios", timeout=5) as response:
+                catalog = json.load(response)
+            self.assertEqual(catalog["default"], "multi-agent")
+            self.assertEqual(len(catalog["scenarios"]), 5)
+            self.assertEqual(catalog["scenarios"][0]["drones"], 4)
+            self.assertTrue(all(item["available"] for item in catalog["scenarios"]))
+            for scenario in SCENARIOS:
+                with self.subTest(scenario=scenario["id"]):
+                    with urlopen(
+                        f"http://{host}:{port}/api/scenarios/{scenario['id']}/replay",
+                        timeout=5,
+                    ) as response:
+                        replay = json.load(response)
+                    self.assertTrue(replay["frames"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=5)
+
+    def test_project_summary_is_derived_from_committed_v012_holdout(self) -> None:
+        summary = _project_summary()
+        self.assertEqual(summary["runs"], 160)
+        self.assertEqual(
+            [round(item["naive"] * 100) for item in summary["profiles"]],
+            [100, 70, 25, 0],
+        )
+        self.assertEqual(
+            [item["naive"] for item in summary["profiles"]],
+            [item["aware"] for item in summary["profiles"]],
+        )
+        self.assertEqual(summary["clean_duration_difference"]["n"], 20)
+
+    def test_missing_values_are_labeled_not_recorded(self) -> None:
+        script = (
+            f"const app=require({json.dumps(str(APP_PATH))});"
+            "process.stdout.write(JSON.stringify([app.recorded(null),app.recorded(undefined),app.recorded(0)]));"
+        )
+        completed = subprocess.run(
+            ["node", "-e", script], capture_output=True, text=True, check=True
+        )
+        self.assertEqual(json.loads(completed.stdout), ["Not recorded", "Not recorded", "0"])
+
     def test_constrained_replay_dashboard_handles_optional_network_data(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             directory = Path(temporary_directory)
