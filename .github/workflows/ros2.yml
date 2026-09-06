@@ -1,0 +1,36 @@
+name: ROS 2 integration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lyrical-closed-loop:
+    runs-on: ubuntu-latest
+    container: ros:lyrical-ros-base
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: Prepare Python environment
+        run: |
+          apt-get update
+          apt-get install -y python3-pip python3-venv
+          python3 -m venv --system-site-packages .venv-ros2
+          .venv-ros2/bin/python -m pip install -e ".[dev]"
+      - name: Build typed interfaces and nodes
+        shell: bash
+        run: |
+          source /opt/ros/lyrical/setup.bash
+          cd ros2_ws
+          "$GITHUB_WORKSPACE/.venv-ros2/bin/python" -m colcon build --symlink-install
+      - name: Test ROS conversions
+        shell: bash
+        run: |
+          source /opt/ros/lyrical/setup.bash
+          source ros2_ws/install/setup.bash
+          .venv-ros2/bin/python -m pytest -q tests/test_ros2_conversions.py
+      - name: Test separate-process closed loop and failures
+        shell: bash
+        run: bash scripts/run_ros2_integration.sh

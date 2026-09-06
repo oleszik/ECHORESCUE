@@ -1,0 +1,10 @@
+uint8 STARTING=0
+uint8 READY=1
+uint8 STOPPED=2
+uint8 ERROR=3
+std_msgs/Header header
+string session_id
+string component_id
+uint64 sequence
+uint8 health
+string error

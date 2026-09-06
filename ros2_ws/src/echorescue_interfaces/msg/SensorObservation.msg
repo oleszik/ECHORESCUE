@@ -1,0 +1,9 @@
+std_msgs/Header header
+string session_id
+string agent_id
+string observation_id
+uint64 sequence
+int32 agent_x
+int32 agent_y
+echorescue_interfaces/CellObservation[] cells
+echorescue_interfaces/SurvivorEvidence[] survivors

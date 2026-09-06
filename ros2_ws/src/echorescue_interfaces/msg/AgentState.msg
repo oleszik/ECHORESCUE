@@ -1,0 +1,10 @@
+std_msgs/Header header
+string session_id
+string agent_id
+uint64 sequence
+int32 x
+int32 y
+float64 energy_remaining
+string last_command_id
+string motion_state
+string error
