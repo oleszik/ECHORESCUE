@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml/badge.svg)](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml)
 [![Python 3.10–3.13](https://img.shields.io/badge/python-3.10--3.13-blue.svg)](pyproject.toml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License: proprietary](https://img.shields.io/badge/license-proprietary-blue.svg)](LICENSE)
 
 EchoRescue is a deterministic, grid-based search-and-rescue simulator for
 studying how autonomous agents explore an unknown environment, coordinate over
@@ -153,9 +153,11 @@ Perception, and the one-drone ROS 2 closed-loop integration proof. Existing
 replays remain available through the upload control or `--replay PATH`.
 See [the dashboard catalog and reproduction notes](docs/portfolio-dashboard.md).
 
-**[Open the public EchoRescue demo](https://echorescue-mission-control.oleszik.chatgpt.site)**
+**[Open the public EchoRescue demo on GitHub Pages](https://oleszik.github.io/ECHORESCUE/)**
 
-[![EchoRescue Mission Control showing the four-drone seed-44 mission](docs/assets/v0.13-portfolio-desktop.png)](https://echorescue-mission-control.oleszik.chatgpt.site)
+[![EchoRescue Mission Control showing the four-drone seed-44 mission](docs/assets/v0.13-portfolio-desktop.png)](https://oleszik.github.io/ECHORESCUE/)
+
+Fallback: [ChatGPT Site deployment](https://echorescue-mission-control.oleszik.chatgpt.site)
 
 For a headless result only:
 
@@ -316,6 +318,13 @@ were added.
 
 Development stops at v0.13. v0.14 has not been started.
 
-## License
+## Scope and licensing
 
-EchoRescue is available under the [MIT License](LICENSE).
+EchoRescue is intended for civilian search-and-rescue research, engineering
+evaluation, and portfolio demonstration. It contains no pursuit, targeting,
+weapon, or attack functionality.
+
+Copyright © 2026 Ole Sendzik. **All rights reserved.** Public visibility does
+not grant permission to copy, modify, distribute, sublicense, sell, commercially
+exploit, or incorporate the code into another project. See [LICENSE](LICENSE)
+for the full terms.

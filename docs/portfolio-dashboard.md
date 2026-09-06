@@ -12,6 +12,13 @@ remain supported.  Existing JSON replays can also be opened with the dashboard's
 Upload replay control; the file stays in the browser and is not uploaded to the
 server.
 
+The public deployment is available at
+[https://oleszik.github.io/ECHORESCUE/](https://oleszik.github.io/ECHORESCUE/).
+It is built from the same five replay artifacts by the dedicated GitHub Pages
+workflow. The existing
+[ChatGPT Site deployment](https://echorescue-mission-control.oleszik.chatgpt.site)
+remains available as a fallback.
+
 ![Desktop mission-control view](assets/v0.13-portfolio-desktop.png)
 
 The narrow layout is captured in

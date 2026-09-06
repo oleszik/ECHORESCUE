@@ -1,0 +1,72 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build static dashboard
+        run: python scripts/build_dashboard_site.py
+
+      - name: Verify Pages artifact
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          output = Path("dist")
+          catalog = json.loads((output / "api/scenarios.json").read_text(encoding="utf-8"))
+          assert catalog["default"] == "multi-agent"
+          assert len(catalog["scenarios"]) == 5
+          assert catalog["scenarios"][0]["drones"] == 4
+          assert all(item["available"] for item in catalog["scenarios"])
+          for scenario in catalog["scenarios"]:
+              assert (output / "api/scenarios" / scenario["id"] / "replay.json").is_file()
+
+          index = (output / "index.html").read_text(encoding="utf-8")
+          assert 'href="styles.css"' in index
+          assert 'src="app.js"' in index
+          assert 'href="/styles.css"' not in index
+          assert 'src="/app.js"' not in index
+          PY
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
