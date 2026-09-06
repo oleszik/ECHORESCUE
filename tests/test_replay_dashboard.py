@@ -207,7 +207,7 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
         thread.start()
         try:
             host, port = server.server_address[:2]
-            with urlopen(f"http://{host}:{port}/api/scenarios", timeout=5) as response:
+            with urlopen(f"http://{host}:{port}/api/scenarios.json", timeout=5) as response:
                 catalog = json.load(response)
             self.assertEqual(catalog["default"], "multi-agent")
             self.assertEqual(len(catalog["scenarios"]), 5)
@@ -216,7 +216,7 @@ class DashboardAndBenchmarkTests(unittest.TestCase):
             for scenario in SCENARIOS:
                 with self.subTest(scenario=scenario["id"]):
                     with urlopen(
-                        f"http://{host}:{port}/api/scenarios/{scenario['id']}/replay",
+                        f"http://{host}:{port}/api/scenarios/{scenario['id']}/replay.json",
                         timeout=5,
                     ) as response:
                         replay = json.load(response)

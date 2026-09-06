@@ -153,6 +153,10 @@ Perception, and the one-drone ROS 2 closed-loop integration proof. Existing
 replays remain available through the upload control or `--replay PATH`.
 See [the dashboard catalog and reproduction notes](docs/portfolio-dashboard.md).
 
+**[Open the public EchoRescue demo](https://echorescue-mission-control.pale-clock-1357.chatgpt.site)**
+
+[![EchoRescue Mission Control showing the four-drone seed-44 mission](docs/assets/v0.13-portfolio-desktop.png)](https://echorescue-mission-control.pale-clock-1357.chatgpt.site)
+
 For a headless result only:
 
 ```bash

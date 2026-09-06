@@ -188,15 +188,16 @@ def create_server(
                 else:
                     self._send_json_file(benchmark)
                 return
-            if request_path == "/api/scenarios":
+            if request_path in {"/api/scenarios", "/api/scenarios.json"}:
                 self._send_json({"default": "multi-agent", "scenarios": [_scenario_public_entry(item) for item in SCENARIOS]})
                 return
-            if request_path == "/api/project-summary":
+            if request_path in {"/api/project-summary", "/api/project-summary.json"}:
                 self._send_json(_project_summary())
                 return
             parts = request_path.strip("/").split("/")
             if len(parts) == 4 and parts[:2] == ["api", "scenarios"]:
                 scenario_id, artifact_type = unquote(parts[2]), parts[3]
+                artifact_type = artifact_type.removesuffix(".json")
                 scenario = next((item for item in SCENARIOS if item["id"] == scenario_id), None)
                 if scenario is None or artifact_type not in {"replay", "benchmark"}:
                     self.send_error(404, "Unknown scenario artifact")

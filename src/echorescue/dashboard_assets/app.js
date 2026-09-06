@@ -256,8 +256,8 @@ async function loadScenario(id) {
   elements.missionStatus.className = "status-pill loading";
   elements.missionStatus.lastElementChild.textContent = "Loading recording";
   try {
-    const replayUrl = appUrl(`api/scenarios/${encodeURIComponent(id)}/replay`);
-    const benchmarkUrl = appUrl(`api/scenarios/${encodeURIComponent(id)}/benchmark`);
+    const replayUrl = appUrl(`api/scenarios/${encodeURIComponent(id)}/replay.json`);
+    const benchmarkUrl = appUrl(`api/scenarios/${encodeURIComponent(id)}/benchmark.json`);
     const [replay, benchmark] = await Promise.all([loadJson(replayUrl), loadOptionalBenchmark(benchmarkUrl)]);
     state.activeScenarioId = id;
     initializeReplay(replay, benchmark, scenario);
@@ -1672,8 +1672,8 @@ async function main() {
   bindControls();
   try {
     const [catalog, projectSummary] = await Promise.all([
-      loadJson(appUrl("api/scenarios")),
-      loadJson(appUrl("api/project-summary")),
+      loadJson(appUrl("api/scenarios.json")),
+      loadJson(appUrl("api/project-summary.json")),
     ]);
     state.catalog = catalog.scenarios;
     renderProjectSummary(projectSummary);
