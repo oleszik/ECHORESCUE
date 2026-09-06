@@ -19,3 +19,4 @@ rather than silently rewriting its decision.
 | [0011](0011-planned-path-connectivity-forecast.md) | Accepted | Known-map planned-path forecasts for near-term communication loss |
 | [0012](0012-discrete-multi-floor-topology.md) | Accepted | Discrete floor graphs and explicit vertical transitions instead of continuous 3D |
 | [0013](0013-observation-union-probabilistic-mapping.md) | Accepted | Bounded observation-union occupancy, decay and uncertainty planning |
+| [0014](0014-ros2-closed-loop-boundary.md) | Accepted | ROS-independent closed-loop core behind typed ROS 2 adapters |

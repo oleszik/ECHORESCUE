@@ -76,6 +76,27 @@ explain the four profiles, fresh paired seeds, confidence intervals, local entro
 proxy, and privileged safety veto. The dashboard adds occupancy percentages,
 uncertain cells, information age and Survivor scores. Legacy mode remains the default.
 
+## v0.13: ROS 2 closed loop
+
+The optional ROS 2 Lyrical workspace runs the existing observation-driven
+mission policy and the simulator backend as separate processes. Typed sensor
+and state topics plus an idempotent `MoveGrid` action close the loop; session,
+ordering, watchdog and controlled-stop rules cover loss, delay and restart.
+The normal Python package remains ROS-independent.
+
+```bash
+source /opt/ros/lyrical/setup.bash
+source .venv-ros2/bin/activate
+repo_root="$(pwd)"
+cd ros2_ws
+"$repo_root/.venv-ros2/bin/python" -m colcon build --symlink-install
+source install/setup.bash
+cd ..
+ros2 launch echorescue_ros closed_loop.launch.py
+```
+
+See the [v0.13 architecture, setup, contracts, tests and limits](docs/v0.13-ros2-bridge.md).
+
 ## Architecture
 
 EchoRescue keeps world truth, autonomous decisions, and presentation separated:
@@ -255,8 +276,9 @@ benchmark JSON aggregation modules are a documented incremental exception; see
   multi-floor runner still uses centralized shared knowledge.
 - Failure injection is deterministic fail-stop behavior without diagnosis,
   repair, or probabilistic component reliability.
-- There is no ROS 2, hardware-in-the-loop, real sensor dataset, or hardware
-  validation.
+- The optional ROS 2 bridge is a one-drone, one-floor discrete simulator
+  integration. There is no physics simulator, MAVLink, hardware-in-the-loop,
+  real sensor dataset, flight controller, or hardware validation.
 - The built-in dashboard server is intended for development and demonstrations,
   not as a hardened public production server.
 
@@ -284,8 +306,10 @@ were added.
 
 - **v0.12 ? Uncertain Perception & Probabilistic Mapping:** opt-in probability
   maps, bounded evidence fusion/decay and paired uncertainty-aware planning study.
+- **v0.13 — ROS 2 Bridge & Closed Loop:** typed interfaces, separated mission
+  and simulator processes, idempotent commands, watchdogs and controlled stop.
 
-Development stops at v0.12. v0.13 has not been started.
+Development stops at v0.13. v0.14 has not been started.
 
 ## License
 
