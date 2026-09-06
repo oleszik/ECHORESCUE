@@ -144,13 +144,14 @@ Python 3.10 or newer is required. Runtime code has no third-party dependencies.
 
 ```bash
 python -m pip install -e .
-python -m echorescue --drones 4 --seed 44 --replay-out replays/seed_44_4_agents.json
-python -m echorescue.dashboard --replay replays/seed_44_4_agents.json
+python -m echorescue.dashboard
 ```
 
-Open <http://127.0.0.1:8000>. The dashboard provides timeline playback,
-operator/shared/local map views, paths, battery and agent state, communication
-links, events, confirmed Survivors, and final mission metrics.
+Open <http://127.0.0.1:8000>. The default is the recorded seed-44 mission with
+four drones. The catalog also includes Multi-Floor, Network & Relay, Uncertain
+Perception, and the one-drone ROS 2 closed-loop integration proof. Existing
+replays remain available through the upload control or `--replay PATH`.
+See [the dashboard catalog and reproduction notes](docs/portfolio-dashboard.md).
 
 For a headless result only:
 
