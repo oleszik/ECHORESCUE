@@ -8,7 +8,8 @@ htmlcov/
 venv/
 dist/
 build/
+install/
+log/
 *.egg-info/
 .idea/
 .vscode/
-
