@@ -97,6 +97,22 @@ ros2 launch echorescue_ros closed_loop.launch.py
 
 See the [v0.13 architecture, setup, contracts, tests and limits](docs/v0.13-ros2-bridge.md).
 
+## v0.14.0: 3D integration readiness baseline
+
+v0.14.0 adds a pinned, diagnostic-first baseline for ROS 2 Jazzy, Gazebo
+Harmonic and ArduPilot SITL. It does not connect EchoRescue mission decisions to
+the flight controller. Diagnose the machine, then explicitly opt in to the real
+official Iris example smoke test:
+
+```bash
+./scripts/run_3d_integration.sh diagnose
+./scripts/run_3d_integration.sh smoke --mode headless --timeout 90
+```
+
+Missing dependencies produce structured `PASS` / `FAIL` / `SKIP` output and do
+not start external processes. See the [supported versions, setup, host audit,
+determinism boundary and acceptance status](docs/v0.14-3d-integration-baseline.md).
+
 ## Architecture
 
 EchoRescue keeps world truth, autonomous decisions, and presentation separated:
@@ -313,8 +329,12 @@ were added.
   maps, bounded evidence fusion/decay and paired uncertainty-aware planning study.
 - **v0.13 — ROS 2 Bridge & Closed Loop:** typed interfaces, separated mission
   and simulator processes, idempotent commands, watchdogs and controlled stop.
+- **v0.14.0 — 3D Integration Baseline:** pinned external-stack versions,
+  environment diagnostics, official Iris smoke orchestration and process-health
+  gates; no EchoRescue flight control.
 
-Development stops at v0.13. v0.14 has not been started.
+Development stops at the v0.14.0 integration baseline. v0.14.1 has not been
+started.
 
 ## License
 
