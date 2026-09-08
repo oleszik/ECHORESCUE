@@ -1,0 +1,16 @@
+uint8 CONNECTED=0
+uint8 DEGRADED=1
+uint8 STALE=2
+uint8 DISCONNECTED=3
+std_msgs/Header header
+string session_id
+uint64 sequence
+uint8 health
+bool connected
+uint8 system_id
+uint8 component_id
+uint64 last_source_time_boot_ms
+uint64 last_receipt_monotonic_ns
+float64 telemetry_age_s
+float64 freshness_threshold_s
+string detail

@@ -1,0 +1,17 @@
+std_msgs/Header header
+string session_id
+uint64 sequence
+uint32 source_sequence
+uint8 system_id
+uint8 component_id
+uint64 source_time_boot_ms
+uint64 receipt_monotonic_ns
+float64 latitude_deg
+float64 longitude_deg
+float64 altitude_m_msl
+float64 relative_altitude_m
+float64 velocity_north_m_s
+float64 velocity_east_m_s
+float64 velocity_down_m_s
+bool has_heading
+float64 heading_deg

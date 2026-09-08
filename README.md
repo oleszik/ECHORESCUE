@@ -117,6 +117,21 @@ liveness proof. Failed runs retain bounded Gazebo/SITL log tails beside the
 JSON report. See the [supported versions, native Ubuntu setup, host validation,
 determinism boundary and acceptance status](docs/v0.14-3d-integration-baseline.md).
 
+## v0.14.1: Receive-only MAVLink telemetry bridge
+
+v0.14.1 adds one repository-owned ROS 2 node that receives real ArduPilot
+MAVLink state and publishes typed heartbeat, local-NED position/velocity,
+optional WGS84 global position, and explicit health/freshness topics. It reads
+no Gazebo Ground Truth and sends no flight command.
+
+```bash
+./scripts/run_mavlink_telemetry_integration.sh \
+  --output artifacts/v0.14.1-telemetry-smoke.json \
+  smoke --timeout 90
+```
+
+See the [architecture, message fields, QoS, setup, real result and limitations](docs/v0.14.1-mavlink-telemetry-bridge.md).
+
 ## Architecture
 
 EchoRescue keeps world truth, autonomous decisions, and presentation separated:
@@ -303,9 +318,10 @@ benchmark JSON aggregation modules are a documented incremental exception; see
   multi-floor runner still uses centralized shared knowledge.
 - Failure injection is deterministic fail-stop behavior without diagnosis,
   repair, or probabilistic component reliability.
-- The optional ROS 2 bridge is a one-drone, one-floor discrete simulator
-  integration. There is no physics simulator, MAVLink, hardware-in-the-loop,
-  real sensor dataset, flight controller, or hardware validation.
+- The v0.13 ROS 2 bridge remains a one-drone, one-floor discrete simulator
+  integration. The separate v0.14.1 boundary publishes receive-only ArduPilot
+  MAVLink telemetry; it provides no flight commands, hardware-in-the-loop,
+  real sensor dataset, or hardware validation.
 - The built-in dashboard server is intended for development and demonstrations,
   not as a hardened public production server.
 
@@ -338,9 +354,12 @@ were added.
 - **v0.14.0 — 3D Integration Baseline:** pinned external-stack versions,
   environment diagnostics, official Iris smoke orchestration and process-health
   gates; no EchoRescue flight control.
+- **v0.14.1 — Receive-only MAVLink Telemetry:** real ArduPilot heartbeat and
+  native-frame position state published through typed ROS 2 topics with explicit
+  freshness, stale, disconnect and reconnect semantics; no vehicle control.
 
-Development stops at the v0.14.0 integration baseline. v0.14.1 has not been
-started.
+Development stops at the v0.14.1 receive-only telemetry boundary. v0.14.2 has
+not been started.
 
 ## Scope and licensing
 

@@ -21,3 +21,4 @@ rather than silently rewriting its decision.
 | [0013](0013-observation-union-probabilistic-mapping.md) | Accepted | Bounded observation-union occupancy, decay and uncertainty planning |
 | [0014](0014-ros2-closed-loop-boundary.md) | Accepted | ROS-independent closed-loop core behind typed ROS 2 adapters |
 | [0015](0015-external-3d-simulator-boundary.md) | Accepted | Pinned external 3D stack behind diagnostic and process-lifecycle gates |
+| [0016](0016-receive-only-mavlink-telemetry.md) | Accepted | Receive-only native-frame MAVLink telemetry behind typed ROS 2 adapters |
