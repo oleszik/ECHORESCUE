@@ -5,6 +5,7 @@ __pycache__/
 .coverage
 htmlcov/
 .venv/
+.venv-sim/
 venv/
 dist/
 build/
@@ -13,3 +14,4 @@ log/
 *.egg-info/
 .idea/
 .vscode/
+mav.tlog*
