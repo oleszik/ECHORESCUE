@@ -106,11 +106,15 @@ official Iris example smoke test:
 
 ```bash
 ./scripts/run_3d_integration.sh diagnose
-./scripts/run_3d_integration.sh smoke --mode headless --timeout 90
+./scripts/run_3d_integration.sh --output artifacts/v0.14-smoke.json smoke --mode headless --timeout 90
 ```
 
 Missing dependencies produce structured `PASS` / `FAIL` / `SKIP` output and do
-not start external processes. See the [supported versions, setup, host audit,
+not start external processes. The smoke test requires a prebuilt pinned
+ArduCopter binary, launches with `--no-rebuild`, requests the 10 Hz MAVLink
+position stream, and uses advancing boot timestamps as its stationary-safe
+liveness proof. Failed runs retain bounded Gazebo/SITL log tails beside the
+JSON report. See the [supported versions, native Ubuntu setup, host validation,
 determinism boundary and acceptance status](docs/v0.14-3d-integration-baseline.md).
 
 ## Architecture

@@ -19,7 +19,8 @@
     "ardupilot": {
       "vehicle": "ArduCopter",
       "ref": "Copter-4.6.3",
-      "commit": "92b0cd788ec29406f26c6f9c31d5ceedbd1cc538"
+      "commit": "92b0cd788ec29406f26c6f9c31d5ceedbd1cc538",
+      "sitl_binary": "build/sitl/bin/arducopter"
     },
     "ardupilot_gazebo": {
       "ref": "082a0fe231f6e63bc8d1598f1cba461d9e2ea7f5"
@@ -46,6 +47,7 @@
       "-v", "ArduCopter",
       "-f", "{model}",
       "--model", "JSON",
+      "--no-rebuild",
       "--no-mavproxy"
     ]
   },
@@ -74,7 +76,11 @@
     "gazebo_topic_contains": "/world/iris_runway",
     "telemetry_messages": ["HEARTBEAT", "LOCAL_POSITION_NED", "GLOBAL_POSITION_INT"],
     "minimum_telemetry_samples": 2,
+    "position_stream_rate_hz": 10,
     "ros_nodes": [],
     "ros_topics": []
+  },
+  "logging": {
+    "failure_log_max_bytes": 65536
   }
 }
