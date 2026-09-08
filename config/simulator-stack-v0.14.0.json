@@ -1,0 +1,80 @@
+{
+  "schema_version": "echorescue-simulator-stack/1.0",
+  "milestone": "v0.14.0",
+  "baseline": {
+    "platform": {
+      "system": "Linux",
+      "distribution": "Ubuntu",
+      "version": "24.04",
+      "architecture": "x86_64"
+    },
+    "ros2": {
+      "distribution": "jazzy",
+      "required": true
+    },
+    "gazebo": {
+      "release": "harmonic",
+      "gz_sim_major": 8
+    },
+    "ardupilot": {
+      "vehicle": "ArduCopter",
+      "ref": "Copter-4.6.3",
+      "commit": "92b0cd788ec29406f26c6f9c31d5ceedbd1cc538"
+    },
+    "ardupilot_gazebo": {
+      "ref": "082a0fe231f6e63bc8d1598f1cba461d9e2ea7f5"
+    },
+    "mavproxy": {
+      "required": true
+    },
+    "pymavlink": {
+      "required": true
+    },
+    "colcon": {
+      "required": true
+    }
+  },
+  "integration": {
+    "kind": "ardupilot_gazebo_json",
+    "requires_ros_runtime": false,
+    "world": "iris_runway.sdf",
+    "model": "gazebo-iris",
+    "gazebo_command": ["gz", "sim", "-v4", "-r", "{world}"],
+    "gazebo_headless_arguments": ["-s"],
+    "sitl_command": [
+      "{ardupilot_home}/Tools/autotest/sim_vehicle.py",
+      "-v", "ArduCopter",
+      "-f", "{model}",
+      "--model", "JSON",
+      "--no-mavproxy"
+    ]
+  },
+  "environment": {
+    "required": {
+      "GZ_VERSION": "harmonic",
+      "ARDUPILOT_HOME": "absolute path to the pinned ArduPilot checkout",
+      "ARDUPILOT_GAZEBO_HOME": "absolute path to the pinned ardupilot_gazebo checkout",
+      "GZ_SIM_SYSTEM_PLUGIN_PATH": "must contain {ARDUPILOT_GAZEBO_HOME}/build",
+      "GZ_SIM_RESOURCE_PATH": "must contain the plugin models and worlds directories"
+    }
+  },
+  "network": {
+    "gazebo_json": {"host": "127.0.0.1", "port": 9002, "protocol": "udp"},
+    "sitl_mavlink": {"endpoint": "tcp:127.0.0.1:5760", "host": "127.0.0.1", "port": 5760, "protocol": "tcp"},
+    "mavproxy_output": {"endpoint": "udp:127.0.0.1:14550", "host": "127.0.0.1", "port": 14550, "protocol": "udp", "reserved": true}
+  },
+  "frames": {
+    "gazebo_world": "ENU",
+    "ardupilot_local": "NED",
+    "body": "FRD",
+    "conversion_status": "not_implemented",
+    "world_origin": {"latitude_deg": null, "longitude_deg": null, "altitude_m": null}
+  },
+  "health": {
+    "gazebo_topic_contains": "/world/iris_runway",
+    "telemetry_messages": ["HEARTBEAT", "LOCAL_POSITION_NED", "GLOBAL_POSITION_INT"],
+    "minimum_telemetry_samples": 2,
+    "ros_nodes": [],
+    "ros_topics": []
+  }
+}
