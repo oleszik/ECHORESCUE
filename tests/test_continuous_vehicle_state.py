@@ -90,11 +90,17 @@ class AngleTests(unittest.TestCase):
         self.assertTrue(isclose(yaw, pi / 2.0, abs_tol=1e-12))
 
     def test_attitude_round_trip_property(self) -> None:
-        for source in ((0.0, 0.0, 0.0), (0.2, -0.3, 1.1), (-0.5, 0.4, -2.2)):
+        for source in (
+            (0.0, 0.0, 0.0),
+            (0.2, -0.3, 1.1),
+            (-0.5, 0.4, -2.2),
+            (1.2, 1.4, pi - 1e-6),
+            (-1.3, -1.4, -pi + 1e-6),
+        ):
             converted = attitude_ned_frd_to_enu_flu(*source)
             restored = attitude_enu_flu_to_ned_frd(*converted)
             for actual, expected in zip(restored, source):
-                self.assertTrue(isclose(actual, expected, abs_tol=1e-12))
+                self.assertTrue(isclose(normalize_angle_rad(actual - expected), 0.0, abs_tol=1e-12))
 
 
 class AssemblyTests(unittest.TestCase):
@@ -117,7 +123,6 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual((converted.vx_m_s, converted.vy_m_s, converted.vz_m_s), (2.0, 1.0, 0.5))
         self.assertEqual(converted.source_time_boot_ms, 1_000)
         self.assertEqual(converted.receipt_monotonic_ns, 4_000)
-        self.assertNotEqual(converted.source_time_boot_ms, converted.receipt_monotonic_ns)
         self.assertEqual((converted.source_frame, converted.output_frame), (LOCAL_NED_FRAME, WORLD_ENU_FRAME))
         self.assertEqual((converted.source_body_frame, converted.output_body_frame), (BODY_FRD_FRAME, BODY_FLU_FRAME))
         self.assertEqual(converted.world_origin_policy, WORLD_ORIGIN_POLICY)

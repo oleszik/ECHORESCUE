@@ -41,7 +41,25 @@ def _diagnostic_schema(config: Mapping[str, Any]) -> str:
 
 
 def _smoke_schema(config: Mapping[str, Any]) -> str:
-    return "echorescue-coordinate-frame-smoke/1.0" if config.get("require_converted_state") else "echorescue-mavlink-telemetry-smoke/1.0"
+    return "echorescue-coordinate-frame-smoke/1.1" if config.get("require_converted_state") else "echorescue-mavlink-telemetry-smoke/1.0"
+
+
+def _timestamp_domains_progress(report: Mapping[str, Any]) -> bool:
+    """Require both explicitly named clocks to progress in their own units."""
+    source_first = report.get("converted_source_time_boot_ms_first")
+    source_last = report.get("converted_source_time_boot_ms_last")
+    receipt_first = report.get("converted_receipt_monotonic_ns_first")
+    receipt_last = report.get("converted_receipt_monotonic_ns_last")
+    return (
+        report.get("source_clock") == "mavlink_system_boot_ms"
+        and report.get("receipt_clock") == "host_monotonic_ns"
+        and isinstance(source_first, int)
+        and isinstance(source_last, int)
+        and isinstance(receipt_first, int)
+        and isinstance(receipt_last, int)
+        and source_last > source_first
+        and receipt_last > receipt_first
+    )
 
 
 def load_telemetry_config(path: Path = DEFAULT_TELEMETRY_CONFIG) -> dict[str, Any]:
@@ -150,14 +168,11 @@ def _observer_checks(report: Mapping[str, Any], freshness_threshold_s: float, re
             converted_count >= 2 and isinstance(converted_first, int)
             and isinstance(converted_last, int) and converted_last > converted_first
         )
-        timestamps_distinct = (
-            isinstance(report.get("converted_receipt_monotonic_ns"), int)
-            and report.get("converted_receipt_monotonic_ns") != converted_last
-        )
+        timestamps_distinct = _timestamp_domains_progress(report)
         checks.extend([
             check("health.converted_enu_state", Status.PASS if converted_advancing else Status.FAIL, f"received {converted_count} converted ENU samples; source time {converted_first} -> {converted_last}"),
             check("health.coordinate_conversion", Status.PASS if report.get("coordinate_conversion_consistent") else Status.FAIL, f"independently matched {report.get('coordinate_conversion_matches', 0)} NED/ENU position and velocity samples"),
-            check("health.timestamp_separation", Status.PASS if timestamps_distinct else Status.FAIL, "source boot time and local monotonic receipt time remain distinct"),
+            check("health.timestamp_separation", Status.PASS if timestamps_distinct else Status.FAIL, "MAVLink boot time and host monotonic receipt time each advance in their declared clock domain"),
         ])
     return checks
 

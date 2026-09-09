@@ -7,6 +7,7 @@ from unittest.mock import patch
 from echorescue.sim_integration import Check, Status, UnexpectedProcessExit, load_config
 from echorescue.telemetry_integration import (
     _observer_checks,
+    _timestamp_domains_progress,
     _wait_for_exit,
     load_telemetry_config,
     telemetry_smoke,
@@ -54,12 +55,44 @@ class ObserverReportTests(unittest.TestCase):
             "converted_state_samples": 2,
             "converted_source_time_boot_ms_first": 100,
             "converted_source_time_boot_ms_last": 200,
-            "converted_receipt_monotonic_ns": 9_000_000,
+            "source_clock": "mavlink_system_boot_ms",
+            "receipt_clock": "host_monotonic_ns",
+            "converted_receipt_monotonic_ns_first": 9_000_000,
+            "converted_receipt_monotonic_ns_last": 9_100_000,
             "coordinate_conversion_matches": 2,
             "coordinate_conversion_consistent": True,
         }
         checks = _observer_checks(report, 1.0, require_converted_state=True)
         self.assertTrue(all(item.status is Status.PASS for item in checks))
+
+    def test_timestamp_gate_rejects_nonprogressing_receipt_clock(self) -> None:
+        report = {
+            "source_clock": "mavlink_system_boot_ms",
+            "receipt_clock": "host_monotonic_ns",
+            "converted_source_time_boot_ms_first": 100,
+            "converted_source_time_boot_ms_last": 200,
+            "converted_receipt_monotonic_ns_first": 9_000_000,
+            "converted_receipt_monotonic_ns_last": 9_000_000,
+            # The removed implementation only compared this differently-scaled
+            # value with source_time_boot_ms and would incorrectly pass it.
+            "converted_receipt_monotonic_ns": 9_000_000,
+        }
+        self.assertNotEqual(
+            report["converted_receipt_monotonic_ns"],
+            report["converted_source_time_boot_ms_last"],
+        )
+        self.assertFalse(_timestamp_domains_progress(report))
+
+    def test_timestamp_gate_rejects_missing_or_aliased_clock_domains(self) -> None:
+        report = {
+            "source_clock": "mavlink_system_boot_ms",
+            "receipt_clock": "mavlink_system_boot_ms",
+            "converted_source_time_boot_ms_first": 100,
+            "converted_source_time_boot_ms_last": 200,
+            "converted_receipt_monotonic_ns_first": 9_000_000,
+            "converted_receipt_monotonic_ns_last": 9_100_000,
+        }
+        self.assertFalse(_timestamp_domains_progress(report))
 
     def test_missing_converted_samples_fails_v0142_gate(self) -> None:
         report = {

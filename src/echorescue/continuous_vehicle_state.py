@@ -98,6 +98,10 @@ def _multiply(left: tuple[tuple[float, ...], ...], right: tuple[tuple[float, ...
     )
 
 
+def _transpose(matrix: tuple[tuple[float, ...], ...]) -> tuple[tuple[float, ...], ...]:
+    return tuple(tuple(matrix[column][row] for column in range(3)) for row in range(3))
+
+
 def _rotation_zyx(roll: float, pitch: float, yaw: float) -> tuple[tuple[float, ...], ...]:
     cr, sr = cos(roll), sin(roll)
     cp, sp = cos(pitch), sin(pitch)
@@ -120,15 +124,34 @@ def _euler_zyx(matrix: tuple[tuple[float, ...], ...]) -> tuple[float, float, flo
     return tuple(normalize_angle_rad(value) for value in (roll, pitch, yaw))  # type: ignore[return-value]
 
 
-_NED_TO_ENU = ((0.0, 1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
-_FRD_TO_FLU = ((1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, -1.0))
+_ENU_FROM_NED = ((0.0, 1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
+_NED_FROM_ENU = _transpose(_ENU_FROM_NED)
+_FLU_FROM_FRD = ((1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, -1.0))
+_FRD_FROM_FLU = _transpose(_FLU_FROM_FRD)
+
+
+def _change_orientation_basis(
+    rotation: tuple[tuple[float, ...], ...],
+    *,
+    output_world_from_input_world: tuple[tuple[float, ...], ...],
+    input_body_from_output_body: tuple[tuple[float, ...], ...],
+) -> tuple[tuple[float, ...], ...]:
+    """Change world and body bases for a body-to-world rotation matrix."""
+    return _multiply(
+        _multiply(output_world_from_input_world, rotation),
+        input_body_from_output_body,
+    )
 
 
 def attitude_ned_frd_to_enu_flu(roll: float, pitch: float, yaw: float) -> tuple[float, float, float]:
     """Convert ZYX attitude from NED/FRD to ENU/FLU."""
     if not all(isfinite(value) for value in (roll, pitch, yaw)):
         raise ValueError("attitude angles must be finite")
-    converted = _multiply(_multiply(_NED_TO_ENU, _rotation_zyx(roll, pitch, yaw)), _FRD_TO_FLU)
+    converted = _change_orientation_basis(
+        _rotation_zyx(roll, pitch, yaw),
+        output_world_from_input_world=_ENU_FROM_NED,
+        input_body_from_output_body=_FRD_FROM_FLU,
+    )
     return _euler_zyx(converted)
 
 
@@ -136,7 +159,11 @@ def attitude_enu_flu_to_ned_frd(roll: float, pitch: float, yaw: float) -> tuple[
     """Inverse ZYX attitude conversion for round-trip validation."""
     if not all(isfinite(value) for value in (roll, pitch, yaw)):
         raise ValueError("attitude angles must be finite")
-    converted = _multiply(_multiply(_NED_TO_ENU, _rotation_zyx(roll, pitch, yaw)), _FRD_TO_FLU)
+    converted = _change_orientation_basis(
+        _rotation_zyx(roll, pitch, yaw),
+        output_world_from_input_world=_NED_FROM_ENU,
+        input_body_from_output_body=_FLU_FROM_FRD,
+    )
     return _euler_zyx(converted)
 
 

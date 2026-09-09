@@ -158,11 +158,13 @@ class TelemetryObserver(Node):
         timestamps = [int(sample.source_time_boot_ms) for sample in self.local_samples]
         advancing = len(timestamps) >= self.minimum_samples and timestamps[-1] > timestamps[0]
         converted_timestamps = [int(sample.source_time_boot_ms) for sample in self.converted_samples]
+        converted_receipts = [int(sample.receipt_monotonic_ns) for sample in self.converted_samples]
         converted_ready = (
             not self.require_converted_state
             or (
                 len(converted_timestamps) >= self.minimum_samples
                 and converted_timestamps[-1] > converted_timestamps[0]
+                and converted_receipts[-1] > converted_receipts[0]
                 and all(sample.position_valid and sample.velocity_valid for sample in self.converted_samples)
             )
         )
@@ -181,10 +183,11 @@ class TelemetryObserver(Node):
     def _finish(self, passed: bool, detail: str, missing_nodes: list[str], missing_topics: list[str]) -> None:
         timestamps = [int(sample.source_time_boot_ms) for sample in self.local_samples]
         converted_timestamps = [int(sample.source_time_boot_ms) for sample in self.converted_samples]
+        converted_receipts = [int(sample.receipt_monotonic_ns) for sample in self.converted_samples]
         converted = self.converted_samples[-1] if self.converted_samples else None
         matching_conversions = self._matching_conversions()
         report: dict[str, Any] = {
-            "schema_version": "echorescue-mavlink-telemetry-observer/1.1",
+            "schema_version": "echorescue-mavlink-telemetry-observer/1.2",
             "status": "PASS" if passed else "FAIL",
             "detail": detail,
             "missing_nodes": missing_nodes,
@@ -198,7 +201,10 @@ class TelemetryObserver(Node):
             "converted_session_id": converted.session_id if converted is not None else None,
             "converted_source_time_boot_ms_first": converted_timestamps[0] if converted_timestamps else None,
             "converted_source_time_boot_ms_last": converted_timestamps[-1] if converted_timestamps else None,
-            "converted_receipt_monotonic_ns": int(converted.receipt_monotonic_ns) if converted is not None else None,
+            "source_clock": "mavlink_system_boot_ms",
+            "receipt_clock": "host_monotonic_ns",
+            "converted_receipt_monotonic_ns_first": converted_receipts[0] if converted_receipts else None,
+            "converted_receipt_monotonic_ns_last": converted_receipts[-1] if converted_receipts else None,
             "coordinate_conversion_matches": matching_conversions,
             "coordinate_conversion_consistent": matching_conversions >= self.minimum_samples,
             "telemetry_age_s": float(self.status.telemetry_age_s) if self.status is not None else None,

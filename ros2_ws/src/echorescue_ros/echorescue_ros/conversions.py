@@ -60,12 +60,17 @@ def continuous_vehicle_state_to_msg(source: ContinuousVehicleState, stamp: Time)
 
 
 def continuous_vehicle_state_from_msg(message: EchoRescueVehicleState3D) -> ContinuousVehicleState:
-    health = {
+    health_values = {
         message.CONNECTED: TelemetryHealth.CONNECTED,
         message.DEGRADED: TelemetryHealth.DEGRADED,
         message.STALE: TelemetryHealth.STALE,
         message.DISCONNECTED: TelemetryHealth.DISCONNECTED,
-    }[message.telemetry_health]
+    }
+    health_value = int(message.telemetry_health)
+    try:
+        health = health_values[health_value]
+    except KeyError as error:
+        raise ValueError(f"unknown telemetry_health value: {health_value}") from error
     return ContinuousVehicleState(
         vehicle_id=message.vehicle_id, session_id=message.session_id,
         sequence=int(message.sequence), source_sequence=int(message.source_sequence),

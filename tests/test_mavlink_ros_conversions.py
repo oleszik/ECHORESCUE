@@ -107,5 +107,28 @@ def test_continuous_state_round_trip_preserves_frames_times_and_validity() -> No
     )
     message = continuous_vehicle_state_to_msg(source, STAMP)
     assert message.header.frame_id == "echorescue/world_enu"
-    assert message.source_time_boot_ms != message.receipt_monotonic_ns
+    assert message.source_time_boot_ms == 1_000
+    assert message.receipt_monotonic_ns == 2_000_000
     assert continuous_vehicle_state_from_msg(message) == source
+
+
+def test_continuous_state_rejects_unknown_telemetry_health_value() -> None:
+    source = ContinuousVehicleState(
+        vehicle_id="iris-1", session_id="session-1", sequence=5,
+        source_sequence=10, system_id=1, component_id=1,
+        source_time_boot_ms=1_000, receipt_monotonic_ns=2_000_000,
+        source_frame="mavlink/local_ned", output_frame="echorescue/world_enu",
+        source_body_frame="mavlink/body_frd", output_body_frame="echorescue/body_flu",
+        world_origin_policy="ardupilot_local_ned_at_sitl_startup",
+        angle_convention="right_handed_radians_ccw_from_east",
+        x_m=2.0, y_m=1.0, z_m=3.0, vx_m_s=0.2, vy_m_s=0.1, vz_m_s=0.3,
+        position_valid=True, velocity_valid=True, has_attitude=False,
+        roll_rad=0.0, pitch_rad=0.0, yaw_rad=0.0,
+        attitude_source_time_boot_ms=0, has_heading=False, heading_deg=0.0,
+        heading_source_time_boot_ms=0, armed=False, has_landed_state=False,
+        landed=False, telemetry_health=TelemetryHealth.CONNECTED,
+    )
+    message = continuous_vehicle_state_to_msg(source, STAMP)
+    message.telemetry_health = 99
+    with pytest.raises(ValueError, match=r"unknown telemetry_health value: 99"):
+        continuous_vehicle_state_from_msg(message)
