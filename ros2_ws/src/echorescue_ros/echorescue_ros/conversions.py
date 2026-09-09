@@ -19,8 +19,10 @@ from echorescue.mavlink_telemetry import (
     TelemetryHealth,
     TelemetryStatus,
 )
+from echorescue.continuous_vehicle_state import ContinuousVehicleState
 from echorescue_interfaces.action import MoveGrid
 from echorescue_interfaces.msg import (
+    EchoRescueVehicleState3D,
     AgentState,
     BridgeStatus,
     CellObservation as CellObservationMsg,
@@ -31,6 +33,59 @@ from echorescue_interfaces.msg import (
     MavlinkTelemetryStatus,
     MavlinkVehicleState,
 )
+
+
+def continuous_vehicle_state_to_msg(source: ContinuousVehicleState, stamp: Time) -> EchoRescueVehicleState3D:
+    message = EchoRescueVehicleState3D()
+    message.header.stamp = stamp
+    message.header.frame_id = source.output_frame
+    for field in (
+        "vehicle_id", "session_id", "sequence", "source_sequence", "system_id",
+        "component_id", "source_time_boot_ms", "receipt_monotonic_ns",
+        "source_frame", "output_frame", "source_body_frame", "output_body_frame",
+        "world_origin_policy", "angle_convention", "x_m", "y_m", "z_m",
+        "vx_m_s", "vy_m_s", "vz_m_s", "position_valid", "velocity_valid",
+        "has_attitude", "roll_rad", "pitch_rad", "yaw_rad",
+        "attitude_source_time_boot_ms", "has_heading", "heading_deg",
+        "heading_source_time_boot_ms", "armed", "has_landed_state", "landed",
+    ):
+        setattr(message, field, getattr(source, field))
+    message.telemetry_health = {
+        TelemetryHealth.CONNECTED: message.CONNECTED,
+        TelemetryHealth.DEGRADED: message.DEGRADED,
+        TelemetryHealth.STALE: message.STALE,
+        TelemetryHealth.DISCONNECTED: message.DISCONNECTED,
+    }[source.telemetry_health]
+    return message
+
+
+def continuous_vehicle_state_from_msg(message: EchoRescueVehicleState3D) -> ContinuousVehicleState:
+    health = {
+        message.CONNECTED: TelemetryHealth.CONNECTED,
+        message.DEGRADED: TelemetryHealth.DEGRADED,
+        message.STALE: TelemetryHealth.STALE,
+        message.DISCONNECTED: TelemetryHealth.DISCONNECTED,
+    }[message.telemetry_health]
+    return ContinuousVehicleState(
+        vehicle_id=message.vehicle_id, session_id=message.session_id,
+        sequence=int(message.sequence), source_sequence=int(message.source_sequence),
+        system_id=int(message.system_id), component_id=int(message.component_id),
+        source_time_boot_ms=int(message.source_time_boot_ms),
+        receipt_monotonic_ns=int(message.receipt_monotonic_ns),
+        source_frame=message.source_frame, output_frame=message.output_frame,
+        source_body_frame=message.source_body_frame, output_body_frame=message.output_body_frame,
+        world_origin_policy=message.world_origin_policy, angle_convention=message.angle_convention,
+        x_m=float(message.x_m), y_m=float(message.y_m), z_m=float(message.z_m),
+        vx_m_s=float(message.vx_m_s), vy_m_s=float(message.vy_m_s), vz_m_s=float(message.vz_m_s),
+        position_valid=message.position_valid, velocity_valid=message.velocity_valid,
+        has_attitude=message.has_attitude, roll_rad=float(message.roll_rad),
+        pitch_rad=float(message.pitch_rad), yaw_rad=float(message.yaw_rad),
+        attitude_source_time_boot_ms=int(message.attitude_source_time_boot_ms),
+        has_heading=message.has_heading, heading_deg=float(message.heading_deg),
+        heading_source_time_boot_ms=int(message.heading_source_time_boot_ms),
+        armed=message.armed, has_landed_state=message.has_landed_state,
+        landed=message.landed, telemetry_health=health,
+    )
 
 
 def seconds_to_time(value: float) -> Time:

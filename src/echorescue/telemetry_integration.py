@@ -36,6 +36,14 @@ from echorescue.sim_integration import (
 DEFAULT_TELEMETRY_CONFIG = REPOSITORY_ROOT / "config" / "mavlink-telemetry-v0.14.1.json"
 
 
+def _diagnostic_schema(config: Mapping[str, Any]) -> str:
+    return "echorescue-coordinate-frame-diagnostic/1.0" if config.get("require_converted_state") else "echorescue-mavlink-telemetry-diagnostic/1.0"
+
+
+def _smoke_schema(config: Mapping[str, Any]) -> str:
+    return "echorescue-coordinate-frame-smoke/1.0" if config.get("require_converted_state") else "echorescue-mavlink-telemetry-smoke/1.0"
+
+
 def load_telemetry_config(path: Path = DEFAULT_TELEMETRY_CONFIG) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -61,19 +69,19 @@ def telemetry_diagnose(
             Status.PASS if code == 0 and bool(output) else Status.FAIL,
             output.splitlines()[0] if code == 0 and output else f"build and source ROS package: {package_name}",
         ))
-    message_code, message_output = _run_version([
-        "ros2", "interface", "show", "echorescue_interfaces/msg/MavlinkTelemetryStatus"
-    ])
+    interface_name = str(config.get("diagnostic_interface", "echorescue_interfaces/msg/MavlinkTelemetryStatus"))
+    expected_field = "output_frame" if config.get("require_converted_state") else "telemetry_age_s"
+    message_code, message_output = _run_version(["ros2", "interface", "show", interface_name])
     checks.append(check(
         "ros_interface.mavlink_telemetry",
-        Status.PASS if message_code == 0 and "telemetry_age_s" in message_output else Status.FAIL,
-        "typed v0.14.1 telemetry interfaces are available"
-        if message_code == 0 and "telemetry_age_s" in message_output
-        else "build and source the v0.14.1 ROS interfaces",
+        Status.PASS if message_code == 0 and expected_field in message_output else Status.FAIL,
+        f"typed {config['milestone']} telemetry interfaces are available"
+        if message_code == 0 and expected_field in message_output
+        else f"build and source the {config['milestone']} ROS interfaces",
     ))
     checks.sort(key=lambda item: item.name)
     return {
-        "schema_version": "echorescue-mavlink-telemetry-diagnostic/1.0",
+        "schema_version": _diagnostic_schema(config),
         "milestone": config["milestone"],
         "ready": base["ready"] and not any(item.status is Status.FAIL for item in checks),
         "checks": [asdict(item) for item in checks],
@@ -119,7 +127,7 @@ def _cleanup_port_checks(base_config: Mapping[str, Any], timeout_s: float = 5.0)
         time.sleep(0.1)
 
 
-def _observer_checks(report: Mapping[str, Any], freshness_threshold_s: float) -> list[Check]:
+def _observer_checks(report: Mapping[str, Any], freshness_threshold_s: float, require_converted_state: bool = False) -> list[Check]:
     count = int(report.get("local_position_samples", 0))
     first = report.get("local_source_time_boot_ms_first")
     last = report.get("local_source_time_boot_ms_last")
@@ -127,13 +135,31 @@ def _observer_checks(report: Mapping[str, Any], freshness_threshold_s: float) ->
     age = report.get("telemetry_age_s")
     fresh = isinstance(age, (int, float)) and 0.0 <= float(age) <= freshness_threshold_s
     graph = not report.get("missing_nodes") and not report.get("missing_topics")
-    return [
+    checks = [
         check("health.ros_graph", Status.PASS if graph else Status.FAIL, f"missing nodes={report.get('missing_nodes', [])}; missing topics={report.get('missing_topics', [])}"),
         check("health.vehicle_state", Status.PASS if report.get("vehicle_state_received") else Status.FAIL, "heartbeat-derived typed vehicle state received" if report.get("vehicle_state_received") else "no heartbeat-derived vehicle state received"),
         check("health.local_position", Status.PASS if advancing else Status.FAIL, f"received {count} local NED samples; source time {first} -> {last}"),
         check("health.global_position", Status.PASS if report.get("global_position_received") else Status.FAIL, "typed global position received" if report.get("global_position_received") else "no global position received"),
         check("health.telemetry_age", Status.PASS if fresh else Status.FAIL, f"age={age}; threshold={freshness_threshold_s}"),
     ]
+    if require_converted_state:
+        converted_count = int(report.get("converted_state_samples", 0))
+        converted_first = report.get("converted_source_time_boot_ms_first")
+        converted_last = report.get("converted_source_time_boot_ms_last")
+        converted_advancing = (
+            converted_count >= 2 and isinstance(converted_first, int)
+            and isinstance(converted_last, int) and converted_last > converted_first
+        )
+        timestamps_distinct = (
+            isinstance(report.get("converted_receipt_monotonic_ns"), int)
+            and report.get("converted_receipt_monotonic_ns") != converted_last
+        )
+        checks.extend([
+            check("health.converted_enu_state", Status.PASS if converted_advancing else Status.FAIL, f"received {converted_count} converted ENU samples; source time {converted_first} -> {converted_last}"),
+            check("health.coordinate_conversion", Status.PASS if report.get("coordinate_conversion_consistent") else Status.FAIL, f"independently matched {report.get('coordinate_conversion_matches', 0)} NED/ENU position and velocity samples"),
+            check("health.timestamp_separation", Status.PASS if timestamps_distinct else Status.FAIL, "source boot time and local monotonic receipt time remain distinct"),
+        ])
+    return checks
 
 
 def telemetry_smoke(
@@ -146,7 +172,7 @@ def telemetry_smoke(
     if not preflight["ready"]:
         failed = [item["name"] for item in preflight["checks"] if item["status"] == Status.FAIL]
         return {
-            "schema_version": "echorescue-mavlink-telemetry-smoke/1.0",
+            "schema_version": _smoke_schema(config),
             "milestone": config["milestone"],
             "status": Status.SKIP,
             "detail": f"preflight unavailable: {', '.join(failed)}",
@@ -224,7 +250,11 @@ def telemetry_smoke(
                 if not observer_output.is_file():
                     raise RuntimeError("telemetry observer exited without a report")
                 observer_report = json.loads(observer_output.read_text(encoding="utf-8"))
-                checks.extend(_observer_checks(observer_report, float(bridge["freshness_threshold_s"])))
+                checks.extend(_observer_checks(
+                    observer_report,
+                    float(bridge["freshness_threshold_s"]),
+                    bool(config.get("require_converted_state", False)),
+                ))
         except KeyboardInterrupt:
             interrupted = True
             checks.append(check("smoke.interruption", Status.FAIL, "interrupted; cleanup initiated"))
@@ -243,7 +273,7 @@ def telemetry_smoke(
             int(config["logging"]["failure_log_max_bytes"]),
         ) if not passed else []
     return {
-        "schema_version": "echorescue-mavlink-telemetry-smoke/1.0",
+        "schema_version": _smoke_schema(config),
         "milestone": config["milestone"],
         "status": Status.PASS if passed else Status.FAIL,
         "detail": "real receive-only Gazebo-SITL-MAVLink-ROS telemetry path verified"

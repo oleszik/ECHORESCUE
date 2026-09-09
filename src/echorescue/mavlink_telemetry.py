@@ -17,6 +17,7 @@ from typing import Any, Mapping
 AUTOPILOT_FRAME = "mavlink/autopilot"
 LOCAL_NED_FRAME = "mavlink/local_ned"
 GLOBAL_WGS84_FRAME = "wgs84"
+ATTITUDE_NED_FRD_FRAME = "mavlink/ned_frd"
 MAV_MODE_FLAG_CUSTOM_MODE_ENABLED = 1
 MAV_MODE_FLAG_SAFETY_ARMED = 128
 
@@ -123,6 +124,34 @@ class GlobalPositionTelemetry:
 
 
 @dataclass(frozen=True, slots=True)
+class AttitudeNedFrdTelemetry:
+    session_id: str
+    sequence: int
+    source_sequence: int
+    system_id: int
+    component_id: int
+    source_time_boot_ms: int
+    receipt_monotonic_ns: int
+    roll_rad: float
+    pitch_rad: float
+    yaw_rad: float
+    frame_id: str = ATTITUDE_NED_FRD_FRAME
+
+
+@dataclass(frozen=True, slots=True)
+class LandedStateTelemetry:
+    session_id: str
+    sequence: int
+    source_sequence: int
+    system_id: int
+    component_id: int
+    receipt_monotonic_ns: int
+    landed: bool | None
+    landed_state: str
+    frame_id: str = AUTOPILOT_FRAME
+
+
+@dataclass(frozen=True, slots=True)
 class TelemetryStatus:
     session_id: str
     sequence: int
@@ -137,7 +166,42 @@ class TelemetryStatus:
     detail: str
 
 
-TelemetrySample = HeartbeatTelemetry | LocalPositionNedTelemetry | GlobalPositionTelemetry
+TelemetrySample = HeartbeatTelemetry | LocalPositionNedTelemetry | GlobalPositionTelemetry | AttitudeNedFrdTelemetry | LandedStateTelemetry
+
+
+LANDED_STATES: dict[int, tuple[str, bool | None]] = {
+    0: ("UNDEFINED", None),
+    1: ("ON_GROUND", True),
+    2: ("IN_AIR", False),
+    3: ("TAKEOFF", False),
+    4: ("LANDING", False),
+}
+
+
+def parse_attitude(
+    fields: Mapping[str, Any], *, session_id: str, sequence: int,
+    source_sequence: int, system_id: int, component_id: int,
+    receipt_monotonic_ns: int,
+) -> AttitudeNedFrdTelemetry:
+    return AttitudeNedFrdTelemetry(
+        session_id, sequence, source_sequence, system_id, component_id,
+        _non_negative_int(fields["time_boot_ms"], "time_boot_ms"),
+        receipt_monotonic_ns, _finite(fields["roll"], "roll"),
+        _finite(fields["pitch"], "pitch"), _finite(fields["yaw"], "yaw"),
+    )
+
+
+def parse_extended_system_state(
+    fields: Mapping[str, Any], *, session_id: str, sequence: int,
+    source_sequence: int, system_id: int, component_id: int,
+    receipt_monotonic_ns: int,
+) -> LandedStateTelemetry:
+    raw = _non_negative_int(fields["landed_state"], "landed_state")
+    name, landed = LANDED_STATES.get(raw, (f"UNKNOWN({raw})", None))
+    return LandedStateTelemetry(
+        session_id, sequence, source_sequence, system_id, component_id,
+        receipt_monotonic_ns, landed, name,
+    )
 
 
 def parse_heartbeat(
@@ -253,6 +317,7 @@ class TelemetryCore:
         self._last_position_source_ms = 0
         self._last_local_source_ms: int | None = None
         self._last_global_source_ms: int | None = None
+        self._last_attitude_source_ms: int | None = None
         self._detail = "waiting for MAVLink heartbeat"
 
     def _new_session(self, system_id: int, component_id: int) -> None:
@@ -266,6 +331,7 @@ class TelemetryCore:
         self._last_position_source_ms = 0
         self._last_local_source_ms = None
         self._last_global_source_ms = None
+        self._last_attitude_source_ms = None
         self.health = TelemetryHealth.DEGRADED
         self._detail = "heartbeat received; waiting for local position"
 
@@ -367,6 +433,37 @@ class TelemetryCore:
         self._last_global_source_ms = source_ms
         self._position_received(source_ms, receipt_monotonic_ns)
         return sample
+
+    def ingest_attitude(
+        self, fields: Mapping[str, Any], *, source_sequence: int,
+        system_id: int, component_id: int, receipt_monotonic_ns: int,
+    ) -> AttitudeNedFrdTelemetry | None:
+        source_ms = _non_negative_int(fields["time_boot_ms"], "time_boot_ms")
+        if not self._can_accept_position(source_ms, self._last_attitude_source_ms, system_id, component_id):
+            return None
+        if not self._accept_packet(source_sequence, receipt_monotonic_ns):
+            return None
+        sample = parse_attitude(
+            fields, session_id=self.session_id, sequence=self.sequence,
+            source_sequence=source_sequence, system_id=system_id,
+            component_id=component_id, receipt_monotonic_ns=receipt_monotonic_ns,
+        )
+        self._last_attitude_source_ms = source_ms
+        return sample
+
+    def ingest_extended_system_state(
+        self, fields: Mapping[str, Any], *, source_sequence: int,
+        system_id: int, component_id: int, receipt_monotonic_ns: int,
+    ) -> LandedStateTelemetry | None:
+        if self.health is TelemetryHealth.DISCONNECTED or system_id != self.system_id or component_id != self.component_id:
+            return None
+        if not self._accept_packet(source_sequence, receipt_monotonic_ns):
+            return None
+        return parse_extended_system_state(
+            fields, session_id=self.session_id, sequence=self.sequence,
+            source_sequence=source_sequence, system_id=system_id,
+            component_id=component_id, receipt_monotonic_ns=receipt_monotonic_ns,
+        )
 
     def _can_accept_position(
         self,

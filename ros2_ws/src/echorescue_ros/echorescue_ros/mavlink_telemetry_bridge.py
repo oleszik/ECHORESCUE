@@ -1,4 +1,4 @@
-"""Receive-only MAVLink-to-ROS 2 telemetry bridge for v0.14.1."""
+"""Receive-only MAVLink-to-ROS 2 telemetry bridge through v0.14.2."""
 
 from time import monotonic_ns
 from typing import Any
@@ -9,14 +9,17 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
 
-from echorescue.mavlink_telemetry import TelemetryCore, TelemetryHealth
+from echorescue.continuous_vehicle_state import ContinuousStateAssembler
+from echorescue.mavlink_telemetry import TelemetryCore
 from echorescue_interfaces.msg import (
+    EchoRescueVehicleState3D,
     MavlinkGlobalPosition,
     MavlinkLocalPositionNed,
     MavlinkTelemetryStatus,
     MavlinkVehicleState,
 )
 from echorescue_ros.conversions import (
+    continuous_vehicle_state_to_msg,
     mavlink_global_position_to_msg,
     mavlink_local_position_to_msg,
     mavlink_status_to_msg,
@@ -46,6 +49,13 @@ class MavlinkTelemetryBridge(Node):
         self.declare_parameter("freshness_threshold_s", 1.0)
         self.declare_parameter("disconnect_threshold_s", 3.0)
         self.declare_parameter("reconnect_interval_s", 1.0)
+        self.declare_parameter("vehicle_id", "iris-1")
+        self.declare_parameter("source_frame", "mavlink/local_ned")
+        self.declare_parameter("output_frame", "echorescue/world_enu")
+        self.declare_parameter("source_body_frame", "mavlink/body_frd")
+        self.declare_parameter("output_body_frame", "echorescue/body_flu")
+        self.declare_parameter("world_origin_policy", "ardupilot_local_ned_at_sitl_startup")
+        self.declare_parameter("angle_convention", "right_handed_radians_ccw_from_east")
         self.endpoint = str(self.get_parameter("endpoint").value)
         self.stream_rate_hz = int(self.get_parameter("stream_rate_hz").value)
         self.freshness_threshold_s = float(self.get_parameter("freshness_threshold_s").value)
@@ -59,6 +69,15 @@ class MavlinkTelemetryBridge(Node):
             raise ValueError("reconnect_interval_s must be positive")
 
         self.core = TelemetryCore(f"mavlink-{uuid4().hex}", self.freshness_threshold_s)
+        self.state_assembler = ContinuousStateAssembler(
+            str(self.get_parameter("vehicle_id").value),
+            source_frame=str(self.get_parameter("source_frame").value),
+            output_frame=str(self.get_parameter("output_frame").value),
+            source_body_frame=str(self.get_parameter("source_body_frame").value),
+            output_body_frame=str(self.get_parameter("output_body_frame").value),
+            world_origin_policy=str(self.get_parameter("world_origin_policy").value),
+            angle_convention=str(self.get_parameter("angle_convention").value),
+        )
         self._connection: Any | None = None
         self._connection_started_ns = 0
         self._last_connect_attempt_ns = 0
@@ -75,6 +94,9 @@ class MavlinkTelemetryBridge(Node):
         )
         self._status_pub = self.create_publisher(
             MavlinkTelemetryStatus, "/echorescue/mavlink/status", STATUS_QOS
+        )
+        self._continuous_state_pub = self.create_publisher(
+            EchoRescueVehicleState3D, "/echorescue/vehicle/state_3d", TELEMETRY_QOS
         )
         self.create_timer(0.02, self._poll_mavlink)
         self.create_timer(0.2, self._publish_status)
@@ -131,6 +153,7 @@ class MavlinkTelemetryBridge(Node):
             if sample is None:
                 return
             self._last_heartbeat_ns = receipt_ns
+            self.state_assembler.ingest_heartbeat(sample)
             self._vehicle_pub.publish(mavlink_vehicle_state_to_msg(sample, stamp))
             if not self._stream_requested:
                 self._connection.mav.request_data_stream_send(
@@ -152,6 +175,9 @@ class MavlinkTelemetryBridge(Node):
             )
             if local is not None:
                 self._local_pub.publish(mavlink_local_position_to_msg(local, stamp))
+                converted = self.state_assembler.convert(local, self.core.status(receipt_ns))
+                if converted is not None:
+                    self._continuous_state_pub.publish(continuous_vehicle_state_to_msg(converted, stamp))
         elif message_type == "GLOBAL_POSITION_INT":
             global_position = self.core.ingest_global_position(
                 fields,
@@ -161,7 +187,22 @@ class MavlinkTelemetryBridge(Node):
                 receipt_monotonic_ns=receipt_ns,
             )
             if global_position is not None:
+                self.state_assembler.ingest_heading(global_position)
                 self._global_pub.publish(mavlink_global_position_to_msg(global_position, stamp))
+        elif message_type == "ATTITUDE":
+            attitude = self.core.ingest_attitude(
+                fields, source_sequence=source_sequence, system_id=system_id,
+                component_id=component_id, receipt_monotonic_ns=receipt_ns,
+            )
+            if attitude is not None:
+                self.state_assembler.ingest_attitude(attitude)
+        elif message_type == "EXTENDED_SYS_STATE":
+            landed = self.core.ingest_extended_system_state(
+                fields, source_sequence=source_sequence, system_id=system_id,
+                component_id=component_id, receipt_monotonic_ns=receipt_ns,
+            )
+            if landed is not None:
+                self.state_assembler.ingest_landed_state(landed)
 
     def _publish_status(self) -> None:
         status = self.core.status(monotonic_ns())

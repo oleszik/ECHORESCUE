@@ -5,7 +5,7 @@ package_name = "echorescue_ros"
 
 setup(
     name=package_name,
-    version="0.14.1",
+    version="0.14.2",
     packages=find_packages(exclude=["test"]),
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
@@ -16,7 +16,7 @@ setup(
     zip_safe=True,
     maintainer="EchoRescue contributors",
     maintainer_email="maintainers@example.invalid",
-    description="ROS 2 adapters for EchoRescue and receive-only MAVLink telemetry.",
+    description="ROS 2 adapters for receive-only MAVLink telemetry and continuous 3D state.",
     license="MIT",
     entry_points={
         "console_scripts": [

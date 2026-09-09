@@ -43,6 +43,51 @@ class ObserverReportTests(unittest.TestCase):
         self.assertEqual(checks["health.local_position"].status, Status.FAIL)
         self.assertEqual(checks["health.telemetry_age"].status, Status.FAIL)
 
+    def test_converted_report_requires_advancing_same_session_samples_and_separate_times(self) -> None:
+        report = {
+            "missing_nodes": [], "missing_topics": [],
+            "vehicle_state_received": True, "global_position_received": True,
+            "local_position_samples": 2,
+            "local_source_time_boot_ms_first": 100,
+            "local_source_time_boot_ms_last": 200,
+            "telemetry_age_s": 0.1,
+            "converted_state_samples": 2,
+            "converted_source_time_boot_ms_first": 100,
+            "converted_source_time_boot_ms_last": 200,
+            "converted_receipt_monotonic_ns": 9_000_000,
+            "coordinate_conversion_matches": 2,
+            "coordinate_conversion_consistent": True,
+        }
+        checks = _observer_checks(report, 1.0, require_converted_state=True)
+        self.assertTrue(all(item.status is Status.PASS for item in checks))
+
+    def test_missing_converted_samples_fails_v0142_gate(self) -> None:
+        report = {
+            "missing_nodes": [], "missing_topics": [],
+            "vehicle_state_received": True, "global_position_received": True,
+            "local_position_samples": 2,
+            "local_source_time_boot_ms_first": 100,
+            "local_source_time_boot_ms_last": 200,
+            "telemetry_age_s": 0.1,
+        }
+        checks = {item.name: item for item in _observer_checks(report, 1.0, True)}
+        self.assertEqual(checks["health.converted_enu_state"].status, Status.FAIL)
+        self.assertEqual(checks["health.coordinate_conversion"].status, Status.FAIL)
+        self.assertEqual(checks["health.timestamp_separation"].status, Status.FAIL)
+
+
+class BoundaryTests(unittest.TestCase):
+    def test_bridge_has_no_flight_command_or_gazebo_ground_truth_source(self) -> None:
+        source = (
+            Path(__file__).parents[1]
+            / "ros2_ws/src/echorescue_ros/echorescue_ros/mavlink_telemetry_bridge.py"
+        ).read_text(encoding="utf-8")
+        for prohibited in (
+            "command_long_send", "set_mode_send", "mission_item_send",
+            "rc_channels_override_send", "/world/", "gz.msgs", "Gazebo",
+        ):
+            self.assertNotIn(prohibited, source)
+
 
 class ProcessWaitTests(unittest.TestCase):
     class Process:

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>echorescue_ros</name>
-  <version>0.14.1</version>
-  <description>ROS 2 adapters for EchoRescue and receive-only MAVLink telemetry.</description>
+  <version>0.14.2</version>
+  <description>ROS 2 adapters for receive-only MAVLink telemetry and continuous 3D state.</description>
   <maintainer email="maintainers@example.invalid">EchoRescue contributors</maintainer>
   <license>MIT</license>
   <exec_depend>echorescue_interfaces</exec_depend>
