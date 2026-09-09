@@ -1,0 +1,9 @@
+std_msgs/Header header
+string session_id
+uint64 sequence
+uint32 source_sequence
+uint8 system_id
+uint8 component_id
+uint64 receipt_monotonic_ns
+bool armed
+string flight_mode

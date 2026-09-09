@@ -1,0 +1,40 @@
+{
+  "schema_version": "echorescue-mavlink-telemetry-stack/1.0",
+  "milestone": "v0.14.1",
+  "base_stack_config": "config/simulator-stack-v0.14.0.json",
+  "bridge": {
+    "node_name": "/echorescue_mavlink_telemetry_bridge",
+    "endpoint": "tcp:127.0.0.1:5760",
+    "stream_rate_hz": 10,
+    "freshness_threshold_s": 1.0,
+    "disconnect_threshold_s": 3.0,
+    "reconnect_interval_s": 1.0,
+    "command": [
+      "ros2", "run", "echorescue_ros", "mavlink_telemetry_bridge",
+      "--ros-args",
+      "-p", "endpoint:={mavlink_endpoint}",
+      "-p", "stream_rate_hz:={stream_rate_hz}",
+      "-p", "freshness_threshold_s:={freshness_threshold_s}",
+      "-p", "disconnect_threshold_s:={disconnect_threshold_s}",
+      "-p", "reconnect_interval_s:={reconnect_interval_s}"
+    ]
+  },
+  "topics": {
+    "/echorescue/mavlink/vehicle_state": "echorescue_interfaces/msg/MavlinkVehicleState",
+    "/echorescue/mavlink/local_position_ned": "echorescue_interfaces/msg/MavlinkLocalPositionNed",
+    "/echorescue/mavlink/global_position": "echorescue_interfaces/msg/MavlinkGlobalPosition",
+    "/echorescue/mavlink/status": "echorescue_interfaces/msg/MavlinkTelemetryStatus"
+  },
+  "observer": {
+    "minimum_position_samples": 2,
+    "command": [
+      "ros2", "run", "echorescue_ros", "telemetry_observer",
+      "--output", "{observer_output}",
+      "--timeout", "{observer_timeout_s}",
+      "--minimum-samples", "{minimum_position_samples}"
+    ]
+  },
+  "logging": {
+    "failure_log_max_bytes": 65536
+  }
+}

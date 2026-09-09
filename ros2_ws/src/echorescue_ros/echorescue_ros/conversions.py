@@ -12,6 +12,13 @@ from echorescue.bridge_contracts import (
     SurvivorEvidence,
 )
 from echorescue.models import CellState, Position
+from echorescue.mavlink_telemetry import (
+    GlobalPositionTelemetry,
+    HeartbeatTelemetry,
+    LocalPositionNedTelemetry,
+    TelemetryHealth,
+    TelemetryStatus,
+)
 from echorescue_interfaces.action import MoveGrid
 from echorescue_interfaces.msg import (
     AgentState,
@@ -19,6 +26,10 @@ from echorescue_interfaces.msg import (
     CellObservation as CellObservationMsg,
     SensorObservation as SensorObservationMsg,
     SurvivorEvidence as SurvivorEvidenceMsg,
+    MavlinkGlobalPosition,
+    MavlinkLocalPositionNed,
+    MavlinkTelemetryStatus,
+    MavlinkVehicleState,
 )
 
 
@@ -148,3 +159,160 @@ def result_to_msg(result: MovementResult) -> MoveGrid.Result:
 def result_from_msg(message: MoveGrid.Result) -> MovementResult:
     status = {message.ACCEPTED: CommandStatus.ACCEPTED, message.COMPLETED: CommandStatus.COMPLETED, message.REJECTED: CommandStatus.REJECTED, message.CANCELED: CommandStatus.CANCELED, message.FAILED: CommandStatus.FAILED}[message.status]
     return MovementResult(message.session_id, message.agent_id, message.command_id, status, int(message.state_sequence), time_to_seconds(message.completed_at), Position(message.actual_x, message.actual_y), message.detail)
+
+
+def mavlink_vehicle_state_to_msg(source: HeartbeatTelemetry, stamp: Time) -> MavlinkVehicleState:
+    message = MavlinkVehicleState()
+    message.header.stamp = stamp
+    message.header.frame_id = source.frame_id
+    message.session_id = source.session_id
+    message.sequence = source.sequence
+    message.source_sequence = source.source_sequence
+    message.system_id = source.system_id
+    message.component_id = source.component_id
+    message.receipt_monotonic_ns = source.receipt_monotonic_ns
+    message.armed = source.armed
+    message.flight_mode = source.flight_mode
+    return message
+
+
+def mavlink_vehicle_state_from_msg(message: MavlinkVehicleState) -> HeartbeatTelemetry:
+    return HeartbeatTelemetry(
+        session_id=message.session_id,
+        sequence=int(message.sequence),
+        source_sequence=int(message.source_sequence),
+        system_id=int(message.system_id),
+        component_id=int(message.component_id),
+        receipt_monotonic_ns=int(message.receipt_monotonic_ns),
+        armed=message.armed,
+        flight_mode=message.flight_mode,
+        frame_id=message.header.frame_id,
+    )
+
+
+def mavlink_local_position_to_msg(source: LocalPositionNedTelemetry, stamp: Time) -> MavlinkLocalPositionNed:
+    message = MavlinkLocalPositionNed()
+    message.header.stamp = stamp
+    message.header.frame_id = source.frame_id
+    message.session_id = source.session_id
+    message.sequence = source.sequence
+    message.source_sequence = source.source_sequence
+    message.system_id = source.system_id
+    message.component_id = source.component_id
+    message.source_time_boot_ms = source.source_time_boot_ms
+    message.receipt_monotonic_ns = source.receipt_monotonic_ns
+    message.north_m = source.north_m
+    message.east_m = source.east_m
+    message.down_m = source.down_m
+    message.velocity_north_m_s = source.velocity_north_m_s
+    message.velocity_east_m_s = source.velocity_east_m_s
+    message.velocity_down_m_s = source.velocity_down_m_s
+    return message
+
+
+def mavlink_local_position_from_msg(message: MavlinkLocalPositionNed) -> LocalPositionNedTelemetry:
+    return LocalPositionNedTelemetry(
+        session_id=message.session_id,
+        sequence=int(message.sequence),
+        source_sequence=int(message.source_sequence),
+        system_id=int(message.system_id),
+        component_id=int(message.component_id),
+        source_time_boot_ms=int(message.source_time_boot_ms),
+        receipt_monotonic_ns=int(message.receipt_monotonic_ns),
+        north_m=float(message.north_m),
+        east_m=float(message.east_m),
+        down_m=float(message.down_m),
+        velocity_north_m_s=float(message.velocity_north_m_s),
+        velocity_east_m_s=float(message.velocity_east_m_s),
+        velocity_down_m_s=float(message.velocity_down_m_s),
+        frame_id=message.header.frame_id,
+    )
+
+
+def mavlink_global_position_to_msg(source: GlobalPositionTelemetry, stamp: Time) -> MavlinkGlobalPosition:
+    message = MavlinkGlobalPosition()
+    message.header.stamp = stamp
+    message.header.frame_id = source.frame_id
+    message.session_id = source.session_id
+    message.sequence = source.sequence
+    message.source_sequence = source.source_sequence
+    message.system_id = source.system_id
+    message.component_id = source.component_id
+    message.source_time_boot_ms = source.source_time_boot_ms
+    message.receipt_monotonic_ns = source.receipt_monotonic_ns
+    message.latitude_deg = source.latitude_deg
+    message.longitude_deg = source.longitude_deg
+    message.altitude_m_msl = source.altitude_m_msl
+    message.relative_altitude_m = source.relative_altitude_m
+    message.velocity_north_m_s = source.velocity_north_m_s
+    message.velocity_east_m_s = source.velocity_east_m_s
+    message.velocity_down_m_s = source.velocity_down_m_s
+    message.has_heading = source.heading_deg is not None
+    message.heading_deg = source.heading_deg if source.heading_deg is not None else 0.0
+    return message
+
+
+def mavlink_global_position_from_msg(message: MavlinkGlobalPosition) -> GlobalPositionTelemetry:
+    return GlobalPositionTelemetry(
+        session_id=message.session_id,
+        sequence=int(message.sequence),
+        source_sequence=int(message.source_sequence),
+        system_id=int(message.system_id),
+        component_id=int(message.component_id),
+        source_time_boot_ms=int(message.source_time_boot_ms),
+        receipt_monotonic_ns=int(message.receipt_monotonic_ns),
+        latitude_deg=float(message.latitude_deg),
+        longitude_deg=float(message.longitude_deg),
+        altitude_m_msl=float(message.altitude_m_msl),
+        relative_altitude_m=float(message.relative_altitude_m),
+        velocity_north_m_s=float(message.velocity_north_m_s),
+        velocity_east_m_s=float(message.velocity_east_m_s),
+        velocity_down_m_s=float(message.velocity_down_m_s),
+        heading_deg=float(message.heading_deg) if message.has_heading else None,
+        frame_id=message.header.frame_id,
+    )
+
+
+def mavlink_status_to_msg(source: TelemetryStatus, stamp: Time) -> MavlinkTelemetryStatus:
+    message = MavlinkTelemetryStatus()
+    message.header.stamp = stamp
+    message.header.frame_id = "mavlink/bridge"
+    message.session_id = source.session_id
+    message.sequence = source.sequence
+    message.health = {
+        TelemetryHealth.CONNECTED: message.CONNECTED,
+        TelemetryHealth.DEGRADED: message.DEGRADED,
+        TelemetryHealth.STALE: message.STALE,
+        TelemetryHealth.DISCONNECTED: message.DISCONNECTED,
+    }[source.health]
+    message.connected = source.connected
+    message.system_id = source.system_id
+    message.component_id = source.component_id
+    message.last_source_time_boot_ms = source.last_source_time_boot_ms
+    message.last_receipt_monotonic_ns = source.last_receipt_monotonic_ns
+    message.telemetry_age_s = source.telemetry_age_s
+    message.freshness_threshold_s = source.freshness_threshold_s
+    message.detail = source.detail
+    return message
+
+
+def mavlink_status_from_msg(message: MavlinkTelemetryStatus) -> TelemetryStatus:
+    health = {
+        message.CONNECTED: TelemetryHealth.CONNECTED,
+        message.DEGRADED: TelemetryHealth.DEGRADED,
+        message.STALE: TelemetryHealth.STALE,
+        message.DISCONNECTED: TelemetryHealth.DISCONNECTED,
+    }[message.health]
+    return TelemetryStatus(
+        session_id=message.session_id,
+        sequence=int(message.sequence),
+        health=health,
+        connected=message.connected,
+        system_id=int(message.system_id),
+        component_id=int(message.component_id),
+        last_source_time_boot_ms=int(message.last_source_time_boot_ms),
+        last_receipt_monotonic_ns=int(message.last_receipt_monotonic_ns),
+        telemetry_age_s=float(message.telemetry_age_s),
+        freshness_threshold_s=float(message.freshness_threshold_s),
+        detail=message.detail,
+    )

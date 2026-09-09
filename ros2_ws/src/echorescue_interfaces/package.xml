@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>echorescue_interfaces</name>
-  <version>0.13.0</version>
-  <description>Typed ROS 2 interfaces for the EchoRescue closed loop.</description>
+  <version>0.14.1</version>
+  <description>Typed ROS 2 interfaces for EchoRescue and receive-only MAVLink telemetry.</description>
   <maintainer email="maintainers@example.invalid">EchoRescue contributors</maintainer>
   <license>MIT</license>
   <buildtool_depend>ament_cmake</buildtool_depend>

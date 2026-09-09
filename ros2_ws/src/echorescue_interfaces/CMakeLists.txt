@@ -12,6 +12,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/SensorObservation.msg"
   "msg/AgentState.msg"
   "msg/BridgeStatus.msg"
+  "msg/MavlinkVehicleState.msg"
+  "msg/MavlinkLocalPositionNed.msg"
+  "msg/MavlinkGlobalPosition.msg"
+  "msg/MavlinkTelemetryStatus.msg"
   "action/MoveGrid.action"
   DEPENDENCIES builtin_interfaces std_msgs
 )
