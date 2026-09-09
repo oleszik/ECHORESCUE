@@ -1,0 +1,62 @@
+{
+  "schema_version": "echorescue-flight-mission-stack/1.0",
+  "milestone": "v0.14.3",
+  "base_stack_config": "config/simulator-stack-v0.14.0.json",
+  "diagnostic_interface": "echorescue_interfaces/msg/EchoRescueVehicleState3D",
+  "require_converted_state": true,
+  "runner": {
+    "node_name": "/echorescue_mavlink_flight_mission",
+    "endpoint": "tcp:127.0.0.1:5760",
+    "stream_rate_hz": 10,
+    "freshness_threshold_s": 1.0,
+    "disconnect_threshold_s": 3.0,
+    "reconnect_interval_s": 1.0,
+    "command": [
+      "ros2", "run", "echorescue_ros", "mavlink_flight_mission",
+      "--output", "{mission_output}", "--ros-args",
+      "-p", "endpoint:={mavlink_endpoint}",
+      "-p", "stream_rate_hz:={stream_rate_hz}",
+      "-p", "freshness_threshold_s:={freshness_threshold_s}",
+      "-p", "disconnect_threshold_s:={disconnect_threshold_s}",
+      "-p", "reconnect_interval_s:={reconnect_interval_s}",
+      "-p", "target_altitude_enu_m:={target_altitude_enu_m}",
+      "-p", "altitude_tolerance_m:={altitude_tolerance_m}",
+      "-p", "hover_duration_s:={hover_duration_s}",
+      "-p", "preflight_hold_s:={preflight_hold_s}",
+      "-p", "ready_timeout_s:={ready_timeout_s}",
+      "-p", "transition_timeout_s:={transition_timeout_s}",
+      "-p", "takeoff_timeout_s:={takeoff_timeout_s}",
+      "-p", "landing_timeout_s:={landing_timeout_s}",
+      "-p", "cleanup_timeout_s:={cleanup_timeout_s}"
+    ]
+  },
+  "mission": {
+    "target_altitude_enu_m": 2.0,
+    "altitude_tolerance_m": 0.35,
+    "hover_duration_s": 3.0,
+    "preflight_hold_s": 30.0,
+    "ready_timeout_s": 45.0,
+    "transition_timeout_s": 15.0,
+    "takeoff_timeout_s": 30.0,
+    "landing_timeout_s": 30.0,
+    "cleanup_timeout_s": 30.0
+  },
+  "topics": {
+    "/echorescue/mavlink/vehicle_state": "echorescue_interfaces/msg/MavlinkVehicleState",
+    "/echorescue/mavlink/local_position_ned": "echorescue_interfaces/msg/MavlinkLocalPositionNed",
+    "/echorescue/mavlink/global_position": "echorescue_interfaces/msg/MavlinkGlobalPosition",
+    "/echorescue/mavlink/status": "echorescue_interfaces/msg/MavlinkTelemetryStatus",
+    "/echorescue/vehicle/state_3d": "echorescue_interfaces/msg/EchoRescueVehicleState3D"
+  },
+  "observer": {
+    "command": [
+      "ros2", "run", "echorescue_ros", "flight_mission_observer",
+      "--output", "{observer_output}",
+      "--timeout", "{observer_timeout_s}",
+      "--target-altitude", "{target_altitude_enu_m}",
+      "--altitude-tolerance", "{altitude_tolerance_m}",
+      "--hover-duration", "{hover_duration_s}"
+    ]
+  },
+  "logging": {"failure_log_max_bytes": 65536}
+}

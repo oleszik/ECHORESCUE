@@ -1,0 +1,396 @@
+{
+  "checks": [
+    {
+      "detail": "real SITL endpoint is accepting connections",
+      "name": "health.ardupilot_sitl",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "real Gazebo Iris world is live",
+      "name": "health.gazebo",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "command order=['extended_state_stream', 'guided', 'arm', 'takeoff', 'land']; every command must have MAV_RESULT_ACCEPTED",
+      "name": "mission.command_acknowledgements",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "status=PASS; landed=True; armed=False",
+      "name": "mission.final_state",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "observer status=PASS; session_changed=False",
+      "name": "mission.independent_ros_observer",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "each accepted ACK is followed by an independently received telemetry transition",
+      "name": "mission.telemetry_transitions",
+      "status": "PASS",
+      "version": null
+    }
+  ],
+  "cleanup": [
+    {
+      "detail": "pid 33551 stopped",
+      "name": "cleanup.ardupilot_sitl",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 33582 stopped",
+      "name": "cleanup.flight_mission",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 33581 stopped",
+      "name": "cleanup.flight_observer",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 33535 stopped",
+      "name": "cleanup.gazebo",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "udp 127.0.0.1:9002 is available",
+      "name": "cleanup.port.gazebo_json",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "udp 127.0.0.1:14550 is available",
+      "name": "cleanup.port.mavproxy_output",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "tcp 127.0.0.1:5760 is available",
+      "name": "cleanup.port.sitl_mavlink",
+      "status": "PASS",
+      "version": null
+    }
+  ],
+  "detail": "real Gazebo-ArduPilot-ROS arm/takeoff/hover/land mission verified",
+  "logs": [],
+  "milestone": "v0.14.3",
+  "mission": {
+    "autopilot_status_text": [
+      {
+        "receipt_monotonic_ns": 24715673638993,
+        "severity": 6,
+        "text": "Barometer 1 calibration complete"
+      },
+      {
+        "receipt_monotonic_ns": 24715674381127,
+        "severity": 6,
+        "text": "Barometer 2 calibration complete"
+      },
+      {
+        "receipt_monotonic_ns": 24715675297819,
+        "severity": 6,
+        "text": "ArduPilot Ready"
+      },
+      {
+        "receipt_monotonic_ns": 24715773764951,
+        "severity": 6,
+        "text": "Field Elevation Set: 584m"
+      },
+      {
+        "receipt_monotonic_ns": 24715973603001,
+        "severity": 6,
+        "text": "RC7: SaveWaypoint LOW"
+      },
+      {
+        "receipt_monotonic_ns": 24715974355875,
+        "severity": 6,
+        "text": "RC8: PrecisionLoiter MIDDLE"
+      },
+      {
+        "receipt_monotonic_ns": 24717713822748,
+        "severity": 6,
+        "text": "EKF3 IMU0 initialised"
+      },
+      {
+        "receipt_monotonic_ns": 24717714880966,
+        "severity": 6,
+        "text": "EKF3 IMU1 initialised"
+      },
+      {
+        "receipt_monotonic_ns": 24719073602870,
+        "severity": 6,
+        "text": "EKF3 IMU0 tilt alignment complete"
+      },
+      {
+        "receipt_monotonic_ns": 24719074567001,
+        "severity": 6,
+        "text": "EKF3 IMU1 tilt alignment complete"
+      },
+      {
+        "receipt_monotonic_ns": 24719173513786,
+        "severity": 6,
+        "text": "EKF3 IMU1 MAG0 initial yaw alignment complete"
+      },
+      {
+        "receipt_monotonic_ns": 24719174308609,
+        "severity": 6,
+        "text": "EKF3 IMU0 MAG0 initial yaw alignment complete"
+      },
+      {
+        "receipt_monotonic_ns": 24723114753372,
+        "severity": 6,
+        "text": "GPS 1: probing for u-blox at 230400 baud"
+      },
+      {
+        "receipt_monotonic_ns": 24723133906209,
+        "severity": 6,
+        "text": "GPS 1: detected u-blox"
+      },
+      {
+        "receipt_monotonic_ns": 24733533830143,
+        "severity": 6,
+        "text": "EKF3 IMU1 origin set"
+      },
+      {
+        "receipt_monotonic_ns": 24733733925924,
+        "severity": 6,
+        "text": "EKF3 IMU0 origin set"
+      },
+      {
+        "receipt_monotonic_ns": 24746094587318,
+        "severity": 6,
+        "text": "Arming motors"
+      },
+      {
+        "receipt_monotonic_ns": 24754475205712,
+        "severity": 6,
+        "text": "PrecLand: Failsafe Measures"
+      },
+      {
+        "receipt_monotonic_ns": 24755374641148,
+        "severity": 6,
+        "text": "EKF3 IMU1 is using GPS"
+      },
+      {
+        "receipt_monotonic_ns": 24755375623274,
+        "severity": 6,
+        "text": "EKF3 IMU0 is using GPS"
+      },
+      {
+        "receipt_monotonic_ns": 24767873699673,
+        "severity": 6,
+        "text": "Disarming motors"
+      }
+    ],
+    "commands": [
+      {
+        "ack_monotonic_ns": 24745773568940,
+        "ack_result": 0,
+        "command_id": 511,
+        "issued_monotonic_ns": 24745770166185,
+        "kind": "extended_state_stream",
+        "recovery": false,
+        "session_id": "mavlink-9568efe1a2fd43c4a32fcabc316da89d-0001",
+        "telemetry_transition": "extended_state.landed=true",
+        "telemetry_transition_monotonic_ns": 24745894333140
+      },
+      {
+        "ack_monotonic_ns": 24745973518084,
+        "ack_result": 0,
+        "command_id": 176,
+        "issued_monotonic_ns": 24745970180262,
+        "kind": "guided",
+        "recovery": false,
+        "session_id": "mavlink-9568efe1a2fd43c4a32fcabc316da89d-0001",
+        "telemetry_transition": "heartbeat.flight_mode=GUIDED",
+        "telemetry_transition_monotonic_ns": 24745973671252
+      },
+      {
+        "ack_monotonic_ns": 24746093963045,
+        "ack_result": 0,
+        "command_id": 400,
+        "issued_monotonic_ns": 24746070093158,
+        "kind": "arm",
+        "recovery": false,
+        "session_id": "mavlink-9568efe1a2fd43c4a32fcabc316da89d-0001",
+        "telemetry_transition": "heartbeat.armed=true",
+        "telemetry_transition_monotonic_ns": 24746294134146
+      },
+      {
+        "ack_monotonic_ns": 24746373572226,
+        "ack_result": 0,
+        "command_id": 22,
+        "issued_monotonic_ns": 24746370240125,
+        "kind": "takeoff",
+        "recovery": false,
+        "session_id": "mavlink-9568efe1a2fd43c4a32fcabc316da89d-0001",
+        "telemetry_transition": "local_position_enu.z_in_target_band",
+        "telemetry_transition_monotonic_ns": 24751374249551
+      },
+      {
+        "ack_monotonic_ns": 24754474752411,
+        "ack_result": 0,
+        "command_id": 21,
+        "issued_monotonic_ns": 24754470054791,
+        "kind": "land",
+        "recovery": false,
+        "session_id": "mavlink-9568efe1a2fd43c4a32fcabc316da89d-0001",
+        "telemetry_transition": "extended_state.landed=true;heartbeat.armed=false",
+        "telemetry_transition_monotonic_ns": 24768420028848
+      }
+    ],
+    "events": [
+      {
+        "detail": "waiting for fresh disarmed telemetry",
+        "event": "mission_started",
+        "monotonic_ns": 24710519594656,
+        "phase": "wait_ready"
+      },
+      {
+        "detail": "fresh disarmed telemetry remained stable through preflight hold",
+        "event": "phase",
+        "monotonic_ns": 24745720098628,
+        "phase": "send_extended_state_stream"
+      },
+      {
+        "detail": "extended_state_stream command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 24745770166185,
+        "phase": "wait_extended_state_stream"
+      },
+      {
+        "detail": "extended_state_stream accepted",
+        "event": "command_ack",
+        "monotonic_ns": 24745773568940,
+        "phase": "wait_extended_state_stream"
+      },
+      {
+        "detail": "extended-state ACK and telemetry observed",
+        "event": "phase",
+        "monotonic_ns": 24745920066328,
+        "phase": "send_guided"
+      },
+      {
+        "detail": "guided command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 24745970180262,
+        "phase": "wait_guided"
+      },
+      {
+        "detail": "guided accepted",
+        "event": "command_ack",
+        "monotonic_ns": 24745973518084,
+        "phase": "wait_guided"
+      },
+      {
+        "detail": "GUIDED ACK and heartbeat mode observed",
+        "event": "phase",
+        "monotonic_ns": 24746020144895,
+        "phase": "send_arm"
+      },
+      {
+        "detail": "arm command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 24746070093158,
+        "phase": "wait_armed"
+      },
+      {
+        "detail": "arm accepted",
+        "event": "command_ack",
+        "monotonic_ns": 24746093963045,
+        "phase": "wait_armed"
+      },
+      {
+        "detail": "arm ACK and armed heartbeat observed",
+        "event": "phase",
+        "monotonic_ns": 24746320109459,
+        "phase": "send_takeoff"
+      },
+      {
+        "detail": "takeoff command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 24746370240125,
+        "phase": "wait_altitude"
+      },
+      {
+        "detail": "takeoff accepted",
+        "event": "command_ack",
+        "monotonic_ns": 24746373572226,
+        "phase": "wait_altitude"
+      },
+      {
+        "detail": "takeoff ACK and target ENU altitude observed",
+        "event": "phase",
+        "monotonic_ns": 24751419962783,
+        "phase": "hover"
+      },
+      {
+        "detail": "timed hover completed",
+        "event": "phase",
+        "monotonic_ns": 24754420125370,
+        "phase": "send_land"
+      },
+      {
+        "detail": "land command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 24754470054791,
+        "phase": "wait_landed_disarmed"
+      },
+      {
+        "detail": "land accepted",
+        "event": "command_ack",
+        "monotonic_ns": 24754474752411,
+        "phase": "wait_landed_disarmed"
+      },
+      {
+        "detail": "land ACK, landed state, and disarmed heartbeat observed",
+        "event": "phase",
+        "monotonic_ns": 24768420028848,
+        "phase": "succeeded"
+      }
+    ],
+    "failure_reason": null,
+    "final_altitude_enu_m": 0.1899999976158142,
+    "final_armed": false,
+    "final_landed": true,
+    "milestone": "v0.14.3",
+    "phase": "succeeded",
+    "schema_version": "echorescue-arm-takeoff-hover-land-mission/1.0",
+    "session_id": "mavlink-9568efe1a2fd43c4a32fcabc316da89d-0001",
+    "status": "PASS",
+    "target_altitude_enu_m": 2.0
+  },
+  "observer": {
+    "armed_observed": true,
+    "detail": "independent ROS telemetry observed the complete flight sequence",
+    "disarmed_after_flight": true,
+    "guided_observed": true,
+    "hover_observed_s": 3.100382393000473,
+    "land_mode_observed": true,
+    "landed_after_flight": true,
+    "maximum_altitude_enu_m": 2.240000009536743,
+    "milestone": "v0.14.3",
+    "minimum_altitude_enu_m": 0.1899999976158142,
+    "mission_node_observed": true,
+    "schema_version": "echorescue-flight-mission-observer/1.0",
+    "session_changed": false,
+    "session_id": "mavlink-9568efe1a2fd43c4a32fcabc316da89d-0001",
+    "source_time_boot_ms_first": 1951,
+    "source_time_boot_ms_last": 53951,
+    "status": "PASS",
+    "target_altitude_observed": true,
+    "telemetry_fresh": true
+  },
+  "schema_version": "echorescue-flight-mission-smoke/1.0",
+  "status": "PASS"
+}
