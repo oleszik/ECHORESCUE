@@ -7,6 +7,8 @@ from echorescue.mavlink_telemetry import (
     LOCAL_NED_FRAME,
     TelemetryCore,
     TelemetryHealth,
+    parse_attitude,
+    parse_extended_system_state,
     parse_global_position_int,
     parse_heartbeat,
     parse_local_position_ned,
@@ -115,6 +117,35 @@ class ParsingTests(unittest.TestCase):
         )
         self.assertEqual(serialize_telemetry(sample), serialize_telemetry(sample))
         self.assertEqual(json.loads(serialize_telemetry(sample))["frame_id"], LOCAL_NED_FRAME)
+
+    def test_attitude_and_landed_state_parsing_are_explicit(self) -> None:
+        attitude = parse_attitude(
+            {"time_boot_ms": 20, "roll": 0.1, "pitch": -0.2, "yaw": 3.0},
+            session_id="session-1", sequence=4, source_sequence=10,
+            system_id=1, component_id=1, receipt_monotonic_ns=900,
+        )
+        self.assertEqual((attitude.roll_rad, attitude.pitch_rad, attitude.yaw_rad), (0.1, -0.2, 3.0))
+        landed = parse_extended_system_state(
+            {"landed_state": 1}, session_id="session-1", sequence=5,
+            source_sequence=11, system_id=1, component_id=1,
+            receipt_monotonic_ns=1_000,
+        )
+        self.assertTrue(landed.landed)
+        self.assertEqual(landed.landed_state, "ON_GROUND")
+        undefined = parse_extended_system_state(
+            {"landed_state": 0}, session_id="session-1", sequence=6,
+            source_sequence=12, system_id=1, component_id=1,
+            receipt_monotonic_ns=1_100,
+        )
+        self.assertIsNone(undefined.landed)
+
+    def test_invalid_attitude_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "finite"):
+            parse_attitude(
+                {"time_boot_ms": 20, "roll": float("nan"), "pitch": 0.0, "yaw": 0.0},
+                session_id="session-1", sequence=4, source_sequence=10,
+                system_id=1, component_id=1, receipt_monotonic_ns=900,
+            )
 
 
 class TelemetryCoreTests(unittest.TestCase):
@@ -264,6 +295,30 @@ class TelemetryCoreTests(unittest.TestCase):
         self.assertEqual(first.north_m, second.north_m)
         self.assertGreater(second.source_time_boot_ms, first.source_time_boot_ms)
         self.assertEqual(core.status(1_200_000_000).health, TelemetryHealth.CONNECTED)
+
+    def test_attitude_timestamp_ordering_resets_only_for_a_new_session(self) -> None:
+        core = self._connected_core()
+        fields = {"time_boot_ms": 500, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
+        first = core.ingest_attitude(
+            fields, source_sequence=11, system_id=1, component_id=1,
+            receipt_monotonic_ns=1_100_000_000,
+        )
+        duplicate = core.ingest_attitude(
+            fields, source_sequence=12, system_id=1, component_id=1,
+            receipt_monotonic_ns=1_200_000_000,
+        )
+        core.disconnect(1_300_000_000, "test reconnect")
+        core.ingest_heartbeat(
+            HEARTBEAT, source_sequence=1, system_id=1, component_id=1,
+            receipt_monotonic_ns=2_000_000_000,
+        )
+        rebooted = core.ingest_attitude(
+            {**fields, "time_boot_ms": 5}, source_sequence=2,
+            system_id=1, component_id=1, receipt_monotonic_ns=2_100_000_000,
+        )
+        self.assertIsNotNone(first)
+        self.assertIsNone(duplicate)
+        self.assertIsNotNone(rebooted)
 
 
 class ImportBoundaryTests(unittest.TestCase):

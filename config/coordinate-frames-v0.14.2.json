@@ -1,0 +1,50 @@
+{
+  "schema_version": "echorescue-coordinate-frame-stack/1.0",
+  "milestone": "v0.14.2",
+  "base_stack_config": "config/simulator-stack-v0.14.0.json",
+  "diagnostic_interface": "echorescue_interfaces/msg/EchoRescueVehicleState3D",
+  "require_converted_state": true,
+  "bridge": {
+    "node_name": "/echorescue_mavlink_telemetry_bridge",
+    "endpoint": "tcp:127.0.0.1:5760",
+    "stream_rate_hz": 10,
+    "freshness_threshold_s": 1.0,
+    "disconnect_threshold_s": 3.0,
+    "reconnect_interval_s": 1.0,
+    "vehicle_id": "iris-1",
+    "source_frame": "mavlink/local_ned",
+    "output_frame": "echorescue/world_enu",
+    "source_body_frame": "mavlink/body_frd",
+    "output_body_frame": "echorescue/body_flu",
+    "world_origin_policy": "ardupilot_local_ned_at_sitl_startup",
+    "angle_convention": "right_handed_radians_ccw_from_east",
+    "command": [
+      "ros2", "run", "echorescue_ros", "mavlink_telemetry_bridge", "--ros-args",
+      "-p", "endpoint:={mavlink_endpoint}", "-p", "stream_rate_hz:={stream_rate_hz}",
+      "-p", "freshness_threshold_s:={freshness_threshold_s}",
+      "-p", "disconnect_threshold_s:={disconnect_threshold_s}",
+      "-p", "reconnect_interval_s:={reconnect_interval_s}",
+      "-p", "vehicle_id:=iris-1", "-p", "source_frame:=mavlink/local_ned",
+      "-p", "output_frame:=echorescue/world_enu", "-p", "source_body_frame:=mavlink/body_frd",
+      "-p", "output_body_frame:=echorescue/body_flu",
+      "-p", "world_origin_policy:=ardupilot_local_ned_at_sitl_startup",
+      "-p", "angle_convention:=right_handed_radians_ccw_from_east"
+    ]
+  },
+  "topics": {
+    "/echorescue/mavlink/vehicle_state": "echorescue_interfaces/msg/MavlinkVehicleState",
+    "/echorescue/mavlink/local_position_ned": "echorescue_interfaces/msg/MavlinkLocalPositionNed",
+    "/echorescue/mavlink/global_position": "echorescue_interfaces/msg/MavlinkGlobalPosition",
+    "/echorescue/mavlink/status": "echorescue_interfaces/msg/MavlinkTelemetryStatus",
+    "/echorescue/vehicle/state_3d": "echorescue_interfaces/msg/EchoRescueVehicleState3D"
+  },
+  "observer": {
+    "minimum_position_samples": 2,
+    "command": [
+      "ros2", "run", "echorescue_ros", "telemetry_observer",
+      "--output", "{observer_output}", "--timeout", "{observer_timeout_s}",
+      "--minimum-samples", "{minimum_position_samples}", "--require-converted-state"
+    ]
+  },
+  "logging": {"failure_log_max_bytes": 65536}
+}

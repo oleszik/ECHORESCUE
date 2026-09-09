@@ -22,3 +22,4 @@ rather than silently rewriting its decision.
 | [0014](0014-ros2-closed-loop-boundary.md) | Accepted | ROS-independent closed-loop core behind typed ROS 2 adapters |
 | [0015](0015-external-3d-simulator-boundary.md) | Accepted | Pinned external 3D stack behind diagnostic and process-lifecycle gates |
 | [0016](0016-receive-only-mavlink-telemetry.md) | Accepted | Receive-only native-frame MAVLink telemetry behind typed ROS 2 adapters |
+| [0017](0017-continuous-3d-coordinate-frame-boundary.md) | Accepted | Explicit NED/FRD to ENU/FLU continuous-state boundary |

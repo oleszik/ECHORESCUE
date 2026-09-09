@@ -7,6 +7,7 @@ from unittest.mock import patch
 from echorescue.sim_integration import Check, Status, UnexpectedProcessExit, load_config
 from echorescue.telemetry_integration import (
     _observer_checks,
+    _timestamp_domains_progress,
     _wait_for_exit,
     load_telemetry_config,
     telemetry_smoke,
@@ -42,6 +43,83 @@ class ObserverReportTests(unittest.TestCase):
         checks = {item.name: item for item in _observer_checks(report, freshness_threshold_s=1.0)}
         self.assertEqual(checks["health.local_position"].status, Status.FAIL)
         self.assertEqual(checks["health.telemetry_age"].status, Status.FAIL)
+
+    def test_converted_report_requires_advancing_same_session_samples_and_separate_times(self) -> None:
+        report = {
+            "missing_nodes": [], "missing_topics": [],
+            "vehicle_state_received": True, "global_position_received": True,
+            "local_position_samples": 2,
+            "local_source_time_boot_ms_first": 100,
+            "local_source_time_boot_ms_last": 200,
+            "telemetry_age_s": 0.1,
+            "converted_state_samples": 2,
+            "converted_source_time_boot_ms_first": 100,
+            "converted_source_time_boot_ms_last": 200,
+            "source_clock": "mavlink_system_boot_ms",
+            "receipt_clock": "host_monotonic_ns",
+            "converted_receipt_monotonic_ns_first": 9_000_000,
+            "converted_receipt_monotonic_ns_last": 9_100_000,
+            "coordinate_conversion_matches": 2,
+            "coordinate_conversion_consistent": True,
+        }
+        checks = _observer_checks(report, 1.0, require_converted_state=True)
+        self.assertTrue(all(item.status is Status.PASS for item in checks))
+
+    def test_timestamp_gate_rejects_nonprogressing_receipt_clock(self) -> None:
+        report = {
+            "source_clock": "mavlink_system_boot_ms",
+            "receipt_clock": "host_monotonic_ns",
+            "converted_source_time_boot_ms_first": 100,
+            "converted_source_time_boot_ms_last": 200,
+            "converted_receipt_monotonic_ns_first": 9_000_000,
+            "converted_receipt_monotonic_ns_last": 9_000_000,
+            # The removed implementation only compared this differently-scaled
+            # value with source_time_boot_ms and would incorrectly pass it.
+            "converted_receipt_monotonic_ns": 9_000_000,
+        }
+        self.assertNotEqual(
+            report["converted_receipt_monotonic_ns"],
+            report["converted_source_time_boot_ms_last"],
+        )
+        self.assertFalse(_timestamp_domains_progress(report))
+
+    def test_timestamp_gate_rejects_missing_or_aliased_clock_domains(self) -> None:
+        report = {
+            "source_clock": "mavlink_system_boot_ms",
+            "receipt_clock": "mavlink_system_boot_ms",
+            "converted_source_time_boot_ms_first": 100,
+            "converted_source_time_boot_ms_last": 200,
+            "converted_receipt_monotonic_ns_first": 9_000_000,
+            "converted_receipt_monotonic_ns_last": 9_100_000,
+        }
+        self.assertFalse(_timestamp_domains_progress(report))
+
+    def test_missing_converted_samples_fails_v0142_gate(self) -> None:
+        report = {
+            "missing_nodes": [], "missing_topics": [],
+            "vehicle_state_received": True, "global_position_received": True,
+            "local_position_samples": 2,
+            "local_source_time_boot_ms_first": 100,
+            "local_source_time_boot_ms_last": 200,
+            "telemetry_age_s": 0.1,
+        }
+        checks = {item.name: item for item in _observer_checks(report, 1.0, True)}
+        self.assertEqual(checks["health.converted_enu_state"].status, Status.FAIL)
+        self.assertEqual(checks["health.coordinate_conversion"].status, Status.FAIL)
+        self.assertEqual(checks["health.timestamp_separation"].status, Status.FAIL)
+
+
+class BoundaryTests(unittest.TestCase):
+    def test_bridge_has_no_flight_command_or_gazebo_ground_truth_source(self) -> None:
+        source = (
+            Path(__file__).parents[1]
+            / "ros2_ws/src/echorescue_ros/echorescue_ros/mavlink_telemetry_bridge.py"
+        ).read_text(encoding="utf-8")
+        for prohibited in (
+            "command_long_send", "set_mode_send", "mission_item_send",
+            "rc_channels_override_send", "/world/", "gz.msgs", "Gazebo",
+        ):
+            self.assertNotIn(prohibited, source)
 
 
 class ProcessWaitTests(unittest.TestCase):

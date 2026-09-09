@@ -132,6 +132,23 @@ no Gazebo Ground Truth and sends no flight command.
 
 See the [architecture, message fields, QoS, setup, real result and limitations](docs/v0.14.1-mavlink-telemetry-bridge.md).
 
+## v0.14.2: Coordinate frames and continuous 3D state
+
+v0.14.2 converts authoritative receive-only ArduPilot local NED telemetry into
+an explicit EchoRescue ENU continuous state. Position, velocity, optional
+attitude/heading, session identity, source and receipt times, armed/landed
+validity, health, world/body frames, and startup-origin policy are published on
+the typed `/echorescue/vehicle/state_3d` topic. No flight command or Gazebo
+Ground Truth enters the bridge.
+
+```bash
+./scripts/run_coordinate_frames_integration.sh \
+  --output artifacts/v0.14.2-coordinate-smoke.json \
+  smoke --timeout 90
+```
+
+See the [coordinate, timestamp, ROS, validation and limitation contracts](docs/v0.14.2-coordinate-frames.md).
+
 ## Architecture
 
 EchoRescue keeps world truth, autonomous decisions, and presentation separated:
@@ -319,9 +336,10 @@ benchmark JSON aggregation modules are a documented incremental exception; see
 - Failure injection is deterministic fail-stop behavior without diagnosis,
   repair, or probabilistic component reliability.
 - The v0.13 ROS 2 bridge remains a one-drone, one-floor discrete simulator
-  integration. The separate v0.14.1 boundary publishes receive-only ArduPilot
-  MAVLink telemetry; it provides no flight commands, hardware-in-the-loop,
-  real sensor dataset, or hardware validation.
+  integration. The separate v0.14.2 boundary converts receive-only ArduPilot
+  telemetry into local continuous ENU state; it provides no flight commands,
+  localization/sensor fusion, hardware-in-the-loop, real sensor dataset, or
+  hardware validation.
 - The built-in dashboard server is intended for development and demonstrations,
   not as a hardened public production server.
 
@@ -357,9 +375,12 @@ were added.
 - **v0.14.1 — Receive-only MAVLink Telemetry:** real ArduPilot heartbeat and
   native-frame position state published through typed ROS 2 topics with explicit
   freshness, stale, disconnect and reconnect semantics; no vehicle control.
+- **v0.14.2 — Coordinate Frames and Continuous 3D State:** explicit local
+  NED/FRD to ENU/FLU conversion, preserved source/receipt clocks and typed
+  receive-only vehicle state; no navigation or vehicle control.
 
-Development stops at the v0.14.1 receive-only telemetry boundary. v0.14.2 has
-not been started.
+Development stops at the v0.14.2 continuous receive-only state boundary.
+v0.14.3 has not been started.
 
 ## Scope and licensing
 
