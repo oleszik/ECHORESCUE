@@ -149,6 +149,23 @@ Ground Truth enters the bridge.
 
 See the [coordinate, timestamp, ROS, validation and limitation contracts](docs/v0.14.2-coordinate-frames.md).
 
+## v0.14.3: Simulation flight milestone
+
+v0.14.3 adds a separate, simulation-only MAVLink runner for one bounded
+GUIDED → arm → takeoff → timed hover → land mission. Every flight command must
+receive `COMMAND_ACK(MAV_RESULT_ACCEPTED)` and a later flight-controller
+telemetry transition; ACKs are never treated as vehicle state. The original
+`mavlink_telemetry_bridge` executable remains receive-only.
+
+```bash
+./scripts/run_flight_mission_integration.sh \
+  --output artifacts/v0.14.3-flight-smoke.json \
+  smoke --timeout 150
+```
+
+See the [command boundary, state machine, failure handling, smoke gates and
+limitations](docs/v0.14.3-flight-milestone.md).
+
 ## Architecture
 
 EchoRescue keeps world truth, autonomous decisions, and presentation separated:
@@ -378,9 +395,13 @@ were added.
 - **v0.14.2 — Coordinate Frames and Continuous 3D State:** explicit local
   NED/FRD to ENU/FLU conversion, preserved source/receipt clocks and typed
   receive-only vehicle state; no navigation or vehicle control.
+- **v0.14.3 — Simulation Flight Milestone:** one closed-loop GUIDED, arm,
+  takeoff-to-ENU-altitude, timed-hover and land sequence with command ACKs,
+  independently observed telemetry transitions, bounded recovery and cleanup.
 
-Development stops at the v0.14.2 continuous receive-only state boundary.
-v0.14.3 has not been started.
+Development stops at the v0.14.3 simulation-only arm–takeoff–hover–land
+boundary. Waypoint navigation, obstacle avoidance, indoor worlds,
+multi-vehicle operation, real flight, and v0.14.4 remain out of scope.
 
 ## Scope and licensing
 

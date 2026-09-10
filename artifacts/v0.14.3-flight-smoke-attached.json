@@ -1,0 +1,72 @@
+{
+  "schema_version": "echorescue-flight-mission-smoke/1.0",
+  "milestone": "v0.14.3",
+  "status": "PASS",
+  "validation_mode": "attach_to_preexisting_simulator_stack",
+  "detail": "Real Gazebo-ArduPilot-ROS arm/takeoff/hover/land mission verified; pre-existing simulator processes were not owned or stopped.",
+  "checks": [
+    {
+      "name": "mission.command_acknowledgements",
+      "status": "PASS",
+      "detail": "MAV_CMD_SET_MESSAGE_INTERVAL, MAV_CMD_DO_SET_MODE, MAV_CMD_COMPONENT_ARM_DISARM, MAV_CMD_NAV_TAKEOFF and MAV_CMD_NAV_LAND each returned MAV_RESULT_ACCEPTED"
+    },
+    {
+      "name": "mission.telemetry_transitions",
+      "status": "PASS",
+      "detail": "Each accepted command has a later independently received matching telemetry transition"
+    },
+    {
+      "name": "mission.independent_ros_observer",
+      "status": "PASS",
+      "detail": "GUIDED, armed, target altitude, timed hover, LAND, landed and disarmed observed in one session"
+    },
+    {
+      "name": "mission.final_state",
+      "status": "PASS",
+      "detail": "final ENU altitude 0.19 m, EXTENDED_SYS_STATE ON_GROUND, heartbeat disarmed"
+    },
+    {
+      "name": "cleanup.owned_ros_processes",
+      "status": "PASS",
+      "detail": "flight mission and independent observer both exited with code 0"
+    }
+  ],
+  "mission": {
+    "session_changed": false,
+    "target_altitude_enu_m": 2.0,
+    "final_altitude_enu_m": 0.1899999976158142,
+    "final_landed": true,
+    "final_armed": false,
+    "command_order": [
+      "extended_state_stream",
+      "guided",
+      "arm",
+      "takeoff",
+      "land"
+    ],
+    "command_ack_results": [0, 0, 0, 0, 0],
+    "all_telemetry_transitions_later_than_issue": true
+  },
+  "observer": {
+    "status": "PASS",
+    "session_changed": false,
+    "guided_observed": true,
+    "armed_observed": true,
+    "target_altitude_observed": true,
+    "maximum_altitude_enu_m": 2.240000009536743,
+    "hover_observed_s": 3.119696836000003,
+    "land_mode_observed": true,
+    "landed_after_flight": true,
+    "disarmed_after_flight": true,
+    "source_time_boot_ms_first": 1682856,
+    "source_time_boot_ms_last": 1705856,
+    "telemetry_fresh": true
+  },
+  "cleanup": {
+    "flight_mission_exit_code": 0,
+    "flight_observer_exit_code": 0,
+    "gazebo": "left_running_not_owned",
+    "ardupilot_sitl": "left_running_not_owned",
+    "port_release_gate": "not_claimed_for_attached_validation"
+  }
+}

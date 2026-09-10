@@ -42,8 +42,13 @@ STATUS_QOS = QoSProfile(
 
 
 class MavlinkTelemetryBridge(Node):
-    def __init__(self) -> None:
-        super().__init__("echorescue_mavlink_telemetry_bridge")
+    def __init__(
+        self,
+        *,
+        node_name: str = "echorescue_mavlink_telemetry_bridge",
+        role_description: str = "receive-only MAVLink bridge",
+    ) -> None:
+        super().__init__(node_name)
         self.declare_parameter("endpoint", "tcp:127.0.0.1:5760")
         self.declare_parameter("stream_rate_hz", 10)
         self.declare_parameter("freshness_threshold_s", 1.0)
@@ -100,7 +105,7 @@ class MavlinkTelemetryBridge(Node):
         )
         self.create_timer(0.02, self._poll_mavlink)
         self.create_timer(0.2, self._publish_status)
-        self.get_logger().info(f"receive-only MAVLink bridge configured for {self.endpoint}")
+        self.get_logger().info(f"{role_description} configured for {self.endpoint}")
 
     def _connect(self, now_ns: int) -> None:
         interval_ns = int(self.reconnect_interval_s * 1_000_000_000)
@@ -142,6 +147,7 @@ class MavlinkTelemetryBridge(Node):
         system_id = int(message.get_srcSystem())
         component_id = int(message.get_srcComponent())
         stamp = self.get_clock().now().to_msg()
+        self._on_mavlink_message(message_type, fields, receipt_ns, system_id, component_id)
         if message_type == "HEARTBEAT":
             sample = self.core.ingest_heartbeat(
                 fields,
@@ -155,6 +161,7 @@ class MavlinkTelemetryBridge(Node):
             self._last_heartbeat_ns = receipt_ns
             self.state_assembler.ingest_heartbeat(sample)
             self._vehicle_pub.publish(mavlink_vehicle_state_to_msg(sample, stamp))
+            self._on_heartbeat(sample)
             if not self._stream_requested:
                 self._connection.mav.request_data_stream_send(
                     system_id,
@@ -178,6 +185,7 @@ class MavlinkTelemetryBridge(Node):
                 converted = self.state_assembler.convert(local, self.core.status(receipt_ns))
                 if converted is not None:
                     self._continuous_state_pub.publish(continuous_vehicle_state_to_msg(converted, stamp))
+                self._on_local_position(local)
         elif message_type == "GLOBAL_POSITION_INT":
             global_position = self.core.ingest_global_position(
                 fields,
@@ -203,10 +211,49 @@ class MavlinkTelemetryBridge(Node):
             )
             if landed is not None:
                 self.state_assembler.ingest_landed_state(landed)
+                self._on_landed_state(landed)
+        elif message_type == "COMMAND_ACK":
+            if (
+                self.core.session_id
+                and system_id == self.core.system_id
+                and component_id == self.core.component_id
+            ):
+                self._on_command_ack(fields, receipt_ns, self.core.session_id)
 
     def _publish_status(self) -> None:
         status = self.core.status(monotonic_ns())
         self._status_pub.publish(mavlink_status_to_msg(status, self.get_clock().now().to_msg()))
+        self._on_status(status)
+
+    def _on_heartbeat(self, sample: Any) -> None:
+        """Extension hook for the separate command-capable v0.14.3 node."""
+
+    def _on_mavlink_message(
+        self,
+        message_type: str,
+        fields: dict[str, Any],
+        receipt_ns: int,
+        system_id: int,
+        component_id: int,
+    ) -> None:
+        """Extension hook for passive diagnostics in the v0.14.3 node."""
+
+    def _on_local_position(self, sample: Any) -> None:
+        """Extension hook for the separate command-capable v0.14.3 node."""
+
+    def _on_landed_state(self, sample: Any) -> None:
+        """Extension hook for the separate command-capable v0.14.3 node."""
+
+    def _on_command_ack(
+        self,
+        fields: dict[str, Any],
+        receipt_ns: int,
+        session_id: str,
+    ) -> None:
+        """Ignore unsolicited ACKs in the receive-only executable."""
+
+    def _on_status(self, status: Any) -> None:
+        """Extension hook for the separate command-capable v0.14.3 node."""
 
     def _close_connection(self, now_ns: int, detail: str) -> None:
         if self._connection is not None:
@@ -219,6 +266,7 @@ class MavlinkTelemetryBridge(Node):
         self._last_heartbeat_ns = 0
         self._stream_requested = False
         self.core.disconnect(now_ns, detail)
+        self._on_status(self.core.status(now_ns))
         self.get_logger().warning(detail)
 
     def destroy_node(self) -> bool:
