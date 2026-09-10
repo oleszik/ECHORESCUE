@@ -349,6 +349,98 @@ class FlightMissionControllerTests(unittest.TestCase):
         self.assertEqual(self.controller.phase, MissionPhase.FAILED)
         self.assertIn("recovery landing verified", self.controller.report()["failure_reason"])
 
+    def test_reconnect_during_armed_landing_recovery_restarts_per_session_land(self) -> None:
+        hover_time = self.reach_hover()
+        self.controller.observe_status(
+            session_id="session-1",
+            health=TelemetryHealth.STALE,
+            telemetry_age_s=1.1,
+            now_ns=hover_time + 1,
+        )
+        self.fresh(hover_time + 2)
+        self.controller.observe_heartbeat(
+            session_id="session-1", armed=True, flight_mode="GUIDED", now_ns=hover_time + 3
+        )
+        self.controller.tick(hover_time + 3)
+        first_land = self.controller.tick(hover_time + 4)
+        self.assertEqual(first_land.kind, CommandKind.LAND)
+        self.assertTrue(self.controller.acknowledge(
+            session_id="session-1",
+            command_id=MAV_CMD_NAV_LAND,
+            result=0,
+            now_ns=hover_time + 5,
+        ))
+        self.controller.observe_landed(
+            session_id="session-1", landed=True, now_ns=hover_time + 6
+        )
+
+        reconnect_time = hover_time + 7
+        self.controller.observe_status(
+            session_id="session-2",
+            health=TelemetryHealth.CONNECTED,
+            telemetry_age_s=0.1,
+            now_ns=reconnect_time,
+        )
+        self.assertEqual(self.controller.phase, MissionPhase.RECOVERY_WAIT_TELEMETRY)
+        self.assertEqual(self.controller.phase_started_ns, reconnect_time)
+        self.assertIsNone(self.controller.armed)
+        self.assertIsNone(self.controller.landed)
+        self.assertFalse(self.controller.acknowledge(
+            session_id="session-1",
+            command_id=MAV_CMD_NAV_LAND,
+            result=0,
+            now_ns=hover_time + 8,
+        ))
+
+        self.controller.observe_heartbeat(
+            session_id="session-2", armed=True, flight_mode="LAND", now_ns=hover_time + 9
+        )
+        self.controller.tick(hover_time + 9)
+        second_land = self.controller.tick(hover_time + 10)
+        self.assertEqual(second_land.kind, CommandKind.LAND)
+        self.assertTrue(second_land.recovery)
+        self.assertFalse(self.controller.acknowledge(
+            session_id="session-1",
+            command_id=MAV_CMD_NAV_LAND,
+            result=0,
+            now_ns=hover_time + 11,
+        ))
+
+        # Even new-session state received before its ACK cannot complete LAND.
+        self.controller.observe_landed(
+            session_id="session-2", landed=True, now_ns=hover_time + 12
+        )
+        self.controller.observe_heartbeat(
+            session_id="session-2", armed=False, flight_mode="LAND", now_ns=hover_time + 13
+        )
+        self.assertTrue(self.controller.acknowledge(
+            session_id="session-2",
+            command_id=MAV_CMD_NAV_LAND,
+            result=0,
+            now_ns=hover_time + 14,
+        ))
+        self.controller.tick(hover_time + 14)
+        self.assertEqual(self.controller.phase, MissionPhase.RECOVERY_WAIT_LANDED_DISARMED)
+
+        self.controller.observe_landed(
+            session_id="session-2", landed=True, now_ns=hover_time + 15
+        )
+        self.controller.tick(hover_time + 15)
+        self.assertEqual(self.controller.phase, MissionPhase.RECOVERY_WAIT_LANDED_DISARMED)
+        self.controller.observe_heartbeat(
+            session_id="session-2", armed=False, flight_mode="LAND", now_ns=hover_time + 16
+        )
+        self.controller.tick(hover_time + 16)
+        self.assertEqual(self.controller.phase, MissionPhase.FAILED)
+        self.assertIn("recovery landing verified", self.controller.report()["failure_reason"])
+
+        land_sessions = [
+            item["session_id"]
+            for item in self.controller.report()["commands"]
+            if item["kind"] == "land"
+        ]
+        self.assertEqual(land_sessions, ["session-1", "session-2"])
+
     def test_reconnect_aborts_and_does_not_reuse_pre_reconnect_observations(self) -> None:
         hover_time = self.reach_hover()
         self.controller.observe_status(
@@ -366,12 +458,27 @@ class FlightMissionControllerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "below target"):
             MissionConfig(target_altitude_enu_m=1.0, altitude_tolerance_m=1.0)
 
-    def test_simulation_endpoint_rejects_non_loopback_and_non_tcp_transports(self) -> None:
-        self.assertEqual(
-            validate_simulation_endpoint("tcp:127.0.0.1:5760"),
+    def test_simulation_endpoint_accepts_port_boundaries(self) -> None:
+        for endpoint in (
+            "tcp:127.0.0.1:1",
             "tcp:127.0.0.1:5760",
-        )
-        for endpoint in ("udp:127.0.0.1:14550", "tcp:192.0.2.1:5760", "/dev/ttyUSB0"):
+            "tcp:127.0.0.1:65535",
+        ):
+            self.assertEqual(validate_simulation_endpoint(endpoint), endpoint)
+
+    def test_simulation_endpoint_rejects_invalid_ports_and_transports(self) -> None:
+        for endpoint in (
+            "tcp:127.0.0.1:0",
+            "tcp:127.0.0.1:65536",
+            "tcp:127.0.0.1:99999",
+            "tcp:127.0.0.1:",
+            "tcp:127.0.0.1:-1",
+            "tcp:127.0.0.1:1.5",
+            "tcp:127.0.0.1:١",
+            "udp:127.0.0.1:14550",
+            "tcp:192.0.2.1:5760",
+            "/dev/ttyUSB0",
+        ):
             with self.assertRaisesRegex(ValueError, "loopback TCP SITL"):
                 validate_simulation_endpoint(endpoint)
 

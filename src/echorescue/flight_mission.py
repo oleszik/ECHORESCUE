@@ -30,8 +30,16 @@ MAV_RESULT_IN_PROGRESS = 5
 def validate_simulation_endpoint(endpoint: str) -> str:
     """Reject serial, UDP, and non-loopback command transports."""
     prefix = "tcp:127.0.0.1:"
-    if not endpoint.startswith(prefix) or not endpoint[len(prefix):].isdigit():
-        raise ValueError("v0.14.3 commands require a loopback TCP SITL endpoint")
+    port_text = endpoint[len(prefix):] if endpoint.startswith(prefix) else ""
+    if not port_text.isascii() or not port_text.isdigit():
+        raise ValueError(
+            "v0.14.3 commands require a loopback TCP SITL endpoint with port 1 through 65535"
+        )
+    port = int(port_text)
+    if not 1 <= port <= 65_535:
+        raise ValueError(
+            "v0.14.3 commands require a loopback TCP SITL endpoint with port 1 through 65535"
+        )
     return endpoint
 
 
@@ -175,14 +183,12 @@ class FlightMissionController:
         now_ns: int,
     ) -> None:
         previous_session = self.session_id
+        if session_id and previous_session and session_id != previous_session and not self.terminal:
+            self._handle_session_change(previous_session, session_id, now_ns)
+        elif session_id:
+            self.session_id = session_id
         self.health = health
         self.telemetry_age_s = telemetry_age_s
-        if session_id and previous_session and session_id != previous_session and not self.terminal:
-            self.session_id = session_id
-            self._abort(now_ns, f"MAVLink reconnect changed session {previous_session} -> {session_id}")
-            return
-        if session_id:
-            self.session_id = session_id
         if health in (TelemetryHealth.STALE, TelemetryHealth.DISCONNECTED) and self.phase not in (
             MissionPhase.WAIT_READY,
             MissionPhase.RECOVERY_WAIT_TELEMETRY,
@@ -216,10 +222,51 @@ class FlightMissionController:
             return
         if self.session_id and session_id != self.session_id and not self.terminal:
             previous = self.session_id
-            self.session_id = session_id
-            self._abort(now_ns, f"MAVLink reconnect changed session {previous} -> {session_id}")
+            self._handle_session_change(previous, session_id, now_ns)
         else:
             self.session_id = session_id
+
+    def _handle_session_change(self, previous: str, current: str, now_ns: int) -> None:
+        reason = f"MAVLink reconnect changed session {previous} -> {current}"
+        recovery_in_progress = self.phase in (
+            MissionPhase.RECOVERY_WAIT_TELEMETRY,
+            MissionPhase.RECOVERY_SEND_LAND,
+            MissionPhase.RECOVERY_WAIT_LANDED_DISARMED,
+        )
+        may_be_armed = recovery_in_progress or self.armed is True or self.phase in (
+            MissionPhase.WAIT_ARMED,
+            MissionPhase.SEND_TAKEOFF,
+            MissionPhase.WAIT_ALTITUDE,
+            MissionPhase.HOVER,
+            MissionPhase.SEND_LAND,
+            MissionPhase.WAIT_LANDED_DISARMED,
+        )
+        self.session_id = current
+        self._clear_pending()
+        self._land_acknowledged = False
+        self.armed = None
+        self.flight_mode = None
+        self.altitude_enu_m = None
+        self.landed = None
+        self.last_heartbeat_ns = 0
+        self.last_position_ns = 0
+        self.last_landed_ns = 0
+        self.hover_started_ns = None
+        self._ready_since_ns = None
+        self.health = TelemetryHealth.DEGRADED
+        self.telemetry_age_s = -1.0
+        if not may_be_armed:
+            self._fail(now_ns, reason)
+            return
+        prior_reason = self._cleanup_reason
+        self._cleanup_reason = f"{prior_reason}; {reason}" if prior_reason else reason
+        self._failure_reason = self._cleanup_reason
+        self._cleanup_started_ns = now_ns
+        self._set_phase(
+            MissionPhase.RECOVERY_WAIT_TELEMETRY,
+            now_ns,
+            f"{reason}; old-session command and telemetry correlation invalidated",
+        )
 
     def acknowledge(
         self,
@@ -345,7 +392,14 @@ class FlightMissionController:
             elif self.hover_started_ns is not None and (now_ns - self.hover_started_ns) / 1e9 >= self.config.hover_duration_s:
                 self._set_phase(MissionPhase.SEND_LAND, now_ns, "timed hover completed")
         elif self.phase is MissionPhase.SEND_LAND:
-            return self._issue(CommandKind.LAND, MAV_CMD_NAV_LAND, now_ns)
+            if self._land_issued_in_current_session:
+                self._set_phase(
+                    MissionPhase.RECOVERY_WAIT_LANDED_DISARMED,
+                    now_ns,
+                    "LAND already issued in this session; waiting without repeating it",
+                )
+            else:
+                return self._issue(CommandKind.LAND, MAV_CMD_NAV_LAND, now_ns)
         elif self.phase is MissionPhase.WAIT_LANDED_DISARMED:
             if self._land_complete:
                 self._mark_transition("extended_state.landed=true;heartbeat.armed=false", now_ns)
@@ -370,7 +424,14 @@ class FlightMissionController:
             elif self._elapsed_s(now_ns) > self.config.cleanup_timeout_s:
                 self._fail(now_ns, f"{self._cleanup_reason}; cleanup timed out without fresh telemetry")
         elif self.phase is MissionPhase.RECOVERY_SEND_LAND:
-            return self._issue(CommandKind.LAND, MAV_CMD_NAV_LAND, now_ns, recovery=True)
+            if self._land_issued_in_current_session:
+                self._set_phase(
+                    MissionPhase.RECOVERY_WAIT_LANDED_DISARMED,
+                    now_ns,
+                    "recovery LAND already issued in this session; waiting without repeating it",
+                )
+            else:
+                return self._issue(CommandKind.LAND, MAV_CMD_NAV_LAND, now_ns, recovery=True)
         elif self.phase is MissionPhase.RECOVERY_WAIT_LANDED_DISARMED:
             if self._land_complete:
                 self._mark_transition("extended_state.landed=true;heartbeat.armed=false", now_ns)
@@ -383,6 +444,14 @@ class FlightMissionController:
     @property
     def _fresh(self) -> bool:
         return self.health is TelemetryHealth.CONNECTED and self.telemetry_age_s >= 0.0
+
+    @property
+    def _land_issued_in_current_session(self) -> bool:
+        return any(
+            item["kind"] == CommandKind.LAND.value
+            and item["session_id"] == self.session_id
+            for item in self.command_history
+        )
 
     @property
     def _land_complete(self) -> bool:
@@ -476,11 +545,7 @@ class FlightMissionController:
             and self._pending.kind is CommandKind.LAND
             and self._pending_session_id == self.session_id
         )
-        land_already_issued_in_session = any(
-            item["kind"] == CommandKind.LAND.value
-            and item["session_id"] == self.session_id
-            for item in self.command_history
-        )
+        land_already_issued_in_session = self._land_issued_in_current_session
         if not land_pending_in_session:
             self._clear_pending()
         if may_be_armed:
