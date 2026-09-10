@@ -54,6 +54,7 @@ class MissionPhase(str, Enum):
     SEND_TAKEOFF = "send_takeoff"
     WAIT_ALTITUDE = "wait_altitude"
     HOVER = "hover"
+    NAVIGATION_HOLD = "navigation_hold"
     SEND_LAND = "send_land"
     WAIT_LANDED_DISARMED = "wait_landed_disarmed"
     RECOVERY_WAIT_TELEMETRY = "recovery_wait_telemetry"
@@ -82,6 +83,7 @@ class MissionConfig:
     takeoff_timeout_s: float = 30.0
     landing_timeout_s: float = 30.0
     cleanup_timeout_s: float = 30.0
+    auto_land_after_hover: bool = True
 
     def __post_init__(self) -> None:
         positive = (
@@ -390,7 +392,15 @@ class FlightMissionController:
             elif self.altitude_enu_m is not None and abs(self.altitude_enu_m - self.config.target_altitude_enu_m) > self.config.altitude_tolerance_m:
                 self._abort(now_ns, "vehicle left the configured hover altitude band")
             elif self.hover_started_ns is not None and (now_ns - self.hover_started_ns) / 1e9 >= self.config.hover_duration_s:
-                self._set_phase(MissionPhase.SEND_LAND, now_ns, "timed hover completed")
+                next_phase = (
+                    MissionPhase.SEND_LAND
+                    if self.config.auto_land_after_hover
+                    else MissionPhase.NAVIGATION_HOLD
+                )
+                self._set_phase(next_phase, now_ns, "timed hover completed")
+        elif self.phase is MissionPhase.NAVIGATION_HOLD:
+            if not self._fresh:
+                self._abort(now_ns, "telemetry became stale during navigation hold")
         elif self.phase is MissionPhase.SEND_LAND:
             if self._land_issued_in_current_session:
                 self._set_phase(
@@ -569,6 +579,12 @@ class FlightMissionController:
     def cancel(self, now_ns: int, reason: str = "mission cancelled") -> None:
         """Abort deliberately while preserving the normal recovery policy."""
         self._abort(now_ns, reason)
+
+    def request_land(self, now_ns: int) -> None:
+        """Leave the v0.14.4 navigation extension point and start normal LAND."""
+        if self.phase is not MissionPhase.NAVIGATION_HOLD:
+            raise RuntimeError("landing can only be requested from navigation_hold")
+        self._set_phase(MissionPhase.SEND_LAND, now_ns, "navigation complete; landing requested")
 
     def _fail(self, now_ns: int, reason: str) -> None:
         self._failure_reason = reason
