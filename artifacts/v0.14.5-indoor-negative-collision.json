@@ -1,0 +1,215 @@
+{
+  "checks": [
+    {
+      "detail": "evaluator exit=1; sources=[{'classification': 'obstacle', 'entity': 'blocking_obstacle', 'simulation_time_s': 0.012, 'source': 'conservative_vehicle_envelope'}, {'classification': 'obstacle', 'entity': 'blocking_obstacle', 'simulation_time_s': 0.012, 'source': 'gazebo_contact_sensor'}, {'classification': 'obstacle', 'entity': 'blocking_obstacle', 'simulation_time_s': 0.013, 'source': 'gazebo_contact_sensor'}, {'classification': 'obstacle', 'entity': 'blocking_obstacle', 'simulation_time_s': 0.014, 'source': 'gazebo_contact_sensor'}, {'classification': 'obstacle', 'entity': 'blocking_obstacle', 'simulation_time_s': 0.015, 'source': 'gazebo_contact_sensor'}, {'classification': 'obstacle', 'entity': 'blocking_obstacle', 'simulation_time_s': 0.016, 'source': 'gazebo_contact_sensor'}]",
+      "name": "negative.obstacle_collision_detected",
+      "status": "PASS",
+      "version": null
+    }
+  ],
+  "cleanup": [
+    {
+      "detail": "pid 138743 stopped",
+      "name": "cleanup.gazebo",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 138759 stopped",
+      "name": "cleanup.gazebo_evaluator",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "udp 127.0.0.1:9002 is available",
+      "name": "cleanup.port.gazebo_json",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "udp 127.0.0.1:14550 is available",
+      "name": "cleanup.port.mavproxy_output",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "tcp 127.0.0.1:5760 is available",
+      "name": "cleanup.port.sitl_mavlink",
+      "status": "PASS",
+      "version": null
+    }
+  ],
+  "evaluation": {
+    "clearance_method": "sampled model origin to configured axis-aligned obstacle, minus conservative spherical vehicle radius",
+    "clearance_uncertainty": "sampled at the configured interval; contact sensors independently cover every configured solid",
+    "conservative_vehicle_radius_m": 0.35,
+    "contact_count": 5,
+    "contact_topic_coverage_complete": true,
+    "contact_topics_available": [
+      "/echorescue/indoor/contacts/blocking_obstacle",
+      "/echorescue/indoor/contacts/ceiling",
+      "/echorescue/indoor/contacts/divider_header",
+      "/echorescue/indoor/contacts/divider_north",
+      "/echorescue/indoor/contacts/divider_south",
+      "/echorescue/indoor/contacts/floor",
+      "/echorescue/indoor/contacts/wall_east",
+      "/echorescue/indoor/contacts/wall_north",
+      "/echorescue/indoor/contacts/wall_south",
+      "/echorescue/indoor/contacts/wall_west"
+    ],
+    "contact_topics_required": [
+      "/echorescue/indoor/contacts/floor",
+      "/echorescue/indoor/contacts/ceiling",
+      "/echorescue/indoor/contacts/wall_west",
+      "/echorescue/indoor/contacts/wall_east",
+      "/echorescue/indoor/contacts/wall_south",
+      "/echorescue/indoor/contacts/wall_north",
+      "/echorescue/indoor/contacts/divider_south",
+      "/echorescue/indoor/contacts/divider_north",
+      "/echorescue/indoor/contacts/divider_header",
+      "/echorescue/indoor/contacts/blocking_obstacle"
+    ],
+    "contacts": [
+      {
+        "classification": "obstacle",
+        "collision_pairs": [
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::gimbal::pitch_link::pitch_collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::iris_with_standoffs::rotor_1::collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::iris_with_standoffs::base_link::front_left_leg_collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::gimbal::yaw_link::yaw_collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::gimbal::roll_link::roll_collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::iris_with_standoffs::base_link::rear_right_leg_collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::gimbal::base_link::base_collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::iris_with_standoffs::base_link::base_collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::iris_with_standoffs::rotor_3::collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::iris_with_standoffs::rotor_2::collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::iris_with_standoffs::base_link::front_right_leg_collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::gimbal::pitch_link::camera_collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::iris_with_standoffs::rotor_0::collision"
+          ],
+          [
+            "blocking_obstacle::link::collision",
+            "iris_with_gimbal::iris_with_standoffs::base_link::rear_left_leg_collision"
+          ]
+        ],
+        "contact_duration_s": 0.004,
+        "contact_message_count": 5,
+        "entity": "blocking_obstacle",
+        "first_contact_simulation_time_s": 0.012,
+        "last_contact_simulation_time_s": 0.016,
+        "prohibited": true
+      }
+    ],
+    "detail": "collision evidence caused immediate evaluation failure",
+    "doorway_crossings": [],
+    "far_side_region_entered": false,
+    "floor_contact_uncertainty": "the Gazebo floor sensor may retain its initial collision pair; only its first time-correlated launch contact is counted, while the sampled conservative envelope classifies later floor intersection",
+    "milestone": "v0.14.5",
+    "minimum_doorway_boundary_center_distance_m": null,
+    "minimum_doorway_boundary_surface_clearance_m": null,
+    "minimum_obstacle_center_distance_m": 0.0,
+    "minimum_obstacle_surface_clearance_m": -0.35,
+    "model_name": "iris_with_gimbal",
+    "prohibited_contact_detected": true,
+    "prohibited_contacts": [
+      {
+        "classification": "obstacle",
+        "entity": "blocking_obstacle",
+        "simulation_time_s": 0.012,
+        "source": "conservative_vehicle_envelope"
+      },
+      {
+        "classification": "obstacle",
+        "entity": "blocking_obstacle",
+        "simulation_time_s": 0.012,
+        "source": "gazebo_contact_sensor"
+      },
+      {
+        "classification": "obstacle",
+        "entity": "blocking_obstacle",
+        "simulation_time_s": 0.013,
+        "source": "gazebo_contact_sensor"
+      },
+      {
+        "classification": "obstacle",
+        "entity": "blocking_obstacle",
+        "simulation_time_s": 0.014,
+        "source": "gazebo_contact_sensor"
+      },
+      {
+        "classification": "obstacle",
+        "entity": "blocking_obstacle",
+        "simulation_time_s": 0.015,
+        "source": "gazebo_contact_sensor"
+      },
+      {
+        "classification": "obstacle",
+        "entity": "blocking_obstacle",
+        "simulation_time_s": 0.016,
+        "source": "gazebo_contact_sensor"
+      }
+    ],
+    "required_doorway_crossings": [
+      "outbound",
+      "inbound"
+    ],
+    "return_region_entered": false,
+    "safety_margin_m": 0.2,
+    "schema_version": "echorescue-indoor-gazebo-evaluation/1.0",
+    "status": "FAIL",
+    "trajectory": [
+      {
+        "east_m": 2.4999976959257344,
+        "north_m": -6.050917590564459e-08,
+        "simulation_time_s": 0.012,
+        "up_m": 1.1999999610232688
+      }
+    ],
+    "trajectory_reported_sample_count": 1,
+    "trajectory_sample_count": 1,
+    "world_name": "echorescue_indoor_v0_14_5",
+    "world_version": "echorescue-indoor-v1"
+  },
+  "logs": [],
+  "milestone": "v0.14.5",
+  "schema_version": "echorescue-indoor-negative-collision/1.0",
+  "status": "PASS"
+}

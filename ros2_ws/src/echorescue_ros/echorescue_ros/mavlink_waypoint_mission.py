@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from time import monotonic, monotonic_ns
 from typing import Any
@@ -33,6 +34,22 @@ from echorescue_interfaces.msg import WaypointMissionEvent, WaypointTarget
 from echorescue_ros.conversions import waypoint_event_to_msg, waypoint_target_to_msg
 from echorescue_ros.mavlink_telemetry_bridge import MavlinkTelemetryBridge
 from echorescue_ros.qos import MISSION_QOS
+
+
+def targets_from_json(value: str) -> tuple[RelativeTarget, ...]:
+    """Parse the optional predefined route without adding a new control primitive."""
+    decoded = json.loads(value)
+    if not isinstance(decoded, list) or not decoded:
+        raise ValueError("targets_json must be a non-empty JSON array")
+    targets: list[RelativeTarget] = []
+    for item in decoded:
+        if not isinstance(item, dict):
+            raise ValueError("each targets_json entry must be an object")
+        targets.append(RelativeTarget(
+            str(item["target_id"]), float(item["east_offset_m"]),
+            float(item["north_offset_m"]), float(item["altitude_above_launch_m"]),
+        ))
+    return tuple(targets)
 
 
 class MavlinkWaypointMission(MavlinkTelemetryBridge):
@@ -71,11 +88,13 @@ class MavlinkWaypointMission(MavlinkTelemetryBridge):
             "takeoff_timeout_s": 35.0,
             "landing_timeout_s": 40.0,
             "cleanup_timeout_s": 40.0,
+            "targets_json": "",
         }
         for name, value in defaults.items():
             self.declare_parameter(name, value)
         value = lambda name: float(self.get_parameter(name).value)
-        targets = (
+        targets_json = str(self.get_parameter("targets_json").value)
+        targets = targets_from_json(targets_json) if targets_json else (
             RelativeTarget("waypoint-a", value("waypoint_a_east_m"), value("waypoint_a_north_m"), value("waypoint_a_up_m")),
             RelativeTarget("waypoint-b", value("waypoint_b_east_m"), value("waypoint_b_north_m"), value("waypoint_b_up_m")),
             RelativeTarget("return-launch", value("return_east_m"), value("return_north_m"), value("return_up_m")),

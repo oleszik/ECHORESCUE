@@ -18,7 +18,7 @@ from echorescue.waypoint_mission import EnuTarget, TargetRequest, WaypointMissio
 from echorescue_ros.conversions import waypoint_event_to_msg, waypoint_target_to_msg
 from echorescue_ros.flight_mission_observer import FlightMissionObserver
 from echorescue_ros.mavlink_telemetry_bridge import MavlinkTelemetryBridge, _load_mavutil
-from echorescue_ros.mavlink_waypoint_mission import MISSION_QOS as PUBLISHER_MISSION_QOS, MavlinkWaypointMission
+from echorescue_ros.mavlink_waypoint_mission import MISSION_QOS as PUBLISHER_MISSION_QOS, MavlinkWaypointMission, targets_from_json
 from echorescue_ros.qos import MISSION_QOS, STATUS_QOS, TELEMETRY_QOS
 from echorescue_ros.telemetry_observer import STATUS_QOS as TELEMETRY_OBSERVER_STATUS_QOS
 from echorescue_ros.telemetry_observer import TELEMETRY_QOS as TELEMETRY_OBSERVER_QOS
@@ -134,3 +134,13 @@ def test_waypoint_command_node_has_only_narrow_local_target_interface() -> None:
     assert "set_position_target_local_ned_send" in source
     for prohibited in ("mission_item_send", "rc_channels_override", "/world/", "gz.msgs"):
         assert prohibited not in source
+
+
+def test_predefined_target_json_reuses_relative_waypoint_contract() -> None:
+    targets = targets_from_json(
+        '[{"target_id":"door","east_offset_m":1,"north_offset_m":2,"altitude_above_launch_m":3}]'
+    )
+    assert len(targets) == 1
+    assert (targets[0].target_id, targets[0].east_offset_m, targets[0].north_offset_m, targets[0].altitude_above_launch_m) == (
+        "door", 1.0, 2.0, 3.0,
+    )

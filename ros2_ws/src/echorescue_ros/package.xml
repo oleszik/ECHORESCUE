@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>echorescue_ros</name>
-  <version>0.14.4</version>
+  <version>0.14.5</version>
   <description>ROS 2 telemetry adapters and simulation-only closed-loop MAVLink milestone.</description>
   <maintainer email="maintainers@example.invalid">EchoRescue contributors</maintainer>
   <license>MIT</license>
