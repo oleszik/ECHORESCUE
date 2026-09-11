@@ -7,7 +7,6 @@ from pathlib import Path
 from time import monotonic, monotonic_ns
 from typing import Any
 
-from pymavlink import mavutil
 import rclpy
 
 from echorescue.flight_mission import (
@@ -80,7 +79,7 @@ class MavlinkFlightMission(MavlinkTelemetryBridge):
             self._connection.mav.request_data_stream_send(
                 sample.system_id,
                 sample.component_id,
-                mavutil.mavlink.MAV_DATA_STREAM_EXTENDED_STATUS,
+                self._mavutil.mavlink.MAV_DATA_STREAM_EXTENDED_STATUS,
                 2,
                 1,
             )

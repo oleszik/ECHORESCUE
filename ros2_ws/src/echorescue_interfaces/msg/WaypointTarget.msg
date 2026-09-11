@@ -1,0 +1,17 @@
+std_msgs/Header header
+string session_id
+uint32 sequence
+string target_id
+float64 east_m
+float64 north_m
+float64 up_m
+bool has_heading
+float64 heading_enu_deg
+uint8 coordinate_frame
+uint16 type_mask
+float64 ned_north_m
+float64 ned_east_m
+float64 ned_down_m
+float64 ned_yaw_rad
+uint64 transmit_monotonic_ns
+uint64 transmit_source_time_boot_ms

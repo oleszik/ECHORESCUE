@@ -1,0 +1,1049 @@
+{
+  "checks": [
+    {
+      "detail": "pre-existing SITL stack preserved",
+      "name": "health.ardupilot_sitl",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pre-existing Gazebo stack preserved",
+      "name": "health.gazebo",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "command order=['extended_state_stream', 'guided', 'arm', 'takeoff', 'land']; ACKs and later telemetry required",
+      "name": "mission.command_ack_and_transitions",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "observer targets=['waypoint-a', 'waypoint-b', 'return-launch']; events=['waypoint-a', 'waypoint-b', 'return-launch']",
+      "name": "mission.independent_observer_agreement",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "distance=0.06358437625269402; landed=True; armed=False",
+      "name": "mission.return_land_disarm",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "horizontal <= 0.45 m; vertical <= 0.35 m",
+      "name": "mission.target_arrival_and_settling",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "target order=['waypoint-a', 'waypoint-b', 'return-launch']; send/session/receipt/vehicle-time evidence required",
+      "name": "mission.target_post_command_evidence",
+      "status": "PASS",
+      "version": null
+    }
+  ],
+  "cleanup": [
+    {
+      "detail": "pre-existing Gazebo and SITL were not owned or terminated",
+      "name": "cleanup.external_stack_preserved",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 112100 stopped",
+      "name": "cleanup.waypoint_mission",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 112070 stopped",
+      "name": "cleanup.waypoint_observer",
+      "status": "PASS",
+      "version": null
+    }
+  ],
+  "detail": "real Gazebo-ArduPilot-ROS continuous waypoint-return-land mission verified",
+  "logs": [],
+  "milestone": "v0.14.4",
+  "mission": {
+    "autopilot_status_text": [
+      {
+        "receipt_monotonic_ns": 89625103828140,
+        "severity": 6,
+        "text": "Arming motors"
+      },
+      {
+        "receipt_monotonic_ns": 89638303785135,
+        "severity": 6,
+        "text": "EKF3 IMU0 MAG0 in-flight yaw alignment complete"
+      },
+      {
+        "receipt_monotonic_ns": 89638303958753,
+        "severity": 6,
+        "text": "EKF3 IMU1 MAG0 in-flight yaw alignment complete"
+      },
+      {
+        "receipt_monotonic_ns": 89645604108563,
+        "severity": 6,
+        "text": "PrecLand: Failsafe Measures"
+      },
+      {
+        "receipt_monotonic_ns": 89659005055560,
+        "severity": 6,
+        "text": "Disarming motors"
+      }
+    ],
+    "command_ack_results": {
+      "arm": 0,
+      "guided": 0,
+      "land": 0,
+      "takeoff": 0
+    },
+    "commands": [
+      {
+        "ack_monotonic_ns": 89624463947297,
+        "ack_result": 0,
+        "command_id": 511,
+        "issued_monotonic_ns": 89624448021062,
+        "kind": "extended_state_stream",
+        "recovery": false,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "telemetry_transition": "extended_state.landed=true",
+        "telemetry_transition_monotonic_ns": 89624944181543
+      },
+      {
+        "ack_monotonic_ns": 89625003707057,
+        "ack_result": 0,
+        "command_id": 176,
+        "issued_monotonic_ns": 89624998091999,
+        "kind": "guided",
+        "recovery": false,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "telemetry_transition": "heartbeat.flight_mode=GUIDED",
+        "telemetry_transition_monotonic_ns": 89625003856194
+      },
+      {
+        "ack_monotonic_ns": 89625103584873,
+        "ack_result": 0,
+        "command_id": 400,
+        "issued_monotonic_ns": 89625098187828,
+        "kind": "arm",
+        "recovery": false,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "telemetry_transition": "heartbeat.armed=true",
+        "telemetry_transition_monotonic_ns": 89625443906775
+      },
+      {
+        "ack_monotonic_ns": 89625503695309,
+        "ack_result": 0,
+        "command_id": 22,
+        "issued_monotonic_ns": 89625498253049,
+        "kind": "takeoff",
+        "recovery": false,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "telemetry_transition": "local_position_enu.z_in_target_band",
+        "telemetry_transition_monotonic_ns": 89630364326209
+      },
+      {
+        "ack_monotonic_ns": 89645603713749,
+        "ack_result": 0,
+        "command_id": 21,
+        "issued_monotonic_ns": 89645598168457,
+        "kind": "land",
+        "recovery": false,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "telemetry_transition": "extended_state.landed=true;heartbeat.armed=false",
+        "telemetry_transition_monotonic_ns": 89659548078621
+      }
+    ],
+    "disarm": {
+      "ack_result": null,
+      "command_issued": false,
+      "detail": "ArduPilot disarmed after LAND; EchoRescue issued no disarm command",
+      "telemetry_verified": true
+    },
+    "failure_reason": null,
+    "final_armed": false,
+    "final_distance_from_launch_m": 0.06358437625269402,
+    "final_landed": true,
+    "final_position_enu": {
+      "east_m": -0.08170237392187119,
+      "north_m": -0.06679131090641022,
+      "up_m": 0.1899999976158142
+    },
+    "flight_events": [
+      {
+        "detail": "waiting for fresh disarmed telemetry",
+        "event": "mission_started",
+        "monotonic_ns": 89594146334699,
+        "phase": "wait_ready"
+      },
+      {
+        "detail": "fresh disarmed telemetry remained stable through preflight hold",
+        "event": "phase",
+        "monotonic_ns": 89624398161555,
+        "phase": "send_extended_state_stream"
+      },
+      {
+        "detail": "extended_state_stream command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 89624448021062,
+        "phase": "wait_extended_state_stream"
+      },
+      {
+        "detail": "extended_state_stream accepted",
+        "event": "command_ack",
+        "monotonic_ns": 89624463947297,
+        "phase": "wait_extended_state_stream"
+      },
+      {
+        "detail": "extended-state ACK and telemetry observed",
+        "event": "phase",
+        "monotonic_ns": 89624947972192,
+        "phase": "send_guided"
+      },
+      {
+        "detail": "guided command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 89624998091999,
+        "phase": "wait_guided"
+      },
+      {
+        "detail": "guided accepted",
+        "event": "command_ack",
+        "monotonic_ns": 89625003707057,
+        "phase": "wait_guided"
+      },
+      {
+        "detail": "GUIDED ACK and heartbeat mode observed",
+        "event": "phase",
+        "monotonic_ns": 89625048022404,
+        "phase": "send_arm"
+      },
+      {
+        "detail": "arm command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 89625098187828,
+        "phase": "wait_armed"
+      },
+      {
+        "detail": "arm accepted",
+        "event": "command_ack",
+        "monotonic_ns": 89625103584873,
+        "phase": "wait_armed"
+      },
+      {
+        "detail": "arm ACK and armed heartbeat observed",
+        "event": "phase",
+        "monotonic_ns": 89625447971858,
+        "phase": "send_takeoff"
+      },
+      {
+        "detail": "takeoff command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 89625498253049,
+        "phase": "wait_altitude"
+      },
+      {
+        "detail": "takeoff accepted",
+        "event": "command_ack",
+        "monotonic_ns": 89625503695309,
+        "phase": "wait_altitude"
+      },
+      {
+        "detail": "takeoff ACK and target ENU altitude observed",
+        "event": "phase",
+        "monotonic_ns": 89630398374791,
+        "phase": "hover"
+      },
+      {
+        "detail": "timed hover completed",
+        "event": "phase",
+        "monotonic_ns": 89632448057287,
+        "phase": "navigation_hold"
+      },
+      {
+        "detail": "navigation complete; landing requested",
+        "event": "phase",
+        "monotonic_ns": 89645584237130,
+        "phase": "send_land"
+      },
+      {
+        "detail": "land command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 89645598168457,
+        "phase": "wait_landed_disarmed"
+      },
+      {
+        "detail": "land accepted",
+        "event": "command_ack",
+        "monotonic_ns": 89645603713749,
+        "phase": "wait_landed_disarmed"
+      },
+      {
+        "detail": "land ACK, landed state, and disarmed heartbeat observed",
+        "event": "phase",
+        "monotonic_ns": 89659548078621,
+        "phase": "succeeded"
+      }
+    ],
+    "geofence_checks": [
+      {
+        "checked_monotonic_ns": 89632498155811,
+        "horizontal_distance_m": 3.0,
+        "horizontal_limit_m": 8.0,
+        "maximum_altitude_m": 4.0,
+        "minimum_altitude_m": -0.25,
+        "passed": true,
+        "relative_altitude_m": 2.0,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "checked_monotonic_ns": 89636698218114,
+        "horizontal_distance_m": 4.242640687119285,
+        "horizontal_limit_m": 8.0,
+        "maximum_altitude_m": 4.0,
+        "minimum_altitude_m": -0.25,
+        "passed": true,
+        "relative_altitude_m": 2.5,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "checked_monotonic_ns": 89640998226570,
+        "horizontal_distance_m": 0.0,
+        "horizontal_limit_m": 8.0,
+        "maximum_altitude_m": 4.0,
+        "minimum_altitude_m": -0.25,
+        "passed": true,
+        "relative_altitude_m": 2.0,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      }
+    ],
+    "launch_enu": {
+      "east_m": -0.03631216660141945,
+      "north_m": -0.022263769060373306,
+      "up_m": 0.1899999976158142
+    },
+    "maximum_altitude_enu_m": 2.7300000190734863,
+    "maximum_horizontal_displacement_m": 4.3102321418854554,
+    "maximum_telemetry_age_s": 0.099726961,
+    "maximum_telemetry_gap_s": 0.327849267,
+    "milestone": "v0.14.4",
+    "mission_events": [
+      {
+        "detail": "waiting for launch-local telemetry",
+        "event": "mission_started",
+        "monotonic_ns": 89594146334699,
+        "phase": "flight_sequence",
+        "sequence": 1,
+        "session_id": "",
+        "target_id": ""
+      },
+      {
+        "detail": "valid active-session ENU launch position recorded",
+        "event": "launch_recorded",
+        "monotonic_ns": 89594364460347,
+        "phase": "flight_sequence",
+        "sequence": 2,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "target waypoint-a activated",
+        "event": "phase",
+        "monotonic_ns": 89632448057287,
+        "phase": "send_target",
+        "sequence": 3,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "detail": "setpoint handed to MAVLink boundary",
+        "event": "phase",
+        "monotonic_ns": 89632498155811,
+        "phase": "wait_transmission",
+        "sequence": 4,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+        "event": "target_transmitted",
+        "monotonic_ns": 89632498251220,
+        "phase": "wait_transmission",
+        "sequence": 5,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "detail": "awaiting strictly post-transmission vehicle telemetry",
+        "event": "phase",
+        "monotonic_ns": 89632498251220,
+        "phase": "track_target",
+        "sequence": 6,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "detail": "fresh vehicle-time-progressing state observed",
+        "event": "first_post_command_telemetry",
+        "monotonic_ns": 89632564435625,
+        "phase": "track_target",
+        "sequence": 7,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "detail": "measurable target-error decrease observed",
+        "event": "target_progress",
+        "monotonic_ns": 89633164264829,
+        "phase": "track_target",
+        "sequence": 8,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "detail": "horizontal and vertical tolerances entered",
+        "event": "target_arrival",
+        "monotonic_ns": 89634664223892,
+        "phase": "track_target",
+        "sequence": 9,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "detail": "continuous residence interval completed",
+        "event": "target_settled",
+        "monotonic_ns": 89636684157985,
+        "phase": "track_target",
+        "sequence": 10,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "detail": "target waypoint-b activated",
+        "event": "phase",
+        "monotonic_ns": 89636684157985,
+        "phase": "send_target",
+        "sequence": 11,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "detail": "setpoint handed to MAVLink boundary",
+        "event": "phase",
+        "monotonic_ns": 89636698218114,
+        "phase": "wait_transmission",
+        "sequence": 12,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+        "event": "target_transmitted",
+        "monotonic_ns": 89636698344807,
+        "phase": "wait_transmission",
+        "sequence": 13,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "detail": "awaiting strictly post-transmission vehicle telemetry",
+        "event": "phase",
+        "monotonic_ns": 89636698344807,
+        "phase": "track_target",
+        "sequence": 14,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "detail": "fresh vehicle-time-progressing state observed",
+        "event": "first_post_command_telemetry",
+        "monotonic_ns": 89636784144739,
+        "phase": "track_target",
+        "sequence": 15,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "detail": "measurable target-error decrease observed",
+        "event": "target_progress",
+        "monotonic_ns": 89637384622249,
+        "phase": "track_target",
+        "sequence": 16,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "detail": "horizontal and vertical tolerances entered",
+        "event": "target_arrival",
+        "monotonic_ns": 89638884310553,
+        "phase": "track_target",
+        "sequence": 17,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "detail": "continuous residence interval completed",
+        "event": "target_settled",
+        "monotonic_ns": 89640984752872,
+        "phase": "track_target",
+        "sequence": 18,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "detail": "target return-launch activated",
+        "event": "phase",
+        "monotonic_ns": 89640984752872,
+        "phase": "send_target",
+        "sequence": 19,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "detail": "setpoint handed to MAVLink boundary",
+        "event": "phase",
+        "monotonic_ns": 89640998226570,
+        "phase": "wait_transmission",
+        "sequence": 20,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+        "event": "target_transmitted",
+        "monotonic_ns": 89640998288397,
+        "phase": "wait_transmission",
+        "sequence": 21,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "detail": "awaiting strictly post-transmission vehicle telemetry",
+        "event": "phase",
+        "monotonic_ns": 89640998288397,
+        "phase": "track_target",
+        "sequence": 22,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "detail": "fresh vehicle-time-progressing state observed",
+        "event": "first_post_command_telemetry",
+        "monotonic_ns": 89641084139483,
+        "phase": "track_target",
+        "sequence": 23,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "detail": "measurable target-error decrease observed",
+        "event": "target_progress",
+        "monotonic_ns": 89641684500393,
+        "phase": "track_target",
+        "sequence": 24,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "detail": "horizontal and vertical tolerances entered",
+        "event": "target_arrival",
+        "monotonic_ns": 89643584098058,
+        "phase": "track_target",
+        "sequence": 25,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "detail": "continuous residence interval completed",
+        "event": "target_settled",
+        "monotonic_ns": 89645584237130,
+        "phase": "track_target",
+        "sequence": 26,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "detail": "all waypoint and return targets settled",
+        "event": "phase",
+        "monotonic_ns": 89645584237130,
+        "phase": "landing",
+        "sequence": 27,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "LAND ACK, ON_GROUND, and disarmed telemetry verified",
+        "event": "phase",
+        "monotonic_ns": 89659548078621,
+        "phase": "succeeded",
+        "sequence": 28,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": ""
+      }
+    ],
+    "phase": "succeeded",
+    "schema_version": "echorescue-continuous-waypoint-mission/1.0",
+    "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+    "status": "PASS",
+    "targets": [
+      {
+        "arrival_monotonic_ns": 89634664223892,
+        "best_error_m": 0.004246171564282098,
+        "commanded_enu": {
+          "east_m": 2.9636878333985806,
+          "heading_enu_deg": null,
+          "north_m": -0.022263769060373306,
+          "target_id": "waypoint-a",
+          "up_m": 2.189999997615814
+        },
+        "failure_reason": null,
+        "first_post_command_monotonic_ns": 89632564435625,
+        "first_post_command_source_time_boot_ms": 3694928,
+        "horizontal_error_m": 0.03206593170762062,
+        "initial_error_m": 3.000016666787263,
+        "initial_horizontal_error_m": 3.0,
+        "initial_vertical_error_m": 0.010000050067901611,
+        "measured_at_best_enu": {
+          "east_m": 2.959441661834717,
+          "north_m": -0.022263769060373306,
+          "up_m": 2.190000057220459
+        },
+        "measured_enu": {
+          "east_m": 2.995753765106201,
+          "north_m": -0.022263769060373306,
+          "up_m": 2.180000066757202
+        },
+        "outcome": "settled",
+        "sequence": 1,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "settled_monotonic_ns": 89636684157985,
+        "settling_duration_s": 2.019934093,
+        "target_id": "waypoint-a",
+        "time_to_arrival_s": 2.165972672,
+        "time_to_first_progress_s": 0.666013609,
+        "total_error_m": 0.033589024895861616,
+        "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+        "transmit_monotonic_ns": 89632498251220,
+        "transmit_source_time_boot_ms": 3694828,
+        "transmitted": true,
+        "transmitted_ned": {
+          "coordinate_frame": 1,
+          "down_m": -2.189999997615814,
+          "east_m": 2.9636878333985806,
+          "north_m": -0.022263769060373306,
+          "target_id": "waypoint-a",
+          "type_mask": 3576,
+          "yaw_rad": 0.0
+        },
+        "vertical_error_m": 0.00999993085861206
+      },
+      {
+        "arrival_monotonic_ns": 89638884310553,
+        "best_error_m": 0.007034527000084372,
+        "commanded_enu": {
+          "east_m": 2.9636878333985806,
+          "heading_enu_deg": null,
+          "north_m": 2.9777362309396267,
+          "target_id": "waypoint-b",
+          "up_m": 2.689999997615814
+        },
+        "failure_reason": null,
+        "first_post_command_monotonic_ns": 89636784144739,
+        "first_post_command_source_time_boot_ms": 3699127,
+        "horizontal_error_m": 0.007034526999831852,
+        "initial_error_m": 3.0432101724087457,
+        "initial_horizontal_error_m": 3.0001713657683418,
+        "initial_vertical_error_m": 0.5099999308586121,
+        "measured_at_best_enu": {
+          "east_m": 2.959442138671875,
+          "north_m": 2.9833450317382812,
+          "up_m": 2.690000057220459
+        },
+        "measured_enu": {
+          "east_m": 2.959442138671875,
+          "north_m": 2.9833450317382812,
+          "up_m": 2.690000057220459
+        },
+        "outcome": "settled",
+        "sequence": 2,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "settled_monotonic_ns": 89640984752872,
+        "settling_duration_s": 2.100442319,
+        "target_id": "waypoint-b",
+        "time_to_arrival_s": 2.185965746,
+        "time_to_first_progress_s": 0.686277442,
+        "total_error_m": 0.007034527000084372,
+        "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+        "transmit_monotonic_ns": 89636698344807,
+        "transmit_source_time_boot_ms": 3699027,
+        "transmitted": true,
+        "transmitted_ned": {
+          "coordinate_frame": 1,
+          "down_m": -2.689999997615814,
+          "east_m": 2.9636878333985806,
+          "north_m": 2.9777362309396267,
+          "target_id": "waypoint-b",
+          "type_mask": 3576,
+          "yaw_rad": 0.0
+        },
+        "vertical_error_m": 5.960464477539063e-08
+      },
+      {
+        "arrival_monotonic_ns": 89643584098058,
+        "best_error_m": 0.0175023049296473,
+        "commanded_enu": {
+          "east_m": -0.03631216660141945,
+          "heading_enu_deg": null,
+          "north_m": -0.022263769060373306,
+          "target_id": "return-launch",
+          "up_m": 2.189999997615814
+        },
+        "failure_reason": null,
+        "first_post_command_monotonic_ns": 89641084139483,
+        "first_post_command_source_time_boot_ms": 3703427,
+        "horizontal_error_m": 0.04544351225584326,
+        "initial_error_m": 4.2729647998323665,
+        "initial_horizontal_error_m": 4.243610269688041,
+        "initial_vertical_error_m": 0.5000000596046448,
+        "measured_at_best_enu": {
+          "east_m": -0.045390207320451736,
+          "north_m": -0.011131884530186653,
+          "up_m": 2.200000047683716
+        },
+        "measured_enu": {
+          "east_m": -0.045390207320451736,
+          "north_m": -0.06679131090641022,
+          "up_m": 2.190000057220459
+        },
+        "outcome": "settled",
+        "sequence": 3,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "settled_monotonic_ns": 89645584237130,
+        "settling_duration_s": 2.000139072,
+        "target_id": "return-launch",
+        "time_to_arrival_s": 2.585809661,
+        "time_to_first_progress_s": 0.686211996,
+        "total_error_m": 0.045443512255882355,
+        "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+        "transmit_monotonic_ns": 89640998288397,
+        "transmit_source_time_boot_ms": 3703327,
+        "transmitted": true,
+        "transmitted_ned": {
+          "coordinate_frame": 1,
+          "down_m": -2.189999997615814,
+          "east_m": -0.03631216660141945,
+          "north_m": -0.022263769060373306,
+          "target_id": "return-launch",
+          "type_mask": 3576,
+          "yaw_rad": 0.0
+        },
+        "vertical_error_m": 5.960464477539063e-08
+      }
+    ]
+  },
+  "observer": {
+    "armed_observed": true,
+    "detail": "independent ROS state and mission events agree on the ordered waypoint mission",
+    "disarmed_after_flight": true,
+    "event_sequence": [
+      {
+        "event": "mission_started",
+        "sequence": 1,
+        "session_id": "",
+        "target_id": ""
+      },
+      {
+        "event": "launch_recorded",
+        "sequence": 2,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": ""
+      },
+      {
+        "event": "phase",
+        "sequence": 3,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "event": "phase",
+        "sequence": 4,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "event": "target_transmitted",
+        "sequence": 5,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "event": "phase",
+        "sequence": 6,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "event": "first_post_command_telemetry",
+        "sequence": 7,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "event": "target_progress",
+        "sequence": 8,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "event": "target_arrival",
+        "sequence": 9,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "event": "target_settled",
+        "sequence": 10,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-a"
+      },
+      {
+        "event": "phase",
+        "sequence": 11,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "event": "phase",
+        "sequence": 12,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "event": "target_transmitted",
+        "sequence": 13,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "event": "phase",
+        "sequence": 14,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "event": "first_post_command_telemetry",
+        "sequence": 15,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "event": "target_progress",
+        "sequence": 16,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "event": "target_arrival",
+        "sequence": 17,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "event": "target_settled",
+        "sequence": 18,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "waypoint-b"
+      },
+      {
+        "event": "phase",
+        "sequence": 19,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "event": "phase",
+        "sequence": 20,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "event": "target_transmitted",
+        "sequence": 21,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "event": "phase",
+        "sequence": 22,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "event": "first_post_command_telemetry",
+        "sequence": 23,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "event": "target_progress",
+        "sequence": 24,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "event": "target_arrival",
+        "sequence": 25,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "event": "target_settled",
+        "sequence": 26,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": "return-launch"
+      },
+      {
+        "event": "phase",
+        "sequence": 27,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": ""
+      },
+      {
+        "event": "phase",
+        "sequence": 28,
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "target_id": ""
+      }
+    ],
+    "guided_observed": true,
+    "land_mode_observed": true,
+    "landed_after_flight": true,
+    "maximum_altitude_enu_m": 2.7300000190734863,
+    "milestone": "v0.14.4",
+    "minimum_altitude_enu_m": 0.1899999976158142,
+    "mission_node_observed": true,
+    "schema_version": "echorescue-waypoint-mission-observer/1.0",
+    "session_changed": false,
+    "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+    "settled_event_ids": [
+      "waypoint-a",
+      "waypoint-b",
+      "return-launch"
+    ],
+    "status": "PASS",
+    "target_ids": [
+      "waypoint-a",
+      "waypoint-b",
+      "return-launch"
+    ],
+    "targets": [
+      {
+        "arrival_started_ns": 89634664223892,
+        "commanded_enu": {
+          "east_m": 2.9636878333985806,
+          "north_m": -0.022263769060373306,
+          "up_m": 2.189999997615814
+        },
+        "first_post_command_monotonic_ns": 89632564435625,
+        "first_post_command_source_time_boot_ms": 3694928,
+        "horizontal_error_m": 0.03206593170762062,
+        "measured_enu": {
+          "east_m": 2.995753765106201,
+          "north_m": -0.022263769060373306,
+          "up_m": 2.180000066757202
+        },
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "settled": true,
+        "settled_monotonic_ns": 89636684157985,
+        "settling_duration_s": 2.019934093,
+        "target_id": "waypoint-a",
+        "transmit_monotonic_ns": 89632498251220,
+        "transmit_source_time_boot_ms": 3694828,
+        "transmitted_ned": {
+          "down_m": -2.189999997615814,
+          "east_m": 2.9636878333985806,
+          "north_m": -0.022263769060373306,
+          "type_mask": 3576,
+          "yaw_rad": 0.0
+        },
+        "vertical_error_m": 0.00999993085861206
+      },
+      {
+        "arrival_started_ns": 89638884310553,
+        "commanded_enu": {
+          "east_m": 2.9636878333985806,
+          "north_m": 2.9777362309396267,
+          "up_m": 2.689999997615814
+        },
+        "first_post_command_monotonic_ns": 89636784144739,
+        "first_post_command_source_time_boot_ms": 3699127,
+        "horizontal_error_m": 0.007034526999831852,
+        "measured_enu": {
+          "east_m": 2.959442138671875,
+          "north_m": 2.9833450317382812,
+          "up_m": 2.690000057220459
+        },
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "settled": true,
+        "settled_monotonic_ns": 89640984752872,
+        "settling_duration_s": 2.100442319,
+        "target_id": "waypoint-b",
+        "transmit_monotonic_ns": 89636698344807,
+        "transmit_source_time_boot_ms": 3699027,
+        "transmitted_ned": {
+          "down_m": -2.689999997615814,
+          "east_m": 2.9636878333985806,
+          "north_m": 2.9777362309396267,
+          "type_mask": 3576,
+          "yaw_rad": 0.0
+        },
+        "vertical_error_m": 5.960464477539063e-08
+      },
+      {
+        "arrival_started_ns": 89643584098058,
+        "commanded_enu": {
+          "east_m": -0.03631216660141945,
+          "north_m": -0.022263769060373306,
+          "up_m": 2.189999997615814
+        },
+        "first_post_command_monotonic_ns": 89641084139483,
+        "first_post_command_source_time_boot_ms": 3703427,
+        "horizontal_error_m": 0.04544351225584326,
+        "measured_enu": {
+          "east_m": -0.045390207320451736,
+          "north_m": -0.06679131090641022,
+          "up_m": 2.190000057220459
+        },
+        "session_id": "mavlink-8849dc02cf6745178962070190846437-0001",
+        "settled": true,
+        "settled_monotonic_ns": 89645584237130,
+        "settling_duration_s": 2.000139072,
+        "target_id": "return-launch",
+        "transmit_monotonic_ns": 89640998288397,
+        "transmit_source_time_boot_ms": 3703327,
+        "transmitted_ned": {
+          "down_m": -2.189999997615814,
+          "east_m": -0.03631216660141945,
+          "north_m": -0.022263769060373306,
+          "type_mask": 3576,
+          "yaw_rad": 0.0
+        },
+        "vertical_error_m": 5.960464477539063e-08
+      }
+    ],
+    "telemetry_fresh": true
+  },
+  "process_exit_statuses": {
+    "waypoint_mission": 0,
+    "waypoint_observer": 0
+  },
+  "schema_version": "echorescue-waypoint-mission-smoke/1.0",
+  "stack_mode": "attached",
+  "status": "PASS"
+}

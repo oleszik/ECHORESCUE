@@ -24,3 +24,4 @@ rather than silently rewriting its decision.
 | [0016](0016-receive-only-mavlink-telemetry.md) | Accepted | Receive-only native-frame MAVLink telemetry behind typed ROS 2 adapters |
 | [0017](0017-continuous-3d-coordinate-frame-boundary.md) | Accepted | Explicit NED/FRD to ENU/FLU continuous-state boundary |
 | [0018](0018-simulation-flight-command-boundary.md) | Accepted | ACK-and-telemetry-gated single-vehicle simulation flight command boundary |
+| [0019](0019-guided-local-target-acceptance.md) | Accepted | Telemetry-gated local setpoints without false command acknowledgements |

@@ -20,6 +20,7 @@ from echorescue.mavlink_telemetry import (
     TelemetryStatus,
 )
 from echorescue.continuous_vehicle_state import ContinuousVehicleState
+from echorescue.waypoint_mission import TargetRequest, WaypointMissionEvent
 from echorescue_interfaces.action import MoveGrid
 from echorescue_interfaces.msg import (
     EchoRescueVehicleState3D,
@@ -32,7 +33,48 @@ from echorescue_interfaces.msg import (
     MavlinkLocalPositionNed,
     MavlinkTelemetryStatus,
     MavlinkVehicleState,
+    WaypointMissionEvent as WaypointMissionEventMsg,
+    WaypointTarget,
 )
+
+
+def waypoint_target_to_msg(
+    request: TargetRequest,
+    stamp: Time,
+    *,
+    sequence: int,
+    transmit_monotonic_ns: int,
+    transmit_source_time_boot_ms: int,
+) -> WaypointTarget:
+    message = WaypointTarget()
+    message.header.stamp = stamp
+    message.header.frame_id = "echorescue/world_enu"
+    message.session_id = request.session_id
+    message.sequence = sequence
+    message.target_id = request.target.target_id
+    message.east_m = request.target.east_m
+    message.north_m = request.target.north_m
+    message.up_m = request.target.up_m
+    message.has_heading = request.target.heading_enu_deg is not None
+    message.heading_enu_deg = request.target.heading_enu_deg or 0.0
+    message.coordinate_frame = request.ned.coordinate_frame
+    message.type_mask = request.ned.type_mask
+    message.ned_north_m = request.ned.north_m
+    message.ned_east_m = request.ned.east_m
+    message.ned_down_m = request.ned.down_m
+    message.ned_yaw_rad = request.ned.yaw_rad
+    message.transmit_monotonic_ns = transmit_monotonic_ns
+    message.transmit_source_time_boot_ms = transmit_source_time_boot_ms
+    return message
+
+
+def waypoint_event_to_msg(source: WaypointMissionEvent, stamp: Time) -> WaypointMissionEventMsg:
+    message = WaypointMissionEventMsg()
+    message.header.stamp = stamp
+    message.header.frame_id = "echorescue/world_enu"
+    for field in ("sequence", "monotonic_ns", "session_id", "phase", "event", "target_id", "detail"):
+        setattr(message, field, getattr(source, field))
+    return message
 
 
 def continuous_vehicle_state_to_msg(source: ContinuousVehicleState, stamp: Time) -> EchoRescueVehicleState3D:

@@ -166,6 +166,28 @@ telemetry transition; ACKs are never treated as vehicle state. The original
 See the [command boundary, state machine, failure handling, smoke gates and
 limitations](docs/v0.14.3-flight-milestone.md).
 
+## v0.14.4: Continuous waypoint navigation
+
+v0.14.4 extends the separate simulation-only runner with one bounded local-ENU
+route: take off, settle, fly two horizontal legs including an altitude change,
+return above the recorded launch-local position, LAND, and verify disarm.
+`COMMAND_ACK` still gates mode, arm, takeoff and LAND. Local position targets
+are MAVLink setpoint messages without ACKs, so each is accepted only after a
+successful send and fresh, same-session, vehicle-time-progressing telemetry
+shows progress, 3D arrival and continuous settling. Mission control has no
+simulator Ground Truth access.
+
+```bash
+./scripts/run_waypoint_mission_integration.sh diagnose
+./scripts/run_waypoint_mission_integration.sh \
+  --output artifacts/v0.14.4-waypoint-smoke-owned.json \
+  smoke --stack-mode owned --timeout 210
+```
+
+Use `--stack-mode attached` only when a compatible Gazebo/SITL stack is already
+running; that mode owns and cleans up only its ROS mission and observer. See the
+[mission semantics, recovery policy, real results and limitations](docs/v0.14.4-waypoint-navigation.md).
+
 ## Architecture
 
 EchoRescue keeps world truth, autonomous decisions, and presentation separated:
@@ -398,10 +420,14 @@ were added.
 - **v0.14.3 — Simulation Flight Milestone:** one closed-loop GUIDED, arm,
   takeoff-to-ENU-altitude, timed-hover and land sequence with command ACKs,
   independently observed telemetry transitions, bounded recovery and cleanup.
+- **v0.14.4 — Continuous Waypoint Navigation:** one local-ENU, two-leg route,
+  altitude change, return to recorded launch-local, and LAND, with telemetry-
+  gated setpoint acceptance and an independent ROS observer.
 
-Development stops at the v0.14.3 simulation-only arm–takeoff–hover–land
-boundary. Waypoint navigation, obstacle avoidance, indoor worlds,
-multi-vehicle operation, real flight, and v0.14.4 remain out of scope.
+Development stops at the v0.14.4 simulation-only local-waypoint boundary.
+General path planning, obstacle avoidance, indoor worlds, dynamic replanning,
+multi-vehicle operation, GPS/global projection, and real flight remain out of
+scope.
 
 ## Scope and licensing
 
