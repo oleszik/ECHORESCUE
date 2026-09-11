@@ -18,8 +18,7 @@ from echorescue_interfaces.msg import (
     WaypointMissionEvent,
     WaypointTarget,
 )
-from echorescue_ros.mavlink_telemetry_bridge import STATUS_QOS, TELEMETRY_QOS
-from echorescue_ros.mavlink_waypoint_mission import MISSION_QOS
+from echorescue_ros.qos import MISSION_QOS, STATUS_QOS, TELEMETRY_QOS
 
 
 class WaypointMissionObserver(Node):

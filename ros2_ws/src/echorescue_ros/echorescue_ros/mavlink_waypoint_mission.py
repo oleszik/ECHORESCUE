@@ -7,9 +7,7 @@ from pathlib import Path
 from time import monotonic, monotonic_ns
 from typing import Any
 
-from pymavlink import mavutil
 import rclpy
-from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
 
 from echorescue.continuous_vehicle_state import ned_to_enu
 from echorescue.flight_mission import (
@@ -34,14 +32,7 @@ from echorescue.waypoint_mission import (
 from echorescue_interfaces.msg import WaypointMissionEvent, WaypointTarget
 from echorescue_ros.conversions import waypoint_event_to_msg, waypoint_target_to_msg
 from echorescue_ros.mavlink_telemetry_bridge import MavlinkTelemetryBridge
-
-
-MISSION_QOS = QoSProfile(
-    history=HistoryPolicy.KEEP_LAST,
-    depth=64,
-    reliability=ReliabilityPolicy.RELIABLE,
-    durability=DurabilityPolicy.TRANSIENT_LOCAL,
-)
+from echorescue_ros.qos import MISSION_QOS
 
 
 class MavlinkWaypointMission(MavlinkTelemetryBridge):
@@ -133,7 +124,7 @@ class MavlinkWaypointMission(MavlinkTelemetryBridge):
         if self._connection is not None and sample.session_id != self._extended_stream_session:
             self._connection.mav.request_data_stream_send(
                 sample.system_id, sample.component_id,
-                mavutil.mavlink.MAV_DATA_STREAM_EXTENDED_STATUS, 2, 1,
+                self._mavutil.mavlink.MAV_DATA_STREAM_EXTENDED_STATUS, 2, 1,
             )
             self._extended_stream_session = sample.session_id
 

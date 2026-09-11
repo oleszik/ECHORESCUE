@@ -7,6 +7,7 @@ from dataclasses import asdict
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 from typing import Any, Mapping, Sequence
@@ -75,6 +76,23 @@ def validate_waypoint_config(config: Mapping[str, Any]) -> None:
 def waypoint_diagnose(config: Mapping[str, Any], base_config: Mapping[str, Any]) -> dict[str, Any]:
     report = telemetry_diagnose(config, base_config)
     report["schema_version"] = "echorescue-waypoint-mission-diagnostic/1.0"
+    runtime = subprocess.run(
+        [sys.executable, "-c", "import pymavlink, rclpy, yaml"],
+        capture_output=True, text=True, timeout=10, check=False,
+    )
+    ready = runtime.returncode == 0
+    detail = (
+        f"{sys.executable} imports pymavlink and the ROS 2 Python runtime"
+        if ready else
+        f"{sys.executable} cannot host the MAVLink mission transport: {(runtime.stderr or runtime.stdout).strip()[:240]}"
+    )
+    report["checks"].append(asdict(check(
+        "python.mavlink_transport_runtime",
+        Status.PASS if ready else Status.FAIL,
+        detail,
+    )))
+    report["checks"].sort(key=lambda item: item["name"])
+    report["ready"] = bool(report["ready"] and ready)
     return report
 
 
@@ -168,6 +186,7 @@ def waypoint_smoke(
         "freshness_threshold_s": str(runner["freshness_threshold_s"]),
         "disconnect_threshold_s": str(runner["disconnect_threshold_s"]),
         "reconnect_interval_s": str(runner["reconnect_interval_s"]),
+        "transport_python": sys.executable,
         **{name: str(value) for name, value in mission_config.items()},
     }
     supervisor = ProcessSupervisor()

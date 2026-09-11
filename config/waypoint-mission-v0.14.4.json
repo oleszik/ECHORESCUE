@@ -13,7 +13,7 @@
     "disconnect_threshold_s": 3.0,
     "reconnect_interval_s": 1.0,
     "command": [
-      "ros2", "run", "echorescue_ros", "mavlink_waypoint_mission",
+      "{transport_python}", "-m", "echorescue_ros.mavlink_waypoint_mission",
       "--output", "{mission_output}", "--ros-args",
       "-p", "endpoint:={mavlink_endpoint}",
       "-p", "stream_rate_hz:={stream_rate_hz}",

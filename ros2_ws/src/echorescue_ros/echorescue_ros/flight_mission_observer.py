@@ -16,7 +16,7 @@ from echorescue_interfaces.msg import (
     MavlinkTelemetryStatus,
     MavlinkVehicleState,
 )
-from echorescue_ros.mavlink_telemetry_bridge import STATUS_QOS, TELEMETRY_QOS
+from echorescue_ros.qos import STATUS_QOS, TELEMETRY_QOS
 
 
 class FlightMissionObserver(Node):

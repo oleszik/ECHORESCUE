@@ -6,7 +6,6 @@ import pytest
 
 pytest.importorskip("rclpy")
 pytest.importorskip("echorescue_interfaces")
-pytest.importorskip("pymavlink")
 
 from echorescue.flight_mission import validate_simulation_endpoint
 from echorescue_ros.flight_mission_observer import FlightMissionObserver

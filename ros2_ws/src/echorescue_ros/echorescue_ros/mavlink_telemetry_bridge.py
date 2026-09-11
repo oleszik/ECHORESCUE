@@ -4,10 +4,8 @@ from time import monotonic_ns
 from typing import Any
 from uuid import uuid4
 
-from pymavlink import mavutil
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
 
 from echorescue.continuous_vehicle_state import ContinuousStateAssembler
 from echorescue.mavlink_telemetry import TelemetryCore
@@ -25,20 +23,18 @@ from echorescue_ros.conversions import (
     mavlink_status_to_msg,
     mavlink_vehicle_state_to_msg,
 )
+from echorescue_ros.qos import STATUS_QOS, TELEMETRY_QOS
 
 
-TELEMETRY_QOS = QoSProfile(
-    history=HistoryPolicy.KEEP_LAST,
-    depth=32,
-    reliability=ReliabilityPolicy.BEST_EFFORT,
-    durability=DurabilityPolicy.VOLATILE,
-)
-STATUS_QOS = QoSProfile(
-    history=HistoryPolicy.KEEP_LAST,
-    depth=1,
-    reliability=ReliabilityPolicy.RELIABLE,
-    durability=DurabilityPolicy.TRANSIENT_LOCAL,
-)
+def _load_mavutil() -> Any:
+    """Load the transport dependency only when a MAVLink node is started."""
+    try:
+        from pymavlink import mavutil
+    except ModuleNotFoundError as error:
+        raise RuntimeError(
+            "pymavlink is required to start an EchoRescue MAVLink bridge or mission transport"
+        ) from error
+    return mavutil
 
 
 class MavlinkTelemetryBridge(Node):
@@ -48,6 +44,7 @@ class MavlinkTelemetryBridge(Node):
         node_name: str = "echorescue_mavlink_telemetry_bridge",
         role_description: str = "receive-only MAVLink bridge",
     ) -> None:
+        self._mavutil = _load_mavutil()
         super().__init__(node_name)
         self.declare_parameter("endpoint", "tcp:127.0.0.1:5760")
         self.declare_parameter("stream_rate_hz", 10)
@@ -113,7 +110,7 @@ class MavlinkTelemetryBridge(Node):
             return
         self._last_connect_attempt_ns = now_ns
         try:
-            self._connection = mavutil.mavlink_connection(self.endpoint)
+            self._connection = self._mavutil.mavlink_connection(self.endpoint)
         except (OSError, ConnectionError) as error:
             self.core.disconnect(now_ns, f"MAVLink connection failed: {error}")
             return
@@ -166,7 +163,7 @@ class MavlinkTelemetryBridge(Node):
                 self._connection.mav.request_data_stream_send(
                     system_id,
                     component_id,
-                    mavutil.mavlink.MAV_DATA_STREAM_POSITION,
+                    self._mavutil.mavlink.MAV_DATA_STREAM_POSITION,
                     self.stream_rate_hz,
                     1,
                 )

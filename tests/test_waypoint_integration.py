@@ -47,6 +47,13 @@ class WaypointReportGateTests(unittest.TestCase):
     def test_repository_configuration_validates(self) -> None:
         validate_waypoint_config(load_waypoint_config())
 
+    def test_mission_transport_uses_the_validated_harness_python(self) -> None:
+        command = load_waypoint_config()["runner"]["command"]
+        self.assertEqual(
+            command[:3],
+            ["{transport_python}", "-m", "echorescue_ros.mavlink_waypoint_mission"],
+        )
+
     def test_configuration_rejects_non_loopback_command_endpoint(self) -> None:
         config = load_waypoint_config()
         config["runner"]["endpoint"] = "tcp:192.0.2.1:5760"

@@ -9,7 +9,6 @@ from typing import Any
 
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
 
 from echorescue.sim_integration import serialize_report
 from echorescue_interfaces.msg import (
@@ -19,20 +18,9 @@ from echorescue_interfaces.msg import (
     MavlinkTelemetryStatus,
     MavlinkVehicleState,
 )
+from echorescue_ros.qos import STATUS_QOS, TELEMETRY_QOS
 
 
-TELEMETRY_QOS = QoSProfile(
-    history=HistoryPolicy.KEEP_LAST,
-    depth=32,
-    reliability=ReliabilityPolicy.BEST_EFFORT,
-    durability=DurabilityPolicy.VOLATILE,
-)
-STATUS_QOS = QoSProfile(
-    history=HistoryPolicy.KEEP_LAST,
-    depth=1,
-    reliability=ReliabilityPolicy.RELIABLE,
-    durability=DurabilityPolicy.TRANSIENT_LOCAL,
-)
 REQUIRED_TOPICS = {
     "/echorescue/mavlink/vehicle_state": "echorescue_interfaces/msg/MavlinkVehicleState",
     "/echorescue/mavlink/local_position_ned": "echorescue_interfaces/msg/MavlinkLocalPositionNed",
