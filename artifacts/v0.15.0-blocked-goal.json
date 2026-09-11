@@ -1,0 +1,11 @@
+{
+  "case": "blocked-goal",
+  "commands_sent": [],
+  "failure_reason": "outbound goal cell is occupied after inflation",
+  "flight_mission_started": false,
+  "milestone": "v0.15.0",
+  "planning_outcome": "REJECTED",
+  "processes_started": [],
+  "schema_version": "echorescue-planner-flight-prearm-rejection/1.0",
+  "status": "PASS"
+}

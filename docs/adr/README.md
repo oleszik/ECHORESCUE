@@ -26,3 +26,4 @@ rather than silently rewriting its decision.
 | [0018](0018-simulation-flight-command-boundary.md) | Accepted | ACK-and-telemetry-gated single-vehicle simulation flight command boundary |
 | [0019](0019-guided-local-target-acceptance.md) | Accepted | Telemetry-gated local setpoints without false command acknowledgements |
 | [0020](0020-telemetry-control-gazebo-evaluation-separation.md) | Accepted | Strict telemetry-control and Gazebo-evaluation separation |
+| [0021](0021-known-map-grid-to-enu-planning-boundary.md) | Accepted | Deterministic known-map grid paths adapted to launch-relative ENU flight |

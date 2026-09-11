@@ -207,6 +207,24 @@ with telemetry without feeding control.
 See the [geometry, exact graphical command, evaluation boundary, acceptance
 evidence and limitations](docs/v0.14.5-indoor-reference-world.md).
 
+## v0.15.0: Known-map planner flight bridge
+
+v0.15.0 uses the existing deterministic grid A* to generate both outbound and
+return paths through the versioned indoor known map. A checked grid-to-ENU
+adapter inflates occupancy for the conservative vehicle envelope, compacts
+only cardinal collinear segments, and hands generated targets to the unchanged
+telemetry-only waypoint executor. Gazebo remains evaluation-only.
+
+```bash
+./scripts/run_planner_flight_integration.sh diagnose
+./scripts/run_planner_flight_integration.sh \
+  --output artifacts/v0.15.0-planner-flight-headless.json \
+  smoke --timeout 260
+```
+
+See the [map transform, planner boundary, generated route, real evidence and
+limitations](docs/v0.15.0-planner-flight-bridge.md).
+
 ## Architecture
 
 EchoRescue keeps world truth, autonomous decisions, and presentation separated:
@@ -445,8 +463,11 @@ were added.
 - **v0.14.5 — Indoor Reference World:** one reproducible primitive indoor
   environment, predefined doorway/obstacle route and independent contact and
   clearance evaluation, without planning or avoidance.
+- **v0.15.0 — Known-Map Planner Flight Bridge:** existing deterministic A*
+  generates an inflated-map outbound and return route for the continuous
+  waypoint executor, without discovery or in-flight replanning.
 
-Development stops at the v0.14.5 simulation-only indoor-reference boundary.
+Development stops at the v0.15.0 simulation-only known-map flight boundary.
 General path planning, obstacle avoidance, unknown indoor worlds, dynamic replanning,
 multi-vehicle operation, GPS/global projection, and real flight remain out of
 scope.
