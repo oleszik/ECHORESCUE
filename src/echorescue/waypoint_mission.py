@@ -678,6 +678,7 @@ class WaypointMissionController:
             "final_distance_from_launch_m": final_distance,
             "final_landed": self.flight.landed,
             "final_armed": self.flight.armed,
+            "final_mode": self.flight.flight_mode,
         }
 
 

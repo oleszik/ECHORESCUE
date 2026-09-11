@@ -188,6 +188,25 @@ Use `--stack-mode attached` only when a compatible Gazebo/SITL stack is already
 running; that mode owns and cleans up only its ROS mission and observer. See the
 [mission semantics, recovery policy, real results and limitations](docs/v0.14.4-waypoint-navigation.md).
 
+## v0.14.5: Indoor reference world
+
+v0.14.5 reuses that waypoint controller for one predefined route through a
+small, versioned Gazebo world with two connected areas, a doorway and a fixed
+blocker. Mission decisions remain telemetry-only. A separate Gazebo evaluator
+requires explicit per-solid contact-topic coverage, measures conservative
+clearance, verifies both doorway crossings and compares world displacement
+with telemetry without feeding control.
+
+```bash
+./scripts/run_indoor_reference_integration.sh diagnose
+./scripts/run_indoor_reference_integration.sh \
+  --output artifacts/v0.14.5-indoor-headless-owned.json \
+  smoke --stack-mode owned --timeout 260
+```
+
+See the [geometry, exact graphical command, evaluation boundary, acceptance
+evidence and limitations](docs/v0.14.5-indoor-reference-world.md).
+
 ## Architecture
 
 EchoRescue keeps world truth, autonomous decisions, and presentation separated:
@@ -423,9 +442,12 @@ were added.
 - **v0.14.4 — Continuous Waypoint Navigation:** one local-ENU, two-leg route,
   altitude change, return to recorded launch-local, and LAND, with telemetry-
   gated setpoint acceptance and an independent ROS observer.
+- **v0.14.5 — Indoor Reference World:** one reproducible primitive indoor
+  environment, predefined doorway/obstacle route and independent contact and
+  clearance evaluation, without planning or avoidance.
 
-Development stops at the v0.14.4 simulation-only local-waypoint boundary.
-General path planning, obstacle avoidance, indoor worlds, dynamic replanning,
+Development stops at the v0.14.5 simulation-only indoor-reference boundary.
+General path planning, obstacle avoidance, unknown indoor worlds, dynamic replanning,
 multi-vehicle operation, GPS/global projection, and real flight remain out of
 scope.
 

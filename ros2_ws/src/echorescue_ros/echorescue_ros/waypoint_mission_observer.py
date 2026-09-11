@@ -26,6 +26,7 @@ class WaypointMissionObserver(Node):
         self, output_path: Path, timeout_s: float,
         horizontal_tolerance_m: float, vertical_tolerance_m: float,
         settling_time_s: float,
+        expected_target_ids: tuple[str, ...] = ("waypoint-a", "waypoint-b", "return-launch"),
     ) -> None:
         super().__init__("echorescue_waypoint_mission_observer")
         self.output_path = output_path
@@ -33,6 +34,7 @@ class WaypointMissionObserver(Node):
         self.horizontal_tolerance_m = horizontal_tolerance_m
         self.vertical_tolerance_m = vertical_tolerance_m
         self.settling_time_s = settling_time_s
+        self.expected_target_ids = expected_target_ids
         self.started = monotonic()
         self.finished = False
         self.passed = False
@@ -162,7 +164,7 @@ class WaypointMissionObserver(Node):
         self.mission_node_observed = self.mission_node_observed or (
             "echorescue_mavlink_waypoint_mission" in set(self.get_node_names())
         )
-        expected = ["waypoint-a", "waypoint-b", "return-launch"]
+        expected = list(self.expected_target_ids)
         complete = (
             self.mission_node_observed and not self.session_changed
             and self.guided_observed and self.armed_observed
@@ -188,6 +190,7 @@ class WaypointMissionObserver(Node):
             "guided_observed": self.guided_observed,
             "armed_observed": self.armed_observed,
             "target_ids": self.target_ids,
+            "expected_target_ids": list(self.expected_target_ids),
             "settled_event_ids": self.settled_event_ids,
             "targets": self.targets,
             "land_mode_observed": self.land_mode_observed,
@@ -211,15 +214,22 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--horizontal-tolerance", type=float, required=True)
     parser.add_argument("--vertical-tolerance", type=float, required=True)
     parser.add_argument("--settling-time", type=float, required=True)
+    parser.add_argument(
+        "--expected-targets", default="waypoint-a,waypoint-b,return-launch",
+        help="comma-separated ordered target IDs",
+    )
     return parser
 
 
 def main(args: list[str] | None = None) -> None:
     parsed, ros_args = build_parser().parse_known_args(args)
     rclpy.init(args=ros_args)
+    expected_targets = tuple(item.strip() for item in parsed.expected_targets.split(",") if item.strip())
+    if not expected_targets:
+        raise SystemExit("--expected-targets must contain at least one target ID")
     node = WaypointMissionObserver(
         parsed.output, parsed.timeout, parsed.horizontal_tolerance,
-        parsed.vertical_tolerance, parsed.settling_time,
+        parsed.vertical_tolerance, parsed.settling_time, expected_targets,
     )
     try:
         while rclpy.ok() and not node.finished:
