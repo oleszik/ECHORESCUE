@@ -93,7 +93,8 @@ All linked flight reports are committed, machine-readable acceptance evidence.
 | Continuous waypoint navigation | [v0.14.4 owned-stack smoke report](artifacts/v0.14.4-waypoint-smoke-owned.json) |
 | Indoor world and collision evaluation | [v0.14.5 graphical](artifacts/v0.14.5-indoor-graphical-owned.json), [headless](artifacts/v0.14.5-indoor-headless-owned.json), [collision negative](artifacts/v0.14.5-indoor-negative-collision.json) |
 | A* planning to the goal and back | [v0.15.0 graphical](artifacts/v0.15.0-planner-flight-graphical.json), [headless](artifacts/v0.15.0-planner-flight-headless.json), [blocked goal](artifacts/v0.15.0-blocked-goal.json), [unsafe clearance](artifacts/v0.15.0-unsafe-clearance.json) |
-| Automated regression tests | [CI workflow](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml) · 492 Python tests and 13 native ROS tests at v0.15.0 acceptance |
+| Sensor discovery and bounded replanning | [v0.15.1 graphical](artifacts/v0.15.1-sensor-replanning-graphical.json), [headless](artifacts/v0.15.1-sensor-replanning-headless.json), [unreachable recovery](artifacts/v0.15.1-unreachable-after-discovery.json) |
+| Automated regression tests | [CI workflow](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml) · 504 Python tests and 13 native ROS tests at v0.15.1 acceptance |
 | Safe cleanup | Owned-process, ROS-node and UDP 9002/14550 plus TCP 5760 checks in the linked smoke reports |
 
 In both accepted v0.15.0 runs, the mission and independent observer agreed on
@@ -193,8 +194,9 @@ results beyond its declared scope.
 | v0.14.4 | Continuous local waypoint navigation | [Documentation](docs/v0.14.4-waypoint-navigation.md) |
 | v0.14.5 | Reproducible indoor world and collision evaluation | [Documentation](docs/v0.14.5-indoor-reference-world.md) |
 | v0.15.0 | Known-map A* route generation connected to real simulated flight | [Documentation](docs/v0.15.0-planner-flight-bridge.md) |
+| v0.15.1 | Range-sensor obstacle discovery and bounded A* replanning | [Documentation](docs/v0.15.1-sensor-replanning.md) |
 
-Development currently stops at the v0.15.0 simulation-only known-map flight
+Development currently stops at the v0.15.1 simulation-only sensor-replanning
 boundary. The complete roadmap, benchmark interpretation, setup guides and ADRs
 live in [`docs/`](docs/).
 

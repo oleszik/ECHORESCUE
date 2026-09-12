@@ -112,6 +112,10 @@ class IndoorReferenceConfig:
         return next(entity for entity in self.entities if entity.classification == "obstacle")
 
     @property
+    def obstacles(self) -> tuple[AxisAlignedBox, ...]:
+        return tuple(entity for entity in self.entities if entity.classification == "obstacle")
+
+    @property
     def contact_topics(self) -> tuple[str, ...]:
         return tuple(entity.contact_topic for entity in self.entities)
 
@@ -229,15 +233,16 @@ def segment_box_distance(start: Vector3, end: Vector3, box: AxisAlignedBox) -> f
 
 
 def validate_indoor_config(config: IndoorReferenceConfig) -> None:
-    if config.schema_version != "echorescue-indoor-reference-stack/1.0" or config.milestone != "v0.14.5":
-        raise ValueError("indoor configuration must declare the v0.14.5 schema")
+    if config.schema_version != "echorescue-indoor-reference-stack/1.0" or config.milestone not in {"v0.14.5", "v0.15.1"}:
+        raise ValueError("indoor configuration must declare a supported evaluation schema")
     names = [entity.name for entity in config.entities]
     topics = [entity.contact_topic for entity in config.entities]
     target_ids = [target.target_id for target in config.targets]
     if len(names) != len(set(names)) or len(topics) != len(set(topics)) or len(target_ids) != len(set(target_ids)):
         raise ValueError("entity names, contact topics, and target IDs must be unique")
-    if sum(entity.classification == "obstacle" for entity in config.entities) != 1:
-        raise ValueError("indoor reference world requires exactly one obstacle")
+    obstacle_count = sum(entity.classification == "obstacle" for entity in config.entities)
+    if obstacle_count != (1 if config.milestone == "v0.14.5" else 2):
+        raise ValueError("indoor world has the wrong obstacle count for its milestone")
     positive = (
         config.doorway.width_m, config.doorway.height_m, config.doorway.crossing_hysteresis_m,
         config.vehicle_radius_m, config.safety_margin_m, config.required_center_clearance_m,
@@ -261,6 +266,8 @@ def validate_indoor_config(config: IndoorReferenceConfig) -> None:
             raise ValueError(f"reference point lies outside allowed flight volume: {point}")
     for start, end in zip(route, route[1:]):
         for entity in config.entities:
+            if config.milestone == "v0.15.1" and entity.name.startswith("unknown_"):
+                continue
             clearance = segment_box_distance(start, end, entity)
             if clearance + 1e-9 < config.required_center_clearance_m:
                 raise ValueError(
@@ -296,6 +303,8 @@ def parse_pose_message(message: Mapping[str, Any], model_name: str) -> tuple[flo
             continue
         position = pose.get("position")
         if not isinstance(position, Mapping):
+            return None
+        if not all(axis in position for axis in ("x", "y", "z")):
             return None
         point = (float(position["x"]), float(position["y"]), float(position["z"]))
         return _message_time(message), point
@@ -359,7 +368,7 @@ class IndoorRunEvaluator:
         })
         if position[2] > self.config.ground_contact_maximum_center_z_m + self.config.vehicle_radius_m:
             self._airborne_seen = True
-        obstacle_distance = point_box_distance(position, self.config.obstacle)
+        obstacle_distance = min(point_box_distance(position, obstacle) for obstacle in self.config.obstacles)
         self.minimum_obstacle_center_distance_m = min(self.minimum_obstacle_center_distance_m, obstacle_distance)
         for entity in self.config.entities:
             if point_box_distance(position, entity) <= self.config.vehicle_radius_m:
@@ -473,7 +482,7 @@ class IndoorRunEvaluator:
             reported_trajectory.append(self.trajectory[-1])
         return {
             "schema_version": "echorescue-indoor-gazebo-evaluation/1.0",
-            "milestone": "v0.14.5",
+            "milestone": self.config.milestone,
             "status": "PASS" if passed else "FAIL",
             "world_version": self.config.world_version,
             "world_name": self.config.world_name,
@@ -498,7 +507,7 @@ class IndoorRunEvaluator:
             "minimum_doorway_boundary_surface_clearance_m": None if doorway_minimum == float("inf") else doorway_minimum - self.config.vehicle_radius_m,
             "conservative_vehicle_radius_m": self.config.vehicle_radius_m,
             "safety_margin_m": self.config.safety_margin_m,
-            "clearance_method": "sampled model origin to configured axis-aligned obstacle, minus conservative spherical vehicle radius",
+            "clearance_method": "sampled model origin to nearest configured axis-aligned obstacle, minus conservative spherical vehicle radius",
             "clearance_uncertainty": "sampled at the configured interval; contact sensors independently cover every configured solid",
             "floor_contact_uncertainty": "the Gazebo floor sensor may retain its initial collision pair; only its first time-correlated launch contact is counted, while the sampled conservative envelope classifies later floor intersection",
         }

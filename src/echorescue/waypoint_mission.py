@@ -198,6 +198,7 @@ class WaypointMissionController:
         self._position_receipt_ns = 0
         self._previous_position_receipt_ns = 0
         self._target_index = 0
+        self._route_targets = list(config.targets)
         self._active_target: EnuTarget | None = None
         self._transmission_pending = False
         self._transmit_ns: int | None = None
@@ -252,6 +253,10 @@ class WaypointMissionController:
         self.phase = phase
         self.phase_started_ns = now_ns
         self._record(now_ns, "phase", detail, self._active_target.target_id if self._active_target else "")
+
+    def record_external_event(self, now_ns: int, event: str, detail: str) -> None:
+        """Expose a narrow evidence hook for a higher-level checked mission adapter."""
+        self._record(now_ns, event, detail, self._active_target_id)
 
     def observe_status(
         self, *, session_id: str, health: TelemetryHealth,
@@ -471,12 +476,12 @@ class WaypointMissionController:
 
     def _build_next_target(self, now_ns: int) -> None:
         assert self.launch_enu is not None
-        if self._target_index >= len(self.config.targets):
+        if self._target_index >= len(self._route_targets):
             self.flight.request_land(now_ns)
             self._active_target = None
             self._set_phase(NavigationPhase.LANDING, now_ns, "all waypoint and return targets settled")
             return
-        relative = self.config.targets[self._target_index]
+        relative = self._route_targets[self._target_index]
         target = EnuTarget(
             relative.target_id,
             self.launch_enu[0] + relative.east_offset_m,
@@ -598,6 +603,24 @@ class WaypointMissionController:
         self._active_target = None
         self._reset_tracking()
 
+    def replace_remaining_targets(
+        self, targets: tuple[RelativeTarget, ...], now_ns: int, reason: str,
+    ) -> None:
+        """Atomically stop an unsafe target and install a checked replacement route."""
+        if self.phase not in (
+            NavigationPhase.SEND_TARGET,
+            NavigationPhase.WAIT_TRANSMISSION,
+            NavigationPhase.TRACK_TARGET,
+        ):
+            raise RuntimeError("remaining targets can only be replaced during navigation")
+        if not targets:
+            raise ValueError("replacement route must contain at least one target")
+        self._invalidate_target(now_ns, reason)
+        self._route_targets = list(targets)
+        self._target_index = 0
+        self._record(now_ns, "route_replaced", reason)
+        self._build_next_target(now_ns)
+
     def _abort(self, now_ns: int, reason: str) -> None:
         if self.terminal or self.phase is NavigationPhase.LANDING:
             return
@@ -625,7 +648,7 @@ class WaypointMissionController:
     def _sync_flight_terminal(self, now_ns: int) -> None:
         if not self.flight.terminal or self.terminal:
             return
-        if self.flight.succeeded and self._target_index == len(self.config.targets) and self._failure_reason is None:
+        if self.flight.succeeded and self._target_index == len(self._route_targets) and self._failure_reason is None:
             self._set_phase(NavigationPhase.SUCCEEDED, now_ns, "LAND ACK, ON_GROUND, and disarmed telemetry verified")
         else:
             if self._failure_reason is None:
