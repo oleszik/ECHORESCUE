@@ -1,0 +1,11 @@
+std_msgs/Header header
+string session_id
+uint64 sequence
+uint64 sensor_time_ns
+uint64 receipt_monotonic_ns
+string sensor_frame
+float64 angle_min_rad
+float64 angle_increment_rad
+float64 range_min_m
+float64 range_max_m
+float64[] ranges_m

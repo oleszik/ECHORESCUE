@@ -19,6 +19,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/EchoRescueVehicleState3D.msg"
   "msg/WaypointTarget.msg"
   "msg/WaypointMissionEvent.msg"
+  "msg/RangeObstacleObservation.msg"
   "action/MoveGrid.action"
   DEPENDENCIES builtin_interfaces std_msgs
 )

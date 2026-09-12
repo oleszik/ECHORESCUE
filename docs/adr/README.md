@@ -27,3 +27,4 @@ rather than silently rewriting its decision.
 | [0019](0019-guided-local-target-acceptance.md) | Accepted | Telemetry-gated local setpoints without false command acknowledgements |
 | [0020](0020-telemetry-control-gazebo-evaluation-separation.md) | Accepted | Strict telemetry-control and Gazebo-evaluation separation |
 | [0021](0021-known-map-grid-to-enu-planning-boundary.md) | Accepted | Deterministic known-map grid paths adapted to launch-relative ENU flight |
+| [0022](0022-sensor-map-planner-trust-boundary.md) | Accepted | Fresh same-session range observations update an owned map for bounded deterministic replanning |

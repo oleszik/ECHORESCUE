@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="iris_with_range_sensor">
+    <include>
+      <uri>model://iris_with_gimbal</uri>
+      <name>vehicle</name>
+    </include>
+    <link name="range_link">
+      <pose relative_to="vehicle::iris_with_standoffs::base_link">0.18 0 0.10 0 0 0</pose>
+      <inertial><mass>0.01</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia></inertial>
+      <sensor name="obstacle_lidar" type="gpu_lidar">
+        <topic>/echorescue/sensors/obstacle_scan</topic>
+        <update_rate>10</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <lidar>
+          <scan><horizontal><samples>72</samples><resolution>1</resolution><min_angle>-3.141592653589793</min_angle><max_angle>3.141592653589793</max_angle></horizontal></scan>
+          <range><min>0.25</min><max>4.0</max><resolution>0.01</resolution></range>
+        </lidar>
+      </sensor>
+    </link>
+    <joint name="range_mount" type="fixed">
+      <parent>vehicle::iris_with_standoffs::base_link</parent>
+      <child>range_link</child>
+    </joint>
+  </model>
+</sdf>
