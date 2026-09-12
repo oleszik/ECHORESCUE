@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-labelledby="title description">
+  <title id="title">EchoRescue v0.15.0 planned indoor route</title>
+  <desc id="description">A known occupancy grid with two rooms, a doorway, an obstacle, and the deterministic outbound and return route.</desc>
+  <rect width="1200" height="560" rx="24" fill="#0b1220"/>
+  <text x="56" y="64" fill="#f8fafc" font-family="system-ui,sans-serif" font-size="30" font-weight="700">Known-map A* route</text>
+  <text x="56" y="101" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="18">25 × 17 cells · 0.5 m/cell · launch-relative ENU · cost 20 + 20</text>
+  <g transform="translate(56 136)">
+    <rect width="800" height="352" rx="10" fill="#172033" stroke="#334155" stroke-width="4"/>
+    <path d="M0 0H800V352H0Z M384 0V128 M384 224V352" fill="none" stroke="#64748b" stroke-width="32"/>
+    <rect x="528" y="128" width="96" height="96" rx="6" fill="#f97316"/>
+    <text x="576" y="181" text-anchor="middle" fill="#fff7ed" font-family="system-ui,sans-serif" font-size="16" font-weight="700">fixed</text>
+    <text x="576" y="201" text-anchor="middle" fill="#fff7ed" font-family="system-ui,sans-serif" font-size="16" font-weight="700">obstacle</text>
+    <g stroke="#263348" stroke-width="1" opacity="0.7">
+      <path d="M32 0V352M64 0V352M96 0V352M128 0V352M160 0V352M192 0V352M224 0V352M256 0V352M288 0V352M320 0V352M352 0V352M416 0V352M448 0V352M480 0V352M512 0V352M544 0V352M576 0V352M608 0V352M640 0V352M672 0V352M704 0V352M736 0V352M768 0V352"/>
+      <path d="M0 32H800M0 64H800M0 96H800M0 128H800M0 160H800M0 192H800M0 224H800M0 256H800M0 288H800M0 320H800"/>
+    </g>
+    <path d="M144 176 L144 144 L464 144 L464 48 L656 48" fill="none" stroke="#22d3ee" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M656 48 L464 48 L464 144 L144 144 L144 176" fill="none" stroke="#a78bfa" stroke-width="5" stroke-dasharray="15 12" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="144" cy="176" r="17" fill="#22c55e" stroke="#dcfce7" stroke-width="5"/>
+    <circle cx="656" cy="48" r="17" fill="#eab308" stroke="#fef9c3" stroke-width="5"/>
+    <text x="144" y="216" text-anchor="middle" fill="#dcfce7" font-family="system-ui,sans-serif" font-size="17" font-weight="700">launch / return</text>
+    <text x="656" y="88" text-anchor="middle" fill="#fef9c3" font-family="system-ui,sans-serif" font-size="17" font-weight="700">goal</text>
+    <text x="384" y="202" text-anchor="middle" fill="#cbd5e1" font-family="system-ui,sans-serif" font-size="16">doorway</text>
+  </g>
+  <g transform="translate(910 175)" font-family="system-ui,sans-serif" font-size="19">
+    <line x1="0" y1="0" x2="70" y2="0" stroke="#22d3ee" stroke-width="10" stroke-linecap="round"/><text x="92" y="7" fill="#e2e8f0">outbound</text>
+    <line x1="0" y1="54" x2="70" y2="54" stroke="#a78bfa" stroke-width="5" stroke-dasharray="13 10" stroke-linecap="round"/><text x="92" y="61" fill="#e2e8f0">return</text>
+    <rect x="0" y="96" width="70" height="34" rx="4" fill="#f97316"/><text x="92" y="121" fill="#e2e8f0">occupied</text>
+    <circle cx="35" cy="176" r="13" fill="#22c55e"/><text x="92" y="183" fill="#e2e8f0">launch</text>
+    <circle cx="35" cy="230" r="13" fill="#eab308"/><text x="92" y="237" fill="#e2e8f0">goal</text>
+  </g>
+</svg>
