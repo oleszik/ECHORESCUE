@@ -268,10 +268,7 @@ def validate_indoor_config(config: IndoorReferenceConfig) -> None:
                 )
     if len(config.targets) < 5:
         raise ValueError("indoor reference mission requires the complete ordered route")
-    far_targets = [target for target in config.targets if target.target_id == "far-room"]
-    if len(far_targets) != 1:
-        raise ValueError("indoor reference mission requires exactly one far-room target")
-    direct_goal = far_targets[0].absolute(config.launch_world_enu)
+    direct_goal = max(config.targets, key=lambda target: target.east_offset_m).absolute(config.launch_world_enu)
     if segment_box_distance(route[0], direct_goal, config.obstacle) >= config.required_center_clearance_m:
         raise ValueError("blocking obstacle does not invalidate the direct launch-to-goal segment")
 
