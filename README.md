@@ -94,7 +94,8 @@ All linked flight reports are committed, machine-readable acceptance evidence.
 | Indoor world and collision evaluation | [v0.14.5 graphical](artifacts/v0.14.5-indoor-graphical-owned.json), [headless](artifacts/v0.14.5-indoor-headless-owned.json), [collision negative](artifacts/v0.14.5-indoor-negative-collision.json) |
 | A* planning to the goal and back | [v0.15.0 graphical](artifacts/v0.15.0-planner-flight-graphical.json), [headless](artifacts/v0.15.0-planner-flight-headless.json), [blocked goal](artifacts/v0.15.0-blocked-goal.json), [unsafe clearance](artifacts/v0.15.0-unsafe-clearance.json) |
 | Sensor discovery and bounded replanning | [v0.15.1 graphical](artifacts/v0.15.1-sensor-replanning-graphical.json), [headless](artifacts/v0.15.1-sensor-replanning-headless.json), [unreachable recovery](artifacts/v0.15.1-unreachable-after-discovery.json) |
-| Automated regression tests | [CI workflow](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml) · 504 Python tests and 13 native ROS tests at v0.15.1 acceptance |
+| Incremental multi-obstacle replanning | [v0.15.2 graphical](artifacts/v0.15.2-multi-obstacle-graphical.json), [headless](artifacts/v0.15.2-multi-obstacle-headless.json), [budget recovery](artifacts/v0.15.2-replan-budget-exhaustion.json), [later-unreachable recovery](artifacts/v0.15.2-unreachable-later-discovery.json) |
+| Automated regression tests | [CI workflow](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml) · 508 Python tests and 13 native ROS tests at v0.15.2 acceptance |
 | Safe cleanup | Owned-process, ROS-node and UDP 9002/14550 plus TCP 5760 checks in the linked smoke reports |
 
 In both accepted v0.15.0 runs, the mission and independent observer agreed on
@@ -195,8 +196,9 @@ results beyond its declared scope.
 | v0.14.5 | Reproducible indoor world and collision evaluation | [Documentation](docs/v0.14.5-indoor-reference-world.md) |
 | v0.15.0 | Known-map A* route generation connected to real simulated flight | [Documentation](docs/v0.15.0-planner-flight-bridge.md) |
 | v0.15.1 | Range-sensor obstacle discovery and bounded A* replanning | [Documentation](docs/v0.15.1-sensor-replanning.md) |
+| v0.15.2 | Incremental map revisions and bounded repeated A* replanning | [Documentation](docs/v0.15.2-multi-obstacle-replanning.md) |
 
-Development currently stops at the v0.15.1 simulation-only sensor-replanning
+Development currently stops at the v0.15.2 simulation-only repeated-replanning
 boundary. The complete roadmap, benchmark interpretation, setup guides and ADRs
 live in [`docs/`](docs/).
 

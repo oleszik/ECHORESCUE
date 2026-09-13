@@ -83,6 +83,21 @@ class ConversionAndGeometryTests(unittest.TestCase):
 
 
 class TargetCorrelationTests(unittest.TestCase):
+    def test_obsolete_target_cannot_complete_replacement_generation(self) -> None:
+        controller = at_navigation()
+        old = transmit(controller).target
+        controller.replace_remaining_targets(
+            (RelativeTarget("g002-new", -2.0, 0.0, 2.0),), 3_000,
+            "route generation replaced",
+        )
+        controller.observe_position(
+            session_id="session-1", east_m=old.east_m, north_m=old.north_m,
+            up_m=old.up_m, source_time_boot_ms=101, now_ns=4_000,
+        )
+        self.assertEqual(controller.targets[0]["outcome"], "invalidated")
+        self.assertEqual(controller.active_target_id, "g002-new")
+        self.assertNotEqual(controller.targets[-1].get("outcome"), "settled")
+
     def test_takeoff_settling_clock_requires_horizontal_launch_tolerance(self) -> None:
         controller = WaypointMissionController(config(), 0)
         controller.flight.session_id = "session-1"

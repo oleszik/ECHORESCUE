@@ -1,0 +1,39 @@
+{
+  "schema_version": "echorescue-multi-obstacle-scenarios/1.0",
+  "milestone": "v0.15.2",
+  "planner_config": "config/sensor-replanning-v0.15.1.json",
+  "scenarios": {
+    "multi": {
+      "world_name": "echorescue_indoor_v0_15_2_multi",
+      "maximum_replans_per_mission": 4,
+      "obstacles": [
+        {"name": "unknown_obstacle_1", "center": [-1.0, 0.5, 1.2], "size": [0.3, 0.3, 2.4]},
+        {"name": "unknown_obstacle_2", "center": [2.5, 2.0, 1.2], "size": [0.3, 0.3, 2.4]},
+        {"name": "unknown_obstacle_3", "center": [5.0, -2.0, 1.2], "size": [0.3, 0.3, 2.4]}
+      ]
+    },
+    "budget": {
+      "world_name": "echorescue_indoor_v0_15_2_budget",
+      "maximum_replans_per_mission": 1,
+      "obstacles": [
+        {"name": "unknown_obstacle_1", "center": [-1.0, 0.5, 1.2], "size": [0.3, 0.3, 2.4]},
+        {"name": "unknown_obstacle_2", "center": [2.5, 2.0, 1.2], "size": [0.3, 0.3, 2.4]}
+      ]
+    },
+    "later_unreachable": {
+      "world_name": "echorescue_indoor_v0_15_2_later_unreachable",
+      "maximum_replans_per_mission": 4,
+      "obstacles": [
+        {"name": "unknown_obstacle_1", "center": [-1.0, 0.5, 1.2], "size": [0.3, 0.3, 2.4]},
+        {"name": "unknown_barrier_2", "center": [1.5, 0.0, 1.2], "size": [0.3, 7.0, 2.4]}
+      ]
+    }
+  },
+  "policy": {
+    "maximum_replans_per_target": 1,
+    "replan_timeout_s": 0.25,
+    "replan_cooldown_s": 0.5,
+    "maximum_consecutive_planning_failures": 1,
+    "map_change_threshold_cells": 1
+  }
+}
