@@ -258,6 +258,10 @@ class WaypointMissionController:
         """Expose a narrow evidence hook for a higher-level checked mission adapter."""
         self._record(now_ns, event, detail, self._active_target_id)
 
+    @property
+    def active_target_id(self) -> str:
+        return self._active_target_id
+
     def observe_status(
         self, *, session_id: str, health: TelemetryHealth,
         telemetry_age_s: float, now_ns: int,

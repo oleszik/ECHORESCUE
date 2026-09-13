@@ -233,7 +233,7 @@ def segment_box_distance(start: Vector3, end: Vector3, box: AxisAlignedBox) -> f
 
 
 def validate_indoor_config(config: IndoorReferenceConfig) -> None:
-    if config.schema_version != "echorescue-indoor-reference-stack/1.0" or config.milestone not in {"v0.14.5", "v0.15.1"}:
+    if config.schema_version != "echorescue-indoor-reference-stack/1.0" or config.milestone not in {"v0.14.5", "v0.15.1", "v0.15.2"}:
         raise ValueError("indoor configuration must declare a supported evaluation schema")
     names = [entity.name for entity in config.entities]
     topics = [entity.contact_topic for entity in config.entities]
@@ -241,7 +241,8 @@ def validate_indoor_config(config: IndoorReferenceConfig) -> None:
     if len(names) != len(set(names)) or len(topics) != len(set(topics)) or len(target_ids) != len(set(target_ids)):
         raise ValueError("entity names, contact topics, and target IDs must be unique")
     obstacle_count = sum(entity.classification == "obstacle" for entity in config.entities)
-    if obstacle_count != (1 if config.milestone == "v0.14.5" else 2):
+    expected_obstacles = 1 if config.milestone == "v0.14.5" else 2
+    if obstacle_count < expected_obstacles:
         raise ValueError("indoor world has the wrong obstacle count for its milestone")
     positive = (
         config.doorway.width_m, config.doorway.height_m, config.doorway.crossing_hysteresis_m,
@@ -266,7 +267,7 @@ def validate_indoor_config(config: IndoorReferenceConfig) -> None:
             raise ValueError(f"reference point lies outside allowed flight volume: {point}")
     for start, end in zip(route, route[1:]):
         for entity in config.entities:
-            if config.milestone == "v0.15.1" and entity.name.startswith("unknown_"):
+            if config.milestone in {"v0.15.1", "v0.15.2"} and entity.name.startswith("unknown_"):
                 continue
             clearance = segment_box_distance(start, end, entity)
             if clearance + 1e-9 < config.required_center_clearance_m:

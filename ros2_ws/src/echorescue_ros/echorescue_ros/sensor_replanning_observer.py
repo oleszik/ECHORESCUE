@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import re
 from time import monotonic
 
 import rclpy
@@ -29,6 +30,9 @@ class SensorReplanningObserver(Node):
         self.observation_count = 0
         self.events: list[str] = []
         self.target_ids: list[str] = []
+        self.map_revision_count = 0
+        self.replan_success_count = self.replan_failure_count = self.replan_skipped_count = 0
+        self.route_generations: set[int] = {1}
         self.goal_observed = self.return_observed = False
         self.create_subscription(MavlinkVehicleState, "/echorescue/mavlink/vehicle_state", self._vehicle, TELEMETRY_QOS)
         self.create_subscription(EchoRescueVehicleState3D, "/echorescue/vehicle/state_3d", self._state, TELEMETRY_QOS)
@@ -61,11 +65,18 @@ class SensorReplanningObserver(Node):
     def _event(self, message: WaypointMissionEvent) -> None:
         self._session(message.session_id)
         self.events.append(message.event)
+        self.map_revision_count += message.event == "occupancy_map_updated"
+        self.replan_success_count += message.event == "route_replanned"
+        self.replan_failure_count += message.event == "replan_failed"
+        self.replan_skipped_count += message.event == "replan_skipped"
 
     def _target(self, message: WaypointTarget) -> None:
         self._session(message.session_id)
         if message.target_id not in self.target_ids:
             self.target_ids.append(message.target_id)
+        generation = re.match(r"g(\d{3})-", message.target_id)
+        if generation:
+            self.route_generations.add(int(generation.group(1)))
         self.goal_observed |= message.target_id.endswith("outbound-goal")
         self.return_observed |= message.target_id.endswith("return-launch")
 
@@ -88,6 +99,11 @@ class SensorReplanningObserver(Node):
             "session_id": self.session_id, "session_changed": self.session_changed,
             "range_observation_count": self.observation_count, "events": self.events,
             "target_ids": self.target_ids, "guided_observed": self.guided,
+            "map_revision_count": self.map_revision_count,
+            "route_generations": sorted(self.route_generations),
+            "successful_replan_count": self.replan_success_count,
+            "failed_replan_count": self.replan_failure_count,
+            "skipped_replan_count": self.replan_skipped_count,
             "goal_target_observed": self.goal_observed, "return_target_observed": self.return_observed,
             "armed_observed": self.armed, "land_observed": self.land,
             "on_ground_observed": self.landed, "disarmed_observed": self.disarmed,
