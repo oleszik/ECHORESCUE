@@ -9,9 +9,9 @@
 EchoRescue is a deterministic search-and-rescue simulation platform. It combines
 grid exploration and coordination experiments with a simulation-only flight
 stack built from ROS 2, ArduPilot SITL and Gazebo. Its current end-to-end
-milestone plans a collision-free route through a known indoor map, flies it to
-the goal and back, and verifies landing with independent telemetry and Gazebo
-evidence.
+milestone autonomously maps an initially unknown indoor world with LiDAR,
+selects and flies safe frontiers, explores a second room, returns and verifies
+landing with independent telemetry and Gazebo evidence.
 
 ![EchoRescue Iris flying through the doorway in the v0.15.0 Gazebo mission](docs/assets/v0.15.0-gazebo-doorway.png)
 
@@ -32,14 +32,16 @@ evidence.
 - A reproducible two-room Gazebo world with doorway, obstacle, contact sensors
   and independent clearance evaluation.
 - Known-map A* planning of both outbound and return flight routes.
+- LiDAR-only local occupancy mapping, deterministic frontier selection,
+  bounded replanning and autonomous return from an initially unknown world.
 
 ## Current system architecture
 
 ```text
-Repository-owned known occupancy map
-               │
-               ▼
-   deterministic cardinal A* ──► checked grid-to-ENU adapter
+Validated LiDAR + same-session ENU pose ──► UNKNOWN/FREE/OCCUPIED map
+                                                       │
+                                                       ▼
+     safe frontier selection ──► deterministic cardinal A*
                                            │
                                            ▼
                                   generated flight targets
@@ -57,7 +59,8 @@ observed vehicle telemetry. Gazebo ground truth is confined to evaluation. The
 legacy telemetry bridge remains receive-only. See the
 [architecture decisions](docs/adr/README.md), especially
 [ADR 0020](docs/adr/0020-telemetry-control-gazebo-evaluation-separation.md) and
-[ADR 0021](docs/adr/0021-known-map-grid-to-enu-planning-boundary.md).
+[ADR 0021](docs/adr/0021-known-map-grid-to-enu-planning-boundary.md) and
+[ADR 0024](docs/adr/0024-autonomous-frontier-exploration.md).
 
 ## Visible demonstrations
 
@@ -95,7 +98,8 @@ All linked flight reports are committed, machine-readable acceptance evidence.
 | A* planning to the goal and back | [v0.15.0 graphical](artifacts/v0.15.0-planner-flight-graphical.json), [headless](artifacts/v0.15.0-planner-flight-headless.json), [blocked goal](artifacts/v0.15.0-blocked-goal.json), [unsafe clearance](artifacts/v0.15.0-unsafe-clearance.json) |
 | Sensor discovery and bounded replanning | [v0.15.1 graphical](artifacts/v0.15.1-sensor-replanning-graphical.json), [headless](artifacts/v0.15.1-sensor-replanning-headless.json), [unreachable recovery](artifacts/v0.15.1-unreachable-after-discovery.json) |
 | Incremental multi-obstacle replanning | [v0.15.2 graphical](artifacts/v0.15.2-multi-obstacle-graphical.json), [headless](artifacts/v0.15.2-multi-obstacle-headless.json), [budget recovery](artifacts/v0.15.2-replan-budget-exhaustion.json), [later-unreachable recovery](artifacts/v0.15.2-unreachable-later-discovery.json) |
-| Automated regression tests | [CI workflow](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml) · 508 Python tests and 13 native ROS tests at v0.15.2 acceptance |
+| Autonomous unknown-world frontier exploration | [v0.16.0 graphical](artifacts/v0.16.0-frontier-graphical.json), [headless](artifacts/v0.16.0-frontier-headless.json), [unreachable](artifacts/v0.16.0-frontier-unreachable.json), [sensor dropout](artifacts/v0.16.0-frontier-sensor-dropout.json), [session recovery](artifacts/v0.16.0-frontier-session-recovery.json), [budget recovery](artifacts/v0.16.0-frontier-budget.json) |
+| Automated regression tests | [CI workflow](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml) · 526 Python tests passed (2 environment-dependent skips) and 17 native ROS tests passed at v0.16.0 acceptance |
 | Safe cleanup | Owned-process, ROS-node and UDP 9002/14550 plus TCP 5760 checks in the linked smoke reports |
 
 In both accepted v0.15.0 runs, the mission and independent observer agreed on
@@ -128,14 +132,12 @@ source /opt/ros/jazzy/setup.bash
 source .venv-sim/bin/activate
 source ros2_ws/install/setup.bash
 
-./scripts/run_planner_flight_integration.sh diagnose
-./scripts/run_planner_flight_integration.sh \
-  --output artifacts/v0.15.0-planner-flight-headless.json \
-  smoke --timeout 260
+./scripts/run_frontier_exploration_integration.sh success --timeout 320 \
+  --output artifacts/v0.16.0-frontier-headless.json
 ```
 
 Use the exact graphical command and pinned environment from the
-[v0.15.0 reproduction guide](docs/v0.15.0-planner-flight-bridge.md).
+[v0.16.0 reproduction guide](docs/v0.16.0-autonomous-frontier-exploration.md).
 
 ## Reproducible tests
 
@@ -168,10 +170,8 @@ Benchmark commands and experiment-specific reproduction notes remain in
 
 - All vehicle-control results are simulation-only; there is no HIL or real
   aircraft support.
-- The flown indoor route uses one static, repository-authored 2D known map and
-  one fixed cruise altitude.
-- There is no SLAM, map discovery, obstacle perception, dynamic in-flight
-  replanning or generalized 3D planning.
+- Autonomous mapping is local, monotone and 2D at one fixed cruise altitude;
+  there is no SLAM loop closure, probabilistic clearing or generalized 3D planning.
 - Gazebo flight is currently single-vehicle and single-level. Multi-agent and
   multi-floor capabilities belong to the deterministic grid simulator.
 - Visual and Thermal sensors, smoke, radio propagation and failures are
@@ -197,8 +197,9 @@ results beyond its declared scope.
 | v0.15.0 | Known-map A* route generation connected to real simulated flight | [Documentation](docs/v0.15.0-planner-flight-bridge.md) |
 | v0.15.1 | Range-sensor obstacle discovery and bounded A* replanning | [Documentation](docs/v0.15.1-sensor-replanning.md) |
 | v0.15.2 | Incremental map revisions and bounded repeated A* replanning | [Documentation](docs/v0.15.2-multi-obstacle-replanning.md) |
+| v0.16.0 | LiDAR mapping and bounded autonomous frontier exploration | [Documentation](docs/v0.16.0-autonomous-frontier-exploration.md) |
 
-Development currently stops at the v0.15.2 simulation-only repeated-replanning
+Development currently stops at the v0.16.0 simulation-only frontier-exploration
 boundary. The complete roadmap, benchmark interpretation, setup guides and ADRs
 live in [`docs/`](docs/).
 

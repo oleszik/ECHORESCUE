@@ -20,6 +20,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/WaypointTarget.msg"
   "msg/WaypointMissionEvent.msg"
   "msg/RangeObstacleObservation.msg"
+  "msg/ExplorationState.msg"
   "action/MoveGrid.action"
   DEPENDENCIES builtin_interfaces std_msgs
 )

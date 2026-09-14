@@ -1,0 +1,3609 @@
+{
+  "case": "budget",
+  "checks": [
+    {
+      "detail": "all command ACKs precede independently observed transitions",
+      "name": "mission.command_ack_then_telemetry",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "controller configuration contains bounds but no interior geometry",
+      "name": "mission.controller_prior_unknown",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "all route generations contain controller-known safe cells only",
+      "name": "mission.routes_known_safe",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "contacts=[]",
+      "name": "gazebo.no_prohibited_contact",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "reason=frontier target budget exhausted; landed=True",
+      "name": "exploration.budget_bounded",
+      "status": "PASS",
+      "version": null
+    }
+  ],
+  "cleanup": [
+    {
+      "detail": "pid 234820 stopped",
+      "name": "cleanup.ardupilot_sitl",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 235092 stopped",
+      "name": "cleanup.exploration_mission",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 234954 stopped",
+      "name": "cleanup.exploration_observer",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 234804 stopped",
+      "name": "cleanup.gazebo",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 234844 stopped",
+      "name": "cleanup.gazebo_evaluator",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 234845 stopped",
+      "name": "cleanup.lidar_bridge",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "udp 127.0.0.1:9002 is available",
+      "name": "cleanup.port.gazebo_json",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "udp 127.0.0.1:14550 is available",
+      "name": "cleanup.port.mavproxy_output",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "tcp 127.0.0.1:5760 is available",
+      "name": "cleanup.port.sitl_mavlink",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "exploration ROS nodes absent",
+      "name": "cleanup.ros_nodes",
+      "status": "PASS",
+      "version": null
+    }
+  ],
+  "configuration_digest": "c575d2d1ebe8b36f5da1d3a48ab244166b3feec7d763cbe48decb695dfa59d70",
+  "dependencies": {
+    "ardupilot_commit": "92b0cd788ec29406f26c6f9c31d5ceedbd1cc538",
+    "ardupilot_gazebo_commit": "082a0fe231f6e63bc8d1598f1cba461d9e2ea7f5",
+    "ardupilot_ref": "Copter-4.6.3",
+    "gazebo_release": "harmonic",
+    "ros_distribution": "jazzy"
+  },
+  "evaluator_only_coverage": {
+    "covered_sample_count": 134,
+    "explorable_sample_count": 260,
+    "final_distance_from_launch_m": 0.14639716300644412,
+    "final_landed_height_observed": true,
+    "first_room_coverage_ratio": 0.9571428571428572,
+    "navigation_input": false,
+    "sample_resolution_m": 0.5,
+    "schema_version": "echorescue-frontier-gazebo-coverage/1.0",
+    "second_room_coverage_ratio": 0.0,
+    "source": "evaluator-only Gazebo trajectory plus configured geometry",
+    "true_coverage_ratio": 0.5153846153846153
+  },
+  "gazebo_evaluation": {
+    "clearance_method": "sampled model origin to nearest configured axis-aligned obstacle, minus conservative spherical vehicle radius",
+    "clearance_uncertainty": "sampled at the configured interval; contact sensors independently cover every configured solid",
+    "conservative_vehicle_radius_m": 0.35,
+    "contact_count": 1,
+    "contact_topic_coverage_complete": true,
+    "contact_topics_available": [
+      "/echorescue/indoor/contacts/blocking_obstacle",
+      "/echorescue/indoor/contacts/ceiling",
+      "/echorescue/indoor/contacts/divider_header",
+      "/echorescue/indoor/contacts/divider_north",
+      "/echorescue/indoor/contacts/divider_south",
+      "/echorescue/indoor/contacts/floor",
+      "/echorescue/indoor/contacts/unknown_obstacle",
+      "/echorescue/indoor/contacts/wall_east",
+      "/echorescue/indoor/contacts/wall_north",
+      "/echorescue/indoor/contacts/wall_south",
+      "/echorescue/indoor/contacts/wall_west"
+    ],
+    "contact_topics_required": [
+      "/echorescue/indoor/contacts/floor",
+      "/echorescue/indoor/contacts/ceiling",
+      "/echorescue/indoor/contacts/wall_west",
+      "/echorescue/indoor/contacts/wall_east",
+      "/echorescue/indoor/contacts/wall_south",
+      "/echorescue/indoor/contacts/wall_north",
+      "/echorescue/indoor/contacts/divider_south",
+      "/echorescue/indoor/contacts/divider_north",
+      "/echorescue/indoor/contacts/divider_header",
+      "/echorescue/indoor/contacts/blocking_obstacle",
+      "/echorescue/indoor/contacts/unknown_obstacle"
+    ],
+    "contacts": [
+      {
+        "classification": "floor",
+        "collision_pairs": [
+          [
+            "floor::link::collision",
+            "iris_with_range_sensor::vehicle::iris_with_standoffs::base_link::rear_right_leg_collision"
+          ]
+        ],
+        "contact_duration_s": 0.0,
+        "contact_message_count": 1,
+        "entity": "floor",
+        "first_contact_simulation_time_s": 0.008,
+        "last_contact_simulation_time_s": 0.008,
+        "prohibited": false
+      }
+    ],
+    "detail": "independent Gazebo trajectory and contact evaluation completed",
+    "doorway_crossings": [],
+    "far_side_region_entered": false,
+    "floor_contact_uncertainty": "the Gazebo floor sensor may retain its initial collision pair; only its first time-correlated launch contact is counted, while the sampled conservative envelope classifies later floor intersection",
+    "milestone": "v0.16.0",
+    "minimum_doorway_boundary_center_distance_m": null,
+    "minimum_doorway_boundary_surface_clearance_m": null,
+    "minimum_obstacle_center_distance_m": 1.3854031889059137,
+    "minimum_obstacle_surface_clearance_m": 1.0354031889059137,
+    "model_name": "iris_with_range_sensor",
+    "prohibited_contact_detected": false,
+    "prohibited_contacts": [],
+    "required_doorway_crossings": [
+      "outbound",
+      "inbound"
+    ],
+    "return_region_entered": false,
+    "safety_margin_m": 0.2,
+    "schema_version": "echorescue-indoor-gazebo-evaluation/1.0",
+    "status": "FAIL",
+    "trajectory": [
+      {
+        "east_m": -4.000022388147903,
+        "north_m": 0.0006511560371659508,
+        "simulation_time_s": 0.007,
+        "up_m": 0.19556548249276492
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 1.109,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 2.214,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 3.27,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 4.359,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 5.467,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 6.5440000000000005,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 7.609,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 8.692,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 9.8,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 10.873,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 11.975999999999999,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 13.106,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 14.186,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 15.299,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 16.388,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 17.475,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 18.55,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 19.651,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 20.746,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 21.861,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 22.958,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 24.04,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 25.127,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 26.162,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 27.244,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 28.324,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 29.446,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 30.536,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 31.616,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 32.718,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 33.77,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -4.00218690383892,
+        "north_m": 0.009285419838160142,
+        "simulation_time_s": 34.873,
+        "up_m": 0.1949992930969554
+      },
+      {
+        "east_m": -3.9973592796420654,
+        "north_m": 0.01534963360344943,
+        "simulation_time_s": 35.898,
+        "up_m": 0.5313945863729236
+      },
+      {
+        "east_m": -3.9918373658288835,
+        "north_m": 0.01308583744392064,
+        "simulation_time_s": 36.919,
+        "up_m": 1.430157216345993
+      },
+      {
+        "east_m": -3.993807620555146,
+        "north_m": -0.0018271502466307987,
+        "simulation_time_s": 37.939,
+        "up_m": 1.7420372381916363
+      },
+      {
+        "east_m": -3.9951350078041212,
+        "north_m": -0.007292433117073921,
+        "simulation_time_s": 38.959,
+        "up_m": 1.678999871988338
+      },
+      {
+        "east_m": -3.936058665588524,
+        "north_m": 0.5103995843976995,
+        "simulation_time_s": 39.979,
+        "up_m": 1.688366865234723
+      },
+      {
+        "east_m": -3.864650612890143,
+        "north_m": 1.1009223393877674,
+        "simulation_time_s": 40.999,
+        "up_m": 1.6939256760947057
+      },
+      {
+        "east_m": -3.859405116202995,
+        "north_m": 1.110889751036138,
+        "simulation_time_s": 42.019,
+        "up_m": 1.6869015212649734
+      },
+      {
+        "east_m": -3.8722616524169746,
+        "north_m": 0.3937658091926679,
+        "simulation_time_s": 43.039,
+        "up_m": 1.688990023590421
+      },
+      {
+        "east_m": -3.8711093923080786,
+        "north_m": 0.08442636220085671,
+        "simulation_time_s": 44.06,
+        "up_m": 1.6893034978195882
+      },
+      {
+        "east_m": -3.8674929607225286,
+        "north_m": 0.08554662044962878,
+        "simulation_time_s": 45.078,
+        "up_m": 1.6910998547337617
+      },
+      {
+        "east_m": -3.8685418550524253,
+        "north_m": 0.07014485002237726,
+        "simulation_time_s": 46.098,
+        "up_m": 1.6904176846769863
+      },
+      {
+        "east_m": -3.8717193053586234,
+        "north_m": 0.049266794929653815,
+        "simulation_time_s": 47.118,
+        "up_m": 1.6904901018003116
+      },
+      {
+        "east_m": -3.875580414268039,
+        "north_m": 0.0468753288769469,
+        "simulation_time_s": 48.138,
+        "up_m": 1.6901418691945933
+      },
+      {
+        "east_m": -3.8754737738472054,
+        "north_m": 0.049482226699464366,
+        "simulation_time_s": 49.156,
+        "up_m": 1.6907192770847772
+      },
+      {
+        "east_m": -3.876284005286942,
+        "north_m": 0.05095365962477916,
+        "simulation_time_s": 50.175,
+        "up_m": 1.6901475266078625
+      },
+      {
+        "east_m": -3.8753032125096833,
+        "north_m": 0.05169101347767757,
+        "simulation_time_s": 51.194,
+        "up_m": 1.6907656436740992
+      },
+      {
+        "east_m": -3.8767428357971236,
+        "north_m": 0.05294191875353195,
+        "simulation_time_s": 52.214,
+        "up_m": 1.3527149805540721
+      },
+      {
+        "east_m": -3.8707285627926,
+        "north_m": 0.05373847372877086,
+        "simulation_time_s": 53.234,
+        "up_m": 0.8237274794186542
+      },
+      {
+        "east_m": -3.8644169459964988,
+        "north_m": 0.054470211345046135,
+        "simulation_time_s": 54.254,
+        "up_m": 0.3159884413616423
+      },
+      {
+        "east_m": -3.8641608544343744,
+        "north_m": 0.05458805609596433,
+        "simulation_time_s": 55.293,
+        "up_m": 0.19499973690145675
+      },
+      {
+        "east_m": -3.8641608544343744,
+        "north_m": 0.05458805609596433,
+        "simulation_time_s": 56.4,
+        "up_m": 0.19499973690145675
+      },
+      {
+        "east_m": -3.8641608544343744,
+        "north_m": 0.05458805609596433,
+        "simulation_time_s": 57.407,
+        "up_m": 0.19499973690145675
+      }
+    ],
+    "trajectory_reported_sample_count": 55,
+    "trajectory_sample_count": 540,
+    "world_name": "echorescue_frontier_v0_16_0",
+    "world_version": "echorescue-frontier-indoor-v1"
+  },
+  "logs": [],
+  "milestone": "v0.16.0",
+  "mission": {
+    "accepted_beam_count": 39600,
+    "accepted_scan_count": 550,
+    "autopilot_status_text": [
+      {
+        "receipt_monotonic_ns": 163902643023452,
+        "severity": 6,
+        "text": "Barometer 1 calibration complete"
+      },
+      {
+        "receipt_monotonic_ns": 163902643176893,
+        "severity": 6,
+        "text": "Barometer 2 calibration complete"
+      },
+      {
+        "receipt_monotonic_ns": 163902643568977,
+        "severity": 6,
+        "text": "ArduPilot Ready"
+      },
+      {
+        "receipt_monotonic_ns": 163902743353458,
+        "severity": 6,
+        "text": "Field Elevation Set: 584m"
+      },
+      {
+        "receipt_monotonic_ns": 163902942889136,
+        "severity": 6,
+        "text": "RC7: SaveWaypoint LOW"
+      },
+      {
+        "receipt_monotonic_ns": 163902943034942,
+        "severity": 6,
+        "text": "RC8: PrecisionLoiter MIDDLE"
+      },
+      {
+        "receipt_monotonic_ns": 163904702834694,
+        "severity": 6,
+        "text": "EKF3 IMU0 initialised"
+      },
+      {
+        "receipt_monotonic_ns": 163904702946065,
+        "severity": 6,
+        "text": "EKF3 IMU1 initialised"
+      },
+      {
+        "receipt_monotonic_ns": 163906103837350,
+        "severity": 6,
+        "text": "EKF3 IMU0 tilt alignment complete"
+      },
+      {
+        "receipt_monotonic_ns": 163906122786417,
+        "severity": 6,
+        "text": "EKF3 IMU1 tilt alignment complete"
+      },
+      {
+        "receipt_monotonic_ns": 163906204034300,
+        "severity": 6,
+        "text": "EKF3 IMU1 MAG0 initial yaw alignment complete"
+      },
+      {
+        "receipt_monotonic_ns": 163906204106207,
+        "severity": 6,
+        "text": "EKF3 IMU0 MAG0 initial yaw alignment complete"
+      },
+      {
+        "receipt_monotonic_ns": 163910242666859,
+        "severity": 6,
+        "text": "GPS 1: probing for u-blox at 230400 baud"
+      },
+      {
+        "receipt_monotonic_ns": 163910263097669,
+        "severity": 6,
+        "text": "GPS 1: detected u-blox"
+      },
+      {
+        "receipt_monotonic_ns": 163920863899809,
+        "severity": 6,
+        "text": "EKF3 IMU1 origin set"
+      },
+      {
+        "receipt_monotonic_ns": 163921064268985,
+        "severity": 6,
+        "text": "EKF3 IMU0 origin set"
+      },
+      {
+        "receipt_monotonic_ns": 163933663250197,
+        "severity": 6,
+        "text": "Arming motors"
+      },
+      {
+        "receipt_monotonic_ns": 163943002955275,
+        "severity": 6,
+        "text": "EKF3 IMU1 is using GPS"
+      },
+      {
+        "receipt_monotonic_ns": 163943003057168,
+        "severity": 6,
+        "text": "EKF3 IMU0 is using GPS"
+      },
+      {
+        "receipt_monotonic_ns": 163946062789167,
+        "severity": 6,
+        "text": "PrecLand: Failsafe Measures"
+      },
+      {
+        "receipt_monotonic_ns": 163958563348042,
+        "severity": 6,
+        "text": "Disarming motors"
+      }
+    ],
+    "command_ack_results": {
+      "arm": 0,
+      "guided": 0,
+      "land": 0,
+      "takeoff": 0
+    },
+    "commands": [
+      {
+        "ack_monotonic_ns": 163933003047042,
+        "ack_result": 0,
+        "command_id": 511,
+        "issued_monotonic_ns": 163932984449303,
+        "kind": "extended_state_stream",
+        "recovery": false,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "telemetry_transition": "extended_state.landed=true",
+        "telemetry_transition_monotonic_ns": 163933483438754
+      },
+      {
+        "ack_monotonic_ns": 163933542932587,
+        "ack_result": 0,
+        "command_id": 176,
+        "issued_monotonic_ns": 163933534572208,
+        "kind": "guided",
+        "recovery": false,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "telemetry_transition": "heartbeat.flight_mode=GUIDED",
+        "telemetry_transition_monotonic_ns": 163933543180367
+      },
+      {
+        "ack_monotonic_ns": 163933642813066,
+        "ack_result": 0,
+        "command_id": 400,
+        "issued_monotonic_ns": 163933634657596,
+        "kind": "arm",
+        "recovery": false,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "telemetry_transition": "heartbeat.armed=true",
+        "telemetry_transition_monotonic_ns": 163933863091608
+      },
+      {
+        "ack_monotonic_ns": 163933942830908,
+        "ack_result": 0,
+        "command_id": 22,
+        "issued_monotonic_ns": 163933934533630,
+        "kind": "takeoff",
+        "recovery": false,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "telemetry_transition": "local_position_enu.z_in_target_band",
+        "telemetry_transition_monotonic_ns": 163938623114440
+      },
+      {
+        "ack_monotonic_ns": 163946042720942,
+        "ack_result": 0,
+        "command_id": 21,
+        "issued_monotonic_ns": 163946037696404,
+        "kind": "land",
+        "recovery": false,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "telemetry_transition": "extended_state.landed=true;heartbeat.armed=false",
+        "telemetry_transition_monotonic_ns": 163959184377455
+      }
+    ],
+    "configuration_digest": "3d3c24a0c6187639c2e4456f6beb53faeecd87488b4cae6ca90604e3dbb2e934",
+    "controller_known_ratio": 0.44058823529411767,
+    "controller_prior_interior_geometry": false,
+    "disarm": {
+      "ack_result": null,
+      "command_issued": false,
+      "detail": "ArduPilot disarmed after LAND; EchoRescue issued no disarm command",
+      "telemetry_verified": true
+    },
+    "exploration_completion_reason": null,
+    "exploration_failure_reason": "frontier target budget exhausted",
+    "exploration_state": "failed",
+    "failure_reason": null,
+    "final_armed": false,
+    "final_distance_from_launch_m": 0.13874617134858935,
+    "final_landed": true,
+    "final_mode": "LAND",
+    "final_position_enu": {
+      "east_m": -3.867245674133301,
+      "north_m": 0.055659420788288116,
+      "up_m": 0.1899999976158142
+    },
+    "flight_events": [
+      {
+        "detail": "waiting for fresh disarmed telemetry",
+        "event": "mission_started",
+        "monotonic_ns": 163900584221937,
+        "phase": "wait_ready"
+      },
+      {
+        "detail": "fresh disarmed telemetry remained stable through preflight hold",
+        "event": "phase",
+        "monotonic_ns": 163932934543940,
+        "phase": "send_extended_state_stream"
+      },
+      {
+        "detail": "extended_state_stream command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 163932984449303,
+        "phase": "wait_extended_state_stream"
+      },
+      {
+        "detail": "extended_state_stream accepted",
+        "event": "command_ack",
+        "monotonic_ns": 163933003047042,
+        "phase": "wait_extended_state_stream"
+      },
+      {
+        "detail": "extended-state ACK and telemetry observed",
+        "event": "phase",
+        "monotonic_ns": 163933485010046,
+        "phase": "send_guided"
+      },
+      {
+        "detail": "guided command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 163933534572208,
+        "phase": "wait_guided"
+      },
+      {
+        "detail": "guided accepted",
+        "event": "command_ack",
+        "monotonic_ns": 163933542932587,
+        "phase": "wait_guided"
+      },
+      {
+        "detail": "GUIDED ACK and heartbeat mode observed",
+        "event": "phase",
+        "monotonic_ns": 163933584983101,
+        "phase": "send_arm"
+      },
+      {
+        "detail": "arm command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 163933634657596,
+        "phase": "wait_armed"
+      },
+      {
+        "detail": "arm accepted",
+        "event": "command_ack",
+        "monotonic_ns": 163933642813066,
+        "phase": "wait_armed"
+      },
+      {
+        "detail": "arm ACK and armed heartbeat observed",
+        "event": "phase",
+        "monotonic_ns": 163933884389172,
+        "phase": "send_takeoff"
+      },
+      {
+        "detail": "takeoff command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 163933934533630,
+        "phase": "wait_altitude"
+      },
+      {
+        "detail": "takeoff accepted",
+        "event": "command_ack",
+        "monotonic_ns": 163933942830908,
+        "phase": "wait_altitude"
+      },
+      {
+        "detail": "takeoff ACK and target ENU altitude observed",
+        "event": "phase",
+        "monotonic_ns": 163938634484943,
+        "phase": "hover"
+      },
+      {
+        "detail": "timed hover completed",
+        "event": "phase",
+        "monotonic_ns": 163939634596474,
+        "phase": "navigation_hold"
+      },
+      {
+        "detail": "navigation complete; landing requested",
+        "event": "phase",
+        "monotonic_ns": 163946034639551,
+        "phase": "send_land"
+      },
+      {
+        "detail": "land command issued; awaiting ACK and telemetry",
+        "event": "phase",
+        "monotonic_ns": 163946037696404,
+        "phase": "wait_landed_disarmed"
+      },
+      {
+        "detail": "land accepted",
+        "event": "command_ack",
+        "monotonic_ns": 163946042720942,
+        "phase": "wait_landed_disarmed"
+      },
+      {
+        "detail": "land ACK, landed state, and disarmed heartbeat observed",
+        "event": "phase",
+        "monotonic_ns": 163959184377455,
+        "phase": "succeeded"
+      }
+    ],
+    "frontier_history": [
+      {
+        "clusters": [
+          {
+            "cell": [
+              30,
+              17
+            ],
+            "information_gain": 32,
+            "path_cost": 21,
+            "score": 43.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 2
+          },
+          {
+            "cell": [
+              27,
+              20
+            ],
+            "information_gain": 28,
+            "path_cost": 21,
+            "score": 35.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 2
+          },
+          {
+            "cell": [
+              11,
+              24
+            ],
+            "information_gain": 27,
+            "path_cost": 21,
+            "score": 33.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 7
+          },
+          {
+            "cell": [
+              21,
+              24
+            ],
+            "information_gain": 25,
+            "path_cost": 19,
+            "score": 31.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 8
+          },
+          {
+            "cell": [
+              24,
+              23
+            ],
+            "information_gain": 26,
+            "path_cost": 21,
+            "score": 31.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 3
+          },
+          {
+            "cell": [
+              26,
+              21
+            ],
+            "information_gain": 26,
+            "path_cost": 21,
+            "score": 31.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              9,
+              23
+            ],
+            "information_gain": 26,
+            "path_cost": 22,
+            "score": 30.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 4
+          },
+          {
+            "cell": [
+              4,
+              19
+            ],
+            "information_gain": 26,
+            "path_cost": 23,
+            "score": 29.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 2
+          },
+          {
+            "cell": [
+              5,
+              20
+            ],
+            "information_gain": 26,
+            "path_cost": 23,
+            "score": 29.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 2
+          },
+          {
+            "cell": [
+              25,
+              22
+            ],
+            "information_gain": 25,
+            "path_cost": 21,
+            "score": 29.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              31,
+              16
+            ],
+            "information_gain": 24,
+            "path_cost": 21,
+            "score": 27.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              3,
+              17
+            ],
+            "information_gain": 22,
+            "path_cost": 22,
+            "score": 22.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              7,
+              21
+            ],
+            "information_gain": 21,
+            "path_cost": 22,
+            "score": 20.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              26,
+              18
+            ],
+            "information_gain": 18,
+            "path_cost": 18,
+            "score": 18.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              28,
+              16
+            ],
+            "information_gain": 18,
+            "path_cost": 18,
+            "score": 18.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              2,
+              16
+            ],
+            "information_gain": 18,
+            "path_cost": 22,
+            "score": 14.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 11
+          },
+          {
+            "cell": [
+              1,
+              3
+            ],
+            "information_gain": 16,
+            "path_cost": 22,
+            "score": 10.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 5
+          },
+          {
+            "cell": [
+              27,
+              15
+            ],
+            "information_gain": 13,
+            "path_cost": 16,
+            "score": 10.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              11,
+              22
+            ],
+            "information_gain": 13,
+            "path_cost": 19,
+            "score": 7.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              13,
+              22
+            ],
+            "information_gain": 11,
+            "path_cost": 17,
+            "score": 5.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              1,
+              5
+            ],
+            "information_gain": 12,
+            "path_cost": 20,
+            "score": 4.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 4
+          },
+          {
+            "cell": [
+              3,
+              8
+            ],
+            "information_gain": 9,
+            "path_cost": 15,
+            "score": 3.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              3,
+              12
+            ],
+            "information_gain": 10,
+            "path_cost": 17,
+            "score": 3.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              19,
+              22
+            ],
+            "information_gain": 9,
+            "path_cost": 15,
+            "score": 3.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              10,
+              21
+            ],
+            "information_gain": 8,
+            "path_cost": 19,
+            "score": -3.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              29,
+              12
+            ],
+            "information_gain": 5,
+            "path_cost": 15,
+            "score": -5.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              14,
+              21
+            ],
+            "information_gain": 2,
+            "path_cost": 15,
+            "score": -11.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          }
+        ],
+        "map_revision": 15,
+        "selected": {
+          "cell": [
+            30,
+            17
+          ],
+          "information_gain": 32,
+          "path_cost": 21,
+          "score": 43.0,
+          "switch_penalty": 0.0,
+          "cluster_size": 2
+        },
+        "selected_monotonic_ns": 163940734595188
+      },
+      {
+        "clusters": [
+          {
+            "cell": [
+              16,
+              25
+            ],
+            "information_gain": 24,
+            "path_cost": 21,
+            "score": 27.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 3
+          },
+          {
+            "cell": [
+              4,
+              19
+            ],
+            "information_gain": 26,
+            "path_cost": 27,
+            "score": 25.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 2
+          },
+          {
+            "cell": [
+              5,
+              20
+            ],
+            "information_gain": 26,
+            "path_cost": 27,
+            "score": 25.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 2
+          },
+          {
+            "cell": [
+              11,
+              24
+            ],
+            "information_gain": 25,
+            "path_cost": 25,
+            "score": 25.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 5
+          },
+          {
+            "cell": [
+              28,
+              23
+            ],
+            "information_gain": 23,
+            "path_cost": 21,
+            "score": 25.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 2
+          },
+          {
+            "cell": [
+              9,
+              23
+            ],
+            "information_gain": 25,
+            "path_cost": 26,
+            "score": 24.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 2
+          },
+          {
+            "cell": [
+              3,
+              17
+            ],
+            "information_gain": 22,
+            "path_cost": 26,
+            "score": 18.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              8,
+              22
+            ],
+            "information_gain": 22,
+            "path_cost": 26,
+            "score": 18.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              7,
+              21
+            ],
+            "information_gain": 20,
+            "path_cost": 26,
+            "score": 14.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              2,
+              16
+            ],
+            "information_gain": 18,
+            "path_cost": 26,
+            "score": 10.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 3
+          },
+          {
+            "cell": [
+              29,
+              21
+            ],
+            "information_gain": 12,
+            "path_cost": 20,
+            "score": 4.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              1,
+              3
+            ],
+            "information_gain": 13,
+            "path_cost": 26,
+            "score": 0.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              2,
+              4
+            ],
+            "information_gain": 11,
+            "path_cost": 24,
+            "score": -2.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 1
+          },
+          {
+            "cell": [
+              1,
+              13
+            ],
+            "information_gain": 10,
+            "path_cost": 24,
+            "score": -4.0,
+            "switch_penalty": 0.0,
+            "cluster_size": 9
+          }
+        ],
+        "map_revision": 35,
+        "selected_monotonic_ns": 163943434514335
+      }
+    ],
+    "frontier_target_count": 1,
+    "geofence_checks": [
+      {
+        "checked_monotonic_ns": 163939684264362,
+        "horizontal_distance_m": 0.0,
+        "horizontal_limit_m": 10.0,
+        "maximum_altitude_m": 3.5,
+        "minimum_altitude_m": -0.25,
+        "passed": true,
+        "relative_altitude_m": 1.5,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g001-launch-stabilize"
+      },
+      {
+        "checked_monotonic_ns": 163940767032179,
+        "horizontal_distance_m": 1.1319231422671772,
+        "horizontal_limit_m": 10.0,
+        "maximum_altitude_m": 3.5,
+        "minimum_altitude_m": -0.25,
+        "passed": true,
+        "relative_altitude_m": 1.5,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "checked_monotonic_ns": 163943455926751,
+        "horizontal_distance_m": 0.1767766952966369,
+        "horizontal_limit_m": 10.0,
+        "maximum_altitude_m": 3.5,
+        "minimum_altitude_m": -0.25,
+        "passed": true,
+        "relative_altitude_m": 1.5,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      }
+    ],
+    "launch_enu": {
+      "east_m": -3.994338274002075,
+      "north_m": 0.0,
+      "up_m": 0.1899999976158142
+    },
+    "map_counts": {
+      "free_cell_count": 650,
+      "inflated_cell_count": 343,
+      "occupied_cell_count": 99,
+      "unknown_cell_count": 951
+    },
+    "map_revisions": [
+      {
+        "free_cell_count": 603,
+        "inflated_cell_count": 197,
+        "map_revision": 1,
+        "occupied_cell_count": 30,
+        "sequence": 2,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1067,
+        "new_free_cell_count": 603,
+        "new_occupied_cell_count": 30
+      },
+      {
+        "free_cell_count": 606,
+        "inflated_cell_count": 197,
+        "map_revision": 2,
+        "occupied_cell_count": 30,
+        "sequence": 332,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1064,
+        "new_free_cell_count": 3,
+        "new_occupied_cell_count": 0
+      },
+      {
+        "free_cell_count": 606,
+        "inflated_cell_count": 197,
+        "map_revision": 3,
+        "occupied_cell_count": 32,
+        "sequence": 334,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1062,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 611,
+        "inflated_cell_count": 197,
+        "map_revision": 4,
+        "occupied_cell_count": 34,
+        "sequence": 336,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1055,
+        "new_free_cell_count": 6,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 611,
+        "inflated_cell_count": 197,
+        "map_revision": 5,
+        "occupied_cell_count": 35,
+        "sequence": 338,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1054,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 611,
+        "inflated_cell_count": 197,
+        "map_revision": 6,
+        "occupied_cell_count": 36,
+        "sequence": 339,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1053,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 610,
+        "inflated_cell_count": 200,
+        "map_revision": 7,
+        "occupied_cell_count": 38,
+        "sequence": 340,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1052,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 610,
+        "inflated_cell_count": 200,
+        "map_revision": 8,
+        "occupied_cell_count": 39,
+        "sequence": 341,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1051,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 609,
+        "inflated_cell_count": 201,
+        "map_revision": 9,
+        "occupied_cell_count": 43,
+        "sequence": 342,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1048,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 4
+      },
+      {
+        "free_cell_count": 609,
+        "inflated_cell_count": 201,
+        "map_revision": 10,
+        "occupied_cell_count": 45,
+        "sequence": 343,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1046,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 609,
+        "inflated_cell_count": 201,
+        "map_revision": 11,
+        "occupied_cell_count": 47,
+        "sequence": 344,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1044,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 609,
+        "inflated_cell_count": 201,
+        "map_revision": 12,
+        "occupied_cell_count": 48,
+        "sequence": 345,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1043,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 609,
+        "inflated_cell_count": 201,
+        "map_revision": 13,
+        "occupied_cell_count": 49,
+        "sequence": 346,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1042,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 609,
+        "inflated_cell_count": 201,
+        "map_revision": 14,
+        "occupied_cell_count": 50,
+        "sequence": 348,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1041,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 609,
+        "inflated_cell_count": 201,
+        "map_revision": 15,
+        "occupied_cell_count": 52,
+        "sequence": 360,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1039,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 610,
+        "inflated_cell_count": 201,
+        "map_revision": 16,
+        "occupied_cell_count": 52,
+        "sequence": 372,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1038,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 0
+      },
+      {
+        "free_cell_count": 613,
+        "inflated_cell_count": 201,
+        "map_revision": 17,
+        "occupied_cell_count": 52,
+        "sequence": 374,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1035,
+        "new_free_cell_count": 3,
+        "new_occupied_cell_count": 0
+      },
+      {
+        "free_cell_count": 618,
+        "inflated_cell_count": 201,
+        "map_revision": 18,
+        "occupied_cell_count": 54,
+        "sequence": 375,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1028,
+        "new_free_cell_count": 6,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 627,
+        "inflated_cell_count": 207,
+        "map_revision": 19,
+        "occupied_cell_count": 59,
+        "sequence": 376,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1014,
+        "new_free_cell_count": 10,
+        "new_occupied_cell_count": 5
+      },
+      {
+        "free_cell_count": 632,
+        "inflated_cell_count": 214,
+        "map_revision": 20,
+        "occupied_cell_count": 63,
+        "sequence": 377,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1005,
+        "new_free_cell_count": 9,
+        "new_occupied_cell_count": 4
+      },
+      {
+        "free_cell_count": 630,
+        "inflated_cell_count": 223,
+        "map_revision": 21,
+        "occupied_cell_count": 66,
+        "sequence": 378,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1004,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 3
+      },
+      {
+        "free_cell_count": 629,
+        "inflated_cell_count": 252,
+        "map_revision": 22,
+        "occupied_cell_count": 69,
+        "sequence": 379,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 1002,
+        "new_free_cell_count": 2,
+        "new_occupied_cell_count": 3
+      },
+      {
+        "free_cell_count": 635,
+        "inflated_cell_count": 252,
+        "map_revision": 23,
+        "occupied_cell_count": 71,
+        "sequence": 380,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 994,
+        "new_free_cell_count": 6,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 640,
+        "inflated_cell_count": 252,
+        "map_revision": 24,
+        "occupied_cell_count": 72,
+        "sequence": 381,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 988,
+        "new_free_cell_count": 5,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 640,
+        "inflated_cell_count": 265,
+        "map_revision": 25,
+        "occupied_cell_count": 75,
+        "sequence": 382,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 985,
+        "new_free_cell_count": 2,
+        "new_occupied_cell_count": 3
+      },
+      {
+        "free_cell_count": 643,
+        "inflated_cell_count": 265,
+        "map_revision": 26,
+        "occupied_cell_count": 77,
+        "sequence": 383,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 980,
+        "new_free_cell_count": 5,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 643,
+        "inflated_cell_count": 275,
+        "map_revision": 27,
+        "occupied_cell_count": 79,
+        "sequence": 384,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 978,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 643,
+        "inflated_cell_count": 279,
+        "map_revision": 28,
+        "occupied_cell_count": 80,
+        "sequence": 385,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 977,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 643,
+        "inflated_cell_count": 279,
+        "map_revision": 29,
+        "occupied_cell_count": 81,
+        "sequence": 386,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 976,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 644,
+        "inflated_cell_count": 279,
+        "map_revision": 30,
+        "occupied_cell_count": 81,
+        "sequence": 387,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 975,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 0
+      },
+      {
+        "free_cell_count": 651,
+        "inflated_cell_count": 284,
+        "map_revision": 31,
+        "occupied_cell_count": 82,
+        "sequence": 388,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 967,
+        "new_free_cell_count": 8,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 650,
+        "inflated_cell_count": 288,
+        "map_revision": 32,
+        "occupied_cell_count": 83,
+        "sequence": 389,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 967,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 651,
+        "inflated_cell_count": 288,
+        "map_revision": 33,
+        "occupied_cell_count": 83,
+        "sequence": 392,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 966,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 0
+      },
+      {
+        "free_cell_count": 657,
+        "inflated_cell_count": 288,
+        "map_revision": 34,
+        "occupied_cell_count": 83,
+        "sequence": 394,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 960,
+        "new_free_cell_count": 6,
+        "new_occupied_cell_count": 0
+      },
+      {
+        "free_cell_count": 658,
+        "inflated_cell_count": 288,
+        "map_revision": 35,
+        "occupied_cell_count": 83,
+        "sequence": 395,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 959,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 0
+      },
+      {
+        "free_cell_count": 657,
+        "inflated_cell_count": 293,
+        "map_revision": 36,
+        "occupied_cell_count": 84,
+        "sequence": 403,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 959,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 652,
+        "inflated_cell_count": 303,
+        "map_revision": 37,
+        "occupied_cell_count": 89,
+        "sequence": 404,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 959,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 5
+      },
+      {
+        "free_cell_count": 650,
+        "inflated_cell_count": 305,
+        "map_revision": 38,
+        "occupied_cell_count": 91,
+        "sequence": 405,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 959,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 2
+      },
+      {
+        "free_cell_count": 648,
+        "inflated_cell_count": 307,
+        "map_revision": 39,
+        "occupied_cell_count": 94,
+        "sequence": 406,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 958,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 3
+      },
+      {
+        "free_cell_count": 647,
+        "inflated_cell_count": 312,
+        "map_revision": 40,
+        "occupied_cell_count": 95,
+        "sequence": 407,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 958,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 648,
+        "inflated_cell_count": 312,
+        "map_revision": 41,
+        "occupied_cell_count": 95,
+        "sequence": 410,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 957,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 0
+      },
+      {
+        "free_cell_count": 649,
+        "inflated_cell_count": 312,
+        "map_revision": 42,
+        "occupied_cell_count": 95,
+        "sequence": 411,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 956,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 0
+      },
+      {
+        "free_cell_count": 649,
+        "inflated_cell_count": 312,
+        "map_revision": 43,
+        "occupied_cell_count": 96,
+        "sequence": 412,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 955,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 648,
+        "inflated_cell_count": 317,
+        "map_revision": 44,
+        "occupied_cell_count": 97,
+        "sequence": 415,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 955,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 647,
+        "inflated_cell_count": 318,
+        "map_revision": 45,
+        "occupied_cell_count": 98,
+        "sequence": 416,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 955,
+        "new_free_cell_count": 0,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 648,
+        "inflated_cell_count": 343,
+        "map_revision": 46,
+        "occupied_cell_count": 99,
+        "sequence": 417,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 953,
+        "new_free_cell_count": 2,
+        "new_occupied_cell_count": 1
+      },
+      {
+        "free_cell_count": 649,
+        "inflated_cell_count": 343,
+        "map_revision": 47,
+        "occupied_cell_count": 99,
+        "sequence": 419,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 952,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 0
+      },
+      {
+        "free_cell_count": 650,
+        "inflated_cell_count": 343,
+        "map_revision": 48,
+        "occupied_cell_count": 99,
+        "sequence": 441,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "unknown_cell_count": 951,
+        "new_free_cell_count": 1,
+        "new_occupied_cell_count": 0
+      }
+    ],
+    "map_transform": {
+      "column_axis": "east_positive",
+      "columns": 50,
+      "origin_east_m": -2.25,
+      "origin_north_m": -4.25,
+      "resolution_m": 0.25,
+      "row_axis": "north_positive",
+      "rows": 34
+    },
+    "maximum_altitude_enu_m": 1.7400000095367432,
+    "maximum_horizontal_displacement_m": 1.1767530883642994,
+    "maximum_telemetry_age_s": 0.099981219,
+    "maximum_telemetry_gap_s": 0.139979578,
+    "milestone": "v0.16.0",
+    "mission_events": [
+      {
+        "detail": "waiting for launch-local telemetry",
+        "event": "mission_started",
+        "monotonic_ns": 163900584221937,
+        "phase": "flight_sequence",
+        "sequence": 1,
+        "session_id": "",
+        "target_id": ""
+      },
+      {
+        "detail": "valid active-session ENU launch position recorded",
+        "event": "launch_recorded",
+        "monotonic_ns": 163902783512579,
+        "phase": "flight_sequence",
+        "sequence": 2,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 1",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163902841561226,
+        "phase": "flight_sequence",
+        "sequence": 3,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 2",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163937059705754,
+        "phase": "flight_sequence",
+        "sequence": 4,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 3",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163937260312021,
+        "phase": "flight_sequence",
+        "sequence": 5,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 4",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163937462461457,
+        "phase": "flight_sequence",
+        "sequence": 6,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 5",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163937660179873,
+        "phase": "flight_sequence",
+        "sequence": 7,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 6",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163937760227206,
+        "phase": "flight_sequence",
+        "sequence": 8,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 7",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163937859818093,
+        "phase": "flight_sequence",
+        "sequence": 9,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 8",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163937960458953,
+        "phase": "flight_sequence",
+        "sequence": 10,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 9",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163938059896729,
+        "phase": "flight_sequence",
+        "sequence": 11,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 10",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163938159741068,
+        "phase": "flight_sequence",
+        "sequence": 12,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 11",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163938259966150,
+        "phase": "flight_sequence",
+        "sequence": 13,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 12",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163938359969431,
+        "phase": "flight_sequence",
+        "sequence": 14,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 13",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163938460197439,
+        "phase": "flight_sequence",
+        "sequence": 15,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 14",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163938659933548,
+        "phase": "flight_sequence",
+        "sequence": 16,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "target g001-launch-stabilize activated",
+        "event": "phase",
+        "monotonic_ns": 163939634596474,
+        "phase": "send_target",
+        "sequence": 17,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g001-launch-stabilize"
+      },
+      {
+        "detail": "setpoint handed to MAVLink boundary",
+        "event": "phase",
+        "monotonic_ns": 163939684264362,
+        "phase": "wait_transmission",
+        "sequence": 18,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g001-launch-stabilize"
+      },
+      {
+        "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+        "event": "target_transmitted",
+        "monotonic_ns": 163939684311201,
+        "phase": "wait_transmission",
+        "sequence": 19,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g001-launch-stabilize"
+      },
+      {
+        "detail": "awaiting strictly post-transmission vehicle telemetry",
+        "event": "phase",
+        "monotonic_ns": 163939684311201,
+        "phase": "track_target",
+        "sequence": 20,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g001-launch-stabilize"
+      },
+      {
+        "detail": "fresh vehicle-time-progressing state observed",
+        "event": "first_post_command_telemetry",
+        "monotonic_ns": 163939723210068,
+        "phase": "track_target",
+        "sequence": 21,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g001-launch-stabilize"
+      },
+      {
+        "detail": "horizontal and vertical tolerances entered",
+        "event": "target_arrival",
+        "monotonic_ns": 163939723210068,
+        "phase": "track_target",
+        "sequence": 22,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g001-launch-stabilize"
+      },
+      {
+        "detail": "controller-owned map revision 15",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163939860108754,
+        "phase": "track_target",
+        "sequence": 23,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g001-launch-stabilize"
+      },
+      {
+        "detail": "continuous residence interval completed",
+        "event": "target_settled",
+        "monotonic_ns": 163940723391812,
+        "phase": "track_target",
+        "sequence": 24,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g001-launch-stabilize"
+      },
+      {
+        "detail": "awaiting a checked dynamic route",
+        "event": "phase",
+        "monotonic_ns": 163940723391812,
+        "phase": "wait_targets",
+        "sequence": 25,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "checked dynamic route installed",
+        "event": "route_replaced",
+        "monotonic_ns": 163940734595188,
+        "phase": "wait_targets",
+        "sequence": 26,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "target g002-frontier-001 activated",
+        "event": "phase",
+        "monotonic_ns": 163940734595188,
+        "phase": "send_target",
+        "sequence": 27,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "generation 2 frontier",
+        "event": "route_replanned",
+        "monotonic_ns": 163940734595188,
+        "phase": "send_target",
+        "sequence": 28,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "setpoint handed to MAVLink boundary",
+        "event": "phase",
+        "monotonic_ns": 163940767032179,
+        "phase": "wait_transmission",
+        "sequence": 29,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+        "event": "target_transmitted",
+        "monotonic_ns": 163940767084338,
+        "phase": "wait_transmission",
+        "sequence": 30,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "awaiting strictly post-transmission vehicle telemetry",
+        "event": "phase",
+        "monotonic_ns": 163940767084338,
+        "phase": "track_target",
+        "sequence": 31,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "fresh vehicle-time-progressing state observed",
+        "event": "first_post_command_telemetry",
+        "monotonic_ns": 163940823646884,
+        "phase": "track_target",
+        "sequence": 32,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 16",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163941059870711,
+        "phase": "track_target",
+        "sequence": 33,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 17",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163941259594056,
+        "phase": "track_target",
+        "sequence": 34,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 18",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163941361876759,
+        "phase": "track_target",
+        "sequence": 35,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 19",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163941460639300,
+        "phase": "track_target",
+        "sequence": 36,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "measurable target-error decrease observed",
+        "event": "target_progress",
+        "monotonic_ns": 163941523430521,
+        "phase": "track_target",
+        "sequence": 37,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 20",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163941560293104,
+        "phase": "track_target",
+        "sequence": 38,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 21",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163941660442598,
+        "phase": "track_target",
+        "sequence": 39,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 22",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163941760900567,
+        "phase": "track_target",
+        "sequence": 40,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 23",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163941860394868,
+        "phase": "track_target",
+        "sequence": 41,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 24",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163941961331756,
+        "phase": "track_target",
+        "sequence": 42,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 25",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163942060708904,
+        "phase": "track_target",
+        "sequence": 43,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 26",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163942162138520,
+        "phase": "track_target",
+        "sequence": 44,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 27",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163942260689671,
+        "phase": "track_target",
+        "sequence": 45,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "horizontal and vertical tolerances entered",
+        "event": "target_arrival",
+        "monotonic_ns": 163942323475362,
+        "phase": "track_target",
+        "sequence": 46,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 28",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163942360483793,
+        "phase": "track_target",
+        "sequence": 47,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 29",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163942460404484,
+        "phase": "track_target",
+        "sequence": 48,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 30",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163942559702063,
+        "phase": "track_target",
+        "sequence": 49,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 31",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163942662717309,
+        "phase": "track_target",
+        "sequence": 50,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 32",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163942760523045,
+        "phase": "track_target",
+        "sequence": 51,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 33",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163943059462488,
+        "phase": "track_target",
+        "sequence": 52,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 34",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163943259548398,
+        "phase": "track_target",
+        "sequence": 53,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "controller-owned map revision 35",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163943359318906,
+        "phase": "track_target",
+        "sequence": 54,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "continuous residence interval completed",
+        "event": "target_settled",
+        "monotonic_ns": 163943423513593,
+        "phase": "track_target",
+        "sequence": 55,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g002-frontier-001"
+      },
+      {
+        "detail": "awaiting a checked dynamic route",
+        "event": "phase",
+        "monotonic_ns": 163943423513593,
+        "phase": "wait_targets",
+        "sequence": 56,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "checked dynamic route installed",
+        "event": "route_replaced",
+        "monotonic_ns": 163943434514335,
+        "phase": "wait_targets",
+        "sequence": 57,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "target g003-return-001 activated",
+        "event": "phase",
+        "monotonic_ns": 163943434514335,
+        "phase": "send_target",
+        "sequence": 58,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "generation 3 return",
+        "event": "route_replanned",
+        "monotonic_ns": 163943434514335,
+        "phase": "send_target",
+        "sequence": 59,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "setpoint handed to MAVLink boundary",
+        "event": "phase",
+        "monotonic_ns": 163943455926751,
+        "phase": "wait_transmission",
+        "sequence": 60,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+        "event": "target_transmitted",
+        "monotonic_ns": 163943455985743,
+        "phase": "wait_transmission",
+        "sequence": 61,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "awaiting strictly post-transmission vehicle telemetry",
+        "event": "phase",
+        "monotonic_ns": 163943455985743,
+        "phase": "track_target",
+        "sequence": 62,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "fresh vehicle-time-progressing state observed",
+        "event": "first_post_command_telemetry",
+        "monotonic_ns": 163943523573531,
+        "phase": "track_target",
+        "sequence": 63,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 36",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163944160787055,
+        "phase": "track_target",
+        "sequence": 64,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "measurable target-error decrease observed",
+        "event": "target_progress",
+        "monotonic_ns": 163944223394139,
+        "phase": "track_target",
+        "sequence": 65,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 37",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163944260936223,
+        "phase": "track_target",
+        "sequence": 66,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 38",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163944360255787,
+        "phase": "track_target",
+        "sequence": 67,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 39",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163944460925574,
+        "phase": "track_target",
+        "sequence": 68,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 40",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163944561396363,
+        "phase": "track_target",
+        "sequence": 69,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 41",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163944859895060,
+        "phase": "track_target",
+        "sequence": 70,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "horizontal and vertical tolerances entered",
+        "event": "target_arrival",
+        "monotonic_ns": 163944923288497,
+        "phase": "track_target",
+        "sequence": 71,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 42",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163944959665520,
+        "phase": "track_target",
+        "sequence": 72,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 43",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163945060593647,
+        "phase": "track_target",
+        "sequence": 73,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 44",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163945360694660,
+        "phase": "track_target",
+        "sequence": 74,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 45",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163945460617471,
+        "phase": "track_target",
+        "sequence": 75,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 46",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163945560532787,
+        "phase": "track_target",
+        "sequence": 76,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "controller-owned map revision 47",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163945759925449,
+        "phase": "track_target",
+        "sequence": 77,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "continuous residence interval completed",
+        "event": "target_settled",
+        "monotonic_ns": 163946022927038,
+        "phase": "track_target",
+        "sequence": 78,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": "g003-return-001"
+      },
+      {
+        "detail": "awaiting a checked dynamic route",
+        "event": "phase",
+        "monotonic_ns": 163946022927038,
+        "phase": "wait_targets",
+        "sequence": 79,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "frontier target budget exhausted",
+        "event": "exploration_complete",
+        "monotonic_ns": 163946034639551,
+        "phase": "wait_targets",
+        "sequence": 80,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "dynamic route complete; bounded LAND requested",
+        "event": "phase",
+        "monotonic_ns": 163946034639551,
+        "phase": "landing",
+        "sequence": 81,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "controller-owned map revision 48",
+        "event": "occupancy_map_updated",
+        "monotonic_ns": 163947959416320,
+        "phase": "landing",
+        "sequence": 82,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      },
+      {
+        "detail": "LAND ACK, ON_GROUND, and disarmed telemetry verified",
+        "event": "phase",
+        "monotonic_ns": 163959184377455,
+        "phase": "succeeded",
+        "sequence": 83,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "target_id": ""
+      }
+    ],
+    "phase": "succeeded",
+    "rejected_beam_count": 0,
+    "rejected_scan_count": 0,
+    "replan_count": 0,
+    "route_generation": 3,
+    "route_history": [
+      {
+        "commanded_horizon": [
+          [
+            17,
+            9
+          ],
+          [
+            18,
+            9
+          ],
+          [
+            19,
+            9
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            21,
+            9
+          ]
+        ],
+        "known_safe_only": true,
+        "map_revision": 15,
+        "path": [
+          [
+            17,
+            9
+          ],
+          [
+            18,
+            9
+          ],
+          [
+            19,
+            9
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            21,
+            9
+          ],
+          [
+            22,
+            9
+          ],
+          [
+            23,
+            9
+          ],
+          [
+            24,
+            9
+          ],
+          [
+            25,
+            9
+          ],
+          [
+            26,
+            9
+          ],
+          [
+            27,
+            9
+          ],
+          [
+            28,
+            9
+          ],
+          [
+            29,
+            9
+          ],
+          [
+            29,
+            10
+          ],
+          [
+            29,
+            11
+          ],
+          [
+            29,
+            12
+          ],
+          [
+            29,
+            13
+          ],
+          [
+            29,
+            14
+          ],
+          [
+            29,
+            15
+          ],
+          [
+            29,
+            16
+          ],
+          [
+            30,
+            16
+          ],
+          [
+            30,
+            17
+          ]
+        ],
+        "planned_monotonic_ns": 163940734595188,
+        "purpose": "frontier",
+        "route_generation": 2,
+        "target_ids": [
+          "g002-frontier-001"
+        ]
+      },
+      {
+        "commanded_horizon": [
+          [
+            21,
+            9
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            19,
+            9
+          ],
+          [
+            18,
+            9
+          ],
+          [
+            17,
+            9
+          ]
+        ],
+        "known_safe_only": true,
+        "map_revision": 35,
+        "path": [
+          [
+            21,
+            9
+          ],
+          [
+            20,
+            9
+          ],
+          [
+            19,
+            9
+          ],
+          [
+            18,
+            9
+          ],
+          [
+            17,
+            9
+          ]
+        ],
+        "planned_monotonic_ns": 163943434514335,
+        "purpose": "return",
+        "route_generation": 3,
+        "target_ids": [
+          "g003-return-001"
+        ]
+      }
+    ],
+    "route_invalidations": [],
+    "schema_version": "echorescue-frontier-exploration-mission/1.0",
+    "sensor_rejections": [],
+    "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+    "status": "PASS",
+    "targets": [
+      {
+        "arrival_monotonic_ns": 163939723210068,
+        "best_error_m": 5.960464477539063E-8,
+        "commanded_enu": {
+          "east_m": -3.994338274002075,
+          "heading_enu_deg": null,
+          "north_m": 0.0,
+          "target_id": "g001-launch-stabilize",
+          "up_m": 1.6899999976158142
+        },
+        "failure_reason": null,
+        "first_post_command_monotonic_ns": 163939723210068,
+        "first_post_command_source_time_boot_ms": 37771,
+        "horizontal_error_m": 0.0,
+        "initial_error_m": 0.04152012246860116,
+        "initial_horizontal_error_m": 0.011131884530186653,
+        "initial_vertical_error_m": 0.04000002145767212,
+        "measured_at_best_enu": {
+          "east_m": -3.994338274002075,
+          "north_m": 0.0,
+          "up_m": 1.690000057220459
+        },
+        "measured_enu": {
+          "east_m": -3.994338274002075,
+          "north_m": 0.0,
+          "up_m": 1.6799999475479126
+        },
+        "outcome": "settled",
+        "sequence": 1,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "settled_monotonic_ns": 163940723391812,
+        "settling_duration_s": 1.000181744,
+        "target_id": "g001-launch-stabilize",
+        "time_to_arrival_s": 0.038898867,
+        "total_error_m": 0.010000050067901611,
+        "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+        "transmit_monotonic_ns": 163939684311201,
+        "transmit_source_time_boot_ms": 37671,
+        "transmitted": true,
+        "transmitted_ned": {
+          "coordinate_frame": 1,
+          "down_m": -1.6899999976158142,
+          "east_m": -3.994338274002075,
+          "north_m": 0.0,
+          "target_id": "g001-launch-stabilize",
+          "type_mask": 3576,
+          "yaw_rad": 0.0
+        },
+        "vertical_error_m": 0.010000050067901611
+      },
+      {
+        "arrival_monotonic_ns": 163942323475362,
+        "best_error_m": 0.002199965710975438,
+        "commanded_enu": {
+          "east_m": -3.869338274002075,
+          "heading_enu_deg": null,
+          "north_m": 1.125,
+          "target_id": "g002-frontier-001",
+          "up_m": 1.6899999976158142
+        },
+        "failure_reason": null,
+        "first_post_command_monotonic_ns": 163940823646884,
+        "first_post_command_source_time_boot_ms": 38871,
+        "horizontal_error_m": 0.034570457807095986,
+        "initial_error_m": 1.131967314458046,
+        "initial_horizontal_error_m": 1.1319231422671772,
+        "initial_vertical_error_m": 0.010000050067901611,
+        "measured_at_best_enu": {
+          "east_m": -3.86724591255188,
+          "north_m": 1.124320387840271,
+          "up_m": 1.690000057220459
+        },
+        "measured_enu": {
+          "east_m": -3.858167886734009,
+          "north_m": 1.1577160358428955,
+          "up_m": 1.690000057220459
+        },
+        "outcome": "settled",
+        "sequence": 1,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "settled_monotonic_ns": 163943423513593,
+        "settling_duration_s": 1.100038231,
+        "target_id": "g002-frontier-001",
+        "time_to_arrival_s": 1.556391024,
+        "time_to_first_progress_s": 0.756346183,
+        "total_error_m": 0.03457045780714737,
+        "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+        "transmit_monotonic_ns": 163940767084338,
+        "transmit_source_time_boot_ms": 38771,
+        "transmitted": true,
+        "transmitted_ned": {
+          "coordinate_frame": 1,
+          "down_m": -1.6899999976158142,
+          "east_m": -3.869338274002075,
+          "north_m": 1.125,
+          "target_id": "g002-frontier-001",
+          "type_mask": 3576,
+          "yaw_rad": 0.0
+        },
+        "vertical_error_m": 5.960464477539063E-8
+      },
+      {
+        "arrival_monotonic_ns": 163944923288497,
+        "best_error_m": 0.003298142372118438,
+        "commanded_enu": {
+          "east_m": -3.869338274002075,
+          "heading_enu_deg": null,
+          "north_m": 0.125,
+          "target_id": "g003-return-001",
+          "up_m": 1.6899999976158142
+        },
+        "failure_reason": null,
+        "first_post_command_monotonic_ns": 163943523573531,
+        "first_post_command_source_time_boot_ms": 41571,
+        "horizontal_error_m": 0.03600578451048747,
+        "initial_error_m": 1.0327764464000846,
+        "initial_horizontal_error_m": 1.0327764464000828,
+        "initial_vertical_error_m": 5.960464477539063E-8,
+        "measured_at_best_enu": {
+          "east_m": -3.867245674133301,
+          "north_m": 0.12245073169469833,
+          "up_m": 1.690000057220459
+        },
+        "measured_enu": {
+          "east_m": -3.867245674133301,
+          "north_m": 0.08905507624149323,
+          "up_m": 1.6799999475479126
+        },
+        "outcome": "settled",
+        "sequence": 1,
+        "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+        "settled_monotonic_ns": 163946022927038,
+        "settling_duration_s": 1.099638541,
+        "target_id": "g003-return-001",
+        "time_to_arrival_s": 1.467302754,
+        "time_to_first_progress_s": 0.767408396,
+        "total_error_m": 0.03736867029446189,
+        "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+        "transmit_monotonic_ns": 163943455985743,
+        "transmit_source_time_boot_ms": 41471,
+        "transmitted": true,
+        "transmitted_ned": {
+          "coordinate_frame": 1,
+          "down_m": -1.6899999976158142,
+          "east_m": -3.869338274002075,
+          "north_m": 0.125,
+          "target_id": "g003-return-001",
+          "type_mask": 3576,
+          "yaw_rad": 0.0
+        },
+        "vertical_error_m": 0.010000050067901611
+      }
+    ]
+  },
+  "mode": "headless",
+  "observer": {
+    "armed_observed": true,
+    "detail": "independent exploration, target, LAND, ON_GROUND and disarm chain complete",
+    "disarmed_observed": true,
+    "events": [
+      "mission_started",
+      "launch_recorded",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "phase",
+      "phase",
+      "target_transmitted",
+      "phase",
+      "first_post_command_telemetry",
+      "target_arrival",
+      "occupancy_map_updated",
+      "target_settled",
+      "phase",
+      "route_replaced",
+      "phase",
+      "route_replanned",
+      "phase",
+      "target_transmitted",
+      "phase",
+      "first_post_command_telemetry",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "target_progress",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "target_arrival",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "target_settled",
+      "phase",
+      "route_replaced",
+      "phase",
+      "route_replanned",
+      "phase",
+      "target_transmitted",
+      "phase",
+      "first_post_command_telemetry",
+      "occupancy_map_updated",
+      "target_progress",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "target_arrival",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "occupancy_map_updated",
+      "target_settled",
+      "phase",
+      "exploration_complete",
+      "phase",
+      "occupancy_map_updated"
+    ],
+    "exploration_complete_observed": false,
+    "exploration_events": [
+      {
+        "active_target_id": "",
+        "event": "mission_started",
+        "map_revision": 0,
+        "reason": "waiting for telemetry and LiDAR",
+        "route_generation": 1,
+        "sequence": 1,
+        "state": "initializing"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 1,
+        "reason": "revision 1",
+        "route_generation": 1,
+        "sequence": 2,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 2,
+        "reason": "revision 2",
+        "route_generation": 1,
+        "sequence": 3,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 3,
+        "reason": "revision 3",
+        "route_generation": 1,
+        "sequence": 4,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 4,
+        "reason": "revision 4",
+        "route_generation": 1,
+        "sequence": 5,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 5,
+        "reason": "revision 5",
+        "route_generation": 1,
+        "sequence": 6,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 6,
+        "reason": "revision 6",
+        "route_generation": 1,
+        "sequence": 7,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 7,
+        "reason": "revision 7",
+        "route_generation": 1,
+        "sequence": 8,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 8,
+        "reason": "revision 8",
+        "route_generation": 1,
+        "sequence": 9,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 9,
+        "reason": "revision 9",
+        "route_generation": 1,
+        "sequence": 10,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 10,
+        "reason": "revision 10",
+        "route_generation": 1,
+        "sequence": 11,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 11,
+        "reason": "revision 11",
+        "route_generation": 1,
+        "sequence": 12,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 12,
+        "reason": "revision 12",
+        "route_generation": 1,
+        "sequence": 13,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 13,
+        "reason": "revision 13",
+        "route_generation": 1,
+        "sequence": 14,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 14,
+        "reason": "revision 14",
+        "route_generation": 1,
+        "sequence": 15,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "g001-launch-stabilize",
+        "event": "map_revision",
+        "map_revision": 15,
+        "reason": "revision 15",
+        "route_generation": 1,
+        "sequence": 16,
+        "state": "mapping"
+      },
+      {
+        "active_target_id": "",
+        "event": "frontier_selected",
+        "map_revision": 15,
+        "reason": "deterministic frontier score selected",
+        "route_generation": 1,
+        "sequence": 17,
+        "state": "selecting_frontier"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "route_selected",
+        "map_revision": 15,
+        "reason": "frontier",
+        "route_generation": 2,
+        "sequence": 18,
+        "state": "selecting_frontier"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 16,
+        "reason": "revision 16",
+        "route_generation": 2,
+        "sequence": 19,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 17,
+        "reason": "revision 17",
+        "route_generation": 2,
+        "sequence": 20,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 18,
+        "reason": "revision 18",
+        "route_generation": 2,
+        "sequence": 21,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 19,
+        "reason": "revision 19",
+        "route_generation": 2,
+        "sequence": 22,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 20,
+        "reason": "revision 20",
+        "route_generation": 2,
+        "sequence": 23,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 21,
+        "reason": "revision 21",
+        "route_generation": 2,
+        "sequence": 24,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 22,
+        "reason": "revision 22",
+        "route_generation": 2,
+        "sequence": 25,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 23,
+        "reason": "revision 23",
+        "route_generation": 2,
+        "sequence": 26,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 24,
+        "reason": "revision 24",
+        "route_generation": 2,
+        "sequence": 27,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 25,
+        "reason": "revision 25",
+        "route_generation": 2,
+        "sequence": 28,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 26,
+        "reason": "revision 26",
+        "route_generation": 2,
+        "sequence": 29,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 27,
+        "reason": "revision 27",
+        "route_generation": 2,
+        "sequence": 30,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 28,
+        "reason": "revision 28",
+        "route_generation": 2,
+        "sequence": 31,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 29,
+        "reason": "revision 29",
+        "route_generation": 2,
+        "sequence": 32,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 30,
+        "reason": "revision 30",
+        "route_generation": 2,
+        "sequence": 33,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 31,
+        "reason": "revision 31",
+        "route_generation": 2,
+        "sequence": 34,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 32,
+        "reason": "revision 32",
+        "route_generation": 2,
+        "sequence": 35,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 33,
+        "reason": "revision 33",
+        "route_generation": 2,
+        "sequence": 36,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 34,
+        "reason": "revision 34",
+        "route_generation": 2,
+        "sequence": 37,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "g002-frontier-001",
+        "event": "map_revision",
+        "map_revision": 35,
+        "reason": "revision 35",
+        "route_generation": 2,
+        "sequence": 38,
+        "state": "navigating"
+      },
+      {
+        "active_target_id": "",
+        "event": "budget_exhausted",
+        "map_revision": 35,
+        "reason": "frontier target budget exhausted",
+        "route_generation": 2,
+        "sequence": 39,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "route_selected",
+        "map_revision": 35,
+        "reason": "return",
+        "route_generation": 3,
+        "sequence": 40,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 36,
+        "reason": "revision 36",
+        "route_generation": 3,
+        "sequence": 41,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 37,
+        "reason": "revision 37",
+        "route_generation": 3,
+        "sequence": 42,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 38,
+        "reason": "revision 38",
+        "route_generation": 3,
+        "sequence": 43,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 39,
+        "reason": "revision 39",
+        "route_generation": 3,
+        "sequence": 44,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 40,
+        "reason": "revision 40",
+        "route_generation": 3,
+        "sequence": 45,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 41,
+        "reason": "revision 41",
+        "route_generation": 3,
+        "sequence": 46,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 42,
+        "reason": "revision 42",
+        "route_generation": 3,
+        "sequence": 47,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 43,
+        "reason": "revision 43",
+        "route_generation": 3,
+        "sequence": 48,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 44,
+        "reason": "revision 44",
+        "route_generation": 3,
+        "sequence": 49,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 45,
+        "reason": "revision 45",
+        "route_generation": 3,
+        "sequence": 50,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 46,
+        "reason": "revision 46",
+        "route_generation": 3,
+        "sequence": 51,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "g003-return-001",
+        "event": "map_revision",
+        "map_revision": 47,
+        "reason": "revision 47",
+        "route_generation": 3,
+        "sequence": 52,
+        "state": "returning"
+      },
+      {
+        "active_target_id": "",
+        "event": "land_requested",
+        "map_revision": 47,
+        "reason": "return target settled",
+        "route_generation": 3,
+        "sequence": 53,
+        "state": "landing"
+      },
+      {
+        "active_target_id": "",
+        "event": "map_revision",
+        "map_revision": 48,
+        "reason": "revision 48",
+        "route_generation": 3,
+        "sequence": 54,
+        "state": "landing"
+      }
+    ],
+    "guided_observed": true,
+    "land_observed": true,
+    "maximum_frontier_clusters": 34,
+    "maximum_map_revision": 48,
+    "milestone": "v0.16.0",
+    "on_ground_observed": true,
+    "recovery_observed": true,
+    "return_observed": true,
+    "route_generations": [
+      1,
+      2,
+      3
+    ],
+    "schema_version": "echorescue-frontier-exploration-observer/1.0",
+    "session_id": "mavlink-ec586e8e27274e59aea418518b7006b4-0001",
+    "sessions": [
+      "mavlink-ec586e8e27274e59aea418518b7006b4-0001"
+    ],
+    "status": "PASS",
+    "target_ids": [
+      "g001-launch-stabilize",
+      "g002-frontier-001",
+      "g003-return-001"
+    ]
+  },
+  "process_exit_statuses": {
+    "ardupilot_sitl": -15,
+    "exploration_mission": 1,
+    "exploration_observer": 0,
+    "gazebo": 0,
+    "gazebo_evaluator": 1,
+    "lidar_bridge": -15
+  },
+  "schema_version": "echorescue-frontier-exploration-smoke/1.0",
+  "status": "PASS"
+}

@@ -30,6 +30,8 @@ setup(
             "waypoint_mission_observer = echorescue_ros.waypoint_mission_observer:main",
             "gazebo_range_sensor_bridge = echorescue_ros.gazebo_range_sensor_bridge:main",
             "mavlink_sensor_replanning_mission = echorescue_ros.mavlink_sensor_replanning_mission:main",
+            "mavlink_frontier_exploration = echorescue_ros.mavlink_frontier_exploration:main",
+            "frontier_exploration_observer = echorescue_ros.frontier_exploration_observer:main",
             "sensor_replanning_observer = echorescue_ros.sensor_replanning_observer:main",
             "telemetry_observer = echorescue_ros.telemetry_observer:main",
         ],

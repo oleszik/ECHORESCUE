@@ -452,6 +452,36 @@ class FlightMissionControllerTests(unittest.TestCase):
         self.assertEqual(self.controller.phase, MissionPhase.RECOVERY_WAIT_TELEMETRY)
         self.assertIn("reconnect changed session", self.controller.report()["failure_reason"])
 
+    def test_disarmed_airborne_reconnect_requests_fresh_landed_state(self) -> None:
+        hover_time = self.reach_hover()
+        self.controller.observe_status(
+            session_id="session-2", health=TelemetryHealth.CONNECTED,
+            telemetry_age_s=0.0, now_ns=hover_time + 1,
+        )
+        self.controller.observe_heartbeat(
+            session_id="session-2", armed=False, flight_mode="STABILIZE",
+            now_ns=hover_time + 2,
+        )
+        request = self.controller.tick(hover_time + 3)
+        self.assertEqual(request.kind, CommandKind.EXTENDED_STATE_STREAM)
+        self.controller.acknowledge(
+            session_id="session-2", command_id=MAV_CMD_SET_MESSAGE_INTERVAL,
+            result=0, now_ns=hover_time + 4,
+        )
+        self.controller.observe_landed(
+            session_id="session-2", landed=True, now_ns=hover_time + 5,
+        )
+        self.controller.observe_heartbeat(
+            session_id="session-2", armed=False, flight_mode="STABILIZE",
+            now_ns=hover_time + 6,
+        )
+        self.controller.tick(hover_time + 7)
+        self.assertEqual(self.controller.phase, MissionPhase.FAILED)
+        command = self.controller.report()["commands"][-1]
+        self.assertEqual(command["session_id"], "session-2")
+        self.assertGreater(command["telemetry_transition_monotonic_ns"], command["ack_monotonic_ns"])
+        self.assertIn("ON_GROUND and disarmed", self.controller.report()["failure_reason"])
+
     def test_ready_timeout_and_invalid_configuration(self) -> None:
         self.controller.tick(6 * SECOND)
         self.assertEqual(self.controller.phase, MissionPhase.FAILED)
