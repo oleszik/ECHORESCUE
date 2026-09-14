@@ -152,6 +152,7 @@ class FlightMissionController:
         self._cleanup_reason: str | None = None
         self._cleanup_started_ns = 0
         self._land_acknowledged = False
+        self._recovery_needs_extended_state = False
         self.events: list[MissionEvent] = []
         self.command_history: list[dict[str, Any]] = []
         self._record(started_monotonic_ns, "mission_started", "waiting for fresh disarmed telemetry")
@@ -264,6 +265,7 @@ class FlightMissionController:
         self._cleanup_reason = f"{prior_reason}; {reason}" if prior_reason else reason
         self._failure_reason = self._cleanup_reason
         self._cleanup_started_ns = now_ns
+        self._recovery_needs_extended_state = True
         self._set_phase(
             MissionPhase.RECOVERY_WAIT_TELEMETRY,
             now_ns,
@@ -427,8 +429,41 @@ class FlightMissionController:
                     )
         elif self.phase is MissionPhase.RECOVERY_WAIT_TELEMETRY:
             fresh_heartbeat = self._fresh and self.last_heartbeat_ns > self._cleanup_started_ns
-            if fresh_heartbeat and self.armed is False:
-                self._fail(now_ns, f"{self._cleanup_reason}; fresh telemetry verified disarmed")
+            recovery_stream_pending = (
+                self._pending is not None
+                and self._pending.kind is CommandKind.EXTENDED_STATE_STREAM
+            )
+            fresh_landed = self.last_landed_ns > self._cleanup_started_ns
+            if recovery_stream_pending:
+                if (
+                    self._pending_acknowledged
+                    and self.landed is not None
+                    and self.last_landed_ns > self._pending_ack_ns
+                ):
+                    self._mark_transition(
+                        f"extended_state.landed={str(self.landed).lower()}",
+                        self.last_landed_ns,
+                    )
+                    self._clear_pending()
+                    self._recovery_needs_extended_state = False
+                elif self._elapsed_s(now_ns) > self.config.transition_timeout_s:
+                    self._fail(now_ns, f"{self._cleanup_reason}; recovery extended-state stream was not verified")
+                    return None
+            elif (
+                fresh_heartbeat
+                and self._recovery_needs_extended_state
+                and self.armed is False
+                and not fresh_landed
+                and not self._recovery_stream_issued_in_current_session
+            ):
+                return self._issue(
+                    CommandKind.EXTENDED_STATE_STREAM,
+                    MAV_CMD_SET_MESSAGE_INTERVAL,
+                    now_ns,
+                    recovery=True,
+                )
+            if fresh_heartbeat and self.armed is False and fresh_landed and self.landed is True:
+                self._fail(now_ns, f"{self._cleanup_reason}; fresh telemetry verified ON_GROUND and disarmed")
             elif fresh_heartbeat and self.armed is True:
                 self._set_phase(MissionPhase.RECOVERY_SEND_LAND, now_ns, "fresh armed telemetry restored for cleanup")
             elif self._elapsed_s(now_ns) > self.config.cleanup_timeout_s:
@@ -460,6 +495,15 @@ class FlightMissionController:
         return any(
             item["kind"] == CommandKind.LAND.value
             and item["session_id"] == self.session_id
+            for item in self.command_history
+        )
+
+    @property
+    def _recovery_stream_issued_in_current_session(self) -> bool:
+        return any(
+            item["kind"] == CommandKind.EXTENDED_STATE_STREAM.value
+            and item["session_id"] == self.session_id
+            and item["recovery"] is True
             for item in self.command_history
         )
 
@@ -514,6 +558,8 @@ class FlightMissionController:
                 if recovery else MissionPhase.WAIT_LANDED_DISARMED
             ),
         }[kind]
+        if recovery and kind is CommandKind.EXTENDED_STATE_STREAM:
+            waiting = MissionPhase.RECOVERY_WAIT_TELEMETRY
         self._set_phase(waiting, now_ns, f"{kind.value} command issued; awaiting ACK and telemetry")
         return request
 

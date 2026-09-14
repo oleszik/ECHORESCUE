@@ -233,7 +233,7 @@ def segment_box_distance(start: Vector3, end: Vector3, box: AxisAlignedBox) -> f
 
 
 def validate_indoor_config(config: IndoorReferenceConfig) -> None:
-    if config.schema_version != "echorescue-indoor-reference-stack/1.0" or config.milestone not in {"v0.14.5", "v0.15.1", "v0.15.2"}:
+    if config.schema_version != "echorescue-indoor-reference-stack/1.0" or config.milestone not in {"v0.14.5", "v0.15.1", "v0.15.2", "v0.16.0"}:
         raise ValueError("indoor configuration must declare a supported evaluation schema")
     names = [entity.name for entity in config.entities]
     topics = [entity.contact_topic for entity in config.entities]
@@ -267,7 +267,7 @@ def validate_indoor_config(config: IndoorReferenceConfig) -> None:
             raise ValueError(f"reference point lies outside allowed flight volume: {point}")
     for start, end in zip(route, route[1:]):
         for entity in config.entities:
-            if config.milestone in {"v0.15.1", "v0.15.2"} and entity.name.startswith("unknown_"):
+            if config.milestone in {"v0.15.1", "v0.15.2", "v0.16.0"} and entity.name.startswith("unknown_"):
                 continue
             clearance = segment_box_distance(start, end, entity)
             if clearance + 1e-9 < config.required_center_clearance_m:
@@ -350,6 +350,16 @@ class IndoorRunEvaluator:
         self.contact_topics_available = set(topics) & set(self.config.contact_topics)
 
     def _floor_contact_allowed(self, position: Vector3) -> bool:
+        if self.config.milestone == "v0.16.0":
+            # Exploration recovery may intentionally LAND away from launch.
+            # Mission telemetry independently proves LAND/ON_GROUND/disarm;
+            # the evaluator must not classify that expected floor contact as a
+            # collision merely because it occurred outside the launch radius.
+            return (
+                position[2] <= self.config.ground_contact_maximum_center_z_m
+                and self.config.allowed_minimum[0] <= position[0] <= self.config.allowed_maximum[0]
+                and self.config.allowed_minimum[1] <= position[1] <= self.config.allowed_maximum[1]
+            )
         horizontal = sqrt(
             (position[0] - self.config.launch_world_enu[0]) ** 2
             + (position[1] - self.config.launch_world_enu[1]) ** 2

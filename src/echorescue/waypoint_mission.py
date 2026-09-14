@@ -88,6 +88,7 @@ class NavigationPhase(str, Enum):
     SEND_TARGET = "send_target"
     WAIT_TRANSMISSION = "wait_transmission"
     TRACK_TARGET = "track_target"
+    WAIT_TARGETS = "wait_targets"
     LANDING = "landing"
     SUCCEEDED = "succeeded"
     FAILED = "failed"
@@ -127,6 +128,8 @@ class WaypointMissionConfig:
     takeoff_timeout_s: float = 30.0
     landing_timeout_s: float = 35.0
     cleanup_timeout_s: float = 35.0
+    dynamic_targets: bool = False
+    dynamic_target_wait_timeout_s: float = 10.0
 
     def __post_init__(self) -> None:
         positive = (
@@ -138,6 +141,7 @@ class WaypointMissionConfig:
             self.preflight_hold_s, self.transition_timeout_s,
             self.takeoff_timeout_s, self.landing_timeout_s,
             self.cleanup_timeout_s,
+            self.dynamic_target_wait_timeout_s,
         )
         if not self.targets or not all(isfinite(value) and value > 0.0 for value in positive):
             raise ValueError("waypoint mission durations, tolerances, limits, and targets must be positive")
@@ -274,6 +278,7 @@ class WaypointMissionController:
                 NavigationPhase.SEND_TARGET,
                 NavigationPhase.WAIT_TRANSMISSION,
                 NavigationPhase.TRACK_TARGET,
+                NavigationPhase.WAIT_TARGETS,
             )
         ):
             self._abort(now_ns, f"telemetry became {health.value} during navigation")
@@ -292,7 +297,7 @@ class WaypointMissionController:
             session_id=session_id, armed=armed, flight_mode=flight_mode, now_ns=now_ns,
         )
         self._after_session_observation(old_session, now_ns)
-        if self.phase in (NavigationPhase.SEND_TARGET, NavigationPhase.WAIT_TRANSMISSION, NavigationPhase.TRACK_TARGET):
+        if self.phase in (NavigationPhase.SEND_TARGET, NavigationPhase.WAIT_TRANSMISSION, NavigationPhase.TRACK_TARGET, NavigationPhase.WAIT_TARGETS):
             if armed and flight_mode != "GUIDED":
                 self._abort(now_ns, f"unexpected flight mode during navigation: {flight_mode}")
             elif not armed and self.launch_enu is not None and (
@@ -311,6 +316,7 @@ class WaypointMissionController:
         self._after_session_observation(old_session, now_ns)
         if landed is True and self.phase in (
             NavigationPhase.SEND_TARGET, NavigationPhase.WAIT_TRANSMISSION, NavigationPhase.TRACK_TARGET,
+            NavigationPhase.WAIT_TARGETS,
         ):
             self._abort(now_ns, "unexpected landing during navigation")
         self._sync_flight_terminal(now_ns)
@@ -428,6 +434,10 @@ class WaypointMissionController:
                 now_ns - self._last_progress_ns
             ) / 1e9 > self.config.progress_timeout_s:
                 self._abort(now_ns, f"no measurable progress toward target {self._active_target_id}")
+        elif self.phase is NavigationPhase.WAIT_TARGETS and (
+            now_ns - self.phase_started_ns
+        ) / 1e9 > self.config.dynamic_target_wait_timeout_s:
+            self._abort(now_ns, "dynamic target selection timeout")
         return self._recovery_tick(now_ns)
 
     def target_transmitted(self, *, session_id: str, success: bool, now_ns: int, detail: str = "") -> bool:
@@ -481,6 +491,10 @@ class WaypointMissionController:
     def _build_next_target(self, now_ns: int) -> None:
         assert self.launch_enu is not None
         if self._target_index >= len(self._route_targets):
+            if self.config.dynamic_targets:
+                self._active_target = None
+                self._set_phase(NavigationPhase.WAIT_TARGETS, now_ns, "awaiting a checked dynamic route")
+                return
             self.flight.request_land(now_ns)
             self._active_target = None
             self._set_phase(NavigationPhase.LANDING, now_ns, "all waypoint and return targets settled")
@@ -624,6 +638,26 @@ class WaypointMissionController:
         self._target_index = 0
         self._record(now_ns, "route_replaced", reason)
         self._build_next_target(now_ns)
+
+    def install_dynamic_targets(self, targets: tuple[RelativeTarget, ...], now_ns: int) -> None:
+        """Install a planner-checked route while holding after dynamic-route exhaustion."""
+        if self.phase is not NavigationPhase.WAIT_TARGETS or not self.config.dynamic_targets:
+            raise RuntimeError("dynamic targets require the dynamic target hold phase")
+        if not targets:
+            raise ValueError("dynamic route must contain at least one target")
+        self._route_targets = list(targets)
+        self._target_index = 0
+        self._record(now_ns, "route_replaced", "checked dynamic route installed", targets[0].target_id)
+        self._build_next_target(now_ns)
+
+    def complete_dynamic_mission(self, now_ns: int, detail: str) -> None:
+        """Leave the dynamic hold only after the higher-level planner finishes return."""
+        if self.phase is not NavigationPhase.WAIT_TARGETS or not self.config.dynamic_targets:
+            raise RuntimeError("dynamic mission completion requires target hold")
+        self._record(now_ns, "exploration_complete", detail)
+        self.flight.request_land(now_ns)
+        self._active_target = None
+        self._set_phase(NavigationPhase.LANDING, now_ns, "dynamic route complete; bounded LAND requested")
 
     def _abort(self, now_ns: int, reason: str) -> None:
         if self.terminal or self.phase is NavigationPhase.LANDING:

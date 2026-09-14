@@ -83,6 +83,43 @@ class ConversionAndGeometryTests(unittest.TestCase):
 
 
 class TargetCorrelationTests(unittest.TestCase):
+    def test_dynamic_route_hold_install_and_completion_are_explicit(self) -> None:
+        base = config()
+        dynamic = WaypointMissionConfig(
+            targets=base.targets, dynamic_targets=True,
+            dynamic_target_wait_timeout_s=2.0,
+        )
+        controller = WaypointMissionController(dynamic, 0)
+        controller.flight.session_id = "session-1"
+        controller.flight.phase = MissionPhase.NAVIGATION_HOLD
+        controller.launch_enu = (10.0, 20.0, 0.0)
+        controller._position = (10.0, 20.0, 2.0)
+        controller._position_session = "session-1"
+        controller._position_source_ms = 100
+        controller._build_next_target(1)
+        controller._target_index = len(controller._route_targets)
+        controller._build_next_target(2)
+        self.assertIs(controller.phase, NavigationPhase.WAIT_TARGETS)
+        controller.install_dynamic_targets((RelativeTarget("g002-frontier", 1, 0, 2),), 3)
+        self.assertEqual(controller.active_target_id, "g002-frontier")
+        controller._target_index = len(controller._route_targets)
+        controller._build_next_target(4)
+        controller.complete_dynamic_mission(5, "return complete")
+        self.assertIs(controller.phase, NavigationPhase.LANDING)
+
+    def test_dynamic_target_wait_timeout_enters_recovery(self) -> None:
+        base = config()
+        controller = WaypointMissionController(WaypointMissionConfig(
+            targets=base.targets, dynamic_targets=True,
+            dynamic_target_wait_timeout_s=0.001,
+        ), 0)
+        controller.flight.session_id = "session-1"
+        controller.flight.armed = True
+        controller.phase = NavigationPhase.WAIT_TARGETS
+        controller.phase_started_ns = 0
+        controller.tick(2_000_000)
+        self.assertIn("dynamic target selection timeout", controller.report()["failure_reason"] or "")
+
     def test_obsolete_target_cannot_complete_replacement_generation(self) -> None:
         controller = at_navigation()
         old = transmit(controller).target

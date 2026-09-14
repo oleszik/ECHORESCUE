@@ -1,0 +1,76 @@
+{
+  "schema_version": "echorescue-frontier-exploration/1.0",
+  "milestone": "v0.16.0",
+  "base_indoor_config": "config/frontier-indoor-v0.16.0.json",
+  "controller_prior": {
+    "interior_geometry": false,
+    "interior_occupancy": [],
+    "permitted_information": ["resolution", "origin", "bounds", "launch_pose"]
+  },
+  "bounds": {
+    "rows": 34,
+    "columns": 50,
+    "resolution_m": 0.25,
+    "origin_relative_to_launch_enu_m": [-2.25, -4.25],
+    "column_axis": "east_positive",
+    "row_axis": "north_positive"
+  },
+  "sensor": {
+    "topic": "/echorescue/sensors/obstacle_scan",
+    "sensor_frame": "iris_range_link",
+    "sensor_yaw_offset_enu_deg": 0.0,
+    "range_min_m": 0.25,
+    "range_max_m": 4.0,
+    "horizontal_field_of_view_rad": 6.283185307179586,
+    "observation_max_age_s": 0.5,
+    "pose_max_age_s": 0.5,
+    "pose_observation_max_skew_s": 0.2,
+    "dropout_timeout_s": 1.5
+  },
+  "frontier_policy": {
+    "adjacency": "cardinal_4",
+    "cluster_connectivity": "cardinal_4",
+    "minimum_cluster_size": 1,
+    "information_radius_cells": 3,
+    "information_gain_weight": 2.0,
+    "path_cost_weight": 1.0,
+    "target_switch_penalty": 1.0,
+    "conservative_vehicle_radius_m": 0.35,
+    "safety_margin_m": 0.2,
+    "maximum_map_revisions": 500,
+    "selection_timeout_s": 12.0
+  },
+  "completion": {
+    "map_quiet_s": 1.0,
+    "minimum_known_ratio": 0.55
+  },
+  "limits": {
+    "maximum_frontier_targets": 40,
+    "maximum_route_generations": 80,
+    "maximum_replans_per_target": 4,
+    "maximum_replans_per_mission": 8,
+    "maximum_consecutive_unreachable_frontiers": 3,
+    "maximum_consecutive_no_progress_intervals": 1,
+    "minimum_target_switch_interval_s": 0.5,
+    "latest_forced_return_s": 220.0
+  },
+  "flight": {
+    "takeoff_altitude_m": 1.5,
+    "horizontal_tolerance_m": 0.35,
+    "vertical_tolerance_m": 0.25,
+    "settling_time_s": 1.0,
+    "target_timeout_s": 35.0,
+    "progress_timeout_s": 10.0,
+    "progress_epsilon_m": 0.15,
+    "mission_timeout_s": 280.0,
+    "geofence_horizontal_radius_m": 10.0,
+    "geofence_min_altitude_m": -0.25,
+    "geofence_max_altitude_m": 3.5,
+    "preflight_hold_s": 30.0,
+    "initialization_timeout_s": 50.0,
+    "transition_timeout_s": 15.0,
+    "takeoff_timeout_s": 35.0,
+    "landing_timeout_s": 45.0,
+    "cleanup_timeout_s": 45.0
+  }
+}
