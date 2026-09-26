@@ -15,3 +15,13 @@ log/
 .idea/
 .vscode/
 mav.tlog*
+/artifacts/*.camera.log
+/artifacts/*.evaluator.log
+/artifacts/*.gazebo.log
+/artifacts/*.gazebo_gui.log
+/artifacts/*.lidar.log
+/artifacts/*.mission.log
+/artifacts/*.observer.log
+/artifacts/*.perception.log
+/artifacts/*.sensor.log
+/artifacts/*.sitl.log

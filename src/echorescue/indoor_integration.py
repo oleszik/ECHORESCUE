@@ -157,8 +157,16 @@ def _ros_nodes_absent(names: Sequence[str], timeout_s: float = 5.0) -> bool:
 
 def indoor_smoke(
     path: Path, output_path: Path | None, timeout_s: float, graphical: bool,
-    stack_mode: str = "owned",
+    stack_mode: str = "owned", gui_config: Path | None = None,
 ) -> dict[str, Any]:
+    if gui_config is not None:
+        if not graphical:
+            raise ValueError("a Gazebo GUI configuration requires graphical mode")
+        if stack_mode != "owned":
+            raise ValueError("a Gazebo GUI configuration requires an owned stack")
+        gui_config = gui_config.expanduser().resolve()
+        if not gui_config.is_file():
+            raise FileNotFoundError(f"Gazebo GUI configuration not found: {gui_config}")
     raw, config = load_configured_stack(path)
     diagnostic = indoor_diagnose(path)
     if not diagnostic["ready"]:
@@ -181,6 +189,8 @@ def indoor_smoke(
             if stack_mode == "owned":
                 world = str((REPOSITORY_ROOT / config.world_sdf).resolve())
                 gazebo_command = ["gz", "sim", "-v4", "-r", world] + ([] if graphical else ["-s"])
+                if gui_config is not None:
+                    gazebo_command.extend(["--gui-config", str(gui_config)])
                 gazebo_process = supervisor.start("gazebo", gazebo_command, REPOSITORY_ROOT, handles[0])
                 supervisor.wait_until("gazebo", gazebo_process, lambda: _gazebo_ready(f"/world/{config.world_name}"), 30.0)
                 sitl_command = [

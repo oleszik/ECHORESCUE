@@ -1,4 +1,5 @@
 import json
+from io import StringIO
 from pathlib import Path
 import tempfile
 import unittest
@@ -7,7 +8,7 @@ from unittest.mock import patch
 from echorescue.planner_flight import plan_known_map
 from echorescue.planner_flight_integration import (
     _agreement_checks, _annotate_goal_evaluation, _indoor_configuration, expected_rejection, load_config,
-    planner_smoke,
+    main, planner_smoke,
 )
 from echorescue.sim_integration import Status
 
@@ -67,3 +68,29 @@ class PlannerIntegrationTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "occupied"):
                     planner_smoke(path, None, 1, False)
             flight.assert_not_called()
+
+    def test_graphical_gui_configuration_reaches_owned_indoor_stack(self) -> None:
+        gui_config = CONFIG.parent / "portfolio-gui.config"
+        with patch(
+            "echorescue.planner_flight_integration.indoor_smoke",
+            return_value={"status": Status.FAIL},
+        ) as flight:
+            planner_smoke(CONFIG, None, 1.0, True, gui_config)
+
+        self.assertEqual(flight.call_args.args[5], gui_config)
+
+    def test_gui_configuration_requires_graphical_mode(self) -> None:
+        with patch("sys.stderr", StringIO()), self.assertRaises(SystemExit) as error:
+            main(["--config", str(CONFIG), "smoke", "--gui-config", str(CONFIG.parent / "portfolio-gui.config")])
+
+        self.assertEqual(error.exception.code, 2)
+
+    def test_missing_gui_configuration_is_rejected_before_mission(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            missing = Path(temporary) / "missing.config"
+            with patch("sys.stderr", StringIO()), self.assertRaises(SystemExit) as error:
+                main([
+                    "--config", str(CONFIG), "smoke", "--graphical", "--gui-config", str(missing),
+                ])
+
+        self.assertEqual(error.exception.code, 2)

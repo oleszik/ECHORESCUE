@@ -1,0 +1,3381 @@
+{
+  "checks": [
+    {
+      "detail": "planned=['launch-stabilize', 'outbound-001', 'outbound-002', 'outbound-003', 'outbound-goal', 'return-001', 'return-002', 'return-003', 'return-launch']; executed=['launch-stabilize', 'outbound-001', 'outbound-002', 'outbound-003', 'outbound-goal', 'return-001', 'return-002', 'return-003', 'return-launch']; observed=['launch-stabilize', 'outbound-001', 'outbound-002', 'outbound-003', 'outbound-goal', 'return-001', 'return-002', 'return-003', 'return-launch']",
+      "name": "planner.executor_target_agreement",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "goal-side entry, return, doorway crossings and collision result must agree",
+      "name": "planner.evaluator_route_agreement",
+      "status": "PASS",
+      "version": null
+    }
+  ],
+  "execution": {
+    "checks": [
+      {
+        "detail": "final displacement must agree within configured tolerance",
+        "name": "evidence.telemetry_gazebo_agreement",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "evaluator exit=0; contacts=1; obstacle clearance=0.3069724616966726; doorway clearance=0.3547949610558726",
+        "name": "gazebo.collision_free_route",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "every COMMAND_ACK requires a later same-session telemetry transition",
+        "name": "mission.command_ack_then_telemetry",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "expected=['launch-stabilize', 'outbound-001', 'outbound-002', 'outbound-003', 'outbound-goal', 'return-001', 'return-002', 'return-003', 'return-launch']; mission=['launch-stabilize', 'outbound-001', 'outbound-002', 'outbound-003', 'outbound-goal', 'return-001', 'return-002', 'return-003', 'return-launch']",
+        "name": "mission.ordered_predefined_route",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "landed=True; armed=False",
+        "name": "mission.return_land_disarm",
+        "status": "PASS",
+        "version": null
+      }
+    ],
+    "cleanup": [
+      {
+        "detail": "pid 9609 stopped",
+        "name": "cleanup.ardupilot_sitl",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "pid 9515 stopped",
+        "name": "cleanup.gazebo",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "pid 9649 stopped",
+        "name": "cleanup.gazebo_evaluator",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "udp 127.0.0.1:9002 is available",
+        "name": "cleanup.port.gazebo_json",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "udp 127.0.0.1:14550 is available",
+        "name": "cleanup.port.mavproxy_output",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "tcp 127.0.0.1:5760 is available",
+        "name": "cleanup.port.sitl_mavlink",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "mission and observer nodes absent from the ROS graph",
+        "name": "cleanup.ros_nodes",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "pid 9930 stopped",
+        "name": "cleanup.waypoint_mission",
+        "status": "PASS",
+        "version": null
+      },
+      {
+        "detail": "pid 9650 stopped",
+        "name": "cleanup.waypoint_observer",
+        "status": "PASS",
+        "version": null
+      }
+    ],
+    "dependencies": {
+      "ardupilot_commit": "92b0cd788ec29406f26c6f9c31d5ceedbd1cc538",
+      "ardupilot_gazebo_commit": "082a0fe231f6e63bc8d1598f1cba461d9e2ea7f5",
+      "ardupilot_ref": "Copter-4.6.3",
+      "gazebo_release": "harmonic",
+      "ros_distribution": "jazzy"
+    },
+    "gazebo_evaluation": {
+      "clearance_method": "sampled model origin to nearest configured axis-aligned obstacle, minus conservative spherical vehicle radius",
+      "clearance_uncertainty": "sampled at the configured interval; contact sensors independently cover every configured solid",
+      "conservative_vehicle_radius_m": 0.35,
+      "contact_count": 1,
+      "contact_topic_coverage_complete": true,
+      "contact_topics_available": [
+        "/echorescue/indoor/contacts/blocking_obstacle",
+        "/echorescue/indoor/contacts/ceiling",
+        "/echorescue/indoor/contacts/divider_header",
+        "/echorescue/indoor/contacts/divider_north",
+        "/echorescue/indoor/contacts/divider_south",
+        "/echorescue/indoor/contacts/floor",
+        "/echorescue/indoor/contacts/wall_east",
+        "/echorescue/indoor/contacts/wall_north",
+        "/echorescue/indoor/contacts/wall_south",
+        "/echorescue/indoor/contacts/wall_west"
+      ],
+      "contact_topics_required": [
+        "/echorescue/indoor/contacts/floor",
+        "/echorescue/indoor/contacts/ceiling",
+        "/echorescue/indoor/contacts/wall_west",
+        "/echorescue/indoor/contacts/wall_east",
+        "/echorescue/indoor/contacts/wall_south",
+        "/echorescue/indoor/contacts/wall_north",
+        "/echorescue/indoor/contacts/divider_south",
+        "/echorescue/indoor/contacts/divider_north",
+        "/echorescue/indoor/contacts/divider_header",
+        "/echorescue/indoor/contacts/blocking_obstacle"
+      ],
+      "contacts": [
+        {
+          "classification": "floor",
+          "collision_pairs": [
+            [
+              "floor::link::collision",
+              "iris_with_gimbal::iris_with_standoffs::base_link::rear_right_leg_collision"
+            ]
+          ],
+          "contact_duration_s": 0.0,
+          "contact_message_count": 1,
+          "entity": "floor",
+          "first_contact_simulation_time_s": 0.008,
+          "last_contact_simulation_time_s": 0.008,
+          "prohibited": false
+        }
+      ],
+      "detail": "independent Gazebo trajectory and contact evaluation completed",
+      "doorway_crossings": [
+        {
+          "crossing_y_m": 0.4952050389441274,
+          "crossing_z_m": 1.7008121130602607,
+          "direction": "outbound",
+          "inside_opening": true,
+          "simulation_time_s": 41.895
+        },
+        {
+          "crossing_y_m": 0.49222223601728127,
+          "crossing_z_m": 1.6901900853525529,
+          "direction": "inbound",
+          "inside_opening": true,
+          "simulation_time_s": 59.496
+        }
+      ],
+      "far_side_region_entered": true,
+      "floor_contact_uncertainty": "the Gazebo floor sensor may retain its initial collision pair; only its first time-correlated launch contact is counted, while the sampled conservative envelope classifies later floor intersection",
+      "milestone": "v0.14.5",
+      "minimum_doorway_boundary_center_distance_m": 0.7047949610558726,
+      "minimum_doorway_boundary_surface_clearance_m": 0.3547949610558726,
+      "minimum_obstacle_center_distance_m": 0.6569724616966726,
+      "minimum_obstacle_surface_clearance_m": 0.3069724616966726,
+      "model_name": "iris_with_gimbal",
+      "planner_goal_minimum_horizontal_error_m": 0.10472012428865644,
+      "planner_goal_region": {
+        "east_offset_m": 8.0,
+        "horizontal_tolerance_m": 0.75,
+        "north_offset_m": 2.0
+      },
+      "planner_goal_region_entered": true,
+      "prohibited_contact_detected": false,
+      "prohibited_contacts": [],
+      "required_doorway_crossings": [
+        "outbound",
+        "inbound"
+      ],
+      "return_region_entered": true,
+      "safety_margin_m": 0.2,
+      "schema_version": "echorescue-indoor-gazebo-evaluation/1.0",
+      "status": "PASS",
+      "trajectory": [
+        {
+          "east_m": -4.000026050880786,
+          "north_m": 0.000647710539412549,
+          "simulation_time_s": 0.007,
+          "up_m": 0.19557128703139892
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 1.079,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 2.153,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 3.221,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 4.335,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 5.3870000000000005,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 6.4719999999999995,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 7.542,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 8.608,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 9.671,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 10.748,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 11.81,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 12.898,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 13.953,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 15.005,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 16.075,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 17.159,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 18.217,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 19.295,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 20.37,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 21.442,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 22.522,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 23.619,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 24.691,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 25.765,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 26.844,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 27.932,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 29.002,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 30.073,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002232513059862,
+          "north_m": 0.009344830540520465,
+          "simulation_time_s": 31.15,
+          "up_m": 0.19499972838672253
+        },
+        {
+          "east_m": -4.002020119148187,
+          "north_m": 0.009294121751536693,
+          "simulation_time_s": 32.196,
+          "up_m": 0.20918785195858308
+        },
+        {
+          "east_m": -3.9940781502940372,
+          "north_m": 0.006838493424720883,
+          "simulation_time_s": 33.216,
+          "up_m": 0.8474451832214677
+        },
+        {
+          "east_m": -3.991308863025769,
+          "north_m": 0.0059827815268433315,
+          "simulation_time_s": 34.233,
+          "up_m": 1.6144637033396232
+        },
+        {
+          "east_m": -3.9946315271738952,
+          "north_m": 0.007819646407363144,
+          "simulation_time_s": 35.248,
+          "up_m": 1.7286935816792939
+        },
+        {
+          "east_m": -3.9962899814858526,
+          "north_m": 0.008277927498145278,
+          "simulation_time_s": 36.267,
+          "up_m": 1.6906033634981423
+        },
+        {
+          "east_m": -3.9962022598080087,
+          "north_m": 0.029156442198340606,
+          "simulation_time_s": 37.287,
+          "up_m": 1.6914689943501053
+        },
+        {
+          "east_m": -3.9967019663406944,
+          "north_m": 0.3618875631446408,
+          "simulation_time_s": 38.304,
+          "up_m": 1.6910545065617915
+        },
+        {
+          "east_m": -3.997083034010219,
+          "north_m": 0.5175375720201144,
+          "simulation_time_s": 39.331,
+          "up_m": 1.6866658117282427
+        },
+        {
+          "east_m": -3.314844383284129,
+          "north_m": 0.5079214438479561,
+          "simulation_time_s": 40.352,
+          "up_m": 1.679647909738161
+        },
+        {
+          "east_m": -0.6863379367314868,
+          "north_m": 0.4955734295913442,
+          "simulation_time_s": 41.373,
+          "up_m": 1.6973705863079516
+        },
+        {
+          "east_m": 0.9005397691248211,
+          "north_m": 0.49107372638113955,
+          "simulation_time_s": 42.406,
+          "up_m": 1.6973358256332836
+        },
+        {
+          "east_m": 1.0801432752491815,
+          "north_m": 0.4897950329241699,
+          "simulation_time_s": 43.424,
+          "up_m": 1.6889868196629099
+        },
+        {
+          "east_m": 1.0066767393440041,
+          "north_m": 0.6354953943243055,
+          "simulation_time_s": 44.442,
+          "up_m": 1.68975091425992
+        },
+        {
+          "east_m": 1.0175564751441821,
+          "north_m": 1.6536264426458995,
+          "simulation_time_s": 45.462,
+          "up_m": 1.6960100818814878
+        },
+        {
+          "east_m": 1.0339886662497413,
+          "north_m": 2.0577502464219513,
+          "simulation_time_s": 46.481,
+          "up_m": 1.6944934381569803
+        },
+        {
+          "east_m": 1.031498198594564,
+          "north_m": 2.021585281447612,
+          "simulation_time_s": 47.499,
+          "up_m": 1.690827655541388
+        },
+        {
+          "east_m": 2.411057673023426,
+          "north_m": 1.9963550609949758,
+          "simulation_time_s": 48.518,
+          "up_m": 1.6948262700587569
+        },
+        {
+          "east_m": 3.888427068520835,
+          "north_m": 1.9957145788155484,
+          "simulation_time_s": 49.54,
+          "up_m": 1.6989281363812925
+        },
+        {
+          "east_m": 4.102728260539545,
+          "north_m": 1.9804522675988527,
+          "simulation_time_s": 50.561,
+          "up_m": 1.6913303437503908
+        },
+        {
+          "east_m": 3.790268104400213,
+          "north_m": 1.9877114423933195,
+          "simulation_time_s": 51.606,
+          "up_m": 1.6892778927493481
+        },
+        {
+          "east_m": 1.9846333781312528,
+          "north_m": 2.0102320428691107,
+          "simulation_time_s": 52.624,
+          "up_m": 1.6978045547418041
+        },
+        {
+          "east_m": 0.9909874677767125,
+          "north_m": 1.9890372130074943,
+          "simulation_time_s": 53.658,
+          "up_m": 1.6966113833953016
+        },
+        {
+          "east_m": 0.9611278265778511,
+          "north_m": 1.985026172417057,
+          "simulation_time_s": 54.676,
+          "up_m": 1.6900594934841748
+        },
+        {
+          "east_m": 1.013387150171081,
+          "north_m": 1.5454169334293457,
+          "simulation_time_s": 55.696,
+          "up_m": 1.6924167660490739
+        },
+        {
+          "east_m": 0.9936794402922825,
+          "north_m": 0.6163813730098371,
+          "simulation_time_s": 56.715,
+          "up_m": 1.6960663993026337
+        },
+        {
+          "east_m": 0.997553878592155,
+          "north_m": 0.4323671151884001,
+          "simulation_time_s": 57.734,
+          "up_m": 1.69253805479144
+        },
+        {
+          "east_m": 0.8568088098704052,
+          "north_m": 0.48738720633096216,
+          "simulation_time_s": 58.767,
+          "up_m": 1.689193327467333
+        },
+        {
+          "east_m": -1.3391614813796644,
+          "north_m": 0.48638884424468254,
+          "simulation_time_s": 59.802,
+          "up_m": 1.6948526362671048
+        },
+        {
+          "east_m": -3.519408466397953,
+          "north_m": 0.48143219553388494,
+          "simulation_time_s": 60.822,
+          "up_m": 1.703043397731387
+        },
+        {
+          "east_m": -4.077547114198688,
+          "north_m": 0.498525751395869,
+          "simulation_time_s": 61.841,
+          "up_m": 1.691277502264943
+        },
+        {
+          "east_m": -4.011543364548312,
+          "north_m": 0.50047889721127,
+          "simulation_time_s": 62.881,
+          "up_m": 1.6914420362595572
+        },
+        {
+          "east_m": -3.9984164281452736,
+          "north_m": 0.1758151117187794,
+          "simulation_time_s": 63.901,
+          "up_m": 1.6910888342804111
+        },
+        {
+          "east_m": -4.017790963709261,
+          "north_m": -0.025389177531217864,
+          "simulation_time_s": 64.917,
+          "up_m": 1.6902740485243406
+        },
+        {
+          "east_m": -4.008438454162799,
+          "north_m": -0.0300198081550545,
+          "simulation_time_s": 65.954,
+          "up_m": 1.6902867338001866
+        },
+        {
+          "east_m": -3.9845444885265,
+          "north_m": -0.04080379339408653,
+          "simulation_time_s": 66.975,
+          "up_m": 1.6907111296670787
+        },
+        {
+          "east_m": -3.9726663498460533,
+          "north_m": -0.0482140948699715,
+          "simulation_time_s": 67.994,
+          "up_m": 1.6909411113389752
+        },
+        {
+          "east_m": -3.9723799508572553,
+          "north_m": -0.037913623399574464,
+          "simulation_time_s": 69.024,
+          "up_m": 1.6901717789742827
+        },
+        {
+          "east_m": -3.974507165190519,
+          "north_m": -0.031499185879440464,
+          "simulation_time_s": 70.074,
+          "up_m": 1.6910223776566784
+        },
+        {
+          "east_m": -3.975844411946086,
+          "north_m": -0.04415294114311568,
+          "simulation_time_s": 71.122,
+          "up_m": 1.6904889753063963
+        },
+        {
+          "east_m": -3.976580752847403,
+          "north_m": -0.04515504470898584,
+          "simulation_time_s": 72.142,
+          "up_m": 1.6913457264648928
+        },
+        {
+          "east_m": -3.977214559949068,
+          "north_m": -0.0328312354539724,
+          "simulation_time_s": 73.176,
+          "up_m": 1.3547384090452779
+        },
+        {
+          "east_m": -3.9775252195604454,
+          "north_m": -0.03372669173705519,
+          "simulation_time_s": 74.196,
+          "up_m": 0.8258045623467587
+        },
+        {
+          "east_m": -3.977828819022317,
+          "north_m": -0.04621132126673061,
+          "simulation_time_s": 75.217,
+          "up_m": 0.3174405270813912
+        },
+        {
+          "east_m": -3.9779461442805624,
+          "north_m": -0.0481536167185764,
+          "simulation_time_s": 76.288,
+          "up_m": 0.19499950243271555
+        },
+        {
+          "east_m": -3.9779461442805624,
+          "north_m": -0.0481536167185764,
+          "simulation_time_s": 77.375,
+          "up_m": 0.19499950243271555
+        },
+        {
+          "east_m": -3.9779461442805624,
+          "north_m": -0.0481536167185764,
+          "simulation_time_s": 78.42,
+          "up_m": 0.19499950243271555
+        }
+      ],
+      "trajectory_reported_sample_count": 76,
+      "trajectory_sample_count": 751,
+      "world_name": "echorescue_indoor_v0_14_5",
+      "world_version": "echorescue-indoor-v1"
+    },
+    "logs": [],
+    "milestone": "v0.14.5",
+    "mission": {
+      "autopilot_status_text": [
+        {
+          "receipt_monotonic_ns": 355678966212,
+          "severity": 6,
+          "text": "Barometer 1 calibration complete"
+        },
+        {
+          "receipt_monotonic_ns": 355679066850,
+          "severity": 6,
+          "text": "Barometer 2 calibration complete"
+        },
+        {
+          "receipt_monotonic_ns": 355679493498,
+          "severity": 6,
+          "text": "ArduPilot Ready"
+        },
+        {
+          "receipt_monotonic_ns": 355800178590,
+          "severity": 6,
+          "text": "Field Elevation Set: 584m"
+        },
+        {
+          "receipt_monotonic_ns": 356038885034,
+          "severity": 6,
+          "text": "RC7: SaveWaypoint LOW"
+        },
+        {
+          "receipt_monotonic_ns": 356039026668,
+          "severity": 6,
+          "text": "RC8: PrecisionLoiter MIDDLE"
+        },
+        {
+          "receipt_monotonic_ns": 357939065441,
+          "severity": 6,
+          "text": "EKF3 IMU0 initialised"
+        },
+        {
+          "receipt_monotonic_ns": 357939266231,
+          "severity": 6,
+          "text": "EKF3 IMU1 initialised"
+        },
+        {
+          "receipt_monotonic_ns": 359459181552,
+          "severity": 6,
+          "text": "EKF3 IMU0 tilt alignment complete"
+        },
+        {
+          "receipt_monotonic_ns": 359479094029,
+          "severity": 6,
+          "text": "EKF3 IMU1 tilt alignment complete"
+        },
+        {
+          "receipt_monotonic_ns": 359579147809,
+          "severity": 6,
+          "text": "EKF3 IMU1 MAG0 initial yaw alignment complete"
+        },
+        {
+          "receipt_monotonic_ns": 359579322898,
+          "severity": 6,
+          "text": "EKF3 IMU0 MAG0 initial yaw alignment complete"
+        },
+        {
+          "receipt_monotonic_ns": 364179289952,
+          "severity": 6,
+          "text": "GPS 1: probing for u-blox at 230400 baud"
+        },
+        {
+          "receipt_monotonic_ns": 364219452873,
+          "severity": 6,
+          "text": "GPS 1: detected u-blox"
+        },
+        {
+          "receipt_monotonic_ns": 376059221491,
+          "severity": 6,
+          "text": "EKF3 IMU1 origin set"
+        },
+        {
+          "receipt_monotonic_ns": 376299196108,
+          "severity": 6,
+          "text": "EKF3 IMU0 origin set"
+        },
+        {
+          "receipt_monotonic_ns": 386659584985,
+          "severity": 6,
+          "text": "Arming motors"
+        },
+        {
+          "receipt_monotonic_ns": 399400202934,
+          "severity": 6,
+          "text": "EKF3 IMU0 is using GPS"
+        },
+        {
+          "receipt_monotonic_ns": 399419234981,
+          "severity": 6,
+          "text": "EKF3 IMU1 is using GPS"
+        },
+        {
+          "receipt_monotonic_ns": 423499543289,
+          "severity": 6,
+          "text": "PrecLand: Failsafe Measures"
+        },
+        {
+          "receipt_monotonic_ns": 436219341171,
+          "severity": 6,
+          "text": "Disarming motors"
+        }
+      ],
+      "command_ack_results": {
+        "arm": 0,
+        "guided": 0,
+        "land": 0,
+        "takeoff": 0
+      },
+      "commands": [
+        {
+          "ack_monotonic_ns": 385999265704,
+          "ack_result": 0,
+          "command_id": 511,
+          "issued_monotonic_ns": 385983509483,
+          "kind": "extended_state_stream",
+          "recovery": false,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "telemetry_transition": "extended_state.landed=true",
+          "telemetry_transition_monotonic_ns": 386459688015
+        },
+        {
+          "ack_monotonic_ns": 386538941561,
+          "ack_result": 0,
+          "command_id": 176,
+          "issued_monotonic_ns": 386533807994,
+          "kind": "guided",
+          "recovery": false,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "telemetry_transition": "heartbeat.flight_mode=GUIDED",
+          "telemetry_transition_monotonic_ns": 386539117365
+        },
+        {
+          "ack_monotonic_ns": 386659135034,
+          "ack_result": 0,
+          "command_id": 400,
+          "issued_monotonic_ns": 386633840109,
+          "kind": "arm",
+          "recovery": false,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "telemetry_transition": "heartbeat.armed=true",
+          "telemetry_transition_monotonic_ns": 386899179509
+        },
+        {
+          "ack_monotonic_ns": 386999131168,
+          "ack_result": 0,
+          "command_id": 22,
+          "issued_monotonic_ns": 386983539883,
+          "kind": "takeoff",
+          "recovery": false,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "telemetry_transition": "local_position_enu.z_in_target_band",
+          "telemetry_transition_monotonic_ns": 391960352664
+        },
+        {
+          "ack_monotonic_ns": 423499085832,
+          "ack_result": 0,
+          "command_id": 21,
+          "issued_monotonic_ns": 423483500699,
+          "kind": "land",
+          "recovery": false,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "telemetry_transition": "extended_state.landed=true;heartbeat.armed=false",
+          "telemetry_transition_monotonic_ns": 437033883904
+        }
+      ],
+      "disarm": {
+        "ack_result": null,
+        "command_issued": false,
+        "detail": "ArduPilot disarmed after LAND; EchoRescue issued no disarm command",
+        "telemetry_verified": true
+      },
+      "failure_reason": null,
+      "final_armed": false,
+      "final_distance_from_launch_m": 0.04544355325721519,
+      "final_landed": true,
+      "final_mode": "LAND",
+      "final_position_enu": {
+        "east_m": -3.985260009765625,
+        "north_m": -0.04452753812074661,
+        "up_m": 0.1899999976158142
+      },
+      "flight_events": [
+        {
+          "detail": "waiting for fresh disarmed telemetry",
+          "event": "mission_started",
+          "monotonic_ns": 353281260632,
+          "phase": "wait_ready"
+        },
+        {
+          "detail": "fresh disarmed telemetry remained stable through preflight hold",
+          "event": "phase",
+          "monotonic_ns": 385933924784,
+          "phase": "send_extended_state_stream"
+        },
+        {
+          "detail": "extended_state_stream command issued; awaiting ACK and telemetry",
+          "event": "phase",
+          "monotonic_ns": 385983509483,
+          "phase": "wait_extended_state_stream"
+        },
+        {
+          "detail": "extended_state_stream accepted",
+          "event": "command_ack",
+          "monotonic_ns": 385999265704,
+          "phase": "wait_extended_state_stream"
+        },
+        {
+          "detail": "extended-state ACK and telemetry observed",
+          "event": "phase",
+          "monotonic_ns": 386483731646,
+          "phase": "send_guided"
+        },
+        {
+          "detail": "guided command issued; awaiting ACK and telemetry",
+          "event": "phase",
+          "monotonic_ns": 386533807994,
+          "phase": "wait_guided"
+        },
+        {
+          "detail": "guided accepted",
+          "event": "command_ack",
+          "monotonic_ns": 386538941561,
+          "phase": "wait_guided"
+        },
+        {
+          "detail": "GUIDED ACK and heartbeat mode observed",
+          "event": "phase",
+          "monotonic_ns": 386583618855,
+          "phase": "send_arm"
+        },
+        {
+          "detail": "arm command issued; awaiting ACK and telemetry",
+          "event": "phase",
+          "monotonic_ns": 386633840109,
+          "phase": "wait_armed"
+        },
+        {
+          "detail": "arm accepted",
+          "event": "command_ack",
+          "monotonic_ns": 386659135034,
+          "phase": "wait_armed"
+        },
+        {
+          "detail": "arm ACK and armed heartbeat observed",
+          "event": "phase",
+          "monotonic_ns": 386933895615,
+          "phase": "send_takeoff"
+        },
+        {
+          "detail": "takeoff command issued; awaiting ACK and telemetry",
+          "event": "phase",
+          "monotonic_ns": 386983539883,
+          "phase": "wait_altitude"
+        },
+        {
+          "detail": "takeoff accepted",
+          "event": "command_ack",
+          "monotonic_ns": 386999131168,
+          "phase": "wait_altitude"
+        },
+        {
+          "detail": "takeoff ACK and target ENU altitude observed",
+          "event": "phase",
+          "monotonic_ns": 391983630572,
+          "phase": "hover"
+        },
+        {
+          "detail": "timed hover completed",
+          "event": "phase",
+          "monotonic_ns": 393483765590,
+          "phase": "navigation_hold"
+        },
+        {
+          "detail": "navigation complete; landing requested",
+          "event": "phase",
+          "monotonic_ns": 423480376240,
+          "phase": "send_land"
+        },
+        {
+          "detail": "land command issued; awaiting ACK and telemetry",
+          "event": "phase",
+          "monotonic_ns": 423483500699,
+          "phase": "wait_landed_disarmed"
+        },
+        {
+          "detail": "land accepted",
+          "event": "command_ack",
+          "monotonic_ns": 423499085832,
+          "phase": "wait_landed_disarmed"
+        },
+        {
+          "detail": "land ACK, landed state, and disarmed heartbeat observed",
+          "event": "phase",
+          "monotonic_ns": 437033883904,
+          "phase": "succeeded"
+        }
+      ],
+      "geofence_checks": [
+        {
+          "checked_monotonic_ns": 393533583190,
+          "horizontal_distance_m": 0.0,
+          "horizontal_limit_m": 10.0,
+          "maximum_altitude_m": 3.5,
+          "minimum_altitude_m": -0.25,
+          "passed": true,
+          "relative_altitude_m": 1.5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "checked_monotonic_ns": 395183681575,
+          "horizontal_distance_m": 0.5,
+          "horizontal_limit_m": 10.0,
+          "maximum_altitude_m": 3.5,
+          "minimum_altitude_m": -0.25,
+          "passed": true,
+          "relative_altitude_m": 1.5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "checked_monotonic_ns": 397634258964,
+          "horizontal_distance_m": 5.024937810560445,
+          "horizontal_limit_m": 10.0,
+          "maximum_altitude_m": 3.5,
+          "minimum_altitude_m": -0.25,
+          "passed": true,
+          "relative_altitude_m": 1.5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "checked_monotonic_ns": 402133756561,
+          "horizontal_distance_m": 5.385164807134504,
+          "horizontal_limit_m": 10.0,
+          "maximum_altitude_m": 3.5,
+          "minimum_altitude_m": -0.25,
+          "passed": true,
+          "relative_altitude_m": 1.5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "checked_monotonic_ns": 405433841721,
+          "horizontal_distance_m": 8.246211251235321,
+          "horizontal_limit_m": 10.0,
+          "maximum_altitude_m": 3.5,
+          "minimum_altitude_m": -0.25,
+          "passed": true,
+          "relative_altitude_m": 1.5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "checked_monotonic_ns": 409233815542,
+          "horizontal_distance_m": 5.385164807134504,
+          "horizontal_limit_m": 10.0,
+          "maximum_altitude_m": 3.5,
+          "minimum_altitude_m": -0.25,
+          "passed": true,
+          "relative_altitude_m": 1.5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "checked_monotonic_ns": 413083611277,
+          "horizontal_distance_m": 5.024937810560445,
+          "horizontal_limit_m": 10.0,
+          "maximum_altitude_m": 3.5,
+          "minimum_altitude_m": -0.25,
+          "passed": true,
+          "relative_altitude_m": 1.5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "checked_monotonic_ns": 416483723809,
+          "horizontal_distance_m": 0.5,
+          "horizontal_limit_m": 10.0,
+          "maximum_altitude_m": 3.5,
+          "minimum_altitude_m": -0.25,
+          "passed": true,
+          "relative_altitude_m": 1.5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "checked_monotonic_ns": 420983748383,
+          "horizontal_distance_m": 0.0,
+          "horizontal_limit_m": 10.0,
+          "maximum_altitude_m": 3.5,
+          "minimum_altitude_m": -0.25,
+          "passed": true,
+          "relative_altitude_m": 1.5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        }
+      ],
+      "launch_enu": {
+        "east_m": -3.994338274002075,
+        "north_m": 0.0,
+        "up_m": 0.1899999976158142
+      },
+      "maximum_altitude_enu_m": 1.7400000095367432,
+      "maximum_horizontal_displacement_m": 8.350653351907152,
+      "maximum_telemetry_age_s": 0.139170202,
+      "maximum_telemetry_gap_s": 0.180394786,
+      "milestone": "v0.14.4",
+      "mission_events": [
+        {
+          "detail": "waiting for launch-local telemetry",
+          "event": "mission_started",
+          "monotonic_ns": 353281260632,
+          "phase": "flight_sequence",
+          "sequence": 1,
+          "session_id": "",
+          "target_id": ""
+        },
+        {
+          "detail": "valid active-session ENU launch position recorded",
+          "event": "launch_recorded",
+          "monotonic_ns": 355940192964,
+          "phase": "flight_sequence",
+          "sequence": 2,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": ""
+        },
+        {
+          "detail": "target launch-stabilize activated",
+          "event": "phase",
+          "monotonic_ns": 393483765590,
+          "phase": "send_target",
+          "sequence": 3,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "detail": "setpoint handed to MAVLink boundary",
+          "event": "phase",
+          "monotonic_ns": 393533583190,
+          "phase": "wait_transmission",
+          "sequence": 4,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+          "event": "target_transmitted",
+          "monotonic_ns": 393533631105,
+          "phase": "wait_transmission",
+          "sequence": 5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "detail": "awaiting strictly post-transmission vehicle telemetry",
+          "event": "phase",
+          "monotonic_ns": 393533631105,
+          "phase": "track_target",
+          "sequence": 6,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "detail": "fresh vehicle-time-progressing state observed",
+          "event": "first_post_command_telemetry",
+          "monotonic_ns": 393580205193,
+          "phase": "track_target",
+          "sequence": 7,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "detail": "horizontal and vertical tolerances entered",
+          "event": "target_arrival",
+          "monotonic_ns": 393580205193,
+          "phase": "track_target",
+          "sequence": 8,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "detail": "continuous residence interval completed",
+          "event": "target_settled",
+          "monotonic_ns": 395179811791,
+          "phase": "track_target",
+          "sequence": 9,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "detail": "target outbound-001 activated",
+          "event": "phase",
+          "monotonic_ns": 395179811791,
+          "phase": "send_target",
+          "sequence": 10,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "detail": "setpoint handed to MAVLink boundary",
+          "event": "phase",
+          "monotonic_ns": 395183681575,
+          "phase": "wait_transmission",
+          "sequence": 11,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+          "event": "target_transmitted",
+          "monotonic_ns": 395183799059,
+          "phase": "wait_transmission",
+          "sequence": 12,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "detail": "awaiting strictly post-transmission vehicle telemetry",
+          "event": "phase",
+          "monotonic_ns": 395183799059,
+          "phase": "track_target",
+          "sequence": 13,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "detail": "fresh vehicle-time-progressing state observed",
+          "event": "first_post_command_telemetry",
+          "monotonic_ns": 395280301484,
+          "phase": "track_target",
+          "sequence": 14,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "detail": "measurable target-error decrease observed",
+          "event": "target_progress",
+          "monotonic_ns": 396080051684,
+          "phase": "track_target",
+          "sequence": 15,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "detail": "horizontal and vertical tolerances entered",
+          "event": "target_arrival",
+          "monotonic_ns": 396080051684,
+          "phase": "track_target",
+          "sequence": 16,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "detail": "continuous residence interval completed",
+          "event": "target_settled",
+          "monotonic_ns": 397599725648,
+          "phase": "track_target",
+          "sequence": 17,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "detail": "target outbound-002 activated",
+          "event": "phase",
+          "monotonic_ns": 397599725648,
+          "phase": "send_target",
+          "sequence": 18,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "detail": "setpoint handed to MAVLink boundary",
+          "event": "phase",
+          "monotonic_ns": 397634258964,
+          "phase": "wait_transmission",
+          "sequence": 19,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+          "event": "target_transmitted",
+          "monotonic_ns": 397634367648,
+          "phase": "wait_transmission",
+          "sequence": 20,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "detail": "awaiting strictly post-transmission vehicle telemetry",
+          "event": "phase",
+          "monotonic_ns": 397634367648,
+          "phase": "track_target",
+          "sequence": 21,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "detail": "fresh vehicle-time-progressing state observed",
+          "event": "first_post_command_telemetry",
+          "monotonic_ns": 397699829265,
+          "phase": "track_target",
+          "sequence": 22,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "detail": "measurable target-error decrease observed",
+          "event": "target_progress",
+          "monotonic_ns": 398400149669,
+          "phase": "track_target",
+          "sequence": 23,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "detail": "horizontal and vertical tolerances entered",
+          "event": "target_arrival",
+          "monotonic_ns": 400500594076,
+          "phase": "track_target",
+          "sequence": 24,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "detail": "continuous residence interval completed",
+          "event": "target_settled",
+          "monotonic_ns": 402100143423,
+          "phase": "track_target",
+          "sequence": 25,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "detail": "target outbound-003 activated",
+          "event": "phase",
+          "monotonic_ns": 402100143423,
+          "phase": "send_target",
+          "sequence": 26,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "detail": "setpoint handed to MAVLink boundary",
+          "event": "phase",
+          "monotonic_ns": 402133756561,
+          "phase": "wait_transmission",
+          "sequence": 27,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+          "event": "target_transmitted",
+          "monotonic_ns": 402133838144,
+          "phase": "wait_transmission",
+          "sequence": 28,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "detail": "awaiting strictly post-transmission vehicle telemetry",
+          "event": "phase",
+          "monotonic_ns": 402133838144,
+          "phase": "track_target",
+          "sequence": 29,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "detail": "fresh vehicle-time-progressing state observed",
+          "event": "first_post_command_telemetry",
+          "monotonic_ns": 402199890400,
+          "phase": "track_target",
+          "sequence": 30,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "detail": "measurable target-error decrease observed",
+          "event": "target_progress",
+          "monotonic_ns": 402799909435,
+          "phase": "track_target",
+          "sequence": 31,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "detail": "horizontal and vertical tolerances entered",
+          "event": "target_arrival",
+          "monotonic_ns": 403899838548,
+          "phase": "track_target",
+          "sequence": 32,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "detail": "continuous residence interval completed",
+          "event": "target_settled",
+          "monotonic_ns": 405420224514,
+          "phase": "track_target",
+          "sequence": 33,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "detail": "target outbound-goal activated",
+          "event": "phase",
+          "monotonic_ns": 405420224514,
+          "phase": "send_target",
+          "sequence": 34,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "detail": "setpoint handed to MAVLink boundary",
+          "event": "phase",
+          "monotonic_ns": 405433841721,
+          "phase": "wait_transmission",
+          "sequence": 35,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+          "event": "target_transmitted",
+          "monotonic_ns": 405433936367,
+          "phase": "wait_transmission",
+          "sequence": 36,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "detail": "awaiting strictly post-transmission vehicle telemetry",
+          "event": "phase",
+          "monotonic_ns": 405433936367,
+          "phase": "track_target",
+          "sequence": 37,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "detail": "fresh vehicle-time-progressing state observed",
+          "event": "first_post_command_telemetry",
+          "monotonic_ns": 405519644007,
+          "phase": "track_target",
+          "sequence": 38,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "detail": "measurable target-error decrease observed",
+          "event": "target_progress",
+          "monotonic_ns": 406219802751,
+          "phase": "track_target",
+          "sequence": 39,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "detail": "horizontal and vertical tolerances entered",
+          "event": "target_arrival",
+          "monotonic_ns": 407719875504,
+          "phase": "track_target",
+          "sequence": 40,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "detail": "continuous residence interval completed",
+          "event": "target_settled",
+          "monotonic_ns": 409220316697,
+          "phase": "track_target",
+          "sequence": 41,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "detail": "target return-001 activated",
+          "event": "phase",
+          "monotonic_ns": 409220316697,
+          "phase": "send_target",
+          "sequence": 42,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "detail": "setpoint handed to MAVLink boundary",
+          "event": "phase",
+          "monotonic_ns": 409233815542,
+          "phase": "wait_transmission",
+          "sequence": 43,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+          "event": "target_transmitted",
+          "monotonic_ns": 409233896219,
+          "phase": "wait_transmission",
+          "sequence": 44,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "detail": "awaiting strictly post-transmission vehicle telemetry",
+          "event": "phase",
+          "monotonic_ns": 409233896219,
+          "phase": "track_target",
+          "sequence": 45,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "detail": "fresh vehicle-time-progressing state observed",
+          "event": "first_post_command_telemetry",
+          "monotonic_ns": 409319856248,
+          "phase": "track_target",
+          "sequence": 46,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "detail": "measurable target-error decrease observed",
+          "event": "target_progress",
+          "monotonic_ns": 409820242597,
+          "phase": "track_target",
+          "sequence": 47,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "detail": "horizontal and vertical tolerances entered",
+          "event": "target_arrival",
+          "monotonic_ns": 411540383729,
+          "phase": "track_target",
+          "sequence": 48,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "detail": "continuous residence interval completed",
+          "event": "target_settled",
+          "monotonic_ns": 413040880636,
+          "phase": "track_target",
+          "sequence": 49,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "detail": "target return-002 activated",
+          "event": "phase",
+          "monotonic_ns": 413040880636,
+          "phase": "send_target",
+          "sequence": 50,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "detail": "setpoint handed to MAVLink boundary",
+          "event": "phase",
+          "monotonic_ns": 413083611277,
+          "phase": "wait_transmission",
+          "sequence": 51,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+          "event": "target_transmitted",
+          "monotonic_ns": 413083688881,
+          "phase": "wait_transmission",
+          "sequence": 52,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "detail": "awaiting strictly post-transmission vehicle telemetry",
+          "event": "phase",
+          "monotonic_ns": 413083688881,
+          "phase": "track_target",
+          "sequence": 53,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "detail": "fresh vehicle-time-progressing state observed",
+          "event": "first_post_command_telemetry",
+          "monotonic_ns": 413139938719,
+          "phase": "track_target",
+          "sequence": 54,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "detail": "measurable target-error decrease observed",
+          "event": "target_progress",
+          "monotonic_ns": 413840139792,
+          "phase": "track_target",
+          "sequence": 55,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "detail": "horizontal and vertical tolerances entered",
+          "event": "target_arrival",
+          "monotonic_ns": 414840198652,
+          "phase": "track_target",
+          "sequence": 56,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "detail": "continuous residence interval completed",
+          "event": "target_settled",
+          "monotonic_ns": 416439823232,
+          "phase": "track_target",
+          "sequence": 57,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "detail": "target return-003 activated",
+          "event": "phase",
+          "monotonic_ns": 416439823232,
+          "phase": "send_target",
+          "sequence": 58,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "detail": "setpoint handed to MAVLink boundary",
+          "event": "phase",
+          "monotonic_ns": 416483723809,
+          "phase": "wait_transmission",
+          "sequence": 59,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+          "event": "target_transmitted",
+          "monotonic_ns": 416483836478,
+          "phase": "wait_transmission",
+          "sequence": 60,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "detail": "awaiting strictly post-transmission vehicle telemetry",
+          "event": "phase",
+          "monotonic_ns": 416483836478,
+          "phase": "track_target",
+          "sequence": 61,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "detail": "fresh vehicle-time-progressing state observed",
+          "event": "first_post_command_telemetry",
+          "monotonic_ns": 416540337365,
+          "phase": "track_target",
+          "sequence": 62,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "detail": "measurable target-error decrease observed",
+          "event": "target_progress",
+          "monotonic_ns": 417259844991,
+          "phase": "track_target",
+          "sequence": 63,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "detail": "horizontal and vertical tolerances entered",
+          "event": "target_arrival",
+          "monotonic_ns": 419359919078,
+          "phase": "track_target",
+          "sequence": 64,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "detail": "continuous residence interval completed",
+          "event": "target_settled",
+          "monotonic_ns": 420959792315,
+          "phase": "track_target",
+          "sequence": 65,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "detail": "target return-launch activated",
+          "event": "phase",
+          "monotonic_ns": 420959792315,
+          "phase": "send_target",
+          "sequence": 66,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "detail": "setpoint handed to MAVLink boundary",
+          "event": "phase",
+          "monotonic_ns": 420983748383,
+          "phase": "wait_transmission",
+          "sequence": 67,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "detail": "SET_POSITION_TARGET_LOCAL_NED sent successfully",
+          "event": "target_transmitted",
+          "monotonic_ns": 420983869924,
+          "phase": "wait_transmission",
+          "sequence": 68,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "detail": "awaiting strictly post-transmission vehicle telemetry",
+          "event": "phase",
+          "monotonic_ns": 420983869924,
+          "phase": "track_target",
+          "sequence": 69,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "detail": "fresh vehicle-time-progressing state observed",
+          "event": "first_post_command_telemetry",
+          "monotonic_ns": 421060595799,
+          "phase": "track_target",
+          "sequence": 70,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "detail": "measurable target-error decrease observed",
+          "event": "target_progress",
+          "monotonic_ns": 421979996607,
+          "phase": "track_target",
+          "sequence": 71,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "detail": "horizontal and vertical tolerances entered",
+          "event": "target_arrival",
+          "monotonic_ns": 421979996607,
+          "phase": "track_target",
+          "sequence": 72,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "detail": "continuous residence interval completed",
+          "event": "target_settled",
+          "monotonic_ns": 423480376240,
+          "phase": "track_target",
+          "sequence": 73,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "detail": "all waypoint and return targets settled",
+          "event": "phase",
+          "monotonic_ns": 423480376240,
+          "phase": "landing",
+          "sequence": 74,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": ""
+        },
+        {
+          "detail": "LAND ACK, ON_GROUND, and disarmed telemetry verified",
+          "event": "phase",
+          "monotonic_ns": 437033883904,
+          "phase": "succeeded",
+          "sequence": 75,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": ""
+        }
+      ],
+      "phase": "succeeded",
+      "schema_version": "echorescue-continuous-waypoint-mission/1.0",
+      "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+      "status": "PASS",
+      "targets": [
+        {
+          "arrival_monotonic_ns": 393580205193,
+          "best_error_m": 5.960464477539063e-08,
+          "commanded_enu": {
+            "east_m": -3.994338274002075,
+            "heading_enu_deg": null,
+            "north_m": 0.0,
+            "target_id": "launch-stabilize",
+            "up_m": 1.6899999976158142
+          },
+          "failure_reason": null,
+          "first_post_command_monotonic_ns": 393580205193,
+          "first_post_command_source_time_boot_ms": 35250,
+          "horizontal_error_m": 0.0,
+          "initial_error_m": 0.04000002145767212,
+          "initial_horizontal_error_m": 0.0,
+          "initial_vertical_error_m": 0.04000002145767212,
+          "measured_at_best_enu": {
+            "east_m": -3.994338274002075,
+            "north_m": 0.0,
+            "up_m": 1.690000057220459
+          },
+          "measured_enu": {
+            "east_m": -3.994338274002075,
+            "north_m": 0.0,
+            "up_m": 1.690000057220459
+          },
+          "outcome": "settled",
+          "sequence": 1,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled_monotonic_ns": 395179811791,
+          "settling_duration_s": 1.599606598,
+          "target_id": "launch-stabilize",
+          "time_to_arrival_s": 0.046574088,
+          "total_error_m": 5.960464477539063e-08,
+          "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+          "transmit_monotonic_ns": 393533631105,
+          "transmit_source_time_boot_ms": 35150,
+          "transmitted": true,
+          "transmitted_ned": {
+            "coordinate_frame": 1,
+            "down_m": -1.6899999976158142,
+            "east_m": -3.994338274002075,
+            "north_m": 0.0,
+            "target_id": "launch-stabilize",
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_monotonic_ns": 396080051684,
+          "best_error_m": 0.010043645470813826,
+          "commanded_enu": {
+            "east_m": -3.994338274002075,
+            "heading_enu_deg": null,
+            "north_m": 0.5,
+            "target_id": "outbound-001",
+            "up_m": 1.6899999976158142
+          },
+          "failure_reason": null,
+          "first_post_command_monotonic_ns": 395280301484,
+          "first_post_command_source_time_boot_ms": 36950,
+          "horizontal_error_m": 0.02319854497909546,
+          "initial_error_m": 0.5000000000000036,
+          "initial_horizontal_error_m": 0.5,
+          "initial_vertical_error_m": 5.960464477539063e-08,
+          "measured_at_best_enu": {
+            "east_m": -3.994338274002075,
+            "north_m": 0.5009347796440125,
+            "up_m": 1.6799999475479126
+          },
+          "measured_enu": {
+            "east_m": -3.994338274002075,
+            "north_m": 0.5231985449790955,
+            "up_m": 1.6799999475479126
+          },
+          "outcome": "settled",
+          "sequence": 2,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled_monotonic_ns": 397599725648,
+          "settling_duration_s": 1.519673964,
+          "target_id": "outbound-001",
+          "time_to_arrival_s": 0.896252625,
+          "time_to_first_progress_s": 0.896252625,
+          "total_error_m": 0.025262095924678422,
+          "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+          "transmit_monotonic_ns": 395183799059,
+          "transmit_source_time_boot_ms": 36850,
+          "transmitted": true,
+          "transmitted_ned": {
+            "coordinate_frame": 1,
+            "down_m": -1.6899999976158142,
+            "east_m": -3.994338274002075,
+            "north_m": 0.5,
+            "target_id": "outbound-001",
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 0.010000050067901611
+        },
+        {
+          "arrival_monotonic_ns": 400500594076,
+          "best_error_m": 0.010391535730761226,
+          "commanded_enu": {
+            "east_m": 1.0056617259979248,
+            "heading_enu_deg": null,
+            "north_m": 0.5,
+            "target_id": "outbound-002",
+            "up_m": 1.6899999976158142
+          },
+          "failure_reason": null,
+          "first_post_command_monotonic_ns": 397699829265,
+          "first_post_command_source_time_boot_ms": 39350,
+          "horizontal_error_m": 0.048475690683341004,
+          "initial_error_m": 5.000063816941791,
+          "initial_horizontal_error_m": 5.000053816959288,
+          "initial_vertical_error_m": 0.010000050067901611,
+          "measured_at_best_enu": {
+            "east_m": 1.0076626539230347,
+            "north_m": 0.48980292677879333,
+            "up_m": 1.690000057220459
+          },
+          "measured_enu": {
+            "east_m": 1.0530527830123901,
+            "north_m": 0.48980292677879333,
+            "up_m": 1.690000057220459
+          },
+          "outcome": "settled",
+          "sequence": 3,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled_monotonic_ns": 402100143423,
+          "settling_duration_s": 1.599549347,
+          "target_id": "outbound-002",
+          "time_to_arrival_s": 2.866226428,
+          "time_to_first_progress_s": 0.765782021,
+          "total_error_m": 0.04847569068337765,
+          "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+          "transmit_monotonic_ns": 397634367648,
+          "transmit_source_time_boot_ms": 39250,
+          "transmitted": true,
+          "transmitted_ned": {
+            "coordinate_frame": 1,
+            "down_m": -1.6899999976158142,
+            "east_m": 1.0056617259979248,
+            "north_m": 0.5,
+            "target_id": "outbound-002",
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_monotonic_ns": 403899838548,
+          "best_error_m": 0.027376390408050667,
+          "commanded_enu": {
+            "east_m": 1.0056617259979248,
+            "heading_enu_deg": null,
+            "north_m": 2.0,
+            "target_id": "outbound-003",
+            "up_m": 1.6899999976158142
+          },
+          "failure_reason": null,
+          "first_post_command_monotonic_ns": 402199890400,
+          "first_post_command_source_time_boot_ms": 43850,
+          "horizontal_error_m": 0.0523065776005893,
+          "initial_error_m": 1.510940472768815,
+          "initial_horizontal_error_m": 1.5109404727688138,
+          "initial_vertical_error_m": 5.960464477539063e-08,
+          "measured_at_best_enu": {
+            "east_m": 1.0258188247680664,
+            "north_m": 1.9814754724502563,
+            "up_m": 1.690000057220459
+          },
+          "measured_enu": {
+            "east_m": 1.0258188247680664,
+            "north_m": 2.048266649246216,
+            "up_m": 1.690000057220459
+          },
+          "outcome": "settled",
+          "sequence": 4,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled_monotonic_ns": 405420224514,
+          "settling_duration_s": 1.520385966,
+          "target_id": "outbound-003",
+          "time_to_arrival_s": 1.766000404,
+          "time_to_first_progress_s": 0.666071291,
+          "total_error_m": 0.05230657760062326,
+          "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+          "transmit_monotonic_ns": 402133838144,
+          "transmit_source_time_boot_ms": 43750,
+          "transmitted": true,
+          "transmitted_ned": {
+            "coordinate_frame": 1,
+            "down_m": -1.6899999976158142,
+            "east_m": 1.0056617259979248,
+            "north_m": 2.0,
+            "target_id": "outbound-003",
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_monotonic_ns": 407719875504,
+          "best_error_m": 0.0150396506476248,
+          "commanded_enu": {
+            "east_m": 4.005661725997925,
+            "heading_enu_deg": null,
+            "north_m": 2.0,
+            "target_id": "outbound-goal",
+            "up_m": 1.6899999976158142
+          },
+          "failure_reason": null,
+          "first_post_command_monotonic_ns": 405519644007,
+          "first_post_command_source_time_boot_ms": 47150,
+          "horizontal_error_m": 0.07277612524639669,
+          "initial_error_m": 2.9802337803332546,
+          "initial_horizontal_error_m": 2.9802337803332537,
+          "initial_vertical_error_m": 5.960464477539063e-08,
+          "measured_at_best_enu": {
+            "east_m": 4.003416538238525,
+            "north_m": 2.014871120452881,
+            "up_m": 1.690000057220459
+          },
+          "measured_enu": {
+            "east_m": 4.076040744781494,
+            "north_m": 1.9814754724502563,
+            "up_m": 1.690000057220459
+          },
+          "outcome": "settled",
+          "sequence": 5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled_monotonic_ns": 409220316697,
+          "settling_duration_s": 1.500441193,
+          "target_id": "outbound-goal",
+          "time_to_arrival_s": 2.285939137,
+          "time_to_first_progress_s": 0.785866384,
+          "total_error_m": 0.0727761252464211,
+          "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+          "transmit_monotonic_ns": 405433936367,
+          "transmit_source_time_boot_ms": 47050,
+          "transmitted": true,
+          "transmitted_ned": {
+            "coordinate_frame": 1,
+            "down_m": -1.6899999976158142,
+            "east_m": 4.005661725997925,
+            "north_m": 2.0,
+            "target_id": "outbound-goal",
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_monotonic_ns": 411540383729,
+          "best_error_m": 0.008004091370091906,
+          "commanded_enu": {
+            "east_m": 1.0056617259979248,
+            "heading_enu_deg": null,
+            "north_m": 2.0,
+            "target_id": "return-001",
+            "up_m": 1.6899999976158142
+          },
+          "failure_reason": null,
+          "first_post_command_monotonic_ns": 409319856248,
+          "first_post_command_source_time_boot_ms": 50950,
+          "horizontal_error_m": 0.05260035332108636,
+          "initial_error_m": 3.070434900320686,
+          "initial_horizontal_error_m": 3.0704349003206852,
+          "initial_vertical_error_m": 5.960464477539063e-08,
+          "measured_at_best_enu": {
+            "east_m": 0.9985846877098083,
+            "north_m": 2.00373911857605,
+            "up_m": 1.690000057220459
+          },
+          "measured_enu": {
+            "east_m": 0.9531944394111633,
+            "north_m": 2.00373911857605,
+            "up_m": 1.690000057220459
+          },
+          "outcome": "settled",
+          "sequence": 6,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled_monotonic_ns": 413040880636,
+          "settling_duration_s": 1.500496907,
+          "target_id": "return-001",
+          "time_to_arrival_s": 2.30648751,
+          "time_to_first_progress_s": 0.586346378,
+          "total_error_m": 0.05260035332112013,
+          "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+          "transmit_monotonic_ns": 409233896219,
+          "transmit_source_time_boot_ms": 50850,
+          "transmitted": true,
+          "transmitted_ned": {
+            "coordinate_frame": 1,
+            "down_m": -1.6899999976158142,
+            "east_m": 1.0056617259979248,
+            "north_m": 2.0,
+            "target_id": "return-001",
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_monotonic_ns": 414840198652,
+          "best_error_m": 0.012412351128021347,
+          "commanded_enu": {
+            "east_m": 1.0056617259979248,
+            "heading_enu_deg": null,
+            "north_m": 0.5,
+            "target_id": "return-002",
+            "up_m": 1.6899999976158142
+          },
+          "failure_reason": null,
+          "first_post_command_monotonic_ns": 413139938719,
+          "first_post_command_source_time_boot_ms": 54750,
+          "horizontal_error_m": 0.04416346342783536,
+          "initial_error_m": 1.5046541638853947,
+          "initial_horizontal_error_m": 1.5046541638853934,
+          "initial_vertical_error_m": 5.960464477539063e-08,
+          "measured_at_best_enu": {
+            "east_m": 0.9985845685005188,
+            "north_m": 0.48980292677879333,
+            "up_m": 1.690000057220459
+          },
+          "measured_enu": {
+            "east_m": 0.9985845685005188,
+            "north_m": 0.4564072787761688,
+            "up_m": 1.690000057220459
+          },
+          "outcome": "settled",
+          "sequence": 7,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled_monotonic_ns": 416439823232,
+          "settling_duration_s": 1.59962458,
+          "target_id": "return-002",
+          "time_to_arrival_s": 1.756509771,
+          "time_to_first_progress_s": 0.756450911,
+          "total_error_m": 0.04416346342787558,
+          "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+          "transmit_monotonic_ns": 413083688881,
+          "transmit_source_time_boot_ms": 54650,
+          "transmitted": true,
+          "transmitted_ned": {
+            "coordinate_frame": 1,
+            "down_m": -1.6899999976158142,
+            "east_m": 1.0056617259979248,
+            "north_m": 0.5,
+            "target_id": "return-002",
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_monotonic_ns": 419359919078,
+          "best_error_m": 0.013652345086062953,
+          "commanded_enu": {
+            "east_m": -3.994338274002075,
+            "heading_enu_deg": null,
+            "north_m": 0.5,
+            "target_id": "return-003",
+            "up_m": 1.6899999976158142
+          },
+          "failure_reason": null,
+          "first_post_command_monotonic_ns": 416540337365,
+          "first_post_command_source_time_boot_ms": 58150,
+          "horizontal_error_m": 0.0453999920207947,
+          "initial_error_m": 4.9931131407697835,
+          "initial_horizontal_error_m": 4.993113140769783,
+          "initial_vertical_error_m": 5.960464477539063e-08,
+          "measured_at_best_enu": {
+            "east_m": -4.003416061401367,
+            "north_m": 0.48980292677879333,
+            "up_m": 1.690000057220459
+          },
+          "measured_enu": {
+            "east_m": -4.03972864151001,
+            "north_m": 0.5009347796440125,
+            "up_m": 1.6799999475479126
+          },
+          "outcome": "settled",
+          "sequence": 8,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled_monotonic_ns": 420959792315,
+          "settling_duration_s": 1.599873237,
+          "target_id": "return-003",
+          "time_to_arrival_s": 2.8760826,
+          "time_to_first_progress_s": 0.776008513,
+          "total_error_m": 0.04648828107005852,
+          "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+          "transmit_monotonic_ns": 416483836478,
+          "transmit_source_time_boot_ms": 58050,
+          "transmitted": true,
+          "transmitted_ned": {
+            "coordinate_frame": 1,
+            "down_m": -1.6899999976158142,
+            "east_m": -3.994338274002075,
+            "north_m": 0.5,
+            "target_id": "return-003",
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 0.010000050067901611
+        },
+        {
+          "arrival_monotonic_ns": 421979996607,
+          "best_error_m": 0.018155813217260924,
+          "commanded_enu": {
+            "east_m": -3.994338274002075,
+            "heading_enu_deg": null,
+            "north_m": 0.0,
+            "target_id": "return-launch",
+            "up_m": 1.6899999976158142
+          },
+          "failure_reason": null,
+          "first_post_command_monotonic_ns": 421060595799,
+          "first_post_command_source_time_boot_ms": 62650,
+          "horizontal_error_m": 0.021296769867046098,
+          "initial_error_m": 0.503086413969669,
+          "initial_horizontal_error_m": 0.5029870166510272,
+          "initial_vertical_error_m": 0.010000050067901611,
+          "measured_at_best_enu": {
+            "east_m": -4.012494087219238,
+            "north_m": 0.0,
+            "up_m": 1.690000057220459
+          },
+          "measured_enu": {
+            "east_m": -4.012494087219238,
+            "north_m": -0.011131884530186653,
+            "up_m": 1.690000057220459
+          },
+          "outcome": "settled",
+          "sequence": 9,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled_monotonic_ns": 423480376240,
+          "settling_duration_s": 1.500379633,
+          "target_id": "return-launch",
+          "time_to_arrival_s": 0.996126683,
+          "time_to_first_progress_s": 0.996126683,
+          "total_error_m": 0.021296769867129507,
+          "transmission_detail": "pymavlink send returned without error; no COMMAND_ACK exists for this message",
+          "transmit_monotonic_ns": 420983869924,
+          "transmit_source_time_boot_ms": 62550,
+          "transmitted": true,
+          "transmitted_ned": {
+            "coordinate_frame": 1,
+            "down_m": -1.6899999976158142,
+            "east_m": -3.994338274002075,
+            "north_m": 0.0,
+            "target_id": "return-launch",
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        }
+      ]
+    },
+    "mode": "graphical",
+    "observer": {
+      "armed_observed": true,
+      "detail": "independent ROS state and mission events agree on the ordered waypoint mission",
+      "disarmed_after_flight": true,
+      "event_sequence": [
+        {
+          "event": "mission_started",
+          "sequence": 1,
+          "session_id": "",
+          "target_id": ""
+        },
+        {
+          "event": "launch_recorded",
+          "sequence": 2,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": ""
+        },
+        {
+          "event": "phase",
+          "sequence": 3,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "event": "phase",
+          "sequence": 4,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "event": "target_transmitted",
+          "sequence": 5,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "event": "phase",
+          "sequence": 6,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "event": "first_post_command_telemetry",
+          "sequence": 7,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "event": "target_arrival",
+          "sequence": 8,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "event": "target_settled",
+          "sequence": 9,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "launch-stabilize"
+        },
+        {
+          "event": "phase",
+          "sequence": 10,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "event": "phase",
+          "sequence": 11,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "event": "target_transmitted",
+          "sequence": 12,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "event": "phase",
+          "sequence": 13,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "event": "first_post_command_telemetry",
+          "sequence": 14,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "event": "target_progress",
+          "sequence": 15,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "event": "target_arrival",
+          "sequence": 16,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "event": "target_settled",
+          "sequence": 17,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-001"
+        },
+        {
+          "event": "phase",
+          "sequence": 18,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "event": "phase",
+          "sequence": 19,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "event": "target_transmitted",
+          "sequence": 20,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "event": "phase",
+          "sequence": 21,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "event": "first_post_command_telemetry",
+          "sequence": 22,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "event": "target_progress",
+          "sequence": 23,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "event": "target_arrival",
+          "sequence": 24,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "event": "target_settled",
+          "sequence": 25,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-002"
+        },
+        {
+          "event": "phase",
+          "sequence": 26,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "event": "phase",
+          "sequence": 27,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "event": "target_transmitted",
+          "sequence": 28,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "event": "phase",
+          "sequence": 29,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "event": "first_post_command_telemetry",
+          "sequence": 30,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "event": "target_progress",
+          "sequence": 31,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "event": "target_arrival",
+          "sequence": 32,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "event": "target_settled",
+          "sequence": 33,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-003"
+        },
+        {
+          "event": "phase",
+          "sequence": 34,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "event": "phase",
+          "sequence": 35,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "event": "target_transmitted",
+          "sequence": 36,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "event": "phase",
+          "sequence": 37,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "event": "first_post_command_telemetry",
+          "sequence": 38,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "event": "target_progress",
+          "sequence": 39,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "event": "target_arrival",
+          "sequence": 40,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "event": "target_settled",
+          "sequence": 41,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "outbound-goal"
+        },
+        {
+          "event": "phase",
+          "sequence": 42,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "event": "phase",
+          "sequence": 43,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "event": "target_transmitted",
+          "sequence": 44,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "event": "phase",
+          "sequence": 45,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "event": "first_post_command_telemetry",
+          "sequence": 46,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "event": "target_progress",
+          "sequence": 47,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "event": "target_arrival",
+          "sequence": 48,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "event": "target_settled",
+          "sequence": 49,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-001"
+        },
+        {
+          "event": "phase",
+          "sequence": 50,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "event": "phase",
+          "sequence": 51,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "event": "target_transmitted",
+          "sequence": 52,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "event": "phase",
+          "sequence": 53,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "event": "first_post_command_telemetry",
+          "sequence": 54,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "event": "target_progress",
+          "sequence": 55,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "event": "target_arrival",
+          "sequence": 56,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "event": "target_settled",
+          "sequence": 57,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-002"
+        },
+        {
+          "event": "phase",
+          "sequence": 58,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "event": "phase",
+          "sequence": 59,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "event": "target_transmitted",
+          "sequence": 60,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "event": "phase",
+          "sequence": 61,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "event": "first_post_command_telemetry",
+          "sequence": 62,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "event": "target_progress",
+          "sequence": 63,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "event": "target_arrival",
+          "sequence": 64,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "event": "target_settled",
+          "sequence": 65,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-003"
+        },
+        {
+          "event": "phase",
+          "sequence": 66,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "event": "phase",
+          "sequence": 67,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "event": "target_transmitted",
+          "sequence": 68,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "event": "phase",
+          "sequence": 69,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "event": "first_post_command_telemetry",
+          "sequence": 70,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "event": "target_progress",
+          "sequence": 71,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "event": "target_arrival",
+          "sequence": 72,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "event": "target_settled",
+          "sequence": 73,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": "return-launch"
+        },
+        {
+          "event": "phase",
+          "sequence": 74,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": ""
+        },
+        {
+          "event": "phase",
+          "sequence": 75,
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "target_id": ""
+        }
+      ],
+      "expected_target_ids": [
+        "launch-stabilize",
+        "outbound-001",
+        "outbound-002",
+        "outbound-003",
+        "outbound-goal",
+        "return-001",
+        "return-002",
+        "return-003",
+        "return-launch"
+      ],
+      "guided_observed": true,
+      "land_mode_observed": true,
+      "landed_after_flight": true,
+      "maximum_altitude_enu_m": 1.7400000095367432,
+      "milestone": "v0.14.4",
+      "minimum_altitude_enu_m": 0.1899999976158142,
+      "mission_node_observed": true,
+      "schema_version": "echorescue-waypoint-mission-observer/1.0",
+      "session_changed": false,
+      "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+      "settled_event_ids": [
+        "launch-stabilize",
+        "outbound-001",
+        "outbound-002",
+        "outbound-003",
+        "outbound-goal",
+        "return-001",
+        "return-002",
+        "return-003",
+        "return-launch"
+      ],
+      "status": "PASS",
+      "target_ids": [
+        "launch-stabilize",
+        "outbound-001",
+        "outbound-002",
+        "outbound-003",
+        "outbound-goal",
+        "return-001",
+        "return-002",
+        "return-003",
+        "return-launch"
+      ],
+      "targets": [
+        {
+          "arrival_started_ns": 393580205193,
+          "commanded_enu": {
+            "east_m": -3.994338274002075,
+            "north_m": 0.0,
+            "up_m": 1.6899999976158142
+          },
+          "first_post_command_monotonic_ns": 393580205193,
+          "first_post_command_source_time_boot_ms": 35250,
+          "horizontal_error_m": 0.0,
+          "measured_enu": {
+            "east_m": -3.994338274002075,
+            "north_m": 0.0,
+            "up_m": 1.690000057220459
+          },
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled": true,
+          "settled_monotonic_ns": 395179811791,
+          "settling_duration_s": 1.599606598,
+          "target_id": "launch-stabilize",
+          "transmit_monotonic_ns": 393533631105,
+          "transmit_source_time_boot_ms": 35150,
+          "transmitted_ned": {
+            "down_m": -1.6899999976158142,
+            "east_m": -3.994338274002075,
+            "north_m": 0.0,
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_started_ns": 396080051684,
+          "commanded_enu": {
+            "east_m": -3.994338274002075,
+            "north_m": 0.5,
+            "up_m": 1.6899999976158142
+          },
+          "first_post_command_monotonic_ns": 395280301484,
+          "first_post_command_source_time_boot_ms": 36950,
+          "horizontal_error_m": 0.02319854497909546,
+          "measured_enu": {
+            "east_m": -3.994338274002075,
+            "north_m": 0.5231985449790955,
+            "up_m": 1.6799999475479126
+          },
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled": true,
+          "settled_monotonic_ns": 397599725648,
+          "settling_duration_s": 1.519673964,
+          "target_id": "outbound-001",
+          "transmit_monotonic_ns": 395183799059,
+          "transmit_source_time_boot_ms": 36850,
+          "transmitted_ned": {
+            "down_m": -1.6899999976158142,
+            "east_m": -3.994338274002075,
+            "north_m": 0.5,
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 0.010000050067901611
+        },
+        {
+          "arrival_started_ns": 400500594076,
+          "commanded_enu": {
+            "east_m": 1.0056617259979248,
+            "north_m": 0.5,
+            "up_m": 1.6899999976158142
+          },
+          "first_post_command_monotonic_ns": 397699829265,
+          "first_post_command_source_time_boot_ms": 39350,
+          "horizontal_error_m": 0.048475690683341004,
+          "measured_enu": {
+            "east_m": 1.0530527830123901,
+            "north_m": 0.48980292677879333,
+            "up_m": 1.690000057220459
+          },
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled": true,
+          "settled_monotonic_ns": 402100143423,
+          "settling_duration_s": 1.599549347,
+          "target_id": "outbound-002",
+          "transmit_monotonic_ns": 397634367648,
+          "transmit_source_time_boot_ms": 39250,
+          "transmitted_ned": {
+            "down_m": -1.6899999976158142,
+            "east_m": 1.0056617259979248,
+            "north_m": 0.5,
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_started_ns": 403899838548,
+          "commanded_enu": {
+            "east_m": 1.0056617259979248,
+            "north_m": 2.0,
+            "up_m": 1.6899999976158142
+          },
+          "first_post_command_monotonic_ns": 402199890400,
+          "first_post_command_source_time_boot_ms": 43850,
+          "horizontal_error_m": 0.0523065776005893,
+          "measured_enu": {
+            "east_m": 1.0258188247680664,
+            "north_m": 2.048266649246216,
+            "up_m": 1.690000057220459
+          },
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled": true,
+          "settled_monotonic_ns": 405420224514,
+          "settling_duration_s": 1.520385966,
+          "target_id": "outbound-003",
+          "transmit_monotonic_ns": 402133838144,
+          "transmit_source_time_boot_ms": 43750,
+          "transmitted_ned": {
+            "down_m": -1.6899999976158142,
+            "east_m": 1.0056617259979248,
+            "north_m": 2.0,
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_started_ns": 407719875504,
+          "commanded_enu": {
+            "east_m": 4.005661725997925,
+            "north_m": 2.0,
+            "up_m": 1.6899999976158142
+          },
+          "first_post_command_monotonic_ns": 405519644007,
+          "first_post_command_source_time_boot_ms": 47150,
+          "horizontal_error_m": 0.07277612524639669,
+          "measured_enu": {
+            "east_m": 4.076040744781494,
+            "north_m": 1.9814754724502563,
+            "up_m": 1.690000057220459
+          },
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled": true,
+          "settled_monotonic_ns": 409220316697,
+          "settling_duration_s": 1.500441193,
+          "target_id": "outbound-goal",
+          "transmit_monotonic_ns": 405433936367,
+          "transmit_source_time_boot_ms": 47050,
+          "transmitted_ned": {
+            "down_m": -1.6899999976158142,
+            "east_m": 4.005661725997925,
+            "north_m": 2.0,
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_started_ns": 411540383729,
+          "commanded_enu": {
+            "east_m": 1.0056617259979248,
+            "north_m": 2.0,
+            "up_m": 1.6899999976158142
+          },
+          "first_post_command_monotonic_ns": 409319856248,
+          "first_post_command_source_time_boot_ms": 50950,
+          "horizontal_error_m": 0.05260035332108636,
+          "measured_enu": {
+            "east_m": 0.9531944394111633,
+            "north_m": 2.00373911857605,
+            "up_m": 1.690000057220459
+          },
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled": true,
+          "settled_monotonic_ns": 413040880636,
+          "settling_duration_s": 1.500496907,
+          "target_id": "return-001",
+          "transmit_monotonic_ns": 409233896219,
+          "transmit_source_time_boot_ms": 50850,
+          "transmitted_ned": {
+            "down_m": -1.6899999976158142,
+            "east_m": 1.0056617259979248,
+            "north_m": 2.0,
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_started_ns": 414840198652,
+          "commanded_enu": {
+            "east_m": 1.0056617259979248,
+            "north_m": 0.5,
+            "up_m": 1.6899999976158142
+          },
+          "first_post_command_monotonic_ns": 413139938719,
+          "first_post_command_source_time_boot_ms": 54750,
+          "horizontal_error_m": 0.04416346342783536,
+          "measured_enu": {
+            "east_m": 0.9985845685005188,
+            "north_m": 0.4564072787761688,
+            "up_m": 1.690000057220459
+          },
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled": true,
+          "settled_monotonic_ns": 416439823232,
+          "settling_duration_s": 1.59962458,
+          "target_id": "return-002",
+          "transmit_monotonic_ns": 413083688881,
+          "transmit_source_time_boot_ms": 54650,
+          "transmitted_ned": {
+            "down_m": -1.6899999976158142,
+            "east_m": 1.0056617259979248,
+            "north_m": 0.5,
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        },
+        {
+          "arrival_started_ns": 419359919078,
+          "commanded_enu": {
+            "east_m": -3.994338274002075,
+            "north_m": 0.5,
+            "up_m": 1.6899999976158142
+          },
+          "first_post_command_monotonic_ns": 416540337365,
+          "first_post_command_source_time_boot_ms": 58150,
+          "horizontal_error_m": 0.0453999920207947,
+          "measured_enu": {
+            "east_m": -4.03972864151001,
+            "north_m": 0.5009347796440125,
+            "up_m": 1.6799999475479126
+          },
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled": true,
+          "settled_monotonic_ns": 420959792315,
+          "settling_duration_s": 1.599873237,
+          "target_id": "return-003",
+          "transmit_monotonic_ns": 416483836478,
+          "transmit_source_time_boot_ms": 58050,
+          "transmitted_ned": {
+            "down_m": -1.6899999976158142,
+            "east_m": -3.994338274002075,
+            "north_m": 0.5,
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 0.010000050067901611
+        },
+        {
+          "arrival_started_ns": 421979996607,
+          "commanded_enu": {
+            "east_m": -3.994338274002075,
+            "north_m": 0.0,
+            "up_m": 1.6899999976158142
+          },
+          "first_post_command_monotonic_ns": 421060595799,
+          "first_post_command_source_time_boot_ms": 62650,
+          "horizontal_error_m": 0.021296769867046098,
+          "measured_enu": {
+            "east_m": -4.012494087219238,
+            "north_m": -0.011131884530186653,
+            "up_m": 1.690000057220459
+          },
+          "session_id": "mavlink-9addb2fb319a463d8ecb9bb8c11a1649-0001",
+          "settled": true,
+          "settled_monotonic_ns": 423480376240,
+          "settling_duration_s": 1.500379633,
+          "target_id": "return-launch",
+          "transmit_monotonic_ns": 420983869924,
+          "transmit_source_time_boot_ms": 62550,
+          "transmitted_ned": {
+            "down_m": -1.6899999976158142,
+            "east_m": -3.994338274002075,
+            "north_m": 0.0,
+            "type_mask": 3576,
+            "yaw_rad": 0.0
+          },
+          "vertical_error_m": 5.960464477539063e-08
+        }
+      ],
+      "telemetry_fresh": true
+    },
+    "process_exit_statuses": {
+      "ardupilot_sitl": -15,
+      "gazebo": 0,
+      "gazebo_evaluator": 0,
+      "waypoint_mission": 0,
+      "waypoint_observer": 0
+    },
+    "schema_version": "echorescue-indoor-smoke/1.0",
+    "stack_mode": "owned",
+    "status": "PASS",
+    "world_version": "echorescue-indoor-v1"
+  },
+  "failure_reason": null,
+  "milestone": "v0.15.0",
+  "mode": "graphical",
+  "planning": {
+    "compacted_outbound_grid_path": [
+      [
+        8,
+        4
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        9,
+        14
+      ],
+      [
+        12,
+        14
+      ],
+      [
+        12,
+        20
+      ]
+    ],
+    "compacted_return_grid_path": [
+      [
+        12,
+        20
+      ],
+      [
+        12,
+        14
+      ],
+      [
+        9,
+        14
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        8,
+        4
+      ]
+    ],
+    "compaction": "axis_aligned_collinear_checked",
+    "connectivity": "cardinal_4",
+    "conservative_footprint_m": 0.55,
+    "corner_cutting": false,
+    "failure_reason": null,
+    "generated_enu_targets": [
+      {
+        "altitude_above_launch_m": 1.5,
+        "east_offset_m": 0.0,
+        "leg": "outbound",
+        "north_offset_m": 0.0,
+        "source_cell": [
+          8,
+          4
+        ],
+        "target_id": "launch-stabilize"
+      },
+      {
+        "altitude_above_launch_m": 1.5,
+        "east_offset_m": 0.0,
+        "leg": "outbound",
+        "north_offset_m": 0.5,
+        "source_cell": [
+          9,
+          4
+        ],
+        "target_id": "outbound-001"
+      },
+      {
+        "altitude_above_launch_m": 1.5,
+        "east_offset_m": 5.0,
+        "leg": "outbound",
+        "north_offset_m": 0.5,
+        "source_cell": [
+          9,
+          14
+        ],
+        "target_id": "outbound-002"
+      },
+      {
+        "altitude_above_launch_m": 1.5,
+        "east_offset_m": 5.0,
+        "leg": "outbound",
+        "north_offset_m": 2.0,
+        "source_cell": [
+          12,
+          14
+        ],
+        "target_id": "outbound-003"
+      },
+      {
+        "altitude_above_launch_m": 1.5,
+        "east_offset_m": 8.0,
+        "leg": "outbound",
+        "north_offset_m": 2.0,
+        "source_cell": [
+          12,
+          20
+        ],
+        "target_id": "outbound-goal"
+      },
+      {
+        "altitude_above_launch_m": 1.5,
+        "east_offset_m": 5.0,
+        "leg": "return",
+        "north_offset_m": 2.0,
+        "source_cell": [
+          12,
+          14
+        ],
+        "target_id": "return-001"
+      },
+      {
+        "altitude_above_launch_m": 1.5,
+        "east_offset_m": 5.0,
+        "leg": "return",
+        "north_offset_m": 0.5,
+        "source_cell": [
+          9,
+          14
+        ],
+        "target_id": "return-002"
+      },
+      {
+        "altitude_above_launch_m": 1.5,
+        "east_offset_m": 0.0,
+        "leg": "return",
+        "north_offset_m": 0.5,
+        "source_cell": [
+          9,
+          4
+        ],
+        "target_id": "return-003"
+      },
+      {
+        "altitude_above_launch_m": 1.5,
+        "east_offset_m": 0.0,
+        "leg": "return",
+        "north_offset_m": 0.0,
+        "source_cell": [
+          8,
+          4
+        ],
+        "target_id": "return-launch"
+      }
+    ],
+    "inflated_occupied_cell_count": 217,
+    "map_columns": 25,
+    "map_rows": 17,
+    "map_version": "echorescue-indoor-known-map-v1",
+    "milestone": "v0.15.0",
+    "observed_launch_local_enu": {
+      "east_m": -3.994338274002075,
+      "north_m": 0.0,
+      "up_m": 0.1899999976158142
+    },
+    "outbound_cost": 20,
+    "outbound_goal_cell": [
+      12,
+      20
+    ],
+    "planner": "echorescue.planning.astar",
+    "raw_outbound_grid_path": [
+      [
+        8,
+        4
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        9,
+        10
+      ],
+      [
+        9,
+        11
+      ],
+      [
+        9,
+        12
+      ],
+      [
+        9,
+        13
+      ],
+      [
+        9,
+        14
+      ],
+      [
+        10,
+        14
+      ],
+      [
+        11,
+        14
+      ],
+      [
+        12,
+        14
+      ],
+      [
+        12,
+        15
+      ],
+      [
+        12,
+        16
+      ],
+      [
+        12,
+        17
+      ],
+      [
+        12,
+        18
+      ],
+      [
+        12,
+        19
+      ],
+      [
+        12,
+        20
+      ]
+    ],
+    "raw_return_grid_path": [
+      [
+        12,
+        20
+      ],
+      [
+        12,
+        19
+      ],
+      [
+        12,
+        18
+      ],
+      [
+        12,
+        17
+      ],
+      [
+        12,
+        16
+      ],
+      [
+        12,
+        15
+      ],
+      [
+        12,
+        14
+      ],
+      [
+        11,
+        14
+      ],
+      [
+        10,
+        14
+      ],
+      [
+        9,
+        14
+      ],
+      [
+        9,
+        13
+      ],
+      [
+        9,
+        12
+      ],
+      [
+        9,
+        11
+      ],
+      [
+        9,
+        10
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        8,
+        4
+      ]
+    ],
+    "resolution_m_per_cell": 0.5,
+    "return_cost": 20,
+    "schema_version": "echorescue-known-map-plan/1.0",
+    "start_cell": [
+      8,
+      4
+    ],
+    "status": "PASS",
+    "transform": {
+      "column_axis": "east_positive",
+      "columns": 25,
+      "origin_east_m": -2.25,
+      "origin_north_m": -4.25,
+      "resolution_m": 0.5,
+      "row_axis": "north_positive",
+      "rows": 17
+    }
+  },
+  "schema_version": "echorescue-planner-flight-smoke/1.0",
+  "stack_mode": "owned",
+  "status": "PASS"
+}

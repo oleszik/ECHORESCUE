@@ -1,8 +1,10 @@
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
+from unittest.mock import MagicMock, patch
 
-from echorescue.indoor_integration import _checks, _mission_command, load_configured_stack
+from echorescue.indoor_integration import _checks, _mission_command, indoor_smoke, load_configured_stack
 from echorescue.sim_integration import Status
 
 
@@ -47,3 +49,39 @@ class IndoorIntegrationGateTests(unittest.TestCase):
         command = _mission_command(raw, Path("report.json"))
         self.assertEqual(command[1:3], ["-m", "echorescue_ros.mavlink_waypoint_mission"])
         self.assertTrue(any("targets_json:=" in item for item in command))
+
+    def test_gui_configuration_is_forwarded_to_owned_gazebo_command(self) -> None:
+        gui_config = CONFIG.parent / "portfolio-gui.config"
+        raw = {
+            "base_stack_config": "unused.json",
+            "runner": {"node_name": "mission", "observer_node_name": "observer"},
+            "logging": {"failure_log_max_bytes": 1024},
+            "dependencies": {},
+        }
+        supervisor = MagicMock()
+        supervisor.processes = []
+        supervisor.cleanup.return_value = []
+        supervisor.start.side_effect = RuntimeError("stop after capturing Gazebo command")
+        simulated_config = SimpleNamespace(world_sdf="unused.sdf", world_name="test", world_version="test")
+
+        with (
+            patch("echorescue.indoor_integration.load_configured_stack", return_value=(raw, simulated_config)),
+            patch("echorescue.indoor_integration.indoor_diagnose", return_value={"ready": True}),
+            patch("echorescue.indoor_integration.load_config", return_value={}),
+            patch("echorescue.indoor_integration.ProcessSupervisor", return_value=supervisor),
+            patch("echorescue.indoor_integration._ros_nodes_absent", return_value=True),
+            patch("echorescue.indoor_integration._cleanup_port_checks", return_value=[]),
+            patch("echorescue.indoor_integration._retain_failure_logs", return_value=[]),
+        ):
+            indoor_smoke(CONFIG, None, 1.0, True, "owned", gui_config)
+
+        gazebo_command = supervisor.start.call_args.args[1]
+        gui_option = gazebo_command.index("--gui-config")
+        self.assertEqual(gazebo_command[gui_option + 1], str(gui_config.resolve()))
+
+    def test_gui_configuration_requires_graphical_owned_stack(self) -> None:
+        gui_config = CONFIG.parent / "portfolio-gui.config"
+        with self.assertRaisesRegex(ValueError, "graphical mode"):
+            indoor_smoke(CONFIG, None, 1.0, False, "owned", gui_config)
+        with self.assertRaisesRegex(ValueError, "owned stack"):
+            indoor_smoke(CONFIG, None, 1.0, True, "attached", gui_config)

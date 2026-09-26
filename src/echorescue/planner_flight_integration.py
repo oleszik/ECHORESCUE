@@ -117,6 +117,7 @@ def _annotate_goal_evaluation(
 
 def planner_smoke(
     path: Path, output_path: Path | None, timeout_s: float, graphical: bool,
+    gui_config: Path | None = None,
 ) -> dict[str, Any]:
     config = load_config(path)
     plan = plan_known_map(config)
@@ -124,7 +125,7 @@ def planner_smoke(
     with tempfile.TemporaryDirectory(prefix="echorescue-v0150-") as temporary:
         generated_config = Path(temporary) / "generated-indoor-config.json"
         generated_config.write_text(json.dumps(_indoor_configuration(config, plan)), encoding="utf-8")
-        execution = indoor_smoke(generated_config, None, timeout_s, graphical, "owned")
+        execution = indoor_smoke(generated_config, output_path, timeout_s, graphical, "owned", gui_config)
     _annotate_goal_evaluation(
         plan, execution, float(config["planning"]["evaluation_goal_tolerance_m"]),
     )
@@ -182,18 +183,26 @@ def build_parser() -> argparse.ArgumentParser:
     smoke = sub.add_parser("smoke")
     smoke.add_argument("--timeout", type=float, default=260.0)
     smoke.add_argument("--graphical", action="store_true")
+    smoke.add_argument("--gui-config", type=Path)
     sub.add_parser("negative-blocked-goal")
     sub.add_parser("negative-clearance")
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
     if args.command == "diagnose":
         report = planner_diagnose(args.config)
         passed = report["ready"]
     elif args.command == "smoke":
-        report = planner_smoke(args.config, args.output, args.timeout, args.graphical)
+        if args.gui_config is not None:
+            args.gui_config = args.gui_config.expanduser()
+            if not args.graphical:
+                parser.error("--gui-config requires --graphical")
+            if not args.gui_config.is_file():
+                parser.error(f"Gazebo GUI configuration not found: {args.gui_config}")
+        report = planner_smoke(args.config, args.output, args.timeout, args.graphical, args.gui_config)
         passed = report["status"] == Status.PASS
     else:
         kind = "blocked-goal" if args.command == "negative-blocked-goal" else "unsafe-clearance"
