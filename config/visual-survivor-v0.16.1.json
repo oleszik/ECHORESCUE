@@ -1,0 +1,57 @@
+{
+  "schema_version": "echorescue-visual-survivor/1.0",
+  "milestone": "v0.16.1",
+  "mission_id": "visual-search-v0.16.1",
+  "base_exploration_config": "config/visual-frontier-exploration-v0.16.1.json",
+  "controller_prior": {
+    "survivor_count_available": false,
+    "survivor_positions_available": false,
+    "ground_truth_available": false
+  },
+  "camera": {
+    "gazebo_topic": "/echorescue/camera/image",
+    "ros_image_topic": "/echorescue/camera/image_raw",
+    "ros_camera_info_topic": "/echorescue/camera/camera_info",
+    "encoding": "rgb8",
+    "width": 320,
+    "height": 240,
+    "horizontal_fov_rad": 1.0471975512,
+    "vertical_fov_rad": 0.8172757102,
+    "fx": 277.1281292,
+    "fy": 277.1281292,
+    "cx": 160.0,
+    "cy": 120.0,
+    "frame": "echorescue_camera_optical",
+    "extrinsics_flu_m": [0.20, 0.0, 0.12],
+    "pitch_down_rad": 1.0471975512,
+    "estimation_plane_up_m": 0.0,
+    "maximum_image_age_s": 0.5,
+    "maximum_pose_age_s": 0.5,
+    "maximum_processing_rate_hz": 4.0,
+    "maximum_processing_latency_s": 0.2,
+    "dropout_timeout_s": 2.0
+  },
+  "detector": {
+    "hue_min": 35,
+    "hue_max": 85,
+    "saturation_min": 150,
+    "value_min": 100,
+    "minimum_area_px": 80,
+    "maximum_area_fraction": 0.25,
+    "minimum_aspect_ratio": 0.55,
+    "maximum_aspect_ratio": 1.8,
+    "minimum_fill_ratio": 0.55,
+    "morphology_kernel_px": 3,
+    "minimum_confidence": 0.60
+  },
+  "evidence": {
+    "minimum_observations": 2,
+    "minimum_confidence": 0.65,
+    "minimum_time_separation_ns": 300000000,
+    "minimum_viewpoint_separation_m": 0.20,
+    "clustering_radius_m": 1.00
+  },
+  "exploration_bounds_enu_m": [-6.25, 6.25, -4.25, 4.25],
+  "maximum_confirmation_attempts_per_candidate": 3,
+  "camera_dropout_policy": "fail_search_continue_safe_navigation"
+}

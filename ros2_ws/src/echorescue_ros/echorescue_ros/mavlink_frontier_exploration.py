@@ -58,6 +58,7 @@ class MavlinkFrontierExploration(MavlinkWaypointMission):
             observation_max_age_s=float(sensor["observation_max_age_s"]),
             pose_max_age_s=float(sensor["pose_max_age_s"]),
             pose_observation_max_skew_s=float(sensor["pose_observation_max_skew_s"]),
+            maximum_planar_tilt_rad=float(sensor["maximum_planar_tilt_rad"]),
             maximum_map_revisions=int(policy["maximum_map_revisions"]),
         ))
         self.frontier_policy = FrontierPolicy(
@@ -125,11 +126,12 @@ class MavlinkFrontierExploration(MavlinkWaypointMission):
         self._publish_exploration("mission_started", "waiting for telemetry and LiDAR")
 
     def _pose(self, message: EchoRescueVehicleState3D) -> None:
-        if not message.position_valid or not message.has_heading:
+        if not message.position_valid or not message.has_heading or not message.has_attitude:
             return
         self.map.observe_pose(PoseSample(
             message.session_id, int(message.source_time_boot_ms), monotonic_ns(),
             float(message.x_m), float(message.y_m), float(message.heading_deg),
+            float(message.roll_rad), float(message.pitch_rad),
         ))
 
     def _scan(self, message: RangeObstacleObservation) -> None:
@@ -191,8 +193,16 @@ class MavlinkFrontierExploration(MavlinkWaypointMission):
         return tuple(targets)
 
     def _command_horizon(self, path: tuple[Cell, ...]) -> tuple[Cell, ...]:
-        """Limit each generation to one metre, independent of map resolution."""
-        cell_steps = max(1, int(1.0 / self.map.policy.transform.resolution_m))
+        """Limit each generation to a bounded distance, independent of map resolution.
+
+        A shorter receding horizon means new occupancy inflation is detected
+        and replanned against sooner, before the vehicle can be commanded deep
+        into a corridor that a later scan reveals as unsafe. The distance is
+        configurable per mission profile. Legacy profiles retain the 1 m
+        behavior; newer profiles can opt into a shorter horizon.
+        """
+        horizon_m = float(self.raw["flight"].get("command_horizon_m", 1.0))
+        cell_steps = max(1, int(horizon_m / self.map.policy.transform.resolution_m))
         return path[:cell_steps + 1]
 
     def _route_budget_available(self) -> bool:
@@ -337,6 +347,33 @@ class MavlinkFrontierExploration(MavlinkWaypointMission):
         if self.replan_count >= int(self.raw["limits"]["maximum_replans_per_mission"]):
             self._fail("replan budget exhausted")
             return
+        if self.returning:
+            current = self._current_cell()
+            launch_cell = self.map.policy.transform.enu_to_cell((0.0, 0.0))
+            path = None if current is None else self.map.path(current, launch_cell)
+            if path is None or len(path) < 2:
+                self._fail("no safe return route in discovered map")
+                return
+            self.replan_count += 1
+            self.route_generation += 1
+            if not self._route_budget_available():
+                self._fail("route generation budget exhausted")
+                return
+            command_path = self._command_horizon(path)
+            targets = self._path_targets(command_path, "return")
+            self.controller.replace_remaining_targets(
+                targets, now_ns, "new occupancy invalidated conservative return",
+            )
+            self.active_route = command_path
+            self.route_history.append({
+                "route_generation": self.route_generation, "purpose": "return_replan",
+                "map_revision": self.map.map_revision, "path": [list(cell) for cell in path],
+                "commanded_horizon": [list(cell) for cell in command_path],
+                "target_ids": [target.target_id for target in targets],
+                "known_safe_only": True,
+            })
+            self._publish_exploration("route_invalidated", "conservative return replanned")
+            return
         if self.active_frontier_replans >= int(
             self.raw["limits"]["maximum_replans_per_target"]
         ):
@@ -354,6 +391,65 @@ class MavlinkFrontierExploration(MavlinkWaypointMission):
             )
             if not alternatives:
                 assert current is not None
+                if not self.map.safe_free(current):
+                    # The current cell itself is not known-safe (for example,
+                    # new occupancy inflation has just swept over it). Neither
+                    # a hold nor a return commitment may be issued from here;
+                    # defer to the existing failure/recovery policy instead of
+                    # commanding a target that would violate the known-safe
+                    # route contract.
+                    self._fail("no safe current cell to hold during frontier replan")
+                    return
+                launch_cell = self.map.policy.transform.enu_to_cell((0.0, 0.0))
+                return_path = self.map.path(current, launch_cell)
+                if return_path is not None:
+                    # A known-safe route home already exists: abort exploration
+                    # and commit to that return rather than holding indefinitely
+                    # on a cell that will never yield a new reachable frontier.
+                    self.replan_count += 1
+                    self.route_generation += 1
+                    if not self._route_budget_available():
+                        self._fail("route generation budget exhausted")
+                        return
+                    self.active_frontier = None
+                    self.returning = True
+                    self.completion_reason = (
+                        self.completion_reason
+                        or "active frontier became unreachable; returning on known-safe route"
+                    )
+                    if len(return_path) == 1:
+                        self.active_route = return_path
+                        self.controller.complete_dynamic_mission(now_ns, self.completion_reason)
+                        self.state = ExplorationState.LANDING
+                        self._publish_exploration(
+                            "land_requested",
+                            "already at launch cell; landing after frontier abort",
+                        )
+                        return
+                    command_path = self._command_horizon(return_path)
+                    targets = self._path_targets(command_path, "return")
+                    if not targets:
+                        self._fail("active frontier became unreachable")
+                        return
+                    self.controller.replace_remaining_targets(
+                        targets, now_ns,
+                        "active frontier unreachable; committing to known-safe return",
+                    )
+                    self.active_route = command_path
+                    self.route_history.append({
+                        "route_generation": self.route_generation, "purpose": "return",
+                        "map_revision": self.map.map_revision,
+                        "path": [list(cell) for cell in return_path],
+                        "commanded_horizon": [list(cell) for cell in command_path],
+                        "target_ids": [target.target_id for target in targets],
+                        "known_safe_only": True,
+                    })
+                    self.state = ExplorationState.RETURNING
+                    self._publish_exploration(
+                        "returning",
+                        "active frontier unreachable; known-safe return commanded",
+                    )
+                    return
                 self.replan_count += 1
                 self.active_frontier_replans += 1
                 self.route_generation += 1
@@ -535,6 +631,8 @@ class MavlinkFrontierExploration(MavlinkWaypointMission):
             "controller_prior_interior_geometry": False,
             "map_transform": asdict(self.map.policy.transform),
             "map_revisions": compact_revisions, "map_counts": self.map.counts(),
+            "occupied_cells": [list(cell) for cell in sorted(self.map.occupied)],
+            "inflated_cells": [list(cell) for cell in sorted(self.map.inflated)],
             "accepted_scan_count": self.map.accepted_scans,
             "rejected_scan_count": self.map.rejected_scans,
             "accepted_beam_count": self.map.accepted_beams,

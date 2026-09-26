@@ -1,0 +1,18 @@
+{
+  "schema_version": "echorescue-visual-survivor-ground-truth/1.0",
+  "milestone": "v0.16.1",
+  "evaluator_only": true,
+  "world": {
+    "revision": "echorescue_visual_survivors_v0_16_1",
+    "sdf_path": "worlds/echorescue_visual_survivors_v0_16_1.sdf"
+  },
+  "survivors": [
+    {"truth_id": "truth-alpha", "marker_enu_m": [-2.30, 0.8, 0.025], "partially_occluded": false},
+    {"truth_id": "truth-bravo", "marker_enu_m": [-1.10, -0.37, 0.025], "partially_occluded": true},
+    {"truth_id": "truth-charlie", "marker_enu_m": [0.30, 0.12, 0.025], "partially_occluded": false}
+  ],
+  "distractors": [
+    {"truth_id": "distractor-green-strip", "enu_m": [2.0, -2.6, 0.025]}
+  ],
+  "matching_tolerance_m": 1.0
+}

@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from echorescue.sim_integration import Check, Status, UnexpectedProcessExit, load_config
 from echorescue.telemetry_integration import (
+    _ros_graph_ready,
     _observer_checks,
     _timestamp_domains_progress,
     _wait_for_exit,
@@ -82,6 +83,20 @@ class ObserverReportTests(unittest.TestCase):
             report["converted_source_time_boot_ms_last"],
         )
         self.assertFalse(_timestamp_domains_progress(report))
+
+    def test_ros_graph_readiness_bypasses_cached_cli_daemon(self) -> None:
+        with patch(
+            "echorescue.telemetry_integration._run_version",
+            side_effect=[
+                (0, "/mission_node\n"),
+                (0, "/mission/state [example_interfaces/msg/String]\n"),
+            ],
+        ) as run:
+            self.assertTrue(_ros_graph_ready(
+                "/mission_node", {"/mission/state": "example_interfaces/msg/String"},
+            ))
+        self.assertEqual(run.call_args_list[0].args[0][-1], "--no-daemon")
+        self.assertEqual(run.call_args_list[1].args[0][-1], "--no-daemon")
 
     def test_timestamp_gate_rejects_missing_or_aliased_clock_domains(self) -> None:
         report = {

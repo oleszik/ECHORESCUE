@@ -57,6 +57,7 @@ class MappingPolicy:
     observation_max_age_s: float = 0.5
     pose_max_age_s: float = 0.5
     pose_observation_max_skew_s: float = 0.2
+    maximum_planar_tilt_rad: float = 0.12
     maximum_map_revisions: int = 500
 
     def __post_init__(self) -> None:
@@ -64,6 +65,7 @@ class MappingPolicy:
             self.footprint_m, self.range_min_m, self.range_max_m,
             self.horizontal_field_of_view_rad, self.observation_max_age_s,
             self.pose_max_age_s, self.pose_observation_max_skew_s,
+            self.maximum_planar_tilt_rad,
         )
         if not all(isfinite(value) and value > 0 for value in values):
             raise ValueError("mapping distances and freshness limits must be positive")
@@ -130,7 +132,10 @@ class FrontierOccupancyMap:
         return self._states[self._index(cell)]
 
     def observe_pose(self, pose: PoseSample) -> bool:
-        if not all(isfinite(value) for value in (pose.east_m, pose.north_m, pose.heading_enu_deg)):
+        if not all(isfinite(value) for value in (
+            pose.east_m, pose.north_m, pose.heading_enu_deg,
+            pose.roll_rad, pose.pitch_rad,
+        )):
             self.rejections.append({"kind": "pose", "reason": "non-finite vehicle pose"})
             return False
         if self.pose and pose.session_id == self.pose.session_id and (
@@ -181,6 +186,7 @@ class FrontierOccupancyMap:
             (now_ns < observation.receipt_monotonic_ns or (now_ns - observation.receipt_monotonic_ns) / 1e9 > self.policy.observation_max_age_s, "stale or future observation"),
             (pose is not None and (now_ns < pose.receipt_monotonic_ns or (now_ns - pose.receipt_monotonic_ns) / 1e9 > self.policy.pose_max_age_s), "stale or future associated pose"),
             (pose is not None and abs(observation.receipt_monotonic_ns - pose.receipt_monotonic_ns) / 1e9 > self.policy.pose_observation_max_skew_s, "pose/observation skew exceeded"),
+            (pose is not None and max(abs(pose.roll_rad), abs(pose.pitch_rad)) > self.policy.maximum_planar_tilt_rad, "vehicle tilt exceeds planar mapping limit"),
             (observation.sensor_frame != self.policy.sensor_frame, "unexpected sensor frame"),
             (not observation.ranges_m, "empty scan"),
             (not all(isfinite(value) for value in (observation.angle_min_rad, observation.angle_increment_rad, observation.range_min_m, observation.range_max_m)), "non-finite scan metadata"),

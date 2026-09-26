@@ -35,6 +35,8 @@ class PoseSample:
     east_m: float
     north_m: float
     heading_enu_deg: float
+    roll_rad: float = 0.0
+    pitch_rad: float = 0.0
 
 
 @dataclass(frozen=True, slots=True)

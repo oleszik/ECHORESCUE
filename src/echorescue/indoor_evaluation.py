@@ -233,7 +233,7 @@ def segment_box_distance(start: Vector3, end: Vector3, box: AxisAlignedBox) -> f
 
 
 def validate_indoor_config(config: IndoorReferenceConfig) -> None:
-    if config.schema_version != "echorescue-indoor-reference-stack/1.0" or config.milestone not in {"v0.14.5", "v0.15.1", "v0.15.2", "v0.16.0"}:
+    if config.schema_version != "echorescue-indoor-reference-stack/1.0" or config.milestone not in {"v0.14.5", "v0.15.1", "v0.15.2", "v0.16.0", "v0.16.1"}:
         raise ValueError("indoor configuration must declare a supported evaluation schema")
     names = [entity.name for entity in config.entities]
     topics = [entity.contact_topic for entity in config.entities]
@@ -350,7 +350,7 @@ class IndoorRunEvaluator:
         self.contact_topics_available = set(topics) & set(self.config.contact_topics)
 
     def _floor_contact_allowed(self, position: Vector3) -> bool:
-        if self.config.milestone == "v0.16.0":
+        if self.config.milestone in {"v0.16.0", "v0.16.1"}:
             # Exploration recovery may intentionally LAND away from launch.
             # Mission telemetry independently proves LAND/ON_GROUND/disarm;
             # the evaluator must not classify that expected floor contact as a

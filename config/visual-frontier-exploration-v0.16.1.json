@@ -1,7 +1,7 @@
 {
   "schema_version": "echorescue-frontier-exploration/1.0",
-  "milestone": "v0.16.0",
-  "base_indoor_config": "config/frontier-indoor-v0.16.0.json",
+  "milestone": "v0.16.1",
+  "base_indoor_config": "config/visual-survivor-indoor-v0.16.1.json",
   "controller_prior": {
     "interior_geometry": false,
     "interior_occupancy": [],
@@ -57,6 +57,7 @@
   },
   "flight": {
     "takeoff_altitude_m": 1.5,
+    "command_horizon_m": 0.5,
     "horizontal_tolerance_m": 0.35,
     "vertical_tolerance_m": 0.25,
     "settling_time_s": 1.0,
@@ -67,7 +68,7 @@
     "geofence_horizontal_radius_m": 10.0,
     "geofence_min_altitude_m": -0.25,
     "geofence_max_altitude_m": 3.5,
-    "preflight_hold_s": 30.0,
+    "preflight_hold_s": 40.0,
     "initialization_timeout_s": 50.0,
     "transition_timeout_s": 15.0,
     "takeoff_timeout_s": 35.0,

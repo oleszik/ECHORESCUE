@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="iris_with_visual_sensor">
+    <include>
+      <uri>model://iris_with_gimbal</uri>
+      <name>vehicle</name>
+    </include>
+    <link name="range_link">
+      <pose relative_to="vehicle::iris_with_standoffs::base_link">0.18 0 0.10 0 0 0</pose>
+      <inertial><mass>0.01</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia></inertial>
+      <sensor name="obstacle_lidar" type="gpu_lidar">
+        <topic>/echorescue/sensors/obstacle_scan</topic>
+        <update_rate>10</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <lidar>
+          <visibility_mask>1</visibility_mask>
+          <scan><horizontal><samples>72</samples><resolution>1</resolution><min_angle>-3.141592653589793</min_angle><max_angle>3.141592653589793</max_angle></horizontal></scan>
+          <range><min>0.25</min><max>4.0</max><resolution>0.01</resolution></range>
+        </lidar>
+      </sensor>
+    </link>
+    <joint name="range_mount" type="fixed">
+      <parent>vehicle::iris_with_standoffs::base_link</parent>
+      <child>range_link</child>
+    </joint>
+    <link name="camera_link">
+      <pose relative_to="vehicle::iris_with_standoffs::base_link">0.20 0 0.12 0 1.0471975512 0</pose>
+      <inertial><mass>0.01</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia></inertial>
+      <sensor name="survivor_camera" type="camera">
+        <topic>/echorescue/camera/image</topic>
+        <update_rate>8</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <camera>
+          <horizontal_fov>1.0471975512</horizontal_fov>
+          <image><width>320</width><height>240</height><format>R8G8B8</format></image>
+          <clip><near>0.10</near><far>12.0</far></clip>
+        </camera>
+      </sensor>
+    </link>
+    <joint name="camera_mount" type="fixed">
+      <parent>vehicle::iris_with_standoffs::base_link</parent>
+      <child>camera_link</child>
+    </joint>
+  </model>
+</sdf>

@@ -107,8 +107,8 @@ def telemetry_diagnose(
 
 
 def _ros_graph_ready(node_name: str, topics: Mapping[str, str]) -> bool:
-    node_code, nodes = _run_version(["ros2", "node", "list"])
-    topic_code, topic_output = _run_version(["ros2", "topic", "list", "-t"])
+    node_code, nodes = _run_version(["ros2", "node", "list", "--no-daemon"])
+    topic_code, topic_output = _run_version(["ros2", "topic", "list", "-t", "--no-daemon"])
     if node_code != 0 or topic_code != 0 or node_name not in nodes.splitlines():
         return False
     lines = set(topic_output.splitlines())

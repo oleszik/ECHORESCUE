@@ -132,6 +132,14 @@ class FrontierExplorationTests(unittest.TestCase):
         self.assertFalse(self.process(self.scan((1.0,)), now=3_000_000_000))
         self.assertEqual(self.value.map_revision, 0)
 
+    def test_tilted_vehicle_scan_cannot_create_planar_obstacles(self) -> None:
+        self.assertTrue(self.value.observe_pose(PoseSample(
+            "s1", 101, 1_000_000_010, 10, 20, 0, 0.0, 0.13,
+        )))
+        self.assertFalse(self.process(self.scan((1.0,), receipt=1_000_000_011)))
+        self.assertEqual(self.value.map_revision, 0)
+        self.assertEqual(self.value.rejections[-1]["reason"], "vehicle tilt exceeds planar mapping limit")
+
     def test_new_session_resets_scan_order_but_old_session_scan_is_rejected(self) -> None:
         self.process(self.scan((1.0,), sequence=8))
         self.value.observe_pose(PoseSample("s2", 1, 2_000_000_000, 10, 20, 0))

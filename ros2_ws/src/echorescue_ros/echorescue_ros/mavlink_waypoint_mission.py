@@ -145,6 +145,10 @@ class MavlinkWaypointMission(MavlinkTelemetryBridge):
                 sample.system_id, sample.component_id,
                 self._mavutil.mavlink.MAV_DATA_STREAM_EXTENDED_STATUS, 2, 1,
             )
+            self._connection.mav.request_data_stream_send(
+                sample.system_id, sample.component_id,
+                self._mavutil.mavlink.MAV_DATA_STREAM_EXTRA1, 10, 1,
+            )
             self._extended_stream_session = sample.session_id
 
     def _on_local_position(self, sample: LocalPositionNedTelemetry) -> None:

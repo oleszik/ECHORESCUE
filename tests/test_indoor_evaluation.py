@@ -1,4 +1,5 @@
 import copy
+from dataclasses import replace
 import json
 from pathlib import Path
 import tempfile
@@ -109,6 +110,11 @@ class IndoorEvaluationTests(unittest.TestCase):
         evaluator = IndoorRunEvaluator(self.config)
         evaluator.observe_contacts("floor", [("iris", "floor")], 1.0, (2.0, 0.0, 0.2))
         self.assertTrue(evaluator.collision_detected)
+
+    def test_v0161_bounded_recovery_floor_contact_is_allowed(self) -> None:
+        evaluator = IndoorRunEvaluator(replace(self.config, milestone="v0.16.1"))
+        evaluator.observe_contacts("floor", [("iris", "floor")], 1.0, (2.0, 0.0, 0.2))
+        self.assertFalse(evaluator.collision_detected)
 
     def test_missing_contact_topic_coverage_fails(self) -> None:
         evaluator = IndoorRunEvaluator(self.config)

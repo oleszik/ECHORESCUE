@@ -1,0 +1,47 @@
+{
+  "checks": [
+    {
+      "detail": "received 3 MAVLink position samples; advancing=True",
+      "name": "health.ardupilot_sitl",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "real Gazebo process exposes the configured Iris world",
+      "name": "health.gazebo",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "Gazebo world is live and SITL emits advancing telemetry",
+      "name": "health.gazebo_sitl_exchange",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "official direct JSON plugin does not require a ROS runtime; ROS readiness is covered by diagnostics",
+      "name": "health.ros2",
+      "status": "SKIP",
+      "version": null
+    }
+  ],
+  "cleanup": [
+    {
+      "detail": "pid 38019 stopped",
+      "name": "cleanup.ardupilot_sitl",
+      "status": "PASS",
+      "version": null
+    },
+    {
+      "detail": "pid 38003 stopped",
+      "name": "cleanup.gazebo",
+      "status": "PASS",
+      "version": null
+    }
+  ],
+  "detail": "real external stack verified",
+  "logs": [],
+  "milestone": "v0.14.0",
+  "schema_version": "echorescue-simulator-smoke/1.0",
+  "status": "PASS"
+}

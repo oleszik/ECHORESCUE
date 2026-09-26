@@ -1,0 +1,15 @@
+std_msgs/Header header
+string schema_version
+string mission_id
+string session_id
+string observation_id
+string cluster_id
+uint32 supporting_observation_count
+float64 accumulated_confidence
+string confirmation_state
+uint64 first_seen_ns
+uint64 last_seen_ns
+float64 east_m
+float64 north_m
+float64 uncertainty_radius_m
+string reason

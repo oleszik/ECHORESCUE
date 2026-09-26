@@ -30,3 +30,4 @@ rather than silently rewriting its decision.
 | [0022](0022-sensor-map-planner-trust-boundary.md) | Accepted | Fresh same-session range observations update an owned map for bounded deterministic replanning |
 | [0023](0023-bounded-repeated-replanning.md) | Accepted | Monotone map revisions, route generations and anti-oscillation budgets for repeated replanning |
 | [0024](0024-autonomous-frontier-exploration.md) | Accepted | LiDAR-owned unknown-space mapping, safe frontier selection and autonomous map-derived return |
+| [0025](0025-rendered-camera-survivor-evidence.md) | Accepted | Rendered-camera controlled marker evidence with same-session multi-observation confirmation |

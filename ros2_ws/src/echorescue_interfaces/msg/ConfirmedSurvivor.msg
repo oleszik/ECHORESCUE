@@ -1,0 +1,13 @@
+std_msgs/Header header
+string schema_version
+string mission_id
+string session_id
+string survivor_id
+uint32 supporting_observation_count
+uint64 first_seen_ns
+uint64 confirmed_ns
+float64 east_m
+float64 north_m
+float64 up_m
+float64 uncertainty_radius_m
+float64 confidence

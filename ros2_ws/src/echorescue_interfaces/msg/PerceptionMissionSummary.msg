@@ -1,0 +1,14 @@
+std_msgs/Header header
+string schema_version
+string mission_id
+string session_id
+string outcome
+bool survivor_prior_unavailable
+uint64 received_frame_count
+uint64 accepted_frame_count
+uint64 dropped_frame_count
+uint64 rejected_frame_count
+uint64 candidate_count
+uint64 confirmed_survivor_count
+string[] survivor_ids
+string[] rejection_reasons

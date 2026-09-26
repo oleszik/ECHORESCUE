@@ -1,0 +1,14 @@
+std_msgs/Header header
+string schema_version
+string mission_id
+string session_id
+bool ready
+bool camera_fresh
+uint64 received_frame_count
+uint64 accepted_frame_count
+uint64 dropped_frame_count
+uint64 rejected_frame_count
+uint64 candidate_count
+uint64 confirmed_survivor_count
+string state
+string reason
