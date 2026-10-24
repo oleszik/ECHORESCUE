@@ -63,7 +63,7 @@ def audit_report(report: Mapping[str, Any], expected_case: str | None = None) ->
             if entry.get("status") != "PASS":
                 errors.append(f"{section} check {name} is not PASS")
         if section == "checks" and case in CASES:
-            for name in sorted(REQUIRED_CHECKS | {f"visual_search.{case}"} - seen):
+            for name in sorted((REQUIRED_CHECKS | {f"visual_search.{case}"}) - seen):
                 errors.append(f"missing acceptance check {name}")
         if section == "cleanup":
             if "cleanup.ros_nodes" not in seen:
