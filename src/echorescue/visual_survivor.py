@@ -11,7 +11,7 @@ from dataclasses import asdict, dataclass, field
 from math import atan2, cos, hypot, isfinite, sin, sqrt
 from typing import Iterable
 
-import cv2  # type: ignore[import-not-found]
+import cv2
 import numpy as np
 
 
