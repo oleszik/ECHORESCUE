@@ -11,7 +11,7 @@ from dataclasses import asdict, dataclass, field
 from math import atan2, cos, hypot, isfinite, sin, sqrt
 from typing import Iterable
 
-import cv2  # type: ignore[import-not-found]
+import cv2
 import numpy as np
 
 
@@ -150,7 +150,7 @@ class MarkerDetector:
                 continue
             pixels = hsv[y:y + box_height, x:x + box_width]
             selected = mask[y:y + box_height, x:x + box_width] > 0
-            color_score = float(np.mean(pixels[:, :, 1][selected]) / 255.0)
+            color_score = float(pixels[:, :, 1][selected].mean() / 255.0)
             aspect_score = max(0.0, 1.0 - abs(1.0 - aspect) / max(1.0, self.policy.maximum_aspect_ratio - 1.0))
             confidence = min(1.0, 0.40 * fill + 0.35 * color_score + 0.25 * aspect_score)
             if confidence < self.policy.minimum_confidence:
