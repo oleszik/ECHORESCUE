@@ -1,4 +1,8 @@
-# EchoRescue
+<div align="center">
+
+# ECHORESCUE
+
+**Autonomous search-and-rescue robotics · Simulation and engineering research**
 
 [![CI](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml/badge.svg)](https://github.com/oleszik/ECHORESCUE/actions/workflows/tests.yml)
 [![Python 3.10–3.13](https://img.shields.io/badge/python-3.10--3.13-blue.svg)](pyproject.toml)
@@ -6,19 +10,45 @@
 [![Gazebo Harmonic](https://img.shields.io/badge/Gazebo-Harmonic-f97316.svg)](docs/v0.14-3d-integration-baseline.md)
 [![License: proprietary](https://img.shields.io/badge/license-proprietary-blue.svg)](LICENSE)
 
-EchoRescue is a deterministic search-and-rescue simulation platform. It combines
-grid exploration and coordination experiments with a simulation-only flight
-stack built from ROS 2, ArduPilot SITL and Gazebo. The latest accepted
-development milestone is v0.16.1: rendered-camera survivor evidence layered on
-v0.16.0 autonomous frontier exploration. The featured portfolio flight below
-is a separate, previously accepted v0.15.0 known-map route demonstration.
+[![ArduPilot SITL](https://img.shields.io/badge/ArduPilot-SITL-3b82f6)](docs/v0.14-3d-integration-baseline.md)
+[![Milestone](https://img.shields.io/badge/milestone-v0.16.1-0891b2)](docs/v0.16.1-visual-survivor-detection.md)
 
-![EchoRescue Iris flying through the doorway in the v0.15.0 Gazebo mission](docs/assets/v0.15.0-gazebo-doorway.png)
+[Live mission replay](https://oleszik.github.io/ECHORESCUE/) · [Gazebo flight demo](docs/portfolio-gazebo-demo.md) · [Architecture](#current-system-architecture) · [Quick start](#quick-start) · [Evidence](#verified-results)
 
-> Simulation only. EchoRescue is research and engineering software, not evidence
-> of real-aircraft safety.
+<img src="docs/assets/v0.15.0-gazebo-doorway.png" alt="EchoRescue Iris quadrotor crossing a doorway in Gazebo" width="900">
 
-## What already works?
+*Accepted v0.15.0 portfolio flight — single-vehicle, known-map indoor navigation in Gazebo.*
+
+</div>
+
+## Mission
+
+EchoRescue investigates how autonomous aerial robots can explore indoor environments, navigate safely and collect survivor evidence for civilian search-and-rescue missions. It connects deterministic autonomy experiments to a closed-loop simulated flight stack using ROS 2, ArduPilot SITL and Gazebo Harmonic.
+
+| Explore | Navigate | Observe |
+| :--- | :--- | :--- |
+| LiDAR occupancy mapping and frontier selection | Bounded A* planning, waypoint execution and safe return | Rendered-camera survivor evidence with pose association |
+
+### Two complementary research environments
+
+| Deterministic mission simulator | Integrated 3D flight simulation |
+| :--- | :--- |
+| Multi-agent coordination, shared mapping, energy management and mission replay | Single-vehicle ROS 2 / ArduPilot SITL / Gazebo flight, mapping and perception |
+| [Launch browser replay](https://oleszik.github.io/ECHORESCUE/) | [Reproduce the portfolio flight](docs/portfolio-gazebo-demo.md) |
+
+### Engineering evidence at a glance
+
+| Milestone | Accepted result |
+| :--- | :--- |
+| v0.15.0 — indoor flight | Nine planner-generated targets; outbound and return doorway crossings; required clearance and no prohibited contact in accepted runs |
+| v0.16.0 — exploration | LiDAR mapping, bounded frontier exploration and safe return |
+| v0.16.1 — perception | Controlled rendered-camera survivor evidence, including distractor, occlusion and dropout evaluation |
+
+[Inspect machine-readable acceptance reports](#verified-results)
+
+> **Scope:** Simulation only. The latest accepted development milestone is v0.16.1; the featured graphical flight is the separate v0.15.0 known-map demonstration. Neither constitutes real-aircraft safety validation or generalized human-detection evidence.
+
+## Engineering capabilities
 
 - Deterministic single- and multi-agent grid missions with versioned replays.
 - A* planning, occupancy maps, frontier allocation and energy-safe return.
@@ -40,17 +70,19 @@ is a separate, previously accepted v0.15.0 known-map route demonstration.
 
 ## Current system architecture
 
-```text
-v0.16.0: validated LiDAR + typed vehicle pose ──► local occupancy map
-                                                  └─► safe frontier selection
-                                                       └─► bounded route planning
-                                                            └─► flight controller
-
-v0.16.1: configured camera RGB + CameraInfo + fresh typed pose
-         └─► temporal visual candidates ──► survivor evidence observer
-
-Gazebo world state ──► independent evaluator ──► JSON evidence
-                       (never production control/perception input)
+ ```mermaid
+flowchart TD
+    L["Validated LiDAR"] --> M["Local occupancy map"]
+    P["Typed vehicle pose"] --> M
+    M --> F["Safe frontier selection"]
+    F --> R["Bounded route planning"]
+    R --> C["Flight controller"]
+    I["Camera RGB + CameraInfo"] --> V["Temporal visual candidates"]
+    P --> V
+    V --> S["Survivor evidence observer"]
+    G["Gazebo world state"] --> E["Independent evaluator"]
+    E --> J["JSON acceptance evidence"]
+    style E stroke-dasharray: 5 5
 ```
 
 The flight controller uses only configuration, planner output and independently
